@@ -41,6 +41,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
 import sys
+from pathlib import Path
 import stat
 
 # If we are running from the pyfuse3 source directory, try
@@ -89,7 +90,7 @@ class Operations(pyfuse3.Operations):
             val = next(iter(val))
         return val
 
-    def getAllPages(path):
+    def getAllPages():
         S = requests.Session()
         URL = "http://localhost/mediawiki/api.php"
 
@@ -104,11 +105,32 @@ class Operations(pyfuse3.Operations):
         DATA = R.json()
 
         PAGES = DATA["query"]["allpages"]
-        mode = stat.S_IRUSR
-        print(path)
+        filepath = os.getcwd() + "/srcTest/"
         for page in PAGES:
             print(page["title"])
-            os.mknod(path + page["title"], mode)
+            filename = filepath + page["title"]
+            # os.mknod(filename.replace(" ", ""), mode)
+            Path(filename.replace(" ", "")).touch()
+            print(filename.replace(" ", ""))
+
+        for page in PAGES:
+            PARAMS = {
+                "action": "query",
+                "format": "json",
+                "titles": page["title"],
+                "prop": "extracts",
+                "exintro": True,
+                "explaintext": True
+            }
+
+            R = S.get(url=URL, params=PARAMS)
+            DATA = R.json()
+            pageInt = list(DATA["query"]["pages"].keys())[0]
+            plainText = DATA["query"]["pages"][str(pageInt)]["extract"]
+            filename = filepath + page["title"]
+            f = open(filename.replace(" ", ""), "w")
+            f.write(plainText)
+            f.close()
 
 
     def _add_path(self, inode, path):
@@ -459,20 +481,18 @@ class Operations(pyfuse3.Operations):
         CSRF_TOKEN = DATA['query']['tokens']['csrftoken']
 
         # Step 4: POST request to edit a page
-        PARAMS_3 = {
-            "action": "edit",
-            "title": name,
-            "token": CSRF_TOKEN,
-            "format": "json",
-            "text": ""
-        }
+        if ".goutputstream" not in str(name):
+            PARAMS_3 = {
+                "action": "edit",
+                "title": name,
+                "token": CSRF_TOKEN,
+                "format": "json",
+                "text": ""
+            }
+            R = S.post(URL, data=PARAMS_3)
+            DATA = R.json()
+            print(DATA)
 
-        print(name)
-
-        R = S.post(URL, data=PARAMS_3)
-        DATA = R.json()
-
-        print(DATA)
         try:
             fd = os.open(path, flags | os.O_CREAT | os.O_TRUNC)
         except OSError as exc:
@@ -498,61 +518,61 @@ class Operations(pyfuse3.Operations):
         return os.write(fd, buf)
 
     async def release(self, fd):
-        S = requests.Session()
+        # S = requests.Session()
 
-        URL = "http://localhost/mediawiki/api.php"
+        # URL = "http://localhost/mediawiki/api.php"
 
-        # Step 1: GET request to fetch login token
-        PARAMS_0 = {
-            "action": "query",
-            "meta": "tokens",
-            "type": "login",
-            "format": "json"
-        }
+        # # Step 1: GET request to fetch login token
+        # PARAMS_0 = {
+        #     "action": "query",
+        #     "meta": "tokens",
+        #     "type": "login",
+        #     "format": "json"
+        # }
 
-        R = S.get(url=URL, params=PARAMS_0)
-        DATA = R.json()
+        # R = S.get(url=URL, params=PARAMS_0)
+        # DATA = R.json()
 
-        LOGIN_TOKEN = DATA['query']['tokens']['logintoken']
+        # LOGIN_TOKEN = DATA['query']['tokens']['logintoken']
 
-        # Step 2: POST request to log in. Use of main account for login is not
-        # supported. Obtain credentials via Special:BotPasswords
-        # (https://www.mediawiki.org/wiki/Special:BotPasswords) for lgname & lgpassword
-        PARAMS_1 = {
-            "action": "login",
-            "lgname": "new_mysql_user",
-            "lgpassword": "THISpasswordSHOULDbeCHANGED",
-            "lgtoken": LOGIN_TOKEN,
-            "format": "json"
-        }
+        # # Step 2: POST request to log in. Use of main account for login is not
+        # # supported. Obtain credentials via Special:BotPasswords
+        # # (https://www.mediawiki.org/wiki/Special:BotPasswords) for lgname & lgpassword
+        # PARAMS_1 = {
+        #     "action": "login",
+        #     "lgname": "new_mysql_user",
+        #     "lgpassword": "THISpasswordSHOULDbeCHANGED",
+        #     "lgtoken": LOGIN_TOKEN,
+        #     "format": "json"
+        # }
 
-        R = S.post(URL, data=PARAMS_1)
+        # R = S.post(URL, data=PARAMS_1)
 
-        # Step 3: GET request to fetch CSRF token
-        PARAMS_2 = {
-            "action": "query",
-            "meta": "tokens",
-            "format": "json"
-        }
+        # # Step 3: GET request to fetch CSRF token
+        # PARAMS_2 = {
+        #     "action": "query",
+        #     "meta": "tokens",
+        #     "format": "json"
+        # }
 
-        R = S.get(url=URL, params=PARAMS_2)
-        DATA = R.json()
+        # R = S.get(url=URL, params=PARAMS_2)
+        # DATA = R.json()
 
-        CSRF_TOKEN = DATA['query']['tokens']['csrftoken']
+        # CSRF_TOKEN = DATA['query']['tokens']['csrftoken']
 
-        # Step 4: POST request to edit a page
-        PARAMS_3 = {
-            "action": "edit",
-            "title": "FuseTest",
-            "token": CSRF_TOKEN,
-            "format": "json",
-            "text": ""
-        }
+        # # Step 4: POST request to edit a page
+        # PARAMS_3 = {
+        #     "action": "edit",
+        #     "title": "FuseTest",
+        #     "token": CSRF_TOKEN,
+        #     "format": "json",
+        #     "text": ""
+        # }
 
-        R = S.post(URL, data=PARAMS_3)
-        DATA = R.json()
-        print(fd)
-        print(DATA)
+        # R = S.post(URL, data=PARAMS_3)
+        # DATA = R.json()
+        # print(fd)
+        # print(DATA)
 
         if self._fd_open_count[fd] > 1:
             self._fd_open_count[fd] -= 1
@@ -560,6 +580,7 @@ class Operations(pyfuse3.Operations):
 
         del self._fd_open_count[fd]
         inode = self._fd_inode_map[fd]
+        # print(inode)
         del self._inode_fd_map[inode]
         del self._fd_inode_map[fd]
         try:
@@ -599,6 +620,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 def main():
+    Operations.getAllPages()
     options = parse_args(sys.argv[1:])
     init_logging(options.debug)
     operations = Operations(options.source)
@@ -609,7 +631,7 @@ def main():
     if options.debug_fuse:
         fuse_options.add('debug')
     pyfuse3.init(operations, options.mountpoint, fuse_options)
-    Operations.getAllPages(options.mountpoint)
+
     try:
         log.debug('Entering main loop..')
         trio.run(pyfuse3.main)
