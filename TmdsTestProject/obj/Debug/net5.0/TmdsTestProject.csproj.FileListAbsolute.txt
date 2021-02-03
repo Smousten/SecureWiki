@@ -1,0 +1,16 @@
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/bin/Debug/net5.0/TmdsTestProject
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/bin/Debug/net5.0/TmdsTestProject.deps.json
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/bin/Debug/net5.0/TmdsTestProject.runtimeconfig.json
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/bin/Debug/net5.0/TmdsTestProject.runtimeconfig.dev.json
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/bin/Debug/net5.0/TmdsTestProject.dll
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/bin/Debug/net5.0/ref/TmdsTestProject.dll
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/bin/Debug/net5.0/TmdsTestProject.pdb
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/net5.0/TmdsTestProject.csprojAssemblyReference.cache
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/net5.0/TmdsTestProject.GeneratedMSBuildEditorConfig.editorconfig
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/net5.0/TmdsTestProject.AssemblyInfoInputs.cache
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/net5.0/TmdsTestProject.AssemblyInfo.cs
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/net5.0/TmdsTestProject.csproj.CoreCompileInputs.cache
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/net5.0/TmdsTestProject.dll
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/net5.0/ref/TmdsTestProject.dll
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/net5.0/TmdsTestProject.pdb
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/net5.0/TmdsTestProject.genruntimeconfig.cache

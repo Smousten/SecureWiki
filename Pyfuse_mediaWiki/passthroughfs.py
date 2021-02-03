@@ -421,6 +421,7 @@ class Operations(pyfuse3.Operations):
         return stat_
 
     async def open(self, inode, flags, ctx):
+        print("open entered: " + self._inode_to_path(inode))
         if inode in self._inode_fd_map:
             fd = self._inode_fd_map[inode]
             self._fd_open_count[fd] += 1
@@ -505,6 +506,8 @@ class Operations(pyfuse3.Operations):
         return (pyfuse3.FileInfo(fh=fd), attr)
 
     async def read(self, fd, offset, length):
+        inode = self._fd_inode_map[fd]
+        print("read entered: " + self._inode_to_path(inode))
         os.lseek(fd, offset, os.SEEK_SET)
         return os.read(fd, length)
 
@@ -518,69 +521,74 @@ class Operations(pyfuse3.Operations):
         return os.write(fd, buf)
 
     async def release(self, fd):
-        # S = requests.Session()
+        inode = self._fd_inode_map[fd]
+        print("release entered: " + self._inode_to_path(inode))
 
-        # URL = "http://localhost/mediawiki/api.php"
+        path = self._inode_to_path(inode)
+        # print(path[8:])
+        filename = path[8:]
+        if not filename.startswith(".goutputstream") and not filename.startswith(".Trash"):
+            S = requests.Session()
 
-        # # Step 1: GET request to fetch login token
-        # PARAMS_0 = {
-        #     "action": "query",
-        #     "meta": "tokens",
-        #     "type": "login",
-        #     "format": "json"
-        # }
+            URL = "http://localhost/mediawiki/api.php"
 
-        # R = S.get(url=URL, params=PARAMS_0)
-        # DATA = R.json()
+            # Step 1: GET request to fetch login token
+            PARAMS_0 = {
+                "action": "query",
+                "meta": "tokens",
+                "type": "login",
+                "format": "json"
+            }
 
-        # LOGIN_TOKEN = DATA['query']['tokens']['logintoken']
+            R = S.get(url=URL, params=PARAMS_0)
+            DATA = R.json()
 
-        # # Step 2: POST request to log in. Use of main account for login is not
-        # # supported. Obtain credentials via Special:BotPasswords
-        # # (https://www.mediawiki.org/wiki/Special:BotPasswords) for lgname & lgpassword
-        # PARAMS_1 = {
-        #     "action": "login",
-        #     "lgname": "new_mysql_user",
-        #     "lgpassword": "THISpasswordSHOULDbeCHANGED",
-        #     "lgtoken": LOGIN_TOKEN,
-        #     "format": "json"
-        # }
+            LOGIN_TOKEN = DATA['query']['tokens']['logintoken']
 
-        # R = S.post(URL, data=PARAMS_1)
+            # Step 2: POST request to log in. Use of main account for login is not
+            # supported. Obtain credentials via Special:BotPasswords
+            # (https://www.mediawiki.org/wiki/Special:BotPasswords) for lgname & lgpassword
+            PARAMS_1 = {
+                "action": "login",
+                "lgname": "new_mysql_user",
+                "lgpassword": "THISpasswordSHOULDbeCHANGED",
+                "lgtoken": LOGIN_TOKEN,
+                "format": "json"
+            }
 
-        # # Step 3: GET request to fetch CSRF token
-        # PARAMS_2 = {
-        #     "action": "query",
-        #     "meta": "tokens",
-        #     "format": "json"
-        # }
+            R = S.post(URL, data=PARAMS_1)
 
-        # R = S.get(url=URL, params=PARAMS_2)
-        # DATA = R.json()
+            # Step 3: GET request to fetch CSRF token
+            PARAMS_2 = {
+                "action": "query",
+                "meta": "tokens",
+                "format": "json"
+            }
 
-        # CSRF_TOKEN = DATA['query']['tokens']['csrftoken']
+            R = S.get(url=URL, params=PARAMS_2)
+            DATA = R.json()
 
-        # # Step 4: POST request to edit a page
-        # PARAMS_3 = {
-        #     "action": "edit",
-        #     "title": "FuseTest",
-        #     "token": CSRF_TOKEN,
-        #     "format": "json",
-        #     "text": ""
-        # }
+            CSRF_TOKEN = DATA['query']['tokens']['csrftoken']
 
-        # R = S.post(URL, data=PARAMS_3)
-        # DATA = R.json()
-        # print(fd)
-        # print(DATA)
+            # Step 4: POST request to edit a page
+            PARAMS_3 = {
+                "action": "edit",
+                "title": filename,
+                "token": CSRF_TOKEN,
+                "format": "json",
+                "text": ""
+            }
+
+            R = S.post(URL, data=PARAMS_3)
+            DATA = R.json()
+            print(DATA)
 
         if self._fd_open_count[fd] > 1:
             self._fd_open_count[fd] -= 1
             return
 
         del self._fd_open_count[fd]
-        inode = self._fd_inode_map[fd]
-        # print(inode)
+
         del self._inode_fd_map[inode]
         del self._fd_inode_map[fd]
         try:

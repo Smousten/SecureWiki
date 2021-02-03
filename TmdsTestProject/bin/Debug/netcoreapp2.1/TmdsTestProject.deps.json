@@ -1,0 +1,114 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v2.1",
+    "signature": "169c997f21fb45083670e090a25366151ceffe44"
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v2.1": {
+      "TmdsTestProject/1.0.0": {
+        "dependencies": {
+          "Microsoft.IO.RecyclableMemoryStream": "1.2.2",
+          "Newtonsoft.Json": "12.0.3",
+          "Tmds.Fuse": "0.1.0-190711-50"
+        },
+        "runtime": {
+          "TmdsTestProject.dll": {}
+        }
+      },
+      "Microsoft.IO.RecyclableMemoryStream/1.2.2": {
+        "runtime": {
+          "lib/netstandard1.4/Microsoft.IO.RecyclableMemoryStream.dll": {
+            "assemblyVersion": "1.2.2.0",
+            "fileVersion": "1.2.2.0"
+          }
+        }
+      },
+      "Newtonsoft.Json/12.0.3": {
+        "runtime": {
+          "lib/netstandard2.0/Newtonsoft.Json.dll": {
+            "assemblyVersion": "12.0.0.0",
+            "fileVersion": "12.0.3.23909"
+          }
+        }
+      },
+      "System.Memory/4.5.0": {},
+      "Tmds.Fuse/0.1.0-190711-50": {
+        "dependencies": {
+          "System.Memory": "4.5.0",
+          "Tmds.LibC": "0.3.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Tmds.Fuse.dll": {
+            "assemblyVersion": "0.1.0.0",
+            "fileVersion": "0.1.0.0"
+          }
+        }
+      },
+      "Tmds.LibC/0.3.0": {
+        "runtimeTargets": {
+          "runtimes/linux-arm/lib/netstandard2.0/Tmds.LibC.dll": {
+            "rid": "linux-arm",
+            "assetType": "runtime",
+            "assemblyVersion": "0.3.0.0",
+            "fileVersion": "0.3.0.0"
+          },
+          "runtimes/linux-arm64/lib/netstandard2.0/Tmds.LibC.dll": {
+            "rid": "linux-arm64",
+            "assetType": "runtime",
+            "assemblyVersion": "0.3.0.0",
+            "fileVersion": "0.3.0.0"
+          },
+          "runtimes/linux-x64/lib/netstandard2.0/Tmds.LibC.dll": {
+            "rid": "linux-x64",
+            "assetType": "runtime",
+            "assemblyVersion": "0.3.0.0",
+            "fileVersion": "0.3.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "TmdsTestProject/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.IO.RecyclableMemoryStream/1.2.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-LA4RBTStohA0hAAs6oKchmIC5M5Mjd5MwfB7vbbl+312N5kXj8abTGOgwZy6ASJYLCiqiiK5kHS0hDGEgfkB8g==",
+      "path": "microsoft.io.recyclablememorystream/1.2.2",
+      "hashPath": "microsoft.io.recyclablememorystream.1.2.2.nupkg.sha512"
+    },
+    "Newtonsoft.Json/12.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6mgjfnRB4jKMlzHSl+VD+oUc1IebOZabkbyWj2RiTgWwYPPuaK1H97G1sHqGwPlS5npiF5Q0OrxN1wni2n5QWg==",
+      "path": "newtonsoft.json/12.0.3",
+      "hashPath": "newtonsoft.json.12.0.3.nupkg.sha512"
+    },
+    "System.Memory/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-m0psCSpUxTGfvwyO0i03ajXVhgBqyXlibXz0Mo1dtKGjaHrXFLnuQ8rNBTmWRqbfRjr4eC6Wah4X5FfuFDu5og==",
+      "path": "system.memory/4.5.0",
+      "hashPath": "system.memory.4.5.0.nupkg.sha512"
+    },
+    "Tmds.Fuse/0.1.0-190711-50": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-JBXwvRI9uxnvJ6MtCznXQYCN2fdxPkzd32OM7IYoSOhT9wHZusDq7XJV54HxCrzOEkWLbfafpeb/6NFXqVrFww==",
+      "path": "tmds.fuse/0.1.0-190711-50",
+      "hashPath": "tmds.fuse.0.1.0-190711-50.nupkg.sha512"
+    },
+    "Tmds.LibC/0.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Z+aT6qZ4hVyeGL/VgAuL7TLQXxGJog70VlaqqeztyM9TAf3wBvYcjs3sBnirABGlIEZKzl3bg5UQdqrHPiQPnw==",
+      "path": "tmds.libc/0.3.0",
+      "hashPath": "tmds.libc.0.3.0.nupkg.sha512"
+    }
+  }
+}

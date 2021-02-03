@@ -1,0 +1,11 @@
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/netcoreapp2.1/TmdsTestProject.csprojAssemblyReference.cache
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/netcoreapp2.1/TmdsTestProject.AssemblyInfoInputs.cache
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/netcoreapp2.1/TmdsTestProject.AssemblyInfo.cs
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/netcoreapp2.1/TmdsTestProject.csproj.CoreCompileInputs.cache
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/bin/Debug/netcoreapp2.1/TmdsTestProject.deps.json
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/bin/Debug/netcoreapp2.1/TmdsTestProject.runtimeconfig.json
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/bin/Debug/netcoreapp2.1/TmdsTestProject.runtimeconfig.dev.json
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/bin/Debug/netcoreapp2.1/TmdsTestProject.dll
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/bin/Debug/netcoreapp2.1/TmdsTestProject.pdb
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/netcoreapp2.1/TmdsTestProject.dll
+/home/smousten/Documents/SpecialeTests/TmdsTestProject/obj/Debug/netcoreapp2.1/TmdsTestProject.pdb
