@@ -43,6 +43,8 @@ import os
 import sys
 from pathlib import Path
 import stat
+import socket
+import threading
 
 # If we are running from the pyfuse3 source directory, try
 # to load the module from there first.
@@ -71,6 +73,7 @@ class Operations(pyfuse3.Operations):
 
     enable_writeback_cache = True
 
+
     def __init__(self, source):
         super().__init__()
         self._inode_path_map = { pyfuse3.ROOT_INODE: source }
@@ -89,6 +92,23 @@ class Operations(pyfuse3.Operations):
             # In case of hardlinks, pick any path
             val = next(iter(val))
         return val
+
+    def setupSocketServer():
+        HOST = '127.0.1.1'
+        PORT = 11111
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((HOST, PORT))
+            s.listen()
+            print('Waiting on connection...')
+            conn, addr = s.accept()
+            with conn:
+                print('Connected by', addr)
+                while True:
+                    data = conn.recv(1024)
+                    print(data)
+                    # if not data:
+                        # break
+                    conn.sendall(data)
 
     def getAllPages():
         S = requests.Session()
@@ -131,6 +151,8 @@ class Operations(pyfuse3.Operations):
             f = open(filename.replace(" ", ""), "w")
             f.write(plainText)
             f.close()
+
+        
 
 
     def _add_path(self, inode, path):
@@ -459,6 +481,8 @@ class Operations(pyfuse3.Operations):
         # Step 2: POST request to log in. Use of main account for login is not
         # supported. Obtain credentials via Special:BotPasswords
         # (https://www.mediawiki.org/wiki/Special:BotPasswords) for lgname & lgpassword
+        
+
         PARAMS_1 = {
             "action": "login",
             "lgname": "new_mysql_user",
@@ -512,12 +536,9 @@ class Operations(pyfuse3.Operations):
         return os.read(fd, length)
 
     async def write(self, fd, offset, buf):
+        inode = self._fd_inode_map[fd]
+        print("write entered: " + self._inode_to_path(inode))
         os.lseek(fd, offset, os.SEEK_SET)
-        # contentStr = os.read(fd, buf)
-        # f = os.fdopen(fd, 'r')
-
-        # print(f.read())
-        
         return os.write(fd, buf)
 
     async def release(self, fd):
@@ -528,6 +549,10 @@ class Operations(pyfuse3.Operations):
         # print(path[8:])
         filename = path[8:]
         if not filename.startswith(".goutputstream") and not filename.startswith(".Trash"):
+            file1 = open(path, 'r')
+            line = file1.read()
+            file1.close()
+
             S = requests.Session()
 
             URL = "http://localhost/mediawiki/api.php"
@@ -576,7 +601,7 @@ class Operations(pyfuse3.Operations):
                 "title": filename,
                 "token": CSRF_TOKEN,
                 "format": "json",
-                "text": ""
+                "text": line
             }
 
             R = S.post(URL, data=PARAMS_3)
@@ -628,6 +653,7 @@ def parse_args(args):
     return parser.parse_args(args)
 
 def main():
+    Operations.setupSocketServer()
     Operations.getAllPages()
     options = parse_args(sys.argv[1:])
     init_logging(options.debug)
