@@ -450,7 +450,7 @@ class Operations(pyfuse3.Operations):
 
     async def create(self, inode_p, name, mode, flags, ctx):
         path = os.path.join(self._inode_to_path(inode_p), fsdecode(name))
-        st = "client entered create: " + path
+        st = "create: " + path
         self.client.sendall(st.encode())
         # Do not upload goutputstream to mediawiki
         S = requests.Session()
@@ -536,7 +536,7 @@ class Operations(pyfuse3.Operations):
     async def release(self, fd):
         inode = self._fd_inode_map[fd]
         print("release entered: " + self._inode_to_path(inode))
-        st = "client entered release: " + self._inode_to_path(inode)
+        st = "release: " + self._inode_to_path(inode)
         self.client.sendall(st.encode())
         path = self._inode_to_path(inode)
         # print(path[8:])
