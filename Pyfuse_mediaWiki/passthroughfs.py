@@ -45,6 +45,7 @@ from pathlib import Path
 import stat
 import socket
 import threading
+import time
 
 # If we are running from the pyfuse3 source directory, try
 # to load the module from there first.
@@ -69,10 +70,10 @@ faulthandler.enable()
 
 log = logging.getLogger(__name__)
 
+
 class Operations(pyfuse3.Operations):
 
     enable_writeback_cache = True
-
 
     def __init__(self, source):
         super().__init__()
@@ -93,22 +94,14 @@ class Operations(pyfuse3.Operations):
             val = next(iter(val))
         return val
 
-    def setupSocketServer():
-        HOST = '127.0.1.1'
+    def setupSocketClient(self):
+        SERVER = '127.0.1.1'
         PORT = 11111
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((HOST, PORT))
-            s.listen()
-            print('Waiting on connection...')
-            conn, addr = s.accept()
-            with conn:
-                print('Connected by', addr)
-                while True:
-                    data = conn.recv(1024)
-                    print(data)
-                    # if not data:
-                        # break
-                    conn.sendall(data)
+        
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client.connect((SERVER, PORT))
+        st = "Client connected"
+        self.client.sendall(st.encode())
 
     def getAllPages():
         S = requests.Session()
@@ -151,9 +144,6 @@ class Operations(pyfuse3.Operations):
             f = open(filename.replace(" ", ""), "w")
             f.write(plainText)
             f.close()
-
-        
-
 
     def _add_path(self, inode, path):
         log.debug('_add_path for %d, %s', inode, path)
@@ -460,6 +450,8 @@ class Operations(pyfuse3.Operations):
 
     async def create(self, inode_p, name, mode, flags, ctx):
         path = os.path.join(self._inode_to_path(inode_p), fsdecode(name))
+        st = "client entered create: " + path
+        self.client.sendall(st.encode())
         # Do not upload goutputstream to mediawiki
         S = requests.Session()
 
@@ -544,7 +536,8 @@ class Operations(pyfuse3.Operations):
     async def release(self, fd):
         inode = self._fd_inode_map[fd]
         print("release entered: " + self._inode_to_path(inode))
-
+        st = "client entered release: " + self._inode_to_path(inode)
+        self.client.sendall(st.encode())
         path = self._inode_to_path(inode)
         # print(path[8:])
         filename = path[8:]
@@ -653,11 +646,12 @@ def parse_args(args):
     return parser.parse_args(args)
 
 def main():
-    Operations.setupSocketServer()
+
     Operations.getAllPages()
     options = parse_args(sys.argv[1:])
     init_logging(options.debug)
     operations = Operations(options.source)
+    Operations.setupSocketClient(operations)
 
     log.debug('Mounting...')
     fuse_options = set(pyfuse3.default_options)
@@ -674,6 +668,7 @@ def main():
         raise
     log.debug('Unmounting..')
     pyfuse3.close()
+    client.close()
 
 if __name__ == '__main__':
     main()
