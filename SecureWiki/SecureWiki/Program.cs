@@ -8,8 +8,11 @@ namespace SecureWiki
 {
     class Program
     {
+        private static WikiHandler wikiHandler;
+
         public static void Main()
         {
+            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED");
             SetupTcpListener();
         }
 
@@ -68,14 +71,18 @@ namespace SecureWiki
         private static void Operations(String inputData)
         {
             Console.WriteLine("Received: {0}", inputData);
-            var pieces = inputData.Split(new[] {':'}, 2);
-            switch (pieces[0])
+            var op = inputData.Split(new[] {':'}, 2);
+            var path = inputData.Split(new[] {'/'}, 2);
+            switch (op[0])
             {
                 case "release":
 
                     break;
                 case "create":
-
+                    if (!path[1].StartsWith(".goutputstream") && !path[1].StartsWith(".Trash"))
+                    {
+                        wikiHandler.createNewPage(path[1]);
+                    }
                     break;
                 default:
                     break;

@@ -39,11 +39,19 @@
       "frameworks": {
         "netcoreapp2.1": {
           "dependencies": {
+            "LinqToWiki": {
+              "target": "Package",
+              "version": "[1.5.0, )"
+            },
             "Microsoft.NETCore.App": {
               "suppressParent": "All",
               "target": "Package",
               "version": "[2.1.0, )",
               "autoReferenced": true
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1-beta1, )"
             }
           },
           "imports": [
