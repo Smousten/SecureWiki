@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using LinqToWiki.Generated;
 using LinqToWiki.Download;
 using RestSharp;
@@ -19,84 +20,113 @@ namespace SecureWiki
         private readonly string password;
         private const string URL = "http://localhost/mediawiki/api.php";
         // private readonly Wiki wiki;
-        //static readonly HttpClient client = new HttpClient();
+        static readonly HttpClient client = new HttpClient();
 
         public WikiHandler(string username, string password)
         {
             this.username = username;
             this.password = password;
-            
-            //wiki = new Wiki("LinqToWiki.Samples", "http://localhost", "/mediawiki/api.php");
-            //login();
-            loginRequest();
+
+            loginHttpClient();
         }
 
-
-        private string getLoginToken()
+        private async Task loginHttpClient()
         {
             string getData = "?action=query";
             getData += "&meta=tokens";
             getData += "&type=login";
             getData += "&format=json";
-            HttpWebRequest httpWReq =
-                (HttpWebRequest)WebRequest.Create(URL + getData);
-            
-            HttpWebResponse response = (HttpWebResponse)httpWReq.GetResponse();
-            StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
-            String responseString = reader.ReadToEnd();
-            
-            Console.WriteLine(responseString);
-            
-            JObject responseJson = JObject.Parse(responseString);
+            HttpResponseMessage response = await client.GetAsync(URL + getData);
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(responseBody);
+            JObject responseJson = JObject.Parse(responseBody);
 
-            return (string) responseJson["query"]["tokens"]["logintoken"];
+            string loginToken = (string) responseJson["query"]["tokens"]["logintoken"];
+
+            Console.WriteLine(loginToken);
+
+            string action = "?action=clientlogin";
+            var values = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("format", "json"),
+                new KeyValuePair<string, string>("loginreturnurl", "http://example.org"),
+                new KeyValuePair<string, string>("logintoken",loginToken),
+                new KeyValuePair<string, string>("username", username),
+                new KeyValuePair<string, string>("password", password)
+            };
+            HttpResponseMessage responseClientLogin = await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
+            string responseBodyClientLogin = await responseClientLogin.Content.ReadAsStringAsync();
+            Console.WriteLine(responseBodyClientLogin);
         }
 
-        public void loginRequest()
-        {
-            var loginToken = getLoginToken();
-            string postData = "?action=login";
-            postData += "&lgname=" + username;
-            postData += "&lgpassword=" + password;
-            postData += "&lgtoken=" + loginToken;
-            postData += "&format=json";
-            byte[] dataStream = Encoding.UTF8.GetBytes(postData);
-            HttpWebRequest httpWReq =
-                (HttpWebRequest)WebRequest.Create(URL + postData);
-
-            httpWReq.Method = "POST";
-            httpWReq.ContentType = "application/x-www-form-urlencoded";
-            httpWReq.ContentLength = dataStream.Length;
-
-            Stream newStream=httpWReq.GetRequestStream();
-            // Send the data.
-            newStream.Write(dataStream,0,dataStream.Length);
-            newStream.Close();
-
-            HttpWebResponse response = (HttpWebResponse)httpWReq.GetResponse();
-            StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
-            String responseString = reader.ReadToEnd();
-            
-            Console.WriteLine(responseString);
-            
-            JObject responseJson = JObject.Parse(responseString);
-            
-        }
 
         public void getAllPages()
         {
             
         }
 
-        public void createNewPage(string filename)
+        public async Task createNewPage(string filename)
         {
-            /*Tokens(wiki);
-            var token = wiki.tokens(new[] { tokenstype.edit }).edittoken;
-            Console.WriteLine(token);
-            var result = wiki.edit(
-                title: filename, text: "",
-                contentformat: editcontentformat.application_json, token: token);
-            Console.WriteLine(result);*/
+            string getData = "?action=query";
+            getData += "&meta=tokens";
+            getData += "&format=json";
+            HttpResponseMessage response = await client.GetAsync(URL + getData);
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(responseBody);
+            JObject responseJson = JObject.Parse(responseBody);
+            
+            string editToken = (string) responseJson["query"]["tokens"]["csrftoken"];
+            
+            string action = "?action=edit";
+            var values = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("title", filename),
+                new KeyValuePair<string, string>("token", editToken),
+                new KeyValuePair<string, string>("format","json"),
+                new KeyValuePair<string, string>("text", "")
+            };
+            HttpResponseMessage responseClientLogin = await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
+            string responseBodyClientLogin = await responseClientLogin.Content.ReadAsStringAsync();
+            Console.WriteLine(responseBodyClientLogin);
+        }
+
+        public async Task uploadNewVersion(string filepath)
+        {
+            // Refactor later - uploadNewVersion and createNewPage use same API
+            filepath = filepath.Substring(1);
+            filepath = "Pyfuse_mediaWiki/" + filepath;
+            var filenameSplit = filepath.Split("/");
+            var filename = filenameSplit[filenameSplit.Length - 1];
+            var currentDir = Directory.GetCurrentDirectory();
+            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
+            var srcDir = Path.Combine(projectDir, @filepath);
+            Console.WriteLine(srcDir);
+            var plainText = await File.ReadAllTextAsync(srcDir);
+            
+            string getData = "?action=query";
+            getData += "&meta=tokens";
+            getData += "&format=json";
+            HttpResponseMessage response = await client.GetAsync(URL + getData);
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(responseBody);
+            JObject responseJson = JObject.Parse(responseBody);
+            
+            string editToken = (string) responseJson["query"]["tokens"]["csrftoken"];
+            
+            string action = "?action=edit";
+            var values = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("title", filename),
+                new KeyValuePair<string, string>("token", editToken),
+                new KeyValuePair<string, string>("format","json"),
+                new KeyValuePair<string, string>("text", plainText)
+            };
+            HttpResponseMessage responseClientLogin = await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
+            string responseBodyClientLogin = await responseClientLogin.Content.ReadAsStringAsync();
+            Console.WriteLine(responseBodyClientLogin);
         }
     }
 }

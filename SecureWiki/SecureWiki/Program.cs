@@ -76,7 +76,10 @@ namespace SecureWiki
             switch (op[0])
             {
                 case "release":
-
+                    if (!path[1].StartsWith(".goutputstream") && !path[1].StartsWith(".Trash"))
+                    {
+                        wikiHandler.uploadNewVersion(op[1]);
+                    }
                     break;
                 case "create":
                     if (!path[1].StartsWith(".goutputstream") && !path[1].StartsWith(".Trash"))
