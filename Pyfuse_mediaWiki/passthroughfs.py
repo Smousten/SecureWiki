@@ -647,7 +647,7 @@ def parse_args(args):
 
 def main():
 
-    Operations.getAllPages()
+    # Operations.getAllPages()
     options = parse_args(sys.argv[1:])
     init_logging(options.debug)
     operations = Operations(options.source)

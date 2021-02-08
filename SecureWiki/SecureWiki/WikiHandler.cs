@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using LinqToWiki.Generated;
 using LinqToWiki.Download;
@@ -18,7 +19,9 @@ namespace SecureWiki
     {
         private readonly string username;
         private readonly string password;
+
         private const string URL = "http://localhost/mediawiki/api.php";
+
         // private readonly Wiki wiki;
         static readonly HttpClient client = new HttpClient();
 
@@ -28,6 +31,7 @@ namespace SecureWiki
             this.password = password;
 
             loginHttpClient();
+            getAllPages();
         }
 
         private async Task loginHttpClient()
@@ -51,19 +55,46 @@ namespace SecureWiki
             {
                 new KeyValuePair<string, string>("format", "json"),
                 new KeyValuePair<string, string>("loginreturnurl", "http://example.org"),
-                new KeyValuePair<string, string>("logintoken",loginToken),
+                new KeyValuePair<string, string>("logintoken", loginToken),
                 new KeyValuePair<string, string>("username", username),
                 new KeyValuePair<string, string>("password", password)
             };
-            HttpResponseMessage responseClientLogin = await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
+            HttpResponseMessage responseClientLogin =
+                await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
             string responseBodyClientLogin = await responseClientLogin.Content.ReadAsStringAsync();
             Console.WriteLine(responseBodyClientLogin);
         }
 
 
-        public void getAllPages()
+        public async Task getAllPages()
         {
-            
+            var filepath = "Pyfuse_mediaWiki/srcTest/";
+            var currentDir = Directory.GetCurrentDirectory();
+            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
+            var srcDir = Path.Combine(projectDir, @filepath);
+            Console.WriteLine(srcDir);
+            string getData = "?action=query";
+            getData += "&list=allpages";
+            getData += "&apfrom=a";
+            getData += "&format=json";
+            HttpResponseMessage response = await client.GetAsync(URL + getData);
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(responseBody);
+            JObject responseJson = JObject.Parse(responseBody);
+            var pages = responseJson["query"]?["allpages"];
+            if (pages != null)
+            {
+                foreach (var page in pages)
+                {
+                    var filename = page["title"];
+                    Console.WriteLine(filename);
+                    var trim = Regex.Replace((string) filename ?? string.Empty, @" ", "");
+                    Console.WriteLine(srcDir + trim);
+                    using (File.Create(srcDir + trim)) ;
+                    
+                }                
+            }
         }
 
         public async Task createNewPage(string filename)
@@ -76,18 +107,19 @@ namespace SecureWiki
             string responseBody = await response.Content.ReadAsStringAsync();
             Console.WriteLine(responseBody);
             JObject responseJson = JObject.Parse(responseBody);
-            
+
             string editToken = (string) responseJson["query"]["tokens"]["csrftoken"];
-            
+
             string action = "?action=edit";
             var values = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>("title", filename),
                 new KeyValuePair<string, string>("token", editToken),
-                new KeyValuePair<string, string>("format","json"),
+                new KeyValuePair<string, string>("format", "json"),
                 new KeyValuePair<string, string>("text", "")
             };
-            HttpResponseMessage responseClientLogin = await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
+            HttpResponseMessage responseClientLogin =
+                await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
             string responseBodyClientLogin = await responseClientLogin.Content.ReadAsStringAsync();
             Console.WriteLine(responseBodyClientLogin);
         }
@@ -104,7 +136,7 @@ namespace SecureWiki
             var srcDir = Path.Combine(projectDir, @filepath);
             Console.WriteLine(srcDir);
             var plainText = await File.ReadAllTextAsync(srcDir);
-            
+
             string getData = "?action=query";
             getData += "&meta=tokens";
             getData += "&format=json";
@@ -113,18 +145,19 @@ namespace SecureWiki
             string responseBody = await response.Content.ReadAsStringAsync();
             Console.WriteLine(responseBody);
             JObject responseJson = JObject.Parse(responseBody);
-            
+
             string editToken = (string) responseJson["query"]["tokens"]["csrftoken"];
-            
+
             string action = "?action=edit";
             var values = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>("title", filename),
                 new KeyValuePair<string, string>("token", editToken),
-                new KeyValuePair<string, string>("format","json"),
+                new KeyValuePair<string, string>("format", "json"),
                 new KeyValuePair<string, string>("text", plainText)
             };
-            HttpResponseMessage responseClientLogin = await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
+            HttpResponseMessage responseClientLogin =
+                await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
             string responseBodyClientLogin = await responseClientLogin.Content.ReadAsStringAsync();
             Console.WriteLine(responseBodyClientLogin);
         }
