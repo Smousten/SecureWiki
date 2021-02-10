@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "1qy5vY12lr8xCl2Ap4y+PPDcmiIFaEnMbAfM+x6DnM0Xa2meNE3xlQV54WTS4PaSZhHDeaNP0GySf5KPIFUUwA==",
+  "dgSpecHash": "Y960vTFF2Ue482LCcpD6Byq2VIRScqAOUvX1angUvIcHy3p4UtO37Ljsh5GJdW7oWpQQg4I3nqm06vrAQUmOQw==",
   "success": true,
   "projectFilePath": "/home/smousten/Documents/SpecialeTests/SecureWiki/SecureWiki/SecureWiki.csproj",
   "expectedPackageFiles": [
+    "/home/smousten/.nuget/packages/bouncycastle.netcore/1.8.8/bouncycastle.netcore.1.8.8.nupkg.sha512",
     "/home/smousten/.nuget/packages/linqtowiki/1.5.0/linqtowiki.1.5.0.nupkg.sha512",
     "/home/smousten/.nuget/packages/linqtowiki.core/1.3.0/linqtowiki.core.1.3.0.nupkg.sha512",
     "/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.netcore.app/2.1.0/microsoft.netcore.app.2.1.0.nupkg.sha512",

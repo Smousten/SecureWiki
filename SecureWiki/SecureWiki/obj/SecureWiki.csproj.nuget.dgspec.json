@@ -39,6 +39,10 @@
       "frameworks": {
         "netcoreapp2.1": {
           "dependencies": {
+            "BouncyCastle.NetCore": {
+              "target": "Package",
+              "version": "[1.8.8, )"
+            },
             "LinqToWiki": {
               "target": "Package",
               "version": "[1.5.0, )"

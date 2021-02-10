@@ -1,19 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Security.Cryptography;
 using System.Linq;
-using System.Text;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using LinqToWiki.Generated;
-using LinqToWiki.Download;
-using RestSharp;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace SecureWiki
+namespace SecureWiki.MediaWiki
 {
     public class WikiHandler
     {
@@ -30,11 +25,11 @@ namespace SecureWiki
             this.username = username;
             this.password = password;
 
-            loginHttpClient();
-            getAllPages();
+            LoginHttpClient();
+            GetAllPages();
         }
 
-        private async Task loginHttpClient()
+        private async Task LoginHttpClient()
         {
             string getData = "?action=query";
             getData += "&meta=tokens";
@@ -46,7 +41,7 @@ namespace SecureWiki
             Console.WriteLine(responseBody);
             JObject responseJson = JObject.Parse(responseBody);
 
-            string loginToken = (string) responseJson["query"]["tokens"]["logintoken"];
+            string loginToken = (string) responseJson["query"]?["tokens"]?["logintoken"];
 
             Console.WriteLine(loginToken);
 
@@ -66,7 +61,7 @@ namespace SecureWiki
         }
 
 
-        public async Task getAllPages()
+        public async Task GetAllPages()
         {
             var filepath = "Pyfuse_mediaWiki/srcTest/";
             var currentDir = Directory.GetCurrentDirectory();
@@ -92,12 +87,12 @@ namespace SecureWiki
                     var trim = Regex.Replace((string) filename ?? string.Empty, @" ", "");
                     Console.WriteLine(srcDir + trim);
                     using (File.Create(srcDir + trim)) ;
-                    
+                    await LoadPageContent(srcDir, trim);
                 }                
             }
         }
 
-        public async Task createNewPage(string filename)
+        public async Task CreateNewPage(string filename)
         {
             string getData = "?action=query";
             getData += "&meta=tokens";
@@ -124,7 +119,7 @@ namespace SecureWiki
             Console.WriteLine(responseBodyClientLogin);
         }
 
-        public async Task uploadNewVersion(string filepath)
+        public async Task UploadNewVersion(string filepath)
         {
             // Refactor later - uploadNewVersion and createNewPage use same API
             filepath = filepath.Substring(1);
@@ -146,7 +141,7 @@ namespace SecureWiki
             Console.WriteLine(responseBody);
             JObject responseJson = JObject.Parse(responseBody);
 
-            string editToken = (string) responseJson["query"]["tokens"]["csrftoken"];
+            string editToken = (string) responseJson["query"]?["tokens"]?["csrftoken"];
 
             string action = "?action=edit";
             var values = new List<KeyValuePair<string, string>>
@@ -160,6 +155,32 @@ namespace SecureWiki
                 await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
             string responseBodyClientLogin = await responseClientLogin.Content.ReadAsStringAsync();
             Console.WriteLine(responseBodyClientLogin);
+        }
+
+        public async Task LoadPageContent(string srcDir, string filename)
+        {
+            string getData = "?action=query";
+            getData += "&titles=" + filename;
+            getData += "&prop=revisions";
+            getData += "&rvslots=*";
+            getData += "&rvprop=content";
+            getData += "&format=json";
+            HttpResponseMessage response = await client.GetAsync(URL + getData);
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+            JObject responseJson = JObject.Parse(responseBody);
+            Console.WriteLine(responseJson);
+            // refactor next two lines
+            var key = responseJson["query"]?["pages"]?.First?.ToString();
+            var pageNr = key?.Split(":", 2)[0];
+
+
+            // Virker ikke me pageNr som var??????????
+            string pageContent = (string) responseJson["query"]?["pages"]?[pageNr]?["revisions"][0]?["slots"]?["main"]?["*"];
+            var path = Path.Combine(srcDir, @filename);
+            Console.WriteLine(path);
+            Console.WriteLine(pageContent);
+            await File.WriteAllTextAsync(path, pageContent);
         }
     }
 }

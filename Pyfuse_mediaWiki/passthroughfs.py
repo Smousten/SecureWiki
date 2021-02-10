@@ -434,6 +434,8 @@ class Operations(pyfuse3.Operations):
 
     async def open(self, inode, flags, ctx):
         print("open entered: " + self._inode_to_path(inode))
+        st = "open: " + self._inode_to_path(inode)
+        self.client.sendall(st.encode())
         if inode in self._inode_fd_map:
             fd = self._inode_fd_map[inode]
             self._fd_open_count[fd] += 1
@@ -452,64 +454,6 @@ class Operations(pyfuse3.Operations):
         path = os.path.join(self._inode_to_path(inode_p), fsdecode(name))
         st = "create: " + path
         self.client.sendall(st.encode())
-        # Do not upload goutputstream to mediawiki
-        # S = requests.Session()
-
-        # URL = "http://localhost/mediawiki/api.php"
-
-        # # Step 1: GET request to fetch login token
-        # PARAMS_0 = {
-        #     "action": "query",
-        #     "meta": "tokens",
-        #     "type": "login",
-        #     "format": "json"
-        # }
-
-        # R = S.get(url=URL, params=PARAMS_0)
-        # DATA = R.json()
-
-        # LOGIN_TOKEN = DATA['query']['tokens']['logintoken']
-
-        # # Step 2: POST request to log in. Use of main account for login is not
-        # # supported. Obtain credentials via Special:BotPasswords
-        # # (https://www.mediawiki.org/wiki/Special:BotPasswords) for lgname & lgpassword
-        
-
-        # PARAMS_1 = {
-        #     "action": "login",
-        #     "lgname": "new_mysql_user",
-        #     "lgpassword": "THISpasswordSHOULDbeCHANGED",
-        #     "lgtoken": LOGIN_TOKEN,
-        #     "format": "json"
-        # }
-
-        # R = S.post(URL, data=PARAMS_1)
-
-        # # Step 3: GET request to fetch CSRF token
-        # PARAMS_2 = {
-        #     "action": "query",
-        #     "meta": "tokens",
-        #     "format": "json"
-        # }
-
-        # R = S.get(url=URL, params=PARAMS_2)
-        # DATA = R.json()
-
-        # CSRF_TOKEN = DATA['query']['tokens']['csrftoken']
-
-        # # Step 4: POST request to edit a page
-        # if ".goutputstream" not in str(name):
-        #     PARAMS_3 = {
-        #         "action": "edit",
-        #         "title": name,
-        #         "token": CSRF_TOKEN,
-        #         "format": "json",
-        #         "text": ""
-        #     }
-        #     R = S.post(URL, data=PARAMS_3)
-        #     DATA = R.json()
-        #     print(DATA)
-
         try:
             fd = os.open(path, flags | os.O_CREAT | os.O_TRUNC)
         except OSError as exc:
@@ -536,70 +480,16 @@ class Operations(pyfuse3.Operations):
     async def release(self, fd):
         inode = self._fd_inode_map[fd]
         print("release entered: " + self._inode_to_path(inode))
+        path = self._inode_to_path(inode)
+
+        # cmd = "'lsof -t " + path + "  | wc -w'"
+        # stream = os.popen(cmd)
+        # output = stream.read()
+        # print(output)
+        # stream.close()
+        # # if output: 
         st = "release: " + self._inode_to_path(inode)
         self.client.sendall(st.encode())
-        path = self._inode_to_path(inode)
-        # print(path[8:])
-        # filename = path[8:]
-        # if not filename.startswith(".goutputstream") and not filename.startswith(".Trash"):
-        #     file1 = open(path, 'r')
-        #     line = file1.read()
-        #     file1.close()
-
-        #     S = requests.Session()
-
-        #     URL = "http://localhost/mediawiki/api.php"
-
-        #     # Step 1: GET request to fetch login token
-        #     PARAMS_0 = {
-        #         "action": "query",
-        #         "meta": "tokens",
-        #         "type": "login",
-        #         "format": "json"
-        #     }
-
-        #     R = S.get(url=URL, params=PARAMS_0)
-        #     DATA = R.json()
-
-        #     LOGIN_TOKEN = DATA['query']['tokens']['logintoken']
-
-        #     # Step 2: POST request to log in. Use of main account for login is not
-        #     # supported. Obtain credentials via Special:BotPasswords
-        #     # (https://www.mediawiki.org/wiki/Special:BotPasswords) for lgname & lgpassword
-        #     PARAMS_1 = {
-        #         "action": "login",
-        #         "lgname": "new_mysql_user",
-        #         "lgpassword": "THISpasswordSHOULDbeCHANGED",
-        #         "lgtoken": LOGIN_TOKEN,
-        #         "format": "json"
-        #     }
-
-        #     R = S.post(URL, data=PARAMS_1)
-
-        #     # Step 3: GET request to fetch CSRF token
-        #     PARAMS_2 = {
-        #         "action": "query",
-        #         "meta": "tokens",
-        #         "format": "json"
-        #     }
-
-        #     R = S.get(url=URL, params=PARAMS_2)
-        #     DATA = R.json()
-
-        #     CSRF_TOKEN = DATA['query']['tokens']['csrftoken']
-
-        #     # Step 4: POST request to edit a page
-        #     PARAMS_3 = {
-        #         "action": "edit",
-        #         "title": filename,
-        #         "token": CSRF_TOKEN,
-        #         "format": "json",
-        #         "text": line
-        #     }
-
-        #     R = S.post(URL, data=PARAMS_3)
-        #     DATA = R.json()
-        #     print(DATA)
 
         if self._fd_open_count[fd] > 1:
             self._fd_open_count[fd] -= 1
