@@ -93,7 +93,7 @@ namespace SecureWiki.ClientApplication
                     FileInfo file = new FileInfo(mntDir);
                     if (RealFileName(path))
                     {
-                        //wikiHandler.UploadNewVersion(op[1]);
+                        wikiHandler.UploadNewVersion(op[1]);
                     }
 
                     break;

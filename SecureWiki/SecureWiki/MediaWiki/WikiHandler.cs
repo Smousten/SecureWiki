@@ -83,9 +83,7 @@ namespace SecureWiki.MediaWiki
                 foreach (var page in pages)
                 {
                     var filename = page["title"];
-                    Console.WriteLine(filename);
                     var trim = Regex.Replace((string) filename ?? string.Empty, @" ", "");
-                    Console.WriteLine(srcDir + trim);
                     using (File.Create(srcDir + trim)) ;
                     await LoadPageContent(srcDir, trim);
                 }                
@@ -129,7 +127,6 @@ namespace SecureWiki.MediaWiki
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var srcDir = Path.Combine(projectDir, @filepath);
-            Console.WriteLine(srcDir);
             var plainText = await File.ReadAllTextAsync(srcDir);
 
             string getData = "?action=query";
@@ -169,18 +166,12 @@ namespace SecureWiki.MediaWiki
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
             JObject responseJson = JObject.Parse(responseBody);
-            Console.WriteLine(responseJson);
-            // refactor next two lines
-            var key = responseJson["query"]?["pages"]?.First?.ToString();
-            var pageNr = key?.Split(":", 2)[0];
-
-
-            // Virker ikke me pageNr som var??????????
-            string pageContent = (string) responseJson["query"]?["pages"]?[pageNr]?["revisions"][0]?["slots"]?["main"]?["*"];
+            var pageContentPair = responseJson.SelectToken("query.pages.*.revisions[0].slots.main")?.Last?.ToString();
+            var pageContent = pageContentPair?.Split(":", 2);
+            var trim = pageContent?[1].Substring(2, pageContent[1].Length - 3);
+            
             var path = Path.Combine(srcDir, @filename);
-            Console.WriteLine(path);
-            Console.WriteLine(pageContent);
-            await File.WriteAllTextAsync(path, pageContent);
+            await File.WriteAllTextAsync(path, trim);
         }
     }
 }
