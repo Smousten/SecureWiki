@@ -7,14 +7,14 @@ namespace SecureWiki.Cryptography
     public class Crypto
     {
         private readonly Aes aesAlg;
-        private byte[] key;
-        private byte[] iv;
+        private string key = "RP4Jvz5Gv0Fxret3YoOJzrA+BkV2PTK1QcuAucAgVOc=";
+        private string iv = "awFCaG5DVbr+3zaTRM4O2A==";
 
         public Crypto()
         {
             aesAlg = Aes.Create();
-            aesAlg.GenerateKey();
-            aesAlg.GenerateIV();
+            aesAlg.Key = Convert.FromBase64String(key);
+            aesAlg.IV = Convert.FromBase64String(iv);
         }
 
         public byte[] Encrypt(string plainText)

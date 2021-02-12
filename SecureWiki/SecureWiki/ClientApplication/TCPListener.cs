@@ -77,9 +77,7 @@ namespace SecureWiki.ClientApplication
             Console.WriteLine("Received: {0}", inputData);
             var op = inputData.Split(new[] {':'}, 2);
             var path = inputData.Split(new[] {'/'}, 2);
-
-
-
+            
             switch (op[0])
             {
                 case "release":
@@ -88,46 +86,10 @@ namespace SecureWiki.ClientApplication
                     {
                         wikiHandler.UploadNewVersion(op[1]);
                     }
-
-                    break;
-                case "create":
-                    /*if (RealFileName(path))
-                    {
-                        wikiHandler.CreateNewPage(path[1]);
-                    }*/
-                    break;
-                /*
-                case "open":
-                    if (RealFileName(path))
-                    {
-                        wikiHandler.LoadPageContent(path[1]);
-                    }
-                    */
-
-                    break;
-                case "read":
-                    /*var filepath = "Pyfuse_mediaWiki/" + path[1];
-                    var filenameSplit = filepath.Split("/");
-                    var filename = filenameSplit[filenameSplit.Length - 1];
-                    var currentDir = Directory.GetCurrentDirectory();
-                    var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-                    var mntName = "Pyfuse_mediaWiki/mntTest/";
-                    var mntDir = Path.Combine(projectDir, @mntName, @filename);
-                    Console.WriteLine(mntDir);
-
-                    if (RealFileName(path))
-                    {
-                        wikiHandler.ReadFile(mntDir, path[1]);
-                    }*/
                     break;
             }
         }
-
-        private bool OpenDone(string filename)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         private bool RealFileName(IReadOnlyList<string> path)
         {
             return !path[1].StartsWith(".goutputstream") && !path[1].StartsWith(".Trash");

@@ -74,7 +74,7 @@ namespace SecureWiki.MediaWiki
             Console.WriteLine(srcDir);
             string getData = "?action=query";
             getData += "&list=allpages";
-            getData += "&apfrom=a";
+            getData += "&apfrom=w";
             getData += "&format=json";
             HttpResponseMessage response = await client.GetAsync(URL + getData);
             response.EnsureSuccessStatusCode();
@@ -93,34 +93,7 @@ namespace SecureWiki.MediaWiki
                 }                
             }
         }
-
-        public async Task CreateNewPage(string filename)
-        {
-            string getData = "?action=query";
-            getData += "&meta=tokens";
-            getData += "&format=json";
-            HttpResponseMessage response = await client.GetAsync(URL + getData);
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(responseBody);
-            JObject responseJson = JObject.Parse(responseBody);
-
-            string editToken = (string) responseJson["query"]["tokens"]["csrftoken"];
-
-            string action = "?action=edit";
-            var values = new List<KeyValuePair<string, string>>
-            {
-                new KeyValuePair<string, string>("title", filename),
-                new KeyValuePair<string, string>("token", editToken),
-                new KeyValuePair<string, string>("format", "json"),
-                new KeyValuePair<string, string>("text", "")
-            };
-            HttpResponseMessage responseClientLogin =
-                await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
-            string responseBodyClientLogin = await responseClientLogin.Content.ReadAsStringAsync();
-            Console.WriteLine(responseBodyClientLogin);
-        }
-
+        
         public async Task UploadNewVersion(string filepath)
         {
             // Refactor later - uploadNewVersion and createNewPage use same API
@@ -134,7 +107,8 @@ namespace SecureWiki.MediaWiki
             var plainText = await File.ReadAllTextAsync(srcDir);
 
             var encryptedBytes = crypto.Encrypt(plainText);
-            var encryptedText = System.Text.Encoding.ASCII.GetString(encryptedBytes);
+            var encryptedText = BitConverter.ToString(encryptedBytes);
+            Console.WriteLine("Sending Hex to Mediawiki:" + BitConverter.ToString(encryptedBytes));
 
             string getData = "?action=query";
             getData += "&meta=tokens";
@@ -177,39 +151,23 @@ namespace SecureWiki.MediaWiki
             
             var pageContentPair = responseJson.SelectToken("query.pages.*.revisions[0].slots.main")?.Last?.ToString();
             var pageContent = pageContentPair?.Split(":", 2);
-            var pageContentBytes = Encoding.ASCII.GetBytes(pageContent?[1]);
+            var trim = pageContent[1].Substring(2, pageContent[1].Length - 3);
+            
+            String[] arr=trim.Split('-');
+            byte[] array=new byte[arr.Length];
+            for(int i=0; i<arr.Length; i++) array[i]=Convert.ToByte(arr[i],16);
+
+            var pageContentBytes = array;
+            
             Console.WriteLine(pageContent?[1]);
+            Console.WriteLine(trim);
+            Console.WriteLine("Received Hex From Mediawiki:" + BitConverter.ToString(pageContentBytes));
             
             var decryptedText = crypto.DecryptStringFromBytes_Aes(pageContentBytes);
             Console.WriteLine(decryptedText);
-            var trim = decryptedText.Substring(2, decryptedText.Length - 3);
             
             var path = Path.Combine(srcDir, @filename);
-            await File.WriteAllTextAsync(path, trim);
+            await File.WriteAllTextAsync(path, decryptedText);
         }
-        
-        /*public async Task ReadFile(string mntDir, string filename)
-        {
-            string getData = "?action=query";
-            getData += "&titles=" + filename;
-            getData += "&prop=revisions";
-            getData += "&rvslots=*";
-            getData += "&rvprop=content";
-            getData += "&format=json";
-            HttpResponseMessage response = await client.GetAsync(URL + getData);
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
-            JObject responseJson = JObject.Parse(responseBody);
-            var pageContentPair = responseJson.SelectToken("query.pages.*.revisions[0].slots.main")?.Last?.ToString();
-            var pageContent = pageContentPair?.Split(":", 2);
-            var pageContentBytes = Encoding.ASCII.GetBytes(pageContent?[1]);
-            Console.WriteLine(pageContent?[1]);
-            var decryptedText = crypto.DecryptStringFromBytes_Aes(pageContentBytes);
-            Console.WriteLine(decryptedText);
-            var trim = decryptedText.Substring(2, decryptedText.Length - 3);
-            
-            var path = Path.Combine(mntDir, @filename);
-            await File.WriteAllTextAsync(path, trim);
-        }*/
     }
 }
