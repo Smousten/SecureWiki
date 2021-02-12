@@ -85,5 +85,23 @@ namespace SecureWiki.Cryptography
 
             return plaintext;
         }
+
+        public (byte[] privateKey, byte[] publicKey) generateRSAparams()
+        {
+            //Generate a public/private key pair.  
+            RSA rsa = RSA.Create();  
+            //Save the public key information to an RSAParameters structure.  
+            var privateKey = rsa.ExportRSAPrivateKey();
+            var publicKey = rsa.ExportRSAPublicKey();
+            return (privateKey, publicKey);
+        }
+
+        public (byte[] Key, byte[] IV) generateAESparams()
+        {
+            Aes aes = Aes.Create();
+            aes.GenerateKey();
+            aes.GenerateIV();
+            return (aes.Key, aes.IV);
+        }
     }
 }

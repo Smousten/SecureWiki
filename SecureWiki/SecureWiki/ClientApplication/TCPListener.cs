@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
 
 namespace SecureWiki.ClientApplication
@@ -12,13 +13,15 @@ namespace SecureWiki.ClientApplication
         private Int32 port;
         private IPAddress localAddr;
         private WikiHandler wikiHandler;
+        private KeyRing keyRing;
         
-        public TCPListener(Int32 port, string localAddr, WikiHandler wikiHandler)
+        public TCPListener(int port, string localAddr, WikiHandler wikiHandler, KeyRing keyRing)
         {
             this.port = port;
             this.localAddr = IPAddress.Parse(localAddr);
             this.wikiHandler = wikiHandler;
-            
+            this.keyRing = keyRing;
+            keyRing.initKeyring();
             SetupTcpListener();
         }
 
@@ -85,6 +88,12 @@ namespace SecureWiki.ClientApplication
                     if (RealFileName(path))
                     {
                         wikiHandler.UploadNewVersion(op[1]);
+                    }
+                    break;
+                case "create":
+                    if (RealFileName(path))
+                    {
+                        keyRing.addNewFile(path[1]);
                     }
                     break;
             }
