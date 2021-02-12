@@ -79,18 +79,11 @@ namespace SecureWiki.ClientApplication
             var path = inputData.Split(new[] {'/'}, 2);
 
 
+
             switch (op[0])
             {
                 case "release":
-                    var filepath = "Pyfuse_mediaWiki/" + path[1];
-                    var filenameSplit = filepath.Split("/");
-                    var filename = filenameSplit[filenameSplit.Length - 1];
-                    var currentDir = Directory.GetCurrentDirectory();
-                    var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-                    var mntName = "Pyfuse_mediaWiki/mntTest/";
-                    var mntDir = Path.Combine(projectDir, @mntName, @filename);
-                    Console.WriteLine(mntDir);
-                    FileInfo file = new FileInfo(mntDir);
+
                     if (RealFileName(path))
                     {
                         wikiHandler.UploadNewVersion(op[1]);
@@ -113,9 +106,18 @@ namespace SecureWiki.ClientApplication
 
                     break;
                 case "read":
-                    /*if (RealFileName(path))
+                    /*var filepath = "Pyfuse_mediaWiki/" + path[1];
+                    var filenameSplit = filepath.Split("/");
+                    var filename = filenameSplit[filenameSplit.Length - 1];
+                    var currentDir = Directory.GetCurrentDirectory();
+                    var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
+                    var mntName = "Pyfuse_mediaWiki/mntTest/";
+                    var mntDir = Path.Combine(projectDir, @mntName, @filename);
+                    Console.WriteLine(mntDir);
+
+                    if (RealFileName(path))
                     {
-                        wikiHandler.LoadPageContent(path[1]);
+                        wikiHandler.ReadFile(mntDir, path[1]);
                     }*/
                     break;
             }
