@@ -21,6 +21,10 @@ namespace SecureWiki.ClientApplication
             this.localAddr = IPAddress.Parse(localAddr);
             this.wikiHandler = wikiHandler;
             this.keyRing = keyRing;
+        }
+
+        public void RunListener()
+        {
             keyRing.initKeyring();
             SetupTcpListener();
         }
@@ -79,29 +83,30 @@ namespace SecureWiki.ClientApplication
         {
             Console.WriteLine("Received: {0}", inputData);
             var op = inputData.Split(new[] {':'}, 2);
-            var path = inputData.Split(new[] {'/'}, 2);
+            var path = inputData.Split("/srcTest/", 2);
+            var filename = path[^1];
             
             switch (op[0])
             {
                 case "release":
 
-                    if (RealFileName(path))
+                    if (RealFileName(filename))
                     {
-                        wikiHandler.UploadNewVersion(op[1]);
+                        wikiHandler.UploadNewVersion(filename);
                     }
                     break;
                 case "create":
-                    if (RealFileName(path))
+                    if (RealFileName(filename))
                     {
-                        keyRing.addNewFile(path[1]);
+                        keyRing.addNewFile(filename);
                     }
                     break;
             }
         }
         
-        private bool RealFileName(IReadOnlyList<string> path)
+        private bool RealFileName(string filename)
         {
-            return !path[1].StartsWith(".goutputstream") && !path[1].StartsWith(".Trash");
+            return !(filename.StartsWith(".goutputstream") || filename.StartsWith(".Trash"));
         }
     }
 }

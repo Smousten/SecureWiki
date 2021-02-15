@@ -45,6 +45,10 @@
               "target": "Package",
               "version": "[1.8.8, )"
             },
+            "IronPython": {
+              "target": "Package",
+              "version": "[2.7.11, )"
+            },
             "LinqToWiki": {
               "target": "Package",
               "version": "[1.5.0, )"

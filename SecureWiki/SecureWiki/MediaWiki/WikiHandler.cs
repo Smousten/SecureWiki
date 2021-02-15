@@ -71,7 +71,6 @@ namespace SecureWiki.MediaWiki
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var srcDir = Path.Combine(projectDir, @filepath);
-            Console.WriteLine(srcDir);
             string getData = "?action=query";
             getData += "&list=allpages";
             getData += "&apfrom=w";
@@ -94,18 +93,16 @@ namespace SecureWiki.MediaWiki
             }
         }
         
-        public async Task UploadNewVersion(string filepath)
+        public async Task UploadNewVersion(string filename)
         {
             // Refactor later - uploadNewVersion and createNewPage use same API
-            filepath = filepath.Substring(1);
-            filepath = "Pyfuse_mediaWiki/" + filepath;
-            var filenameSplit = filepath.Split("/");
-            var filename = filenameSplit[filenameSplit.Length - 1];
+            var filepath = "Pyfuse_mediaWiki/srcTest/" + filename;
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var srcDir = Path.Combine(projectDir, @filepath);
+            Console.WriteLine(srcDir);
             var plainText = await File.ReadAllTextAsync(srcDir);
-
+            Console.WriteLine(plainText);
             var encryptedBytes = crypto.Encrypt(plainText);
             var encryptedText = BitConverter.ToString(encryptedBytes);
             Console.WriteLine("Sending Hex to Mediawiki:" + BitConverter.ToString(encryptedBytes));
@@ -158,14 +155,9 @@ namespace SecureWiki.MediaWiki
             for(int i=0; i<arr.Length; i++) array[i]=Convert.ToByte(arr[i],16);
 
             var pageContentBytes = array;
-            
-            Console.WriteLine(pageContent?[1]);
-            Console.WriteLine(trim);
-            Console.WriteLine("Received Hex From Mediawiki:" + BitConverter.ToString(pageContentBytes));
-            
+
             var decryptedText = crypto.DecryptStringFromBytes_Aes(pageContentBytes);
-            Console.WriteLine(decryptedText);
-            
+
             var path = Path.Combine(srcDir, @filename);
             await File.WriteAllTextAsync(path, decryptedText);
         }

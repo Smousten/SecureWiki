@@ -433,7 +433,7 @@ class Operations(pyfuse3.Operations):
         return stat_
 
     async def open(self, inode, flags, ctx):
-        print("open entered: " + self._inode_to_path(inode))
+        # print("open entered: " + self._inode_to_path(inode))
         st = "open: " + self._inode_to_path(inode)
         self.client.sendall(st.encode())
         if inode in self._inode_fd_map:
@@ -467,19 +467,19 @@ class Operations(pyfuse3.Operations):
 
     async def read(self, fd, offset, length):
         inode = self._fd_inode_map[fd]
-        print("read entered: " + self._inode_to_path(inode))
+        # print("read entered: " + self._inode_to_path(inode))
         os.lseek(fd, offset, os.SEEK_SET)
         return os.read(fd, length)
 
     async def write(self, fd, offset, buf):
         inode = self._fd_inode_map[fd]
-        print("write entered: " + self._inode_to_path(inode))
+        # print("write entered: " + self._inode_to_path(inode))
         os.lseek(fd, offset, os.SEEK_SET)
         return os.write(fd, buf)
 
     async def release(self, fd):
         inode = self._fd_inode_map[fd]
-        print("release entered: " + self._inode_to_path(inode))
+        # print("release entered: " + self._inode_to_path(inode))
         path = self._inode_to_path(inode)
 
         # cmd = "'lsof -t " + path + "  | wc -w'"
