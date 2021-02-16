@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SecureWiki.Cryptography;
 
@@ -35,19 +32,20 @@ namespace SecureWiki.MediaWiki
 
         private async Task LoginHttpClient()
         {
+            // Build request
             string getData = "?action=query";
             getData += "&meta=tokens";
             getData += "&type=login";
             getData += "&format=json";
+            
             HttpResponseMessage response = await client.GetAsync(URL + getData);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(responseBody);
+            Console.WriteLine("LoginHttpClient:- resonseBody: " + responseBody);
             JObject responseJson = JObject.Parse(responseBody);
 
             string loginToken = (string) responseJson["query"]?["tokens"]?["logintoken"];
-
-            Console.WriteLine(loginToken);
+            Console.WriteLine("LoginHttpClient:- LoginToken: " + loginToken);
 
             string action = "?action=clientlogin";
             var values = new List<KeyValuePair<string, string>>
@@ -61,7 +59,7 @@ namespace SecureWiki.MediaWiki
             HttpResponseMessage responseClientLogin =
                 await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
             string responseBodyClientLogin = await responseClientLogin.Content.ReadAsStringAsync();
-            Console.WriteLine(responseBodyClientLogin);
+            Console.WriteLine("LoginHttpClient:- responseBodyClientLogin: " + responseBodyClientLogin);
         }
 
 
@@ -71,14 +69,17 @@ namespace SecureWiki.MediaWiki
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var srcDir = Path.Combine(projectDir, @filepath);
+            
+            // Build request
             string getData = "?action=query";
             getData += "&list=allpages";
             getData += "&apfrom=w";
             getData += "&format=json";
+            
             HttpResponseMessage response = await client.GetAsync(URL + getData);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(responseBody);
+            Console.WriteLine("GetAllPages:- resonseBody: " + responseBody);
             JObject responseJson = JObject.Parse(responseBody);
             var pages = responseJson["query"]?["allpages"];
             if (pages != null)
@@ -100,10 +101,11 @@ namespace SecureWiki.MediaWiki
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var srcDir = Path.Combine(projectDir, @filepath);
-            Console.WriteLine(srcDir);
+            Console.WriteLine("srcDir: " + srcDir);
             var plainText = await File.ReadAllTextAsync(srcDir);
+            Console.WriteLine("UploadNewVersion:- plainText:");
             Console.WriteLine(plainText);
-            var encryptedBytes = crypto.Encrypt(plainText);
+            var encryptedBytes = crypto.EncryptAESStringToBytes(plainText);
             var encryptedText = BitConverter.ToString(encryptedBytes);
             Console.WriteLine("Sending Hex to Mediawiki:" + BitConverter.ToString(encryptedBytes));
 
@@ -113,7 +115,7 @@ namespace SecureWiki.MediaWiki
             HttpResponseMessage response = await client.GetAsync(URL + getData);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(responseBody);
+            Console.WriteLine("UploadNewVersion:- resonseBody: " + responseBody);
             JObject responseJson = JObject.Parse(responseBody);
 
             string editToken = (string) responseJson["query"]?["tokens"]?["csrftoken"];
@@ -129,11 +131,12 @@ namespace SecureWiki.MediaWiki
             HttpResponseMessage responseClientLogin =
                 await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
             string responseBodyClientLogin = await responseClientLogin.Content.ReadAsStringAsync();
-            Console.WriteLine(responseBodyClientLogin);
+            Console.WriteLine("UploadNewVersion:- responseBodyClientLogin: " + responseBodyClientLogin);
         }
 
         public async Task LoadPageContent(string srcDir, string filename)
         {
+            // Building request
             string getData = "?action=query";
             getData += "&titles=" + filename;
             getData += "&prop=revisions";
@@ -155,11 +158,15 @@ namespace SecureWiki.MediaWiki
             for(int i=0; i<arr.Length; i++) array[i]=Convert.ToByte(arr[i],16);
 
             var pageContentBytes = array;
-
-            var decryptedText = crypto.DecryptStringFromBytes_Aes(pageContentBytes);
+            var decryptedText = crypto.DecryptAESBytesToString(pageContentBytes);
 
             var path = Path.Combine(srcDir, @filename);
             await File.WriteAllTextAsync(path, decryptedText);
+        }
+
+        public void PrintTest(string input)
+        {
+            Console.WriteLine("WikiHandler printing: " + input);
         }
     }
 }

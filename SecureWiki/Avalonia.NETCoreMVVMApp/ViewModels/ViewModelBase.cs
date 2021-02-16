@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using ReactiveUI;
+﻿using ReactiveUI;
 
-namespace Avalonia.NETCoreMVVMApp.ViewModels
+namespace SecureWiki.ViewModels
 {
     public class ViewModelBase : ReactiveObject
     {

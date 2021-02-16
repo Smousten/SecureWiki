@@ -1,10 +1,10 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.NETCoreMVVMApp.ViewModels;
-using Avalonia.NETCoreMVVMApp.Views;
+using SecureWiki.ViewModels;
+using SecureWiki.Views;
 
-namespace Avalonia.NETCoreMVVMApp
+namespace SecureWiki
 {
     public class App : Application
     {

@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using SecureWiki.Cryptography;
@@ -41,11 +39,10 @@ namespace SecureWiki.ClientApplication
             }
             catch (SocketException e)
             {
-                Console.WriteLine("SocketException: {0}", e);
+                Console.WriteLine("SetupTcpListener:- SocketException: {0}", e);
             }
             finally
             {
-                // Stop listening for new clients.
                 server?.Stop();
             }
         }
@@ -54,24 +51,24 @@ namespace SecureWiki.ClientApplication
         {
             Byte[] bytes = new Byte[256];
             String data = null;
+            int input;
 
             while (true)
             {
-                Console.Write("Waiting for a connection... ");
+                Console.Write("Waiting for TCP connection at port:" + port);
 
-                // Perform a blocking call to accept requests.
-                // You could also use server.AcceptSocket() here.
                 TcpClient client = server.AcceptTcpClient();
-                Console.WriteLine("Connected!");
+                Console.WriteLine("Connected at port:" + port);
 
-                data = null;
                 NetworkStream stream = client.GetStream();
-                int i;
+                
+                // Reset data for each iteration
+                data = null;
 
-                while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
+                while ((input = stream.Read(bytes, 0, bytes.Length)) != 0)
                 {
-                    // Translate data bytes to a ASCII string.
-                    data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                    // Convert input bytes to ASCII before use
+                    data = System.Text.Encoding.ASCII.GetString(bytes, 0, input);
                     Operations(data);
                 }
 

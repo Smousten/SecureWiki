@@ -17,9 +17,9 @@ namespace SecureWiki.Cryptography
             aesAlg.IV = Convert.FromBase64String(iv);
         }
 
-        public byte[] Encrypt(string plainText)
+        public byte[] EncryptAESStringToBytes(string plainText)
         {
-            // Check arguments.
+            // Ensure argument validity
             if (plainText == null || plainText.Length <= 0)
                 throw new ArgumentNullException(nameof(plainText));
             if (key == null || key.Length <= 0)
@@ -28,32 +28,30 @@ namespace SecureWiki.Cryptography
                 throw new ArgumentNullException(nameof(iv));
             byte[] encrypted;
 
-            // Create an encryptor to perform the stream transform.
+            // Build encryptor for transforming the plaintext to ciphertext
             ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-            // Create the streams used for encryption.
-            using (MemoryStream msEncrypt = new MemoryStream())
+            // Build necessary streams
+            using (MemoryStream msEncrypt = new())
             {
-                using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                using (CryptoStream csEncrypt = new(msEncrypt, encryptor, CryptoStreamMode.Write))
                 {
-                    using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                    using (StreamWriter swEncrypt = new(csEncrypt))
                     {
-                        //Write all data to the stream.
+                        //Write input plaintext to the stream writer
                         swEncrypt.Write(plainText);
                     }
-
+                    // Convert memory stream to byte array
                     encrypted = msEncrypt.ToArray();
                 }
             }
 
-
-            // Return the encrypted bytes from the memory stream.
             return encrypted;
         }
 
-        public string DecryptStringFromBytes_Aes(byte[] cipherText)
+        public string DecryptAESBytesToString(byte[] cipherText)
         {
-            // Check arguments.
+            // Ensure argument validity
             if (cipherText == null || cipherText.Length <= 0)
                 throw new ArgumentNullException("cipherText");
             if (key == null || key.Length <= 0)
@@ -61,36 +59,33 @@ namespace SecureWiki.Cryptography
             if (iv == null || iv.Length <= 0)
                 throw new ArgumentNullException("iv");
 
-            // Declare the string used to hold
-            // the decrypted text.
             string plaintext = null;
 
-            // Create a decryptor to perform the stream transform.
+            // Build encryptor for transforming the ciphertext to plaintext
             ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
-            // Create the streams used for decryption.
-            using (MemoryStream msDecrypt = new MemoryStream(cipherText))
+            // Build necessary streams
+            using (MemoryStream msDecrypt = new(cipherText))
             {
-                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                using (CryptoStream csDecrypt = new(msDecrypt, decryptor, CryptoStreamMode.Read))
                 {
-                    using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                    using (StreamReader srDecrypt = new(csDecrypt))
                     {
-                        // Read the decrypted bytes from the decrypting stream
-                        // and place them in a string.
+                        //Read input ciphertext from the stream reader
                         plaintext = srDecrypt.ReadToEnd();
                     }
                 }
             }
-
 
             return plaintext;
         }
 
         public (byte[] privateKey, byte[] publicKey) generateRSAparams()
         {
-            //Generate a public/private key pair.  
+            // Generate a key pair.  
             RSA rsa = RSA.Create();  
-            //Save the public key information to an RSAParameters structure.  
+            
+            // Export the RSA keys and return them  
             var privateKey = rsa.ExportRSAPrivateKey();
             var publicKey = rsa.ExportRSAPublicKey();
             return (privateKey, publicKey);

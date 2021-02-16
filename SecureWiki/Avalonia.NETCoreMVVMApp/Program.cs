@@ -1,49 +1,52 @@
 ﻿using System;
-using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.ReactiveUI;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
-using IronPython.Hosting;
+using Avalonia;
+using Avalonia.ReactiveUI;
+using SecureWiki.ClientApplication;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
 
-namespace Avalonia.NETCoreMVVMApp
+namespace SecureWiki
 {
     class Program
     {
         
+        /*
         private static WikiHandler wikiHandler;
         private static KeyRing keyRing;
         private static TCPListener tcpListener;
+        */
         
         // Initialization code. Don't use any Avalonia, third-party APIs or any
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.
-        public static void Main(string[] args) => BuildAvaloniaApp() 
-            .StartWithClassicDesktopLifetime(args);{
-
+        public static void Main(string[] args) {
+            
+            /*
             wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED");
             keyRing = new KeyRing();
             tcpListener = new TCPListener(11111, "127.0.1.1", wikiHandler, keyRing);
-            Thread instanceCaller = new Thread(
-                tcpListener.RunListener);
+            Thread instanceCaller = new(tcpListener.RunListener);
             instanceCaller.Start();
-            RunFuse();
-            Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
+            Thread fuseThread = new(RunFuse);
+            fuseThread.Start();
+            //Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
+            */
+            
+            BuildAvaloniaApp() 
+                .StartWithClassicDesktopLifetime(args);
+            Console.WriteLine("Passed avalonia startup");
         }
         
-        private static void RunFuse()
+        public static void RunFuse()
         {
             var currentDir = Directory.GetCurrentDirectory();
-            var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
+            var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../..")); // very beautiful code
             var pythonDir = Path.Combine(baseDir, @"Pyfuse_mediaWiki/");
             var pythonScipt = Path.Combine(pythonDir, @"passthroughfs.py");
-            ProcessStartInfo start = new ProcessStartInfo();
+            ProcessStartInfo start = new();
             start.FileName = @"/usr/bin/python3";
             start.Arguments = string.Format("{0} {1} {2}", pythonScipt, Path.Combine(pythonDir, @"srcTest/"), Path.Combine(pythonDir, @"mntTest/"));
 

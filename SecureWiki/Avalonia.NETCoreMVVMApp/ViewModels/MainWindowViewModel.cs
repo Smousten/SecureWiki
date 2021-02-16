@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Avalonia.NETCoreMVVMApp.ViewModels
+﻿namespace SecureWiki.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {

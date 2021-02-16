@@ -1,9 +1,9 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using Avalonia.NETCoreMVVMApp.ViewModels;
+using SecureWiki.ViewModels;
 
-namespace Avalonia.NETCoreMVVMApp
+namespace SecureWiki
 {
     public class ViewLocator : IDataTemplate
     {

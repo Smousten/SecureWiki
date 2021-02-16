@@ -1,16 +1,45 @@
-using System;
+using System.Net.Sockets;
+using System.Threading;
+using System.Drawing;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using SecureWiki.ClientApplication;
+using SecureWiki.Cryptography;
+using SecureWiki.MediaWiki;
 
-namespace Avalonia.NETCoreMVVMApp.Views
+namespace SecureWiki.Views
 {
     public class MainWindow : Window
     {
+        
+        private WikiHandler wikiHandler;
+        private KeyRing keyRing;
+        private TCPListener tcpListener;
+        private Manager manager;
+        
         public MainWindow()
         {
             InitializeComponent();
+
+            /*
+            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED");
+            keyRing = new KeyRing();
+            tcpListener = new TCPListener(11111, "127.0.1.1", wikiHandler, keyRing);
+            Thread instanceCaller = new(tcpListener.RunListener);
+            instanceCaller.Start();
+            Thread fuseThread = new(Program.RunFuse);
+            fuseThread.Start();
+            */
+            manager = new(Thread.CurrentThread);
+            Thread ManagerThread = new(manager.Run);
+            ManagerThread.IsBackground = true;
+            ManagerThread.Name = "ManagerThread";
+            ManagerThread.Start();
+            
+            //Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
+            
 #if DEBUG
             this.AttachDevTools();
 #endif
@@ -19,6 +48,7 @@ namespace Avalonia.NETCoreMVVMApp.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+            
         }
         
         public void Button1_Click(object sender, RoutedEventArgs e)
@@ -45,6 +75,9 @@ namespace Avalonia.NETCoreMVVMApp.Views
         private void Button3_Click(object? sender, RoutedEventArgs e)
         {
             Button1_Click(this, e);
+
+            //manager.Invoke(manager.printTest("www"));
+            manager.printTest("www");
         }
     }
 }
