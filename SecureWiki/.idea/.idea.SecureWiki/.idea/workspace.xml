@@ -4,23 +4,12 @@
     <projectFile>SecureWiki/SecureWiki.csproj</projectFile>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8083c663-8d87-496f-b362-2d79310c8223" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Pyfuse_mediaWiki/passthroughfs.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Pyfuse_mediaWiki/passthroughfs.py" afterDir="false" />
+    <list default="true" id="8083c663-8d87-496f-b362-2d79310c8223" name="Default Changelist" comment="Combined main branch and GUI&#10;Still testing how to connect and manage components">
+      <change afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/contentModel.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/App.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/App.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/App.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/App.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/Crypto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/Crypto.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/SecureWiki.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/SecureWiki.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ViewLocator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ViewLocator.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ViewModels/MainWindowViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ViewModels/MainWindowViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ViewModels/ViewModelBase.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ViewModels/ViewModelBase.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -44,9 +33,10 @@
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/Crypto.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Program.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1oYaZWQEwnq6qWXQaUFjJS4RHMj" />
@@ -56,10 +46,12 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="DebuggerViewTab_PTCS_FirstProportionKey" value="0.35010338" />
+    <property name="DebuggerViewTab_PTCS_LastProportionKey" value="0.0" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager">
@@ -92,8 +84,17 @@
       <updated>1613466036688</updated>
       <workItem from="1613466042942" duration="88000" />
       <workItem from="1613466157601" duration="77000" />
-      <workItem from="1613471582610" duration="13427000" />
+      <workItem from="1613471582610" duration="13586000" />
+      <workItem from="1613549093048" duration="20561000" />
     </task>
+    <task id="LOCAL-00001" summary="Combined main branch and GUI&#10;Still testing how to connect and manage components">
+      <created>1613489667955</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1613489667955</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -115,6 +116,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="Combined main branch and GUI&#10;Still testing how to connect and manage components" />
+    <option name="LAST_COMMIT_MESSAGE" value="Combined main branch and GUI&#10;Still testing how to connect and manage components" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

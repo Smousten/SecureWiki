@@ -70,14 +70,26 @@ namespace SecureWiki.Views
         private void Button2_Click(object? sender, RoutedEventArgs e)
         {
             Button1_Click(this, e);
+
+            MediaWikiObjects.PageQuery.AllRevisions allRev = new("Www");
+            allRev.GetAllRevisions();
+
         }
 
         private void Button3_Click(object? sender, RoutedEventArgs e)
         {
-            Button1_Click(this, e);
+            //Button1_Click(this, e);
 
             //manager.Invoke(manager.printTest("www"));
-            manager.printTest("www");
+            //manager.printTest("www");
+
+            MediaWikiObjects.PageQuery.PageContent pageContent = new("Www");
+            string content = pageContent.GetContent();
+            
+            var textBox1 = this.FindControl<TextBox>("TextBox1");
+
+            textBox1.Text = content;
+
         }
     }
 }

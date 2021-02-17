@@ -21,6 +21,7 @@
         </e>
         <e p="Manager.cs" t="Include" />
         <e p="MediaWiki" t="Include">
+          <e p="MediaWikiObjects.cs" t="Include" />
           <e p="WikiHandler.cs" t="Include" />
         </e>
         <e p="Model" t="Include">

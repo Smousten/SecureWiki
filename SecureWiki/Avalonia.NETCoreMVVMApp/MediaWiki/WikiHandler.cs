@@ -89,7 +89,7 @@ namespace SecureWiki.MediaWiki
                     var filename = page["title"];
                     var trim = Regex.Replace((string) filename ?? string.Empty, @" ", "");
                     using (File.Create(srcDir + trim)) ;
-                    await LoadPageContent(srcDir, trim);
+                    LoadPageContent(srcDir, trim);
                 }                
             }
         }
@@ -134,8 +134,9 @@ namespace SecureWiki.MediaWiki
             Console.WriteLine("UploadNewVersion:- responseBodyClientLogin: " + responseBodyClientLogin);
         }
 
-        public async Task LoadPageContent(string srcDir, string filename)
+        public void LoadPageContent(string srcDir, string filename)
         {
+            /*
             // Building request
             string getData = "?action=query";
             getData += "&titles=" + filename;
@@ -152,16 +153,24 @@ namespace SecureWiki.MediaWiki
             var pageContentPair = responseJson.SelectToken("query.pages.*.revisions[0].slots.main")?.Last?.ToString();
             var pageContent = pageContentPair?.Split(":", 2);
             var trim = pageContent[1].Substring(2, pageContent[1].Length - 3);
+            */
             
-            String[] arr=trim.Split('-');
+            MediaWikiObjects.PageQuery.PageContent pageContent = new(filename);
+            string content = pageContent.GetContent();
+            Console.WriteLine("WikiHandler:- LoadPageContent: content: " + content);
+            
+            // Remove '-' separators and convert to byte array
+            String[] arr=content.Split('-');
             byte[] array=new byte[arr.Length];
             for(int i=0; i<arr.Length; i++) array[i]=Convert.ToByte(arr[i],16);
-
-            var pageContentBytes = array;
-            var decryptedText = crypto.DecryptAESBytesToString(pageContentBytes);
+            
+            // Decrypt TODO: use proper keys
+            var decryptedText = crypto.DecryptAESBytesToString(array);
+            Console.WriteLine("WikiHandler:- LoadPageContent: decryptedText: " + decryptedText);
 
             var path = Path.Combine(srcDir, @filename);
-            await File.WriteAllTextAsync(path, decryptedText);
+            File.WriteAllText(path, decryptedText);
+            
         }
 
         public void PrintTest(string input)

@@ -48,5 +48,13 @@ namespace SecureWiki
         {
             Console.WriteLine("ManagerThread printing: " + input + " from thread:" + Thread.CurrentThread.Name);
         }
+
+        public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string ID)
+        {
+            MediaWikiObjects.PageQuery.AllRevisions output = new("Www");
+
+            return output;
+        }
+        
     }
 }
