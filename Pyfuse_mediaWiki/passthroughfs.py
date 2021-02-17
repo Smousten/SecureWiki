@@ -435,14 +435,16 @@ class Operations(pyfuse3.Operations):
     async def open(self, inode, flags, ctx):
         # print("open entered: " + self._inode_to_path(inode))
         st = "open: " + self._inode_to_path(inode)
-        self.client.sendall(st.encode())
+
+        print("Open flags: " + str(flags))
+        # self.client.sendall(st.encode())
         if inode in self._inode_fd_map:
             fd = self._inode_fd_map[inode]
             self._fd_open_count[fd] += 1
             return pyfuse3.FileInfo(fh=fd)
         assert flags & os.O_CREAT == 0
         try:
-            fd = os.open(self._inode_to_path(inode), flags)
+            fd = os.open(self._inode_to_path(inode), flags | os.O_RDWR)
         except OSError as exc:
             raise FUSEError(exc.errno)
         self._inode_fd_map[inode] = fd
@@ -467,9 +469,20 @@ class Operations(pyfuse3.Operations):
 
     async def read(self, fd, offset, length):
         inode = self._fd_inode_map[fd]
-        # print("read entered: " + self._inode_to_path(inode))
+        print("read entered: " + self._inode_to_path(inode))
+        path = self._inode_to_path(inode)
+        st = "read: " + path
+        if (not ('.Trash' in path or '.goutputstream' in path)):
+            self.client.send(st.encode())
+            msg = self.client.recv(4096)
+            os.lseek(fd, offset, os.SEEK_SET)
+            os.write(fd,msg)
+            os.fsync(fd)
+            print(msg)
+            return os.read(fd,len(msg))
         os.lseek(fd, offset, os.SEEK_SET)
         return os.read(fd, length)
+
 
     async def write(self, fd, offset, buf):
         inode = self._fd_inode_map[fd]
@@ -489,7 +502,7 @@ class Operations(pyfuse3.Operations):
         # stream.close()
         # # if output: 
         st = "release: " + self._inode_to_path(inode)
-        self.client.sendall(st.encode())
+        # self.client.sendall(st.encode())
 
         if self._fd_open_count[fd] > 1:
             self._fd_open_count[fd] -= 1

@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
 
@@ -14,6 +18,7 @@ namespace SecureWiki.ClientApplication
         private IPAddress localAddr;
         private WikiHandler wikiHandler;
         private KeyRing keyRing;
+        private NetworkStream stream;
         
         public TCPListener(int port, string localAddr, WikiHandler wikiHandler, KeyRing keyRing)
         {
@@ -36,7 +41,6 @@ namespace SecureWiki.ClientApplication
             {
                 server = new TcpListener(localAddr, port);
                 server.Start();
-
                 ListenLoop(server);
             }
             catch (SocketException e)
@@ -63,9 +67,9 @@ namespace SecureWiki.ClientApplication
                 // You could also use server.AcceptSocket() here.
                 TcpClient client = server.AcceptTcpClient();
                 Console.WriteLine("Connected!");
-
+                
                 data = null;
-                NetworkStream stream = client.GetStream();
+                stream = client.GetStream();
                 int i;
 
                 while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
@@ -82,10 +86,19 @@ namespace SecureWiki.ClientApplication
         private void Operations(String inputData)
         {
             Console.WriteLine("Received: {0}", inputData);
-            var op = inputData.Split(new[] {':'}, 2);
-            var path = inputData.Split("/srcTest/", 2);
-            var filename = path[^1];
+            var op = inputData.Split(":", 2);
+            // Python
+            // var path = inputData.Split("/srcTest/", 2);
+            // var filename = path[^1];
+            // Console.WriteLine(filename);
+            // C
+            if (op.Length < 2) return;
+            var filename = op[1].Substring(1);
+            char[] arr = filename.Where(c => (char.IsLetterOrDigit(c) || 
+                                         char.IsWhiteSpace(c) || 
+                                         c == '.')).ToArray(); 
             
+            filename = new string(arr);
             switch (op[0])
             {
                 case "release":
@@ -99,6 +112,30 @@ namespace SecureWiki.ClientApplication
                     if (RealFileName(filename))
                     {
                         keyRing.addNewFile(filename);
+                    }
+                    break;
+                case "write":
+                    if (RealFileName(filename))
+                    {
+                        wikiHandler.UploadNewVersion(filename);
+                    }
+                    break;
+                case "read":
+                    if (RealFileName(filename))
+                    {
+                        Task<string> decryptedTextTask = wikiHandler.ReadFile(filename);
+                        string decryptedText = decryptedTextTask.Result;
+                        byte[] byData = Encoding.ASCII.GetBytes(decryptedText);
+                        byte[] byDataLen = BitConverter.GetBytes(byData.Length);
+                        Console.WriteLine(BitConverter.ToInt32(byDataLen));
+                        
+                        byte[] rv = new byte[byDataLen.Length + byData.Length];
+                        Buffer.BlockCopy(byDataLen, 0, rv, 0, byDataLen.Length);
+                        Buffer.BlockCopy(byData, 0, rv, byDataLen.Length, byData.Length);
+                        // stream.Write(rv);
+                        stream.Write(byData);
+                        Console.WriteLine(rv.Length);
+                        Console.WriteLine("sending to server socket: {0} {1}", BitConverter.ToInt32(byDataLen), Encoding.ASCII.GetString(byData));
                     }
                     break;
             }

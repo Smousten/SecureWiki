@@ -47,12 +47,15 @@ namespace SecureWiki.ClientApplication
             ProcessStartInfo start = new ProcessStartInfo();
             start.FileName = @"/usr/bin/python3";
             start.Arguments = string.Format("{0} {1} {2}", pythonScipt, Path.Combine(pythonDir, @"srcTest/"), Path.Combine(pythonDir, @"mntTest/"));
-
+        
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
             Process process = Process.Start(start);
             process?.WaitForExit();
             process?.Close();
         }
+        
+        
+        
     }
 }
