@@ -17,15 +17,21 @@ namespace SecureWiki.MediaWiki
         private const string URL = "http://localhost/mediawiki/api.php";
 
         // private readonly Wiki wiki;
-        static readonly HttpClient client = new HttpClient();
+        private HttpClient client;
         private Crypto crypto;
+        private MediaWikiObjects MWO;
 
-        public WikiHandler(string username, string password)
+        public WikiHandler(string username, string password, HttpClient inputClient)
         {
             this.username = username;
             this.password = password;
             crypto = new Crypto();
-            LoginHttpClient();
+            //LoginHttpClient();
+            MWO = new(inputClient);
+            client = inputClient;
+            
+            MWO.LoginMediaWiki(username, password);
+            
             GetAllPages();
             
         }
@@ -155,7 +161,7 @@ namespace SecureWiki.MediaWiki
             var trim = pageContent[1].Substring(2, pageContent[1].Length - 3);
             */
             
-            MediaWikiObjects.PageQuery.PageContent pageContent = new(filename);
+            MediaWikiObjects.PageQuery.PageContent pageContent = new(filename, client);
             string content = pageContent.GetContent();
             Console.WriteLine("WikiHandler:- LoadPageContent: content: " + content);
             

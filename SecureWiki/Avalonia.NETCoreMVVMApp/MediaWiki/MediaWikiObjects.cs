@@ -7,20 +7,30 @@ using Newtonsoft.Json.Linq;
 
 namespace SecureWiki.MediaWiki
 {
-    public abstract class MediaWikiObjects
+    public class MediaWikiObjects
     {
         private string URL = "http://localhost/mediawiki/api.php";
         private string MWuserID;
         private string MWuserPassword;
-        
-        public abstract string BuildQuery();
-        
-        static readonly HttpClient httpClient = new();
+
+        private HttpClient httpClient;
+
+        public MediaWikiObjects()
+        {
+            
+        }
+
+        public MediaWikiObjects(HttpClient client)
+        {
+            httpClient = client;
+        }
 
         public abstract class PageQuery : MediaWikiObjects
         {
             private string pageID;
             private string pageTitle;
+            
+            public abstract string BuildQuery();
 
             public class Revision
             {
@@ -36,9 +46,10 @@ namespace SecureWiki.MediaWiki
             {
                 private List<Revision> revisionList = new();
                 
-                public AllRevisions(string pageTitle)
+                public AllRevisions(string pageTitle, HttpClient client)
                 {
                     this.pageTitle = pageTitle;
+                    httpClient = client;
                 }
 
                 public List<Revision> GetAllRevisions()
@@ -104,9 +115,10 @@ namespace SecureWiki.MediaWiki
             {
                 private Revision revision = new();
 
-                public PageContent(string pageTitle)
+                public PageContent(string pageTitle, HttpClient client)
                 {
                     this.pageTitle = pageTitle;
+                    httpClient = client;
                 }
                 
                 public string GetContent()

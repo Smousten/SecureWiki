@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading;
 using SecureWiki.ClientApplication;
 using SecureWiki.Cryptography;
@@ -16,6 +17,7 @@ namespace SecureWiki
         private WikiHandler wikiHandler;
         private KeyRing keyRing;
         private TCPListener tcpListener;
+        private static HttpClient httpClient= new ();
 
         public delegate void PrintTest(string input);
         public PrintTest printTest;
@@ -28,8 +30,7 @@ namespace SecureWiki
 
         public void Run()
         {
-            printTest("www1");
-            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED");
+            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient);
             keyRing = new KeyRing();
             tcpListener = new TCPListener(11111, "127.0.1.1", wikiHandler, keyRing);
             
@@ -49,10 +50,19 @@ namespace SecureWiki
             Console.WriteLine("ManagerThread printing: " + input + " from thread:" + Thread.CurrentThread.Name);
         }
 
-        public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string ID)
+        public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
         {
-            MediaWikiObjects.PageQuery.AllRevisions output = new("Www");
+            MediaWikiObjects.PageQuery.AllRevisions output = new(pageTitle, httpClient);
 
+            return output;
+        }
+        
+        public string getPageContent(string pageTitle)
+        {
+            //MediaWikiObjects MWO = new(httpClient);
+            MediaWikiObjects.PageQuery.PageContent pc = new(pageTitle, httpClient);
+            string output = pc.GetContent();
+            
             return output;
         }
         

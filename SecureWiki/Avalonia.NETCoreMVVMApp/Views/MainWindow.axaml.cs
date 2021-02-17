@@ -71,8 +71,9 @@ namespace SecureWiki.Views
         {
             Button1_Click(this, e);
 
-            MediaWikiObjects.PageQuery.AllRevisions allRev = new("Www");
-            allRev.GetAllRevisions();
+            manager.GetAllRevisions("Www");
+            //MediaWikiObjects.PageQuery.AllRevisions allRev = new("Www");
+            //allRev.GetAllRevisions();
 
         }
 
@@ -83,8 +84,8 @@ namespace SecureWiki.Views
             //manager.Invoke(manager.printTest("www"));
             //manager.printTest("www");
 
-            MediaWikiObjects.PageQuery.PageContent pageContent = new("Www");
-            string content = pageContent.GetContent();
+
+            string content = manager.getPageContent("Www");
             
             var textBox1 = this.FindControl<TextBox>("TextBox1");
 
