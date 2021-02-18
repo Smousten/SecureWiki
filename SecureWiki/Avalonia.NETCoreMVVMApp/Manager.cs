@@ -52,18 +52,31 @@ namespace SecureWiki
 
         public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
         {
-            MediaWikiObjects.PageQuery.AllRevisions output = new(pageTitle, httpClient);
+            MediaWikiObjects.PageQuery.AllRevisions allRevisions = new(wikiHandler.MWO, pageTitle);
 
+            allRevisions.GetAllRevisions();
+            Console.WriteLine("Printing all revisions from manager:");
+            allRevisions.PrintAllRevisions();
+
+            MediaWikiObjects.PageQuery.AllRevisions output = allRevisions;
+            
             return output;
         }
         
         public string getPageContent(string pageTitle)
         {
             //MediaWikiObjects MWO = new(httpClient);
-            MediaWikiObjects.PageQuery.PageContent pc = new(pageTitle, httpClient);
+            
+            MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.MWO, pageTitle);
             string output = pc.GetContent();
             
             return output;
+        }
+
+        public void undoRevisionsByID(string pageTitle, string startID, string endID)
+        {
+            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = new(wikiHandler.MWO, pageTitle);
+            undoRevisions.UndoRevisionsByID(startID, endID);
         }
         
     }

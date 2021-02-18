@@ -64,6 +64,8 @@ namespace SecureWiki.Views
             var textBox1 = this.FindControl<TextBox>("TextBox1");
 
             textBox1.Text = sender.ToString();
+            
+            manager.undoRevisionsByID("Www","12", "9");
 
         }
 
@@ -74,7 +76,8 @@ namespace SecureWiki.Views
             manager.GetAllRevisions("Www");
             //MediaWikiObjects.PageQuery.AllRevisions allRev = new("Www");
             //allRev.GetAllRevisions();
-
+            
+            
         }
 
         private void Button3_Click(object? sender, RoutedEventArgs e)

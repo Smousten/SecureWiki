@@ -19,7 +19,7 @@ namespace SecureWiki.MediaWiki
         // private readonly Wiki wiki;
         private HttpClient client;
         private Crypto crypto;
-        private MediaWikiObjects MWO;
+        public MediaWikiObjects MWO;
 
         public WikiHandler(string username, string password, HttpClient inputClient)
         {
@@ -27,10 +27,10 @@ namespace SecureWiki.MediaWiki
             this.password = password;
             crypto = new Crypto();
             //LoginHttpClient();
-            MWO = new(inputClient);
+            MWO = new(inputClient, username, password);
             client = inputClient;
             
-            MWO.LoginMediaWiki(username, password);
+            //MWO.LoginMediaWiki(username, password);
             
             GetAllPages();
             
@@ -115,6 +115,9 @@ namespace SecureWiki.MediaWiki
             var encryptedText = BitConverter.ToString(encryptedBytes);
             Console.WriteLine("Sending Hex to Mediawiki:" + BitConverter.ToString(encryptedBytes));
 
+            MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(MWO, filename);
+            uploadNewRevision.UploadContent(encryptedText);
+            /*
             string getData = "?action=query";
             getData += "&meta=tokens";
             getData += "&format=json";
@@ -138,6 +141,7 @@ namespace SecureWiki.MediaWiki
                 await client.PostAsync(URL + action, new FormUrlEncodedContent(values));
             string responseBodyClientLogin = await responseClientLogin.Content.ReadAsStringAsync();
             Console.WriteLine("UploadNewVersion:- responseBodyClientLogin: " + responseBodyClientLogin);
+            */
         }
 
         public void LoadPageContent(string srcDir, string filename)
@@ -161,7 +165,7 @@ namespace SecureWiki.MediaWiki
             var trim = pageContent[1].Substring(2, pageContent[1].Length - 3);
             */
             
-            MediaWikiObjects.PageQuery.PageContent pageContent = new(filename, client);
+            MediaWikiObjects.PageQuery.PageContent pageContent = new(MWO, filename);
             string content = pageContent.GetContent();
             Console.WriteLine("WikiHandler:- LoadPageContent: content: " + content);
             

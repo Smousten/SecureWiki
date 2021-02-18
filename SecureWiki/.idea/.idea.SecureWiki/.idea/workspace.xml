@@ -9,6 +9,7 @@
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -32,10 +33,12 @@
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/Crypto.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Program.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/App.axaml.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1oYaZWQEwnq6qWXQaUFjJS4RHMj" />
@@ -85,6 +88,7 @@
       <workItem from="1613466157601" duration="77000" />
       <workItem from="1613471582610" duration="13586000" />
       <workItem from="1613549093048" duration="24262000" />
+      <workItem from="1613634869807" duration="19994000" />
     </task>
     <task id="LOCAL-00001" summary="Combined main branch and GUI&#10;Still testing how to connect and manage components">
       <created>1613489667955</created>
