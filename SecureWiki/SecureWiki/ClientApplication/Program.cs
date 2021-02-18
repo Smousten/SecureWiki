@@ -25,7 +25,7 @@ namespace SecureWiki.ClientApplication
             Thread instanceCaller = new Thread(
                 tcpListener.RunListener);
             instanceCaller.Start();
-            RunFuse();
+            // RunFuse();
             Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
         }
 
@@ -38,22 +38,22 @@ namespace SecureWiki.ClientApplication
         //     var engine = Python.CreateEngine();
         //     engine.ExecuteFile(pythonScipt);
         // }
-        private static void RunFuse()
-        {
-            var currentDir = Directory.GetCurrentDirectory();
-            var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-            var pythonDir = Path.Combine(baseDir, @"Pyfuse_mediaWiki/");
-            var pythonScipt = Path.Combine(pythonDir, @"passthroughfs.py");
-            ProcessStartInfo start = new ProcessStartInfo();
-            start.FileName = @"/usr/bin/python3";
-            start.Arguments = string.Format("{0} {1} {2}", pythonScipt, Path.Combine(pythonDir, @"srcTest/"), Path.Combine(pythonDir, @"mntTest/"));
-        
-            start.UseShellExecute = false;
-            start.RedirectStandardOutput = true;
-            Process process = Process.Start(start);
-            process?.WaitForExit();
-            process?.Close();
-        }
+        // private static void RunFuse()
+        // {
+        //     var currentDir = Directory.GetCurrentDirectory();
+        //     var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
+        //     var pythonDir = Path.Combine(baseDir, @"Pyfuse_mediaWiki/");
+        //     var pythonScipt = Path.Combine(pythonDir, @"passthroughfs.py");
+        //     ProcessStartInfo start = new ProcessStartInfo();
+        //     start.FileName = @"/usr/bin/python3";
+        //     start.Arguments = string.Format("{0} {1} {2}", pythonScipt, Path.Combine(pythonDir, @"srcTest/"), Path.Combine(pythonDir, @"mntTest/"));
+        //
+        //     start.UseShellExecute = false;
+        //     start.RedirectStandardOutput = true;
+        //     Process process = Process.Start(start);
+        //     process?.WaitForExit();
+        //     process?.Close();
+        // }
         
         
         

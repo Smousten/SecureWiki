@@ -103,11 +103,11 @@ namespace SecureWiki.ClientApplication
             {
                 case "release":
 
-                    if (RealFileName(filename))
-                    {
-                        wikiHandler.UploadNewVersion(filename);
-                    }
-                    break;
+                    // if (RealFileName(filename))
+                    // {
+                    //     wikiHandler.UploadNewVersion(filename);
+                    // }
+                    // break;
                 case "create":
                     if (RealFileName(filename))
                     {
@@ -117,6 +117,7 @@ namespace SecureWiki.ClientApplication
                 case "write":
                     if (RealFileName(filename))
                     {
+                        Console.WriteLine("Uploading  file: " + filename);
                         wikiHandler.UploadNewVersion(filename);
                     }
                     break;
