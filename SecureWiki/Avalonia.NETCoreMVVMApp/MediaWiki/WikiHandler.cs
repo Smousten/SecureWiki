@@ -26,7 +26,7 @@ namespace SecureWiki.MediaWiki
             this.password = password;
             crypto = new Crypto();
             LoginHttpClient();
-            GetAllPages();
+            // GetAllPages();
             
         }
 

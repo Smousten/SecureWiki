@@ -23,7 +23,7 @@ namespace SecureWiki.ClientApplication
 
         public void RunListener()
         {
-            keyRing.initKeyring();
+            keyRing.InitKeyring();
             SetupTcpListener();
         }
 
@@ -80,30 +80,38 @@ namespace SecureWiki.ClientApplication
         {
             Console.WriteLine("Received: {0}", inputData);
             var op = inputData.Split(new[] {':'}, 2);
-            var path = inputData.Split("/srcTest/", 2);
-            var filename = path[^1];
-            
+            // var path = inputData.Split("/srcTest/", 2);
+            // var filename = path[^1];
+            var srcDir = inputData.Split("/srcTest/", 2);
+            var filepath = srcDir[^1]; 
+            var filepathsplit = filepath.Split("/");
+            var filename = filepathsplit[^1];
             switch (op[0])
             {
                 case "release":
-
-                    if (RealFileName(filename))
+                    if (RealFileName(filepath))
                     {
-                        wikiHandler.UploadNewVersion(filename);
+                        // wikiHandler.UploadNewVersion(filename);
                     }
                     break;
                 case "create":
-                    if (RealFileName(filename))
+                    if (RealFileName(filepath))
                     {
-                        keyRing.addNewFile(filename);
+                        keyRing.AddNewFile(filepath, filename);
+                    }
+                    break;
+                case "mkdir":
+                    if (RealFileName(filepath))
+                    {
+                        keyRing.AddNewKeyRing(filepath, filename);
                     }
                     break;
             }
         }
         
-        private bool RealFileName(string filename)
+        private bool RealFileName(string filepath)
         {
-            return !(filename.StartsWith(".goutputstream") || filename.StartsWith(".Trash"));
+            return !(filepath.Contains(".goutputstream") || filepath.Contains(".Trash"));
         }
     }
 }

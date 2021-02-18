@@ -1,9 +1,11 @@
+using System.Collections.Generic;
+
 namespace SecureWiki.Model
 {
     public class KeyRing
     {
         public string name { get; set; }
-        public KeyRing[] keyRings { get; set; }
-        public DataFile[] dataFiles { get; set; }
+        public List<KeyRing> keyRings { get; set; }
+        public List<DataFile> dataFiles { get; set; }
     }
 }
