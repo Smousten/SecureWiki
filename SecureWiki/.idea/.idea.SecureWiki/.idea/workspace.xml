@@ -4,14 +4,13 @@
     <projectFile>SecureWiki/SecureWiki.csproj</projectFile>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8083c663-8d87-496f-b362-2d79310c8223" name="Default Changelist" comment="Combined main branch and GUI&#10;Still testing how to connect and manage components">
+    <list default="true" id="8083c663-8d87-496f-b362-2d79310c8223" name="Default Changelist" comment="Added new functions to KeyRing.cs.&#10;The file structure from json file is created in srcTest/ when starting program&#10;New datafiles are now placed correctly in the nested json file&#10;New keyrings are now placed correctly in the nested json file">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/contentModel.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/Crypto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/Crypto.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Model/KeyRing.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Model/KeyRing.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/SecureWiki.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/SecureWiki.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,7 +27,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$/.." value="main" />
+        <entry key="$PROJECT_DIR$/.." value="AvaloniaApp" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -42,27 +41,31 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///home/smousten/Documents/SpecialeTests/SecureWiki/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/EBEEE551-AE9C-46ED-A593-3EF80443A5C9/13D/StreamReader.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/F2CA5F1A-1B99-4AA6-9F94-B6E64F0E1140/e9/98ddea76/JsonSerializer.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/smousten/Documents/SpecialeTests/SecureWiki/Avalonia.NETCoreMVVMApp/Model/KeyRing.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/smousten/Documents/SpecialeTests/SecureWiki/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/542965E8-5923-4076-A41B-3FBAAA7CD6B5/A/HttpWebRequest.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/296EB188-EB46-4B27-B61D-B31D89112F28/7a/8384169c/ProcessStartInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/6FA38C15-8DF3-48F8-863E-D283346C3B79/ca/38918a08/Wiki.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/9F229B00-BEA9-4B84-8D3B-F05819885871/e5/40a46978/SymmetricAlgorithm.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///home/smousten/Documents/SpecialeTests/SecureWiki/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/AE575823-A8A1-49A9-A72A-6D7A5FD99624/57/d941c436/WikiInfo.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/Crypto.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Program.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/kok.json" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Model/KeyRing.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/KeyRing.json" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/Crypto.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1oYaZWQEwnq6qWXQaUFjJS4RHMj" />
@@ -77,6 +80,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="preferences.keymap" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
@@ -112,7 +116,7 @@
       <workItem from="1613466157601" duration="77000" />
       <workItem from="1613471582610" duration="13586000" />
       <workItem from="1613549093048" duration="20561000" />
-      <workItem from="1613635819402" duration="14366000" />
+      <workItem from="1613635819402" duration="21562000" />
     </task>
     <task id="LOCAL-00001" summary="Combined main branch and GUI&#10;Still testing how to connect and manage components">
       <created>1613489667955</created>
@@ -121,7 +125,14 @@
       <option name="project" value="LOCAL" />
       <updated>1613489667955</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Added new functions to KeyRing.cs.&#10;The file structure from json file is created in srcTest/ when starting program&#10;New datafiles are now placed correctly in the nested json file&#10;New keyrings are now placed correctly in the nested json file">
+      <created>1613650631111</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1613650631111</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -144,7 +155,8 @@
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Combined main branch and GUI&#10;Still testing how to connect and manage components" />
-    <option name="LAST_COMMIT_MESSAGE" value="Combined main branch and GUI&#10;Still testing how to connect and manage components" />
+    <MESSAGE value="Added new functions to KeyRing.cs.&#10;The file structure from json file is created in srcTest/ when starting program&#10;New datafiles are now placed correctly in the nested json file&#10;New keyrings are now placed correctly in the nested json file" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added new functions to KeyRing.cs.&#10;The file structure from json file is created in srcTest/ when starting program&#10;New datafiles are now placed correctly in the nested json file&#10;New keyrings are now placed correctly in the nested json file" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

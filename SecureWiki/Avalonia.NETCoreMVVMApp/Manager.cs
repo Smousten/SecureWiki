@@ -31,7 +31,9 @@ namespace SecureWiki
             printTest("www1");
             wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED");
             keyRing = new KeyRing();
-            tcpListener = new TCPListener(11111, "127.0.1.1", wikiHandler, keyRing);
+            tcpListener = new TCPListener(11111, "127.0.1.1", this);
+            
+            keyRing.InitKeyring();
             
             TCPListenerThread = new(tcpListener.RunListener);
             TCPListenerThread.IsBackground = true;
@@ -55,6 +57,15 @@ namespace SecureWiki
 
             return output;
         }
-        
+
+        public void AddNewFile(string filepath, string filename)
+        {
+            keyRing.AddNewFile(filepath, filename);
+        }
+
+        public void AddNewKeyRing(string filepath, string keyname)
+        {
+            keyRing.AddNewKeyRing(filepath, keyname);
+        }
     }
 }

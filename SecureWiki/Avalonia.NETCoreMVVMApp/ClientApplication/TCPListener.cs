@@ -10,20 +10,17 @@ namespace SecureWiki.ClientApplication
     {
         private Int32 port;
         private IPAddress localAddr;
-        private WikiHandler wikiHandler;
-        private KeyRing keyRing;
-        
-        public TCPListener(int port, string localAddr, WikiHandler wikiHandler, KeyRing keyRing)
+        private Manager manager;
+
+        public TCPListener(int port, string localAddr, Manager manager)
         {
             this.port = port;
             this.localAddr = IPAddress.Parse(localAddr);
-            this.wikiHandler = wikiHandler;
-            this.keyRing = keyRing;
+            this.manager = manager;
         }
 
         public void RunListener()
         {
-            keyRing.InitKeyring();
             SetupTcpListener();
         }
 
@@ -97,13 +94,13 @@ namespace SecureWiki.ClientApplication
                 case "create":
                     if (RealFileName(filepath))
                     {
-                        keyRing.AddNewFile(filepath, filename);
+                        manager.AddNewFile(filepath, filename);
                     }
                     break;
                 case "mkdir":
                     if (RealFileName(filepath))
                     {
-                        keyRing.AddNewKeyRing(filepath, filename);
+                        manager.AddNewKeyRing(filepath, filename);
                     }
                     break;
             }

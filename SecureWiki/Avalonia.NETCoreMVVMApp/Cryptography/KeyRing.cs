@@ -119,16 +119,16 @@ namespace SecureWiki.Cryptography
 
             var existingKeyRing = ExistingKeyRing(keyringFilePath);
 
-            var AESParams = crypto.generateAESparams();
-            var RSAParams = crypto.generateRSAparams();
+            var (key, iv) = crypto.generateAESparams();
+            var (privateKey, publicKey) = crypto.generateRSAparams();
 
             DataFile newfile = new()
             {
                 fileName = filename,
-                symmKey = AESParams.Key,
-                iv = AESParams.IV,
-                privateKey = RSAParams.privateKey,
-                publicKey = RSAParams.publicKey,
+                symmKey = key,
+                iv = iv,
+                privateKey = privateKey,
+                publicKey = publicKey,
                 revisionNr = -1,
                 serverLink = "http://localhost/mediawiki/api.php",
                 pageName = filename
@@ -164,6 +164,13 @@ namespace SecureWiki.Cryptography
 
             var jsonData = JsonSerializer.Serialize(existingKeyRing, options);
             File.WriteAllText(keyringFilePath, jsonData);
+        }
+
+        // Return datafile with given filename from key ring
+        public DataFile? GetDataFile(string filename, Model.KeyRing keyRing)
+        {
+            var dataFile = keyRing.dataFiles.Find(f => f.fileName.Equals(filename));
+            return dataFile ?? keyRing.keyRings.Select(childKeyRing => GetDataFile(filename, childKeyRing)).FirstOrDefault();
         }
 
         public List<DataFile> GetAllDataFiles()
