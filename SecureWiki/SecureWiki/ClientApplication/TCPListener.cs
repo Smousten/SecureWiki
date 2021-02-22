@@ -103,24 +103,24 @@ namespace SecureWiki.ClientApplication
             {
                 case "release":
 
-                    // if (RealFileName(filename))
-                    // {
-                    //     wikiHandler.UploadNewVersion(filename);
-                    // }
-                    // break;
+                    if (RealFileName(filename))
+                    {
+                        wikiHandler.UploadNewVersion(filename);
+                    }
+                    break;
                 case "create":
                     if (RealFileName(filename))
                     {
                         keyRing.addNewFile(filename);
                     }
                     break;
-                case "write":
-                    if (RealFileName(filename))
-                    {
-                        Console.WriteLine("Uploading  file: " + filename);
-                        wikiHandler.UploadNewVersion(filename);
-                    }
-                    break;
+                // case "write":
+                //     if (RealFileName(filename))
+                //     {
+                //         Console.WriteLine("Uploading  file: " + filename);
+                //         wikiHandler.UploadNewVersion(filename);
+                //     }
+                //     break;
                 case "read":
                     if (RealFileName(filename))
                     {
