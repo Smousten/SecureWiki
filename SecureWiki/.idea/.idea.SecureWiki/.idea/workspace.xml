@@ -7,10 +7,22 @@
   <component name="ChangeListManager">
     <list default="true" id="8083c663-8d87-496f-b362-2d79310c8223" name="Default Changelist" comment="Further work on MediaWikiObjects.cs, especially PageAction and derivative classes">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/KeyRing.json" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/KeyRing.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/INSTALL" beforeDir="false" afterPath="$PROJECT_DIR$/../fuse/INSTALL" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/../fuse/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/../fuse/Makefile.in" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/aclocal.m4" beforeDir="false" afterPath="$PROJECT_DIR$/../fuse/aclocal.m4" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/compile" beforeDir="false" afterPath="$PROJECT_DIR$/../fuse/compile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/config.log" beforeDir="false" afterPath="$PROJECT_DIR$/../fuse/config.log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/config.status" beforeDir="false" afterPath="$PROJECT_DIR$/../fuse/config.status" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/configure" beforeDir="false" afterPath="$PROJECT_DIR$/../fuse/configure" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/depcomp" beforeDir="false" afterPath="$PROJECT_DIR$/../fuse/depcomp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/install-sh" beforeDir="false" afterPath="$PROJECT_DIR$/../fuse/install-sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/missing" beforeDir="false" afterPath="$PROJECT_DIR$/../fuse/missing" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,15 +63,17 @@
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/Crypto.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Program.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/App.axaml.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/KeyRing.json" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1oYaZWQEwnq6qWXQaUFjJS4RHMj" />
@@ -120,7 +134,6 @@
       <option name="project" value="LOCAL" />
       <updated>1613489667955</updated>
     </task>
-
     <task id="LOCAL-00002" summary="Tried to restructure wiki request into a separate class">
       <created>1613572422176</created>
       <option name="number" value="00002" />

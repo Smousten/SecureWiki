@@ -1,6 +1,10 @@
 using System;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
@@ -12,6 +16,7 @@ namespace SecureWiki.ClientApplication
         private Int32 port;
         private IPAddress localAddr;
         private Manager manager;
+        private NetworkStream stream;
 
         public TCPListener(int port, string localAddr, Manager manager)
         {
@@ -58,7 +63,7 @@ namespace SecureWiki.ClientApplication
                 TcpClient client = server.AcceptTcpClient();
                 Console.WriteLine("Connected at port:" + port);
 
-                NetworkStream stream = client.GetStream();
+                stream = client.GetStream();
                 
                 // Reset data for each iteration
                 data = null;
@@ -80,36 +85,60 @@ namespace SecureWiki.ClientApplication
             var op = inputData.Split(new[] {':'}, 2);
             // var path = inputData.Split("/srcTest/", 2);
             // var filename = path[^1];
-            var srcDir = inputData.Split("/srcTest/", 2);
-            var filepath = srcDir[^1]; 
-            var filepathsplit = filepath.Split("/");
+            // var srcDir = inputData.Split("/srcTest/", 2);
+            // var filepath = srcDir[^1]; 
+            // var filepathsplit = filepath.Split("/");
+            // var filename = filepathsplit[^1];
+            if (op.Length < 2) return;
+            var filepath = op[1].Substring(1);
+            char[] arr = filepath.Where(c => (char.IsLetterOrDigit(c) || 
+                                              char.IsWhiteSpace(c) || 
+                                              c == '.' || c == '/')).ToArray(); 
+            
+            filepath = new string(arr);
+            var filepathsplit = filepath.Split("/", 2);
             var filename = filepathsplit[^1];
             switch (op[0])
             {
                 case "release":
-                    if (RealFileName(filepath))
+                    if (RealFileName(filename))
                     {
-                        // wikiHandler.UploadNewVersion(filename);
+                        manager.UploadNewVersion(filename);
                     }
                     break;
                 case "create":
-                    if (RealFileName(filepath))
+                    if (RealFileName(filename))
                     {
                         manager.AddNewFile(filepath, filename);
                     }
                     break;
                 case "mkdir":
-                    if (RealFileName(filepath))
-                    {
-                        manager.AddNewKeyRing(filepath, filename);
-                    }
+                    Console.WriteLine("filename: " + filename);
+                    Console.WriteLine("filepath: " + filepath);
+                    manager.AddNewKeyRing(filepath, filename);
                     break;
                 case "rename":
-                    if (RealFileName(filepath))
+                    if (RealFileName(filename))
                     {
                         // manager.RenameFile(filepath, oldname, newname);
                     }
-
+                    break;
+                case "read":
+                    if (RealFileName(filename))
+                    {
+                        Task<string> decryptedTextTask = manager.ReadFile(filename);
+                        string decryptedText = decryptedTextTask.Result;
+                        byte[] byData = Encoding.ASCII.GetBytes(decryptedText);
+                        // byte[] byDataLen = BitConverter.GetBytes(byData.Length);
+                        // Console.WriteLine(BitConverter.ToInt32(byDataLen));
+                        //
+                        // byte[] rv = new byte[byDataLen.Length + byData.Length];
+                        // Buffer.BlockCopy(byDataLen, 0, rv, 0, byDataLen.Length);
+                        // Buffer.BlockCopy(byData, 0, rv, byDataLen.Length, byData.Length);
+                        // stream.Write(rv);
+                        stream.Write(byData);
+                        Console.WriteLine("sending to server socket: {0}", Encoding.ASCII.GetString(byData));
+                    }
                     break;
             }
         }

@@ -233,6 +233,18 @@ int bb_mkdir(const char *path, mode_t mode)
 {
     char fpath[PATH_MAX];
 
+        char *trashFile = ".Trash";
+    char *goutput = "goutputstream";
+
+    if (strstr(path, trashFile) == NULL && strstr(path, goutput) == NULL)
+    {
+        char buff[1024];
+        bzero(buff, sizeof(buff));
+        strcpy(buff, "mkdir:");
+        strcat(buff, path);
+        write(sockfd, buff, sizeof(buff));
+    }
+
     log_msg("\nbb_mkdir(path=\"%s\", mode=0%3o)\n",
             path, mode);
     bb_fullpath(fpath, path);

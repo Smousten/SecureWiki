@@ -27,6 +27,12 @@ namespace SecureWiki.Cryptography
             {
                 CreateNewKeyRing(filepath);
             }
+
+            var keyring = ReadKeyRing();
+            if (keyring.name != null)
+            {
+                CreateFileStructure(keyring);
+            }
         }
 
         private string GetRootDirPath()
@@ -88,7 +94,7 @@ namespace SecureWiki.Cryptography
         {
             Model.KeyRing neyKeyRing = new()
             {
-                name = "root",
+                name = "",
                 dataFiles = new List<DataFile>(),
                 keyRings = new List<Model.KeyRing>()
             };
@@ -97,20 +103,53 @@ namespace SecureWiki.Cryptography
             File.WriteAllText(filepath, jsonData);
         }
 
-        private Model.KeyRing findKeyRingPath(Model.KeyRing keyRing, string currentPath, string targetPath,
+        private Model.KeyRing findKeyRingPathOld(Model.KeyRing keyRing, string currentPath, string targetPath,
             string filename)
         {
+            Console.WriteLine("Current path is: " + currentPath);
+            ;
             if ((currentPath + filename).Equals(targetPath))
             {
+                Console.WriteLine("Found correct nested keyring with name:" + keyRing.name);
                 return keyRing;
             }
-
+        
             foreach (var childKeyRing in keyRing.keyRings)
             {
-                return findKeyRingPath(childKeyRing, currentPath + childKeyRing.name, targetPath, filename);
+                return findKeyRingPathOld(childKeyRing, currentPath + childKeyRing.name, targetPath, filename);
             }
+        
+            return null;
+        }
 
-            return null!;
+        private Model.KeyRing findKeyRingPath(Model.KeyRing rootKeyring, string filepath)
+        {
+            var filepathsplit = filepath.Split("/");
+            Console.WriteLine("Curretn file path is: " + filepath);
+            if (filepathsplit.Length <= 1)
+            {
+                Console.WriteLine("filepathsplit length is 1");
+                return rootKeyring;
+            }
+            var childKeyring = rootKeyring.keyRings.Find(f => f.name.Equals(filepathsplit[0]));
+            var newPath = String.Join("",filepathsplit.Skip(1).ToArray());
+            if (childKeyring != null)
+            {
+                Console.WriteLine("Found childkeyring at: " + childKeyring.name);
+                return findKeyRingPath(childKeyring, newPath);
+            }
+            else
+            {
+                Console.WriteLine("Child keyring not found");
+                Model.KeyRing intermediateKeyring = new()
+                {
+                    name = filepathsplit[0],
+                    dataFiles = new List<DataFile>(),
+                    keyRings = new List<Model.KeyRing>()
+                };
+                rootKeyring.keyRings.Add(intermediateKeyring);
+                return findKeyRingPath(intermediateKeyring, newPath);
+            }
         }
 
         // Add new data file to existing keyring json file
@@ -137,8 +176,8 @@ namespace SecureWiki.Cryptography
             };
 
             // Find the keyring where the new datafile is inserted
-            var correctKeyRing = findKeyRingPath(existingKeyRing, "", filepath, filename);
-            correctKeyRing.dataFiles.Add(newfile);
+            var foundKeyring = findKeyRingPath(existingKeyRing, filepath);
+            foundKeyring.dataFiles.Add(newfile);
 
             JsonSerializerOptions options = new() {WriteIndented = true};
 
@@ -159,9 +198,11 @@ namespace SecureWiki.Cryptography
             };
 
             // Find the keyring where the new keyring is inserted
-            var correctKeyRing = findKeyRingPath(existingKeyRing, "", filepath, keyname);
-            correctKeyRing.keyRings.Add(newKeyRing);
-
+            // var correctKeyRing = findKeyRingPath(existingKeyRing, "", filepath, keyname);
+            // correctKeyRing.keyRings.Add(newKeyRing);
+            var foundKeyring = findKeyRingPath(existingKeyRing, filepath);
+            foundKeyring.keyRings.Add(newKeyRing);
+            
             JsonSerializerOptions options = new() {WriteIndented = true};
 
             var jsonData = JsonSerializer.Serialize(existingKeyRing, options);

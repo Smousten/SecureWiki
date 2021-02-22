@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using SecureWiki.ClientApplication;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
@@ -104,6 +105,15 @@ namespace SecureWiki
             MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = new(wikiHandler.MWO, pageTitle);
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
-        
+
+        public void UploadNewVersion(string filename)
+        {
+            wikiHandler.UploadNewVersion(filename);
+        }
+
+        public Task<string> ReadFile(string filename)
+        {
+            return wikiHandler.ReadFile(filename);
+        }
     }
 }

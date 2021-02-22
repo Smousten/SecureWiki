@@ -105,7 +105,8 @@ namespace SecureWiki.MediaWiki
         public async Task UploadNewVersion(string filename)
         {
             // Refactor later - uploadNewVersion and createNewPage use same API
-            var filepath = "Pyfuse_mediaWiki/srcTest/" + filename;
+            // var filepath = "Pyfuse_mediaWiki/srcTest/" + filename;
+            var filepath = "fuse/example/rootdir/" + filename;
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var srcDir = Path.Combine(projectDir, @filepath);
@@ -188,6 +189,40 @@ namespace SecureWiki.MediaWiki
         public void PrintTest(string input)
         {
             Console.WriteLine("WikiHandler printing: " + input);
+        }
+
+        public async Task<string> ReadFile(string filename)
+        {
+            string getData = "?action=query";
+            getData += "&titles=" + filename;
+            getData += "&prop=revisions";
+            getData += "&rvslots=*";
+            getData += "&rvprop=content";
+            getData += "&format=json";
+            
+            HttpResponseMessage response = await client.GetAsync(URL + getData);
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+            JObject responseJson = JObject.Parse(responseBody);
+            Console.Write(responseJson);
+            
+            var pageContentPair = responseJson.SelectToken("query.pages.*.revisions[0].slots.main")?.Last?.ToString();
+            var pageContent = pageContentPair?.Split(":", 2);
+            if (pageContent != null)
+            {
+                var trim = pageContent[1].Substring(2, pageContent[1].Length - 3);
+            
+                String[] arr=trim.Split('-');
+                byte[] array=new byte[arr.Length];
+                for(int i=0; i<arr.Length; i++) array[i]=Convert.ToByte(arr[i],16);
+
+                var pageContentBytes = array;
+
+                var decryptedText = crypto.DecryptAESBytesToString(pageContentBytes);
+                Console.WriteLine(decryptedText);
+                return decryptedText;
+            }
+            return "Dette er en tom fil";
         }
     }
 }

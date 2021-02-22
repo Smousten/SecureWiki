@@ -28,6 +28,7 @@ uname -v = #49~20.04.1-Ubuntu SMP Fri Feb 5 09:57:56 UTC 2021
 /bin/universe          = unknown
 
 PATH: /home/smousten/.local/bin
+PATH: /home/smousten/.local/bin
 PATH: /usr/local/sbin
 PATH: /usr/local/bin
 PATH: /usr/sbin
@@ -37,6 +38,7 @@ PATH: /bin
 PATH: /usr/games
 PATH: /usr/local/games
 PATH: /snap/bin
+PATH: /home/smousten/.dotnet/tools
 PATH: /home/smousten/.dotnet/tools
 
 
@@ -127,8 +129,11 @@ configure:3736: $? = 0
 configure:3733: gcc -c conftest.c -o conftest2.o
 configure:3736: $? = 0
 configure:3748: result: yes
-configure:3776: checking for style of include used by make
-configure:3804: result: GNU
+configure:3768: checking whether make supports the include directive
+configure:3783: make -f confmf.GNU && cat confinc.out
+this is the am__doit target
+configure:3786: $? = 0
+configure:3805: result: yes (GNU style)
 configure:3830: checking dependency style of gcc
 configure:3941: result: gcc3
 configure:3964: checking how to run the C preprocessor
@@ -705,6 +710,9 @@ config.status:881: creating src/Makefile
 config.status:881: creating src/config.h
 config.status:1062: src/config.h is unchanged
 config.status:1110: executing depfiles commands
+config.status:1187: cd src       && sed -e '/# am--include-marker/d' Makefile         | make -f - am--depfiles
+make: Nothing to be done for 'am--depfiles'.
+config.status:1192: $? = 0
 
 ## ---------------- ##
 ## Cache variables. ##
@@ -796,7 +804,7 @@ pkg_cv_FUSE_LIBS='-lfuse -pthread'
 ## Output variables. ##
 ## ----------------- ##
 
-ACLOCAL='${SHELL} /home/smousten/Documents/SpecialeTests/fuse/missing aclocal-1.15'
+ACLOCAL='${SHELL} /home/smousten/Documents/SpecialeTests/fuse/missing aclocal-1.16'
 AMDEPBACKSLASH='\'
 AMDEP_FALSE='#'
 AMDEP_TRUE=''
@@ -807,7 +815,7 @@ AM_DEFAULT_VERBOSITY='1'
 AM_V='$(V)'
 AUTOCONF='${SHELL} /home/smousten/Documents/SpecialeTests/fuse/missing autoconf'
 AUTOHEADER='${SHELL} /home/smousten/Documents/SpecialeTests/fuse/missing autoheader'
-AUTOMAKE='${SHELL} /home/smousten/Documents/SpecialeTests/fuse/missing automake-1.15'
+AUTOMAKE='${SHELL} /home/smousten/Documents/SpecialeTests/fuse/missing automake-1.16'
 AWK='gawk'
 CC='gcc'
 CCDEPMODE='depmode=gcc3'
