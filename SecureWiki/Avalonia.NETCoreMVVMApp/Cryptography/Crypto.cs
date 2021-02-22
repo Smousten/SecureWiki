@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace SecureWiki.Cryptography
 {
@@ -98,5 +99,41 @@ namespace SecureWiki.Cryptography
             aes.GenerateIV();
             return (aes.Key, aes.IV);
         }
+
+        // public byte[] ComputeSha256(string plainText)
+        // {
+        //     using (SHA256 sha256 = SHA256.Create())
+        //     {
+        //         var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
+        //         return sha256.ComputeHash(plainTextBytes);
+        //     }
+        // }
+
+        public byte[] SignData(RSAParameters key, string plainText)
+        {
+            RSACryptoServiceProvider rsa = new();
+            rsa.ImportParameters(key);
+            
+            var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
+            return rsa.SignData(plainTextBytes, SHA256.Create());
+        }
+
+        public bool VerifyData(RSAParameters key, string plainText, byte[] signedData)
+        {
+            try
+            {
+                RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
+                rsa.ImportParameters(key);
+
+                var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
+                return rsa.VerifyData(plainTextBytes, SHA256.Create(), signedData);
+            }
+            catch(CryptographicException e)
+            {
+
+                return false;
+            }
+        }
+        
     }
 }

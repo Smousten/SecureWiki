@@ -32,11 +32,15 @@ namespace SecureWiki
         {
             wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient);
             keyRing = new KeyRing();
-            tcpListener = new TCPListener(11111, "127.0.1.1", wikiHandler, keyRing);
+            tcpListener = new TCPListener(11111, "127.0.1.1", this);
+            
+            keyRing.InitKeyring();
             
             TCPListenerThread = new(tcpListener.RunListener);
             TCPListenerThread.IsBackground = true;
             TCPListenerThread.Start();
+            
+            Thread.Sleep(1000);
             
             Thread fuseThread = new(Program.RunFuse);
             fuseThread.IsBackground = true;
@@ -71,6 +75,22 @@ namespace SecureWiki
             string output = pc.GetContent();
             
             return output;
+        }
+
+    
+        public void AddNewFile(string filepath, string filename)
+        {
+            keyRing.AddNewFile(filepath, filename);
+        }
+
+        public void AddNewKeyRing(string filepath, string keyname)
+        {
+            keyRing.AddNewKeyRing(filepath, keyname);
+        }
+
+        public void RenameFile(string filepath, string oldname, string newname)
+        {
+            keyRing.RenameFile( filepath,  oldname,  newname);
         }
 
         public void UndoRevisionsByID(string pageTitle, string startID, string endID)

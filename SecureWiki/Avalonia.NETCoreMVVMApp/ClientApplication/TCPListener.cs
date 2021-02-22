@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using Microsoft.CodeAnalysis;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
 
@@ -10,20 +11,17 @@ namespace SecureWiki.ClientApplication
     {
         private Int32 port;
         private IPAddress localAddr;
-        private WikiHandler wikiHandler;
-        private KeyRing keyRing;
-        
-        public TCPListener(int port, string localAddr, WikiHandler wikiHandler, KeyRing keyRing)
+        private Manager manager;
+
+        public TCPListener(int port, string localAddr, Manager manager)
         {
             this.port = port;
             this.localAddr = IPAddress.Parse(localAddr);
-            this.wikiHandler = wikiHandler;
-            this.keyRing = keyRing;
+            this.manager = manager;
         }
 
         public void RunListener()
         {
-            keyRing.initKeyring();
             SetupTcpListener();
         }
 
@@ -80,30 +78,45 @@ namespace SecureWiki.ClientApplication
         {
             Console.WriteLine("Received: {0}", inputData);
             var op = inputData.Split(new[] {':'}, 2);
-            var path = inputData.Split("/srcTest/", 2);
-            var filename = path[^1];
-            
+            // var path = inputData.Split("/srcTest/", 2);
+            // var filename = path[^1];
+            var srcDir = inputData.Split("/srcTest/", 2);
+            var filepath = srcDir[^1]; 
+            var filepathsplit = filepath.Split("/");
+            var filename = filepathsplit[^1];
             switch (op[0])
             {
                 case "release":
-
-                    if (RealFileName(filename))
+                    if (RealFileName(filepath))
                     {
-                        wikiHandler.UploadNewVersion(filename);
+                        // wikiHandler.UploadNewVersion(filename);
                     }
                     break;
                 case "create":
-                    if (RealFileName(filename))
+                    if (RealFileName(filepath))
                     {
-                        keyRing.addNewFile(filename);
+                        manager.AddNewFile(filepath, filename);
                     }
+                    break;
+                case "mkdir":
+                    if (RealFileName(filepath))
+                    {
+                        manager.AddNewKeyRing(filepath, filename);
+                    }
+                    break;
+                case "rename":
+                    if (RealFileName(filepath))
+                    {
+                        // manager.RenameFile(filepath, oldname, newname);
+                    }
+
                     break;
             }
         }
         
-        private bool RealFileName(string filename)
+        private bool RealFileName(string filepath)
         {
-            return !(filename.StartsWith(".goutputstream") || filename.StartsWith(".Trash"));
+            return !(filepath.Contains(".goutputstream") || filepath.Contains(".Trash"));
         }
     }
 }

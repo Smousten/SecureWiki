@@ -43,12 +43,21 @@ namespace SecureWiki
         public static void RunFuse()
         {
             var currentDir = Directory.GetCurrentDirectory();
-            var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../..")); // very beautiful code
-            var pythonDir = Path.Combine(baseDir, @"Pyfuse_mediaWiki/");
-            var pythonScipt = Path.Combine(pythonDir, @"passthroughfs.py");
-            ProcessStartInfo start = new();
-            start.FileName = @"/usr/bin/python3";
-            start.Arguments = string.Format("{0} {1} {2}", pythonScipt, Path.Combine(pythonDir, @"srcTest/"), Path.Combine(pythonDir, @"mntTest/"));
+            var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
+            // var pythonDir = Path.Combine(baseDir, @"Pyfuse_mediaWiki/");
+            // var pythonScipt = Path.Combine(pythonDir, @"passthroughfs.py");
+            var cDir = Path.Combine(baseDir, @"fuse/src/");
+            var cExe = Path.Combine(cDir, @"bbfs");
+            ProcessStartInfo start = new ProcessStartInfo();
+            // start.FileName = @"/usr/bin/python3";
+            start.FileName = cExe;
+            // start.Arguments = string.Format("{0} {1} {2}", pythonScipt, Path.Combine(pythonDir, @"srcTest/"), Path.Combine(pythonDir, @"mntTest/"));
+            var rootdir = Path.GetFullPath(Path.Combine(cDir, @"../example/rootdir"));
+            var mountdir = Path.GetFullPath(Path.Combine(cDir, @"../example/mountdir"));
+            
+            Console.WriteLine(rootdir + "\n" + mountdir);
+
+            start.Arguments = string.Format("{0} {1} {2}", "-o direct_io", rootdir, mountdir);
 
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
@@ -56,7 +65,6 @@ namespace SecureWiki
             process?.WaitForExit();
             process?.Close();
         }
-
         // Avalonia configuration, don't remove; also used by visual designer.
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()

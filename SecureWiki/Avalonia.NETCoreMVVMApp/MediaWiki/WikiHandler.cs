@@ -26,6 +26,7 @@ namespace SecureWiki.MediaWiki
             this.username = username;
             this.password = password;
             crypto = new Crypto();
+
             //LoginHttpClient();
             MWO = new(inputClient, username, password);
             client = inputClient;
@@ -33,6 +34,7 @@ namespace SecureWiki.MediaWiki
             //MWO.LoginMediaWiki(username, password);
             
             GetAllPages();
+
             
         }
 
