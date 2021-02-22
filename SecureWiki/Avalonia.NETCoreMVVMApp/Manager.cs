@@ -39,6 +39,8 @@ namespace SecureWiki
             TCPListenerThread.IsBackground = true;
             TCPListenerThread.Start();
             
+            Thread.Sleep(1000);
+            
             Thread fuseThread = new(Program.RunFuse);
             fuseThread.IsBackground = true;
             fuseThread.Start();

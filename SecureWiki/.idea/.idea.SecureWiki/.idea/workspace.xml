@@ -7,9 +7,18 @@
   <component name="ChangeListManager">
     <list default="true" id="a319bea2-c49b-4375-ae61-4179bef9702e" name="Default Changelist" comment="Added new functions to KeyRing.cs.&#10;The file structure from json file is created in srcTest/ when starting program&#10;New datafiles are now placed correctly in the nested json file&#10;New keyrings are now placed correctly in the nested json file">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/.Trash-1000/files/bogus.2.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/.Trash-1000/files/bogus.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/.Trash-1000/info/bogus.2.txt.trashinfo" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/.Trash-1000/info/bogus.txt.trashinfo" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/.Trash-1000/info/test.trashinfo" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/Wwww" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/bogus.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/example/rootdir/Wwww" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../fuse/example/rootdir/bogus.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,17 +59,17 @@
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Program.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/kok.json" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Model/KeyRing.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/KeyRing.json" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/Crypto.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Program.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/KeyRing.json" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1oYaZWQEwnq6qWXQaUFjJS4RHMj" />

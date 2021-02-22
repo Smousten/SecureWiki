@@ -27,13 +27,14 @@ namespace SecureWiki.Cryptography
             {
                 CreateNewKeyRing(filepath);
             }
-
-            CreateFileStructure(ReadKeyRing());
         }
 
         private string GetRootDirPath()
         {
-            var filepath = "Pyfuse_mediaWiki/srcTest/";
+            // Python
+            // var filepath = "Pyfuse_mediaWiki/srcTest/";
+            // C
+            var filepath = "fuse/example/rootdir/";
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var rootDir = Path.Combine(projectDir, @filepath);
