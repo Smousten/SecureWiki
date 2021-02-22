@@ -5,20 +5,12 @@
     <projectFile>Avalonia.NETCoreMVVMApp/SecureWiki.csproj</projectFile>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a319bea2-c49b-4375-ae61-4179bef9702e" name="Default Changelist" comment="Added new functions to KeyRing.cs.&#10;The file structure from json file is created in srcTest/ when starting program&#10;New datafiles are now placed correctly in the nested json file&#10;New keyrings are now placed correctly in the nested json file">
+    <list default="true" id="8083c663-8d87-496f-b362-2d79310c8223" name="Default Changelist" comment="Further work on MediaWikiObjects.cs, especially PageAction and derivative classes">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SecureWiki/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/.Trash-1000/files/bogus.2.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/.Trash-1000/files/bogus.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/.Trash-1000/info/bogus.2.txt.trashinfo" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/.Trash-1000/info/bogus.txt.trashinfo" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/.Trash-1000/info/test.trashinfo" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/Wwww" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../fuse/example/mountdir/bogus.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../fuse/example/rootdir/Wwww" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../fuse/example/rootdir/bogus.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,17 +51,15 @@
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/kok.json" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Model/KeyRing.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/Crypto.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/ClientApplication/TCPListener.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/Crypto.cs" />
       <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Program.cs" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/KeyRing.json" />
-      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Cryptography/KeyRing.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/App.axaml.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Manager.cs" />
+      <option value="$PROJECT_DIR$/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1oYaZWQEwnq6qWXQaUFjJS4RHMj" />
@@ -119,9 +109,9 @@
       <workItem from="1613466042942" duration="88000" />
       <workItem from="1613466157601" duration="77000" />
       <workItem from="1613471582610" duration="13586000" />
-      <workItem from="1613549093048" duration="20561000" />
-      <workItem from="1613635819402" duration="21562000" />
-      <workItem from="1613981798054" duration="599000" />
+      <workItem from="1613549093048" duration="24262000" />
+      <workItem from="1613634869807" duration="20410000" />
+      <workItem from="1613981059309" duration="5071000" />
     </task>
     <task id="LOCAL-00001" summary="Combined main branch and GUI&#10;Still testing how to connect and manage components">
       <created>1613489667955</created>
@@ -130,14 +120,22 @@
       <option name="project" value="LOCAL" />
       <updated>1613489667955</updated>
     </task>
-    <task id="LOCAL-00002" summary="Added new functions to KeyRing.cs.&#10;The file structure from json file is created in srcTest/ when starting program&#10;New datafiles are now placed correctly in the nested json file&#10;New keyrings are now placed correctly in the nested json file">
-      <created>1613650631111</created>
+
+    <task id="LOCAL-00002" summary="Tried to restructure wiki request into a separate class">
+      <created>1613572422176</created>
       <option name="number" value="00002" />
       <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1613650631111</updated>
+      <updated>1613572422176</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Further work on MediaWikiObjects.cs, especially PageAction and derivative classes">
+      <created>1613663880447</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1613663880447</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -160,8 +158,9 @@
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Combined main branch and GUI&#10;Still testing how to connect and manage components" />
-    <MESSAGE value="Added new functions to KeyRing.cs.&#10;The file structure from json file is created in srcTest/ when starting program&#10;New datafiles are now placed correctly in the nested json file&#10;New keyrings are now placed correctly in the nested json file" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added new functions to KeyRing.cs.&#10;The file structure from json file is created in srcTest/ when starting program&#10;New datafiles are now placed correctly in the nested json file&#10;New keyrings are now placed correctly in the nested json file" />
+    <MESSAGE value="Tried to restructure wiki request into a separate class" />
+    <MESSAGE value="Further work on MediaWikiObjects.cs, especially PageAction and derivative classes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Further work on MediaWikiObjects.cs, especially PageAction and derivative classes" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using System.Threading;
 using SecureWiki.ClientApplication;
 using SecureWiki.Cryptography;
@@ -16,6 +17,7 @@ namespace SecureWiki
         private WikiHandler wikiHandler;
         private KeyRing keyRing;
         private TCPListener tcpListener;
+        private static HttpClient httpClient= new ();
 
         public delegate void PrintTest(string input);
         public PrintTest printTest;
@@ -28,8 +30,7 @@ namespace SecureWiki
 
         public void Run()
         {
-            printTest("www1");
-            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED");
+            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient);
             keyRing = new KeyRing();
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
             
@@ -45,7 +46,7 @@ namespace SecureWiki
             fuseThread.IsBackground = true;
             fuseThread.Start();
 
-            printTest("www2");
+            //printTest("www2");
         }
         
         public void PrintTestMethod(string input)
@@ -53,13 +54,30 @@ namespace SecureWiki
             Console.WriteLine("ManagerThread printing: " + input + " from thread:" + Thread.CurrentThread.Name);
         }
 
-        public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string ID)
+        public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
         {
-            MediaWikiObjects.PageQuery.AllRevisions output = new("Www");
+            MediaWikiObjects.PageQuery.AllRevisions allRevisions = new(wikiHandler.MWO, pageTitle);
 
+            allRevisions.GetAllRevisions();
+            Console.WriteLine("Printing all revisions from manager:");
+            allRevisions.PrintAllRevisions();
+
+            MediaWikiObjects.PageQuery.AllRevisions output = allRevisions;
+            
+            return output;
+        }
+        
+        public string GetPageContent(string pageTitle)
+        {
+            //MediaWikiObjects MWO = new(httpClient);
+            
+            MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.MWO, pageTitle);
+            string output = pc.GetContent();
+            
             return output;
         }
 
+    
         public void AddNewFile(string filepath, string filename)
         {
             keyRing.AddNewFile(filepath, filename);
@@ -74,5 +92,18 @@ namespace SecureWiki
         {
             keyRing.RenameFile( filepath,  oldname,  newname);
         }
+
+        public void UndoRevisionsByID(string pageTitle, string startID, string endID)
+        {
+            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = new(wikiHandler.MWO, pageTitle);
+            undoRevisions.UndoRevisionsByID(startID, endID);
+        }
+        
+        public void DeleteRevisionsByID(string pageTitle, string IDs)
+        {
+            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = new(wikiHandler.MWO, pageTitle);
+            deleteRevisions.DeleteRevisionsByIDString(IDs);
+        }
+        
     }
 }
