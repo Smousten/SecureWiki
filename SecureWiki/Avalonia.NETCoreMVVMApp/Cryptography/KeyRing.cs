@@ -122,6 +122,7 @@ namespace SecureWiki.Cryptography
             var (key, iv) = crypto.generateAESparams();
             var (privateKey, publicKey) = crypto.generateRSAparams();
 
+            // TODO: Generate encrypted pageName on wikipedia
             DataFile newfile = new()
             {
                 fileName = filename,
@@ -196,6 +197,11 @@ namespace SecureWiki.Cryptography
             }
 
             return dataFiles;
+        }
+
+        public void RenameFile(string filepath, string oldname, string newname)
+        {
+            
         }
     }
 }

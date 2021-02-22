@@ -67,5 +67,10 @@ namespace SecureWiki
         {
             keyRing.AddNewKeyRing(filepath, keyname);
         }
+
+        public void RenameFile(string filepath, string oldname, string newname)
+        {
+            keyRing.RenameFile( filepath,  oldname,  newname);
+        }
     }
 }

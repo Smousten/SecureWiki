@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using Microsoft.CodeAnalysis;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
 
@@ -102,6 +103,13 @@ namespace SecureWiki.ClientApplication
                     {
                         manager.AddNewKeyRing(filepath, filename);
                     }
+                    break;
+                case "rename":
+                    if (RealFileName(filepath))
+                    {
+                        // manager.RenameFile(filepath, oldname, newname);
+                    }
+
                     break;
             }
         }
