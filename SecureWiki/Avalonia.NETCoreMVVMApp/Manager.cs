@@ -42,7 +42,7 @@ namespace SecureWiki
             fuseThread.IsBackground = true;
             fuseThread.Start();
 
-            printTest("www2");
+            //printTest("www2");
         }
         
         public void PrintTestMethod(string input)
@@ -63,7 +63,7 @@ namespace SecureWiki
             return output;
         }
         
-        public string getPageContent(string pageTitle)
+        public string GetPageContent(string pageTitle)
         {
             //MediaWikiObjects MWO = new(httpClient);
             
@@ -73,10 +73,16 @@ namespace SecureWiki
             return output;
         }
 
-        public void undoRevisionsByID(string pageTitle, string startID, string endID)
+        public void UndoRevisionsByID(string pageTitle, string startID, string endID)
         {
             MediaWikiObjects.PageAction.UndoRevisions undoRevisions = new(wikiHandler.MWO, pageTitle);
             undoRevisions.UndoRevisionsByID(startID, endID);
+        }
+        
+        public void DeleteRevisionsByID(string pageTitle, string IDs)
+        {
+            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = new(wikiHandler.MWO, pageTitle);
+            deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
         
     }

@@ -1,3 +1,4 @@
+using System;
 using System.Net.Sockets;
 using System.Threading;
 using System.Drawing;
@@ -65,7 +66,15 @@ namespace SecureWiki.Views
 
             textBox1.Text = sender.ToString();
             
-            manager.undoRevisionsByID("Www","12", "9");
+            MediaWikiObjects.PageQuery.AllRevisions allRev = manager.GetAllRevisions("Www");
+
+            string startID = allRev.revisionList[0].revisionID;
+            string endID = allRev.revisionList[1].revisionID;
+
+            Console.WriteLine("startID: " + startID);
+            
+            //manager.UndoRevisionsByID("Www",startID, "9");
+            manager.DeleteRevisionsByID("Www", startID + "|" + endID);
 
         }
 
@@ -88,7 +97,7 @@ namespace SecureWiki.Views
             //manager.printTest("www");
 
 
-            string content = manager.getPageContent("Www");
+            string content = manager.GetPageContent("Www");
             
             var textBox1 = this.FindControl<TextBox>("TextBox1");
 

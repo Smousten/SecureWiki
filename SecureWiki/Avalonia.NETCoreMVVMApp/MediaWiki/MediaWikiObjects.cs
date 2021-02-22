@@ -334,8 +334,9 @@ namespace SecureWiki.MediaWiki
 
                 public void UndoRevisionsByID(string startID,string endID)
                 {
-                    JOTokens = GetTokens();
-
+                    undoBeginID = startID;
+                    undoEndID = endID;
+                    
                     action = BuildAction();
                     
                     Console.WriteLine("Starting upload: posting to server.");
@@ -354,13 +355,91 @@ namespace SecureWiki.MediaWiki
                     action.AddValuePair("format", "json");
                     action.AddValuePair("formatversion", "2");
 
-                    //action.AddValuePair("undo", undoBeginID);
-                    //action.AddValuePair("undo", undoEndID);
-                    action.AddValuePair("undo", "12");
-                    action.AddValuePair("undo", "9");
+                    action.AddValuePair("undo", undoBeginID);
+                    action.AddValuePair("undoafter", undoEndID);
+                    //action.AddValuePair("undo", "14");
+                    //action.AddValuePair("undo", "13");
 
                     return action;
                 }
+            }
+            
+            public class DeleteRevisions : PageAction
+            {
+                private string pageID;
+                private string pageTitle;
+                private JObject JOTokens;
+                public string[] deleteID;
+                public string IDString;
+                
+                private Revision revision = new();
+
+                public DeleteRevisions(MediaWikiObjects source, string pageTitle) : base(source)
+                {
+                    this.pageTitle = pageTitle;
+                }
+
+                public DeleteRevisions(string pageTitle, HttpClient client)
+                {
+                    this.pageTitle = pageTitle;
+                    httpClient = client;
+                }
+
+                public void DeleteRevisionsByIDArray(string[] IDArray)
+                {
+                    IDString = BuildIDString(IDArray);
+                    
+                    action = BuildAction();
+                    
+                    Console.WriteLine("Starting DeleteRevisionsByIDArray: posting to server.");
+
+                    postHttpToServer(action);
+                }
+                
+                public void DeleteRevisionsByIDString(string idstring)
+                {
+                    IDString = idstring;
+                    
+                    action = BuildAction();
+                    
+                    Console.WriteLine("Starting DeleteRevisionsByIDString: posting to server.");
+
+                    postHttpToServer(action);
+                }
+
+                public override Action BuildAction()
+                {
+                    JOTokens = GetTokens();
+                    string editToken = ExtractToken(JOTokens, "csrftoken");
+                    
+                    action.action = "?action=revisiondelete";
+                    action.AddValuePair("title", pageTitle);
+                    action.AddValuePair("token", editToken);
+                    action.AddValuePair("format", "json");
+                    action.AddValuePair("formatversion", "2");
+                    
+                    action.AddValuePair("type", "revision");
+                    action.AddValuePair("ids", IDString);
+                    action.AddValuePair("hide", "comment|content|user"); // hide all
+                    action.AddValuePair("reason", "needed doing");
+
+                    return action;
+                }
+
+                private string BuildIDString(string[] inputArr)
+                {
+                    string output = "";
+                    
+                    output = inputArr[0];
+
+                    for (int i = 1; i < inputArr.Length; i++)
+                    {
+                        output += "|";
+                        output += inputArr[i];
+                    }
+
+                    return output;
+                } 
             }
             
             public JObject GetTokens()
