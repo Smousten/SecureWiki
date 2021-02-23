@@ -16,7 +16,7 @@ namespace SecureWiki
         private Thread GUIThread;
         
         private WikiHandler wikiHandler;
-        public KeyRing keyRing = new();
+        private Keyring _keyring;
         private TCPListener tcpListener;
         private static HttpClient httpClient= new();
 
@@ -32,10 +32,10 @@ namespace SecureWiki
         public void Run()
         {
             wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient);
-            //keyRing = new KeyRing();
+            _keyring = new Keyring();
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
             
-            keyRing.InitKeyring();
+            _keyring.InitKeyring();
             
             TCPListenerThread = new(tcpListener.RunListener);
             TCPListenerThread.IsBackground = true;
@@ -81,19 +81,14 @@ namespace SecureWiki
     
         public void AddNewFile(string filepath, string filename)
         {
-            keyRing.AddNewFile(filepath, filename);
+            _keyring.AddNewFile(filepath, filename);
         }
 
         public void AddNewKeyRing(string filepath, string keyname)
         {
-            keyRing.AddNewKeyRing(filepath, keyname);
+            _keyring.AddNewKeyRing(filepath, keyname);
         }
-
-        public void RenameFile(string filepath, string oldname, string newname)
-        {
-            keyRing.RenameFile( filepath,  oldname,  newname);
-        }
-
+        
         public void UndoRevisionsByID(string pageTitle, string startID, string endID)
         {
             MediaWikiObjects.PageAction.UndoRevisions undoRevisions = new(wikiHandler.MWO, pageTitle);
@@ -106,14 +101,22 @@ namespace SecureWiki
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
-        public void UploadNewVersion(string filename)
+        public void UploadNewVersion(string pageTitle)
         {
-            wikiHandler.UploadNewVersion(filename);
+            wikiHandler.UploadNewVersion(pageTitle);
+            // MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(wikiHandler.MWO, pageTitle);
+            // uploadNewRevision.UploadContent();
         }
+        
 
         public Task<string> ReadFile(string filename)
         {
             return wikiHandler.ReadFile(filename);
+        }
+
+        public void RenameFile(string oldPath, string newPath)
+        {
+            _keyring.Rename(oldPath, newPath);
         }
     }
 }

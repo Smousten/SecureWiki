@@ -308,6 +308,8 @@ int bb_rename(const char *path, const char *newpath)
         bzero(buff, sizeof(buff));
         strcpy(buff, "rename:");
         strcat(buff, path);
+        strcat(buff, "%");
+        strcat(buff, newpath);
         write(sockfd, buff, sizeof(buff));
     }
 
