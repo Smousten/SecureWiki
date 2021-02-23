@@ -9,6 +9,7 @@ using Avalonia.Markup.Xaml;
 using SecureWiki.ClientApplication;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
+using SecureWiki.Model;
 
 namespace SecureWiki.Views
 {
@@ -19,6 +20,8 @@ namespace SecureWiki.Views
         private KeyRing keyRing;
         private TCPListener tcpListener;
         private Manager manager;
+        
+        
         
         public MainWindow()
         {
@@ -33,11 +36,16 @@ namespace SecureWiki.Views
             Thread fuseThread = new(Program.RunFuse);
             fuseThread.Start();
             */
+
+            
+            
             manager = new(Thread.CurrentThread);
             Thread ManagerThread = new(manager.Run);
             ManagerThread.IsBackground = true;
             ManagerThread.Name = "ManagerThread";
             ManagerThread.Start();
+
+            
             
             //Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
             
@@ -45,7 +53,7 @@ namespace SecureWiki.Views
             this.AttachDevTools();
 #endif
         }
-
+        
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
@@ -103,6 +111,42 @@ namespace SecureWiki.Views
 
             textBox1.Text = content;
 
+        }
+
+        private void CheckBox_CheckedChanged(object? sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("CheckBox_CheckedChanged entered");
+            CheckBox item = sender as CheckBox;
+            if (item != null)
+            {
+                Console.WriteLine("item wasnt null");
+                
+                Console.WriteLine("parentname: " + item.Parent.Name);
+                
+                
+                Console.WriteLine("parent: " + item.Parent.ToString());
+
+                TreeViewItem TVIParent = GetTreeViewItemParent(item); 
+                Console.WriteLine("TVIParent.na: " + TVIParent.Name);
+                Console.WriteLine("TVIParent: " + TVIParent.ToString());
+
+            }
+        }
+
+        private TreeViewItem GetTreeViewItemParent(ContentControl item)
+        {
+            var parent = item.Parent;
+
+            while (!(parent is TreeViewItem))
+            {
+                if (parent is TreeView)
+                {
+                    throw new Exception();
+                }
+                parent = parent.Parent;
+            }
+
+            return (TreeViewItem) parent;
         }
     }
 }

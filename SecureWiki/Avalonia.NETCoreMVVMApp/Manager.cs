@@ -16,9 +16,9 @@ namespace SecureWiki
         private Thread GUIThread;
         
         private WikiHandler wikiHandler;
-        private KeyRing keyRing;
+        public KeyRing keyRing = new();
         private TCPListener tcpListener;
-        private static HttpClient httpClient= new ();
+        private static HttpClient httpClient= new();
 
         public delegate void PrintTest(string input);
         public PrintTest printTest;
@@ -32,7 +32,7 @@ namespace SecureWiki
         public void Run()
         {
             wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient);
-            keyRing = new KeyRing();
+            //keyRing = new KeyRing();
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
             
             keyRing.InitKeyring();
