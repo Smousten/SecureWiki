@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Threading;
 using SecureWiki.Model;
 
 namespace SecureWiki.Cryptography
@@ -68,11 +67,6 @@ namespace SecureWiki.Cryptography
         // Recursively creates all files and folders from root keyring
         private void CreateFileStructureRecursion(KeyringEntry keyringEntry, string path)
         {
-            // while (!Directory.Exists(path))
-            // {
-            //     Console.WriteLine("waiting for: " + path);
-            //     Thread.Sleep(100);
-            // }
             foreach (var file in keyringEntry.dataFiles)
             {
                 Console.WriteLine(keyringEntry.name +  " Creating file at: " + Path.Combine(path, file.fileName));
@@ -187,8 +181,8 @@ namespace SecureWiki.Cryptography
             File.WriteAllText(keyringFilePath, jsonData);
         }
 
-        // Rename or change location of datafile in root keyringEntry 
-        public void RenameFile(string oldPath, string newPath)
+        // Rename or change location of datafile/keyring in root keyringEntry 
+        public void Rename(string oldPath, string newPath)
         {
             var keyringFilePath = GetKeyringFilePath();
 
@@ -196,20 +190,31 @@ namespace SecureWiki.Cryptography
             var oldKeyring = FindKeyringPath(rootKeyring, oldPath);
             var newKeyring = FindKeyringPath(rootKeyring, newPath);
 
-            var oldFileNameSplit = newPath.Split("/", 2);
-            var oldFileName = oldFileNameSplit[^1];
-            oldFileName = oldFileName.TrimEnd('\0');
+            var oldNameSplit = newPath.Split("/", 2);
+            var oldName = oldNameSplit[^1];
+            oldName = oldName.TrimEnd('\0');
 
-            var newFileNameSplit = newPath.Split("/", 2);
-            var newFileName = newFileNameSplit[^1];
-            newFileName = newFileName.TrimEnd('\0');
+            var newNameSplit = newPath.Split("/", 2);
+            var newName = newNameSplit[^1];
+            newName = newName.TrimEnd('\0');
 
-            var oldDataFile = oldKeyring.dataFiles.Find(f => f.fileName.Equals(oldFileName));
-            if (oldDataFile != null)
+            // Rename/relocate datafile/keyring
+            // Find data file in oldkeyring
+            var dataFile = oldKeyring.dataFiles.Find(f => f.fileName.Equals(oldName));
+            if (dataFile != null)
             {
-                oldKeyring.dataFiles.Remove(oldDataFile);
-                oldDataFile.fileName = newFileName;
-                newKeyring.dataFiles.Add(oldDataFile);
+                oldKeyring.dataFiles.Remove(dataFile);
+                dataFile.fileName = newName;
+                newKeyring.dataFiles.Add(dataFile);
+            }
+            
+            // Find keyring in oldkeyring
+            var keyring = oldKeyring.keyrings.Find(f => f.name.Equals(oldName));
+            if (keyring != null)
+            {
+                oldKeyring.keyrings.Remove(keyring);
+                keyring.name = newName;
+                newKeyring.keyrings.Add(keyring);
             }
 
             JsonSerializerOptions options = new() {WriteIndented = true};

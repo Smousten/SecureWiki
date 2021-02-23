@@ -101,10 +101,13 @@ namespace SecureWiki
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
-        public void UploadNewVersion(string filename)
+        public void UploadNewVersion(string pageTitle)
         {
-            wikiHandler.UploadNewVersion(filename);
+            wikiHandler.UploadNewVersion(pageTitle);
+            // MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(wikiHandler.MWO, pageTitle);
+            // uploadNewRevision.UploadContent();
         }
+        
 
         public Task<string> ReadFile(string filename)
         {
@@ -113,7 +116,7 @@ namespace SecureWiki
 
         public void RenameFile(string oldPath, string newPath)
         {
-            _keyring.RenameFile(oldPath, newPath);
+            _keyring.Rename(oldPath, newPath);
         }
     }
 }
