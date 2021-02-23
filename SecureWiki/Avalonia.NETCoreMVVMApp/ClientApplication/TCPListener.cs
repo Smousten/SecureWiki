@@ -120,7 +120,13 @@ namespace SecureWiki.ClientApplication
                 case "rename":
                     if (RealFileName(filename))
                     {
-                        // manager.RenameFile(filepath, oldname, newname);
+                        var renamePathSplit = op[1].Split("%", 2);
+                        var oldPath = renamePathSplit[0].Substring(1);
+                        var newPath = renamePathSplit[1].Substring(1);
+                        Console.WriteLine("Renaming file: " + filename);
+                        Console.WriteLine("Old path: " + oldPath);
+                        Console.WriteLine("New path: " + newPath);
+                        manager.RenameFile(oldPath, newPath);
                     }
                     break;
                 case "read":

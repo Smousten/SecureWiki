@@ -1,6 +1,6 @@
 namespace SecureWiki.Model
 {
-    public class DataFile
+    public class DataFileEntry
     {
         public string fileName { get; set; } 
         public byte[] symmKey { get; set; }

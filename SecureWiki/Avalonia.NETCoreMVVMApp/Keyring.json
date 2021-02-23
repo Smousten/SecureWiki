@@ -40,8 +40,23 @@
           "revisionNr": -1,
           "serverLink": "http://localhost/mediawiki/api.php",
           "pageName": "newDataFile"
+        },
+        {
+          "fileName": "test5",
+          "symmKey": "PzkUtMR2yHHaTT4jBxKQoOxtfyeXUpJK62Yshw8WlIE=",
+          "iv": "ZhQJqSiCqpG9KwLZ5Ch6NQ==",
+          "privateKey": "MIIEpQIBAAKCAQEA0ELzlpBxZ8iL/2G9Y+TOOSpfooTLX7drrlOcwo2ZLVW41jXnr4eGUujfTgC5lKxhUmWdH8x4oxDU0W1p+8tW2vvAFIarePNTuaiKXJLvKRbW/+v72hufY0VvB/Ubwqsgp9balSjEQQRa4ZnrD/CUIPVVuowOP2IkWAzF6UIrefajIsdUn9jn1YAyl8oQYDV2a6xIEyyBbJU4tBf+6hxS8aVS7st27zWRKuc4rHT/wQ6y2dLqTNHI5mr+/3GxETc+P8zS9QTXBZ/v9SjdTRIx8ZB0i7MFZYe6YKkBUVkNku3NPsS3gsTPIdJKZi5Wd3ZjPEezBXY0hKJWpi3WpSohHQIDAQABAoIBAANMbCtAUmuAY6dB1wwT/aguIaGjVM1JTG1QabUzJO/w4aKS6/59uQTrJ05G+KmAKXJypZBxXp/GjnhasUkJqXCCeEJa97BMulDAeKCKuzr9X55iEHUd5uJdoSqRGUV2DGhcIM4n/SPCe+YC2BRCjTYQbLEtsrQSS90RJrlREPs3g3u+fzSh3Ryk0i4RNLgS+qg3L5rcqMfq5T8/vgsA/O9NUR00Ivl7vvsL3hmbrqBlJ+dze7WJVcRltn5cXQooYnxELu67n1BMexnmF5JHNqtT4Zk5cgw7PNmcLdwS3e7WW5Y8BVVvHHG1aLLLBXNMoivaqoU31ijASWt7XXc4XwkCgYEA+bf3eRLcUNloGHR9n9iCFWaRydfdSb2R+Jz5NFe3gWqMtjS2xIQhnyzYTfD/MbZDn73OOjYmSolxHjPOYnFQ46KrLUzPZ/wf2adO2DgxyOMVJTFRVLiPNW1nQK5MPBIT/SMZhvi9+TfVF6NnRaDoumUIhRl6Lzg826JVpnpg9HsCgYEA1YAG3jtV7qjAGWzx+tHDeeGgs/wbg4C59hD1CgSTMx70/sGqHBGe7dnXY7WYRmCsa0CrnZYqbqUepxD5xlt6qlxZlSdU/ZuOC9oiqMBWEKFWFlscUgzWthEXdpYL1IkqG+xpsWna90DWn7h9BG14FjkywW8aQ03EJMCRazaqCUcCgYEAqqGO4tcFXeVAIL2wfUGmmVLtuTrcBSAYlwVDrwVk6XRR08qvPBaBFs/AuXk8Fs7Q5F0Ahnwrq/DAL3/8vP1q5TBowNpkOkxnwwR0dn/nXLn13+UUCszVZg9sZyDyDHXZ3LVYIwbiYGFLJQzNayFpBLw2lyPyfkNyKi2BUvD6QPMCgYEAiUeVIvhMPPVM8AxZW8ndQ1WNG64Tku8Go+4rYZGnhMt3BQhJ9VpvMslL8dUmYLpwo1YmA2I3ToXlu87yjFTt/vT6tSlhQODw6TYN6ywhKvhSfnV/NFMFDHTY/Wtll/fKl8HgBC/ol+udFX5vBJXPDZshw7dIz9YFNQyNdL7lfqkCgYEA9+zvyF41YShx3sL0X2rm++J9Fr00sYJ3ltjTEHT+LWyB4LvBo6WvGDdvvNRpEuWha2uGbVRUN9mQAcYyNEWoIjVH67CdGdvgRc1ndVkTeAFAbfeB2lyR3Q9fsr+ZJpcz4n9surKxEvf8v56H3Inkg0aKWGEh9V474vgOQ9Bm2nk=",
+          "publicKey": "MIIBCgKCAQEA0ELzlpBxZ8iL/2G9Y+TOOSpfooTLX7drrlOcwo2ZLVW41jXnr4eGUujfTgC5lKxhUmWdH8x4oxDU0W1p+8tW2vvAFIarePNTuaiKXJLvKRbW/+v72hufY0VvB/Ubwqsgp9balSjEQQRa4ZnrD/CUIPVVuowOP2IkWAzF6UIrefajIsdUn9jn1YAyl8oQYDV2a6xIEyyBbJU4tBf+6hxS8aVS7st27zWRKuc4rHT/wQ6y2dLqTNHI5mr+/3GxETc+P8zS9QTXBZ/v9SjdTRIx8ZB0i7MFZYe6YKkBUVkNku3NPsS3gsTPIdJKZi5Wd3ZjPEezBXY0hKJWpi3WpSohHQIDAQAB",
+          "revisionNr": -1,
+          "serverLink": "http://localhost/mediawiki/api.php",
+          "pageName": "test5"
         }
       ]
+    },
+    {
+      "name": "Dir1",
+      "keyRings": [],
+      "dataFiles": []
     }
   ],
   "dataFiles": [
@@ -84,16 +99,6 @@
       "revisionNr": -1,
       "serverLink": "http://localhost/mediawiki/api.php",
       "pageName": "test4"
-    },
-    {
-      "fileName": "test5",
-      "symmKey": "PzkUtMR2yHHaTT4jBxKQoOxtfyeXUpJK62Yshw8WlIE=",
-      "iv": "ZhQJqSiCqpG9KwLZ5Ch6NQ==",
-      "privateKey": "MIIEpQIBAAKCAQEA0ELzlpBxZ8iL/2G9Y+TOOSpfooTLX7drrlOcwo2ZLVW41jXnr4eGUujfTgC5lKxhUmWdH8x4oxDU0W1p+8tW2vvAFIarePNTuaiKXJLvKRbW/+v72hufY0VvB/Ubwqsgp9balSjEQQRa4ZnrD/CUIPVVuowOP2IkWAzF6UIrefajIsdUn9jn1YAyl8oQYDV2a6xIEyyBbJU4tBf+6hxS8aVS7st27zWRKuc4rHT/wQ6y2dLqTNHI5mr+/3GxETc+P8zS9QTXBZ/v9SjdTRIx8ZB0i7MFZYe6YKkBUVkNku3NPsS3gsTPIdJKZi5Wd3ZjPEezBXY0hKJWpi3WpSohHQIDAQABAoIBAANMbCtAUmuAY6dB1wwT/aguIaGjVM1JTG1QabUzJO/w4aKS6/59uQTrJ05G+KmAKXJypZBxXp/GjnhasUkJqXCCeEJa97BMulDAeKCKuzr9X55iEHUd5uJdoSqRGUV2DGhcIM4n/SPCe+YC2BRCjTYQbLEtsrQSS90RJrlREPs3g3u+fzSh3Ryk0i4RNLgS+qg3L5rcqMfq5T8/vgsA/O9NUR00Ivl7vvsL3hmbrqBlJ+dze7WJVcRltn5cXQooYnxELu67n1BMexnmF5JHNqtT4Zk5cgw7PNmcLdwS3e7WW5Y8BVVvHHG1aLLLBXNMoivaqoU31ijASWt7XXc4XwkCgYEA+bf3eRLcUNloGHR9n9iCFWaRydfdSb2R+Jz5NFe3gWqMtjS2xIQhnyzYTfD/MbZDn73OOjYmSolxHjPOYnFQ46KrLUzPZ/wf2adO2DgxyOMVJTFRVLiPNW1nQK5MPBIT/SMZhvi9+TfVF6NnRaDoumUIhRl6Lzg826JVpnpg9HsCgYEA1YAG3jtV7qjAGWzx+tHDeeGgs/wbg4C59hD1CgSTMx70/sGqHBGe7dnXY7WYRmCsa0CrnZYqbqUepxD5xlt6qlxZlSdU/ZuOC9oiqMBWEKFWFlscUgzWthEXdpYL1IkqG+xpsWna90DWn7h9BG14FjkywW8aQ03EJMCRazaqCUcCgYEAqqGO4tcFXeVAIL2wfUGmmVLtuTrcBSAYlwVDrwVk6XRR08qvPBaBFs/AuXk8Fs7Q5F0Ahnwrq/DAL3/8vP1q5TBowNpkOkxnwwR0dn/nXLn13+UUCszVZg9sZyDyDHXZ3LVYIwbiYGFLJQzNayFpBLw2lyPyfkNyKi2BUvD6QPMCgYEAiUeVIvhMPPVM8AxZW8ndQ1WNG64Tku8Go+4rYZGnhMt3BQhJ9VpvMslL8dUmYLpwo1YmA2I3ToXlu87yjFTt/vT6tSlhQODw6TYN6ywhKvhSfnV/NFMFDHTY/Wtll/fKl8HgBC/ol+udFX5vBJXPDZshw7dIz9YFNQyNdL7lfqkCgYEA9+zvyF41YShx3sL0X2rm++J9Fr00sYJ3ltjTEHT+LWyB4LvBo6WvGDdvvNRpEuWha2uGbVRUN9mQAcYyNEWoIjVH67CdGdvgRc1ndVkTeAFAbfeB2lyR3Q9fsr+ZJpcz4n9surKxEvf8v56H3Inkg0aKWGEh9V474vgOQ9Bm2nk=",
-      "publicKey": "MIIBCgKCAQEA0ELzlpBxZ8iL/2G9Y+TOOSpfooTLX7drrlOcwo2ZLVW41jXnr4eGUujfTgC5lKxhUmWdH8x4oxDU0W1p+8tW2vvAFIarePNTuaiKXJLvKRbW/+v72hufY0VvB/Ubwqsgp9balSjEQQRa4ZnrD/CUIPVVuowOP2IkWAzF6UIrefajIsdUn9jn1YAyl8oQYDV2a6xIEyyBbJU4tBf+6hxS8aVS7st27zWRKuc4rHT/wQ6y2dLqTNHI5mr+/3GxETc+P8zS9QTXBZ/v9SjdTRIx8ZB0i7MFZYe6YKkBUVkNku3NPsS3gsTPIdJKZi5Wd3ZjPEezBXY0hKJWpi3WpSohHQIDAQAB",
-      "revisionNr": -1,
-      "serverLink": "http://localhost/mediawiki/api.php",
-      "pageName": "test5"
     },
     {
       "fileName": "test6",

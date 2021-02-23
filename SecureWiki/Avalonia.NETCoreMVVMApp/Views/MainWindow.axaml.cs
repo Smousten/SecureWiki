@@ -16,7 +16,7 @@ namespace SecureWiki.Views
     {
         
         private WikiHandler wikiHandler;
-        private KeyRing keyRing;
+        private Keyring _keyring;
         private TCPListener tcpListener;
         private Manager manager;
         
