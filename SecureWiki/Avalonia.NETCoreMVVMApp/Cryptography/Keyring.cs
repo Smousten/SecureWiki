@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using SecureWiki.Model;
 
 namespace SecureWiki.Cryptography
@@ -18,7 +20,7 @@ namespace SecureWiki.Cryptography
             {
                 CreateNewKeyRing(filepath);
             }
-            
+
             var keyring = ReadKeyRing();
             // Create file structure in rootdir
             CreateFileStructureRecursion(keyring, GetRootDirPath());
@@ -30,10 +32,10 @@ namespace SecureWiki.Cryptography
             // Python fuse
             // var filepath = "Pyfuse_mediaWiki/srcTest/";
             // C fuse
-            var filepath = "fuse/example/rootdir/";
+            var filePath = "fuse/example/rootdir/";
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-            var rootDir = Path.Combine(projectDir, filepath);
+            var rootDir = Path.Combine(projectDir, filePath);
             return rootDir;
         }
 
@@ -46,7 +48,7 @@ namespace SecureWiki.Cryptography
             var keyringFilePath = Path.Combine(path, keyringFileName);
             return keyringFilePath;
         }
-        
+
         // Returns root keyring as deserialized json object
         private KeyringEntry GetRootKeyring(string keyringFilePath)
         {
@@ -66,13 +68,22 @@ namespace SecureWiki.Cryptography
         // Recursively creates all files and folders from root keyring
         private void CreateFileStructureRecursion(KeyringEntry keyringEntry, string path)
         {
+            // while (!Directory.Exists(path))
+            // {
+            //     Console.WriteLine("waiting for: " + path);
+            //     Thread.Sleep(100);
+            // }
             foreach (var file in keyringEntry.dataFiles)
             {
-                File.Create(path + file.fileName).Dispose();
+                Console.WriteLine(keyringEntry.name +  " Creating file at: " + Path.Combine(path, file.fileName));
+                File.Create(Path.Combine(path, file.fileName)).Dispose();
             }
+
+            Console.WriteLine("Number of keyrings in list: " + keyringEntry.keyrings.Count);
 
             foreach (var childKeyRing in keyringEntry.keyrings)
             {
+                Console.WriteLine(childKeyRing.name +  " Creating directory at: " + Path.Combine(path, childKeyRing.name));
                 Directory.CreateDirectory(Path.Combine(path, childKeyRing.name));
                 CreateFileStructureRecursion(childKeyRing, Path.Combine(path, childKeyRing.name));
             }
@@ -96,18 +107,20 @@ namespace SecureWiki.Cryptography
         private KeyringEntry FindKeyringPath(KeyringEntry rootKeyring, string filePath)
         {
             var filePathSplit = filePath.Split("/");
-            
+
             // Found keyring entry to insert into
             if (filePathSplit.Length <= 1)
             {
                 return rootKeyring;
             }
+
             var childKeyring = rootKeyring.keyrings.Find(f => f.name.Equals(filePathSplit[0]));
-            var newPath = string.Join("",filePathSplit.Skip(1).ToArray());
+            var newPath = string.Join("", filePathSplit.Skip(1).ToArray());
             if (childKeyring != null)
             {
                 return FindKeyringPath(childKeyring, newPath);
             }
+
             KeyringEntry intermediateKeyring = new()
             {
                 name = filePathSplit[0],
@@ -167,13 +180,13 @@ namespace SecureWiki.Cryptography
             // Find the keyring where the new keyring is inserted
             var foundKeyring = FindKeyringPath(existingKeyRing, filepath);
             foundKeyring.keyrings.Add(newKeyringEntry);
-            
+
             JsonSerializerOptions options = new() {WriteIndented = true};
 
             var jsonData = JsonSerializer.Serialize(existingKeyRing, options);
             File.WriteAllText(keyringFilePath, jsonData);
         }
-        
+
         // Rename or change location of datafile in root keyringEntry 
         public void RenameFile(string oldPath, string newPath)
         {
@@ -190,7 +203,7 @@ namespace SecureWiki.Cryptography
             var newFileNameSplit = newPath.Split("/", 2);
             var newFileName = newFileNameSplit[^1];
             newFileName = newFileName.TrimEnd('\0');
-            
+
             var oldDataFile = oldKeyring.dataFiles.Find(f => f.fileName.Equals(oldFileName));
             if (oldDataFile != null)
             {
