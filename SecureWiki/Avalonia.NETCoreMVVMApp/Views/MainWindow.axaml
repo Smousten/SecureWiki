@@ -53,7 +53,7 @@
                                 <TextBlock Text="{Binding name}"></TextBlock>
                             </CheckBox>
                         </TreeDataTemplate>
-                        <DataTemplate DataType="Models:DataFile" >
+                        <DataTemplate DataType="Models:DataFileEntry" >
                             <CheckBox IsChecked="True" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged">
                                 <TextBlock Foreground="Blue" Text="{Binding filename}"></TextBlock>
                             </CheckBox>

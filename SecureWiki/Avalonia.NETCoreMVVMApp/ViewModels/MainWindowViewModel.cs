@@ -20,7 +20,7 @@ namespace SecureWiki.ViewModels
             keyringEntries = new();
             rootKeyring = new();
             
-            KeyRing kr = new();
+            Keyring kr = new();
             kr.InitKeyring();
             rootKeyringEntry = kr.ReadKeyRing();
             
@@ -40,7 +40,7 @@ namespace SecureWiki.ViewModels
 
             rk.name = "Keyrings:";
             rk.keyrings = inputKeyringEntry.keyrings;
-            rk.dataFiles = new ObservableCollection<DataFile>(inputKeyringEntry.dataFiles);
+            rk.dataFiles = new ObservableCollection<DataFileEntry>(inputKeyringEntry.dataFiles);
             Console.WriteLine("rk datafile count: " + rk.dataFiles.Count);
             rkr.Add(rk);
 

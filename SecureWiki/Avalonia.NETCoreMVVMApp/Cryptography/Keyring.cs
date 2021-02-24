@@ -70,7 +70,7 @@ namespace SecureWiki.Cryptography
         {
             foreach (var file in keyringEntry.dataFiles)
             {
-                File.Create(Path.Combine(path, file.fileName)).Dispose();
+                File.Create(Path.Combine(path, file.filename)).Dispose();
             }
 
             foreach (var childKeyRing in keyringEntry.keyrings)
@@ -182,7 +182,7 @@ namespace SecureWiki.Cryptography
         // Find the datafile with the given name -- better performance if whole filepath is given
         public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)
         {
-            var dataFile = keyring.dataFiles.Find(f => f.fileName.Equals(filename));
+            var dataFile = keyring.dataFiles.Find(f => f.filename.Equals(filename));
             return dataFile ?? keyring.keyrings.Select(childKeyRing => GetDataFile(filename, childKeyRing)).FirstOrDefault();
         }
 
@@ -205,11 +205,11 @@ namespace SecureWiki.Cryptography
 
             // Rename/relocate datafile/keyring
             // Find data file in oldkeyring
-            var dataFile = oldKeyring.dataFiles.Find(f => f.fileName.Equals(oldName));
+            var dataFile = oldKeyring.dataFiles.Find(f => f.filename.Equals(oldName));
             if (dataFile != null)
             {
                 oldKeyring.dataFiles.Remove(dataFile);
-                dataFile.fileName = newName;
+                dataFile.filename = newName;
                 newKeyring.dataFiles.Add(dataFile);
             }
             
