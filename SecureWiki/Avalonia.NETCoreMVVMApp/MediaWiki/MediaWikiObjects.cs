@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 
 namespace SecureWiki.MediaWiki
@@ -33,6 +30,7 @@ namespace SecureWiki.MediaWiki
     public class MediaWikiObjects
     {
         private string URL = "http://localhost/mediawiki/api.php";
+        // private string URL;
         private string MWuserID;
         private string MWuserPassword;
 
@@ -48,7 +46,7 @@ namespace SecureWiki.MediaWiki
 
         public MediaWikiObjects(MediaWikiObjects source)
         {
-            URL = source.URL;
+            // URL = source.URL;
             MWuserID = source.MWuserID;
             MWuserPassword = source.MWuserPassword;
             httpClient = source.httpClient;
@@ -63,6 +61,13 @@ namespace SecureWiki.MediaWiki
         
         public MediaWikiObjects(HttpClient client, string username, string password)
         {
+            httpClient = client;
+            LoginMediaWiki(username, password);
+        }
+
+        public MediaWikiObjects(HttpClient client, string username, string password, string ip)
+        {
+            URL = "http://" + ip + "/mediawiki/api.php";
             httpClient = client;
             LoginMediaWiki(username, password);
         }

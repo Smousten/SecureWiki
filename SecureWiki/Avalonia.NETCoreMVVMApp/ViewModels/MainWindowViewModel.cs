@@ -11,6 +11,14 @@ namespace SecureWiki.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         public ObservableCollection<RootKeyring> rootKeyring { get; set; }
+        public string IP { get; set; } = "127.0.0.1";
+
+        public string Username { get; set; }
+        public string Password { get; set; }
+
+        public object MailRecipient { get; set; }
+
+        private KeyringEntry rootKeyringEntry;
 
         public MainWindowViewModel()
         {

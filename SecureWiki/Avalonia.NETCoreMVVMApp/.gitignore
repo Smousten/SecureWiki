@@ -7,3 +7,5 @@ obj/
 
 *.user
 /KeyRing.json
+
+/Keyring.json

@@ -40,7 +40,7 @@ namespace SecureWiki.Cryptography
         }
 
         // Returns absolute file path to keyring jsonfile as string
-        private string GetKeyringFilePath()
+        public string GetKeyringFilePath()
         {
             var currentDir = Directory.GetCurrentDirectory();
             var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
@@ -70,15 +70,11 @@ namespace SecureWiki.Cryptography
         {
             foreach (var file in keyringEntry.dataFiles)
             {
-                Console.WriteLine(keyringEntry.name +  " Creating file at: " + Path.Combine(path, file.filename));
                 File.Create(Path.Combine(path, file.filename)).Dispose();
             }
 
-            Console.WriteLine("CreateFileStructureRecursion:- Number of keyrings in list: " + keyringEntry.keyrings.Count);
-
             foreach (var childKeyRing in keyringEntry.keyrings)
             {
-                Console.WriteLine(childKeyRing.name +  " Creating directory at: " + Path.Combine(path, childKeyRing.name));
                 Directory.CreateDirectory(Path.Combine(path, childKeyRing.name));
                 CreateFileStructureRecursion(childKeyRing, Path.Combine(path, childKeyRing.name));
             }
@@ -108,13 +104,14 @@ namespace SecureWiki.Cryptography
             {
                 return rootKeyring;
             }
-            KeyringEntry childKeyring = rootKeyring.keyrings.Where(f => f.name.Equals(filePathSplit[0])).First();
-            var newPath = string.Join("", filePathSplit.Skip(1).ToArray());
+
+            var childKeyring = rootKeyring.keyrings.FirstOrDefault(f => f.name.Equals(filePathSplit[0]));
+            var newPath = string.Join("/", filePathSplit.Skip(1).ToArray());
+
             if (childKeyring != null)
             {
                 return FindKeyringPath(childKeyring, newPath);
             }
-
             KeyringEntry intermediateKeyring = new()
             {
                 name = filePathSplit[0],
@@ -134,8 +131,10 @@ namespace SecureWiki.Cryptography
 
             var (key, iv) = _crypto.generateAESparams();
             var (privateKey, publicKey) = _crypto.generateRSAparams();
-
-            // TODO: Generate encrypted pageName on wikipedia
+            
+            var filenameBytes = _crypto.EncryptAesStringToBytes(filename, key, iv);
+            var encryptedFilename = BitConverter.ToString(filenameBytes);
+            
             DataFileEntry dataFileEntry = new()
             {
                 filename = filename,
@@ -145,7 +144,7 @@ namespace SecureWiki.Cryptography
                 publicKey = publicKey,
                 revisionNr = "-1",
                 serverLink = "http://localhost/mediawiki/api.php",
-                pagename = filename
+                pagename = encryptedFilename
             };
 
             // Find the keyring where the new datafile is inserted
@@ -170,15 +169,22 @@ namespace SecureWiki.Cryptography
                 dataFiles = new List<DataFileEntry>(),
                 keyrings = new ObservableCollection<KeyringEntry>()
             };
-
+            
             // Find the keyring where the new keyring is inserted
             var foundKeyring = FindKeyringPath(existingKeyRing, filepath);
             foundKeyring.keyrings.Add(newKeyringEntry);
-
+            
             JsonSerializerOptions options = new() {WriteIndented = true};
 
             var jsonData = JsonSerializer.Serialize(existingKeyRing, options);
             File.WriteAllText(keyringFilePath, jsonData);
+        }
+        
+        // Find the datafile with the given name -- better performance if whole filepath is given
+        public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)
+        {
+            var dataFile = keyring.dataFiles.Find(f => f.filename.Equals(filename));
+            return dataFile ?? keyring.keyrings.Select(childKeyRing => GetDataFile(filename, childKeyRing)).FirstOrDefault();
         }
 
         // Rename or change location of datafile/keyring in root keyringEntry 
@@ -209,7 +215,7 @@ namespace SecureWiki.Cryptography
             }
             
             // Find keyring in oldkeyring
-            var keyring = oldKeyring.keyrings.Where(f => f.name.Equals(oldName)).First();
+            var keyring = oldKeyring.keyrings.FirstOrDefault(f => f.name.Equals(oldName));
             if (keyring != null)
             {
                 oldKeyring.keyrings.Remove(keyring);
