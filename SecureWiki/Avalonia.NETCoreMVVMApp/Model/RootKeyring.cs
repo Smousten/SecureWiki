@@ -1,15 +1,16 @@
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace SecureWiki.Model
 {
-    public class KeyringEntry
+    public class RootKeyring
     {
         public string name { get; set; }
-        // public List<KeyringEntry> keyRings { get; set; }
-        public ObservableCollection<KeyringEntry> keyrings { get; set; }
-        public List<DataFileEntry> dataFiles { get; set; }
 
+        public ObservableCollection<KeyringEntry> keyrings { get; set; } 
+            = new();
+        public ObservableCollection<DataFile> dataFiles { get; set; } 
+            = new();
+        
         public ObservableCollection<object> combinedList
         {
             get
@@ -20,7 +21,7 @@ namespace SecureWiki.Model
                 {
                     output.Add(entry);
                 }
-                foreach (DataFileEntry entry in dataFiles)
+                foreach (DataFile entry in dataFiles)
                 {
                     output.Add(entry);
                 }

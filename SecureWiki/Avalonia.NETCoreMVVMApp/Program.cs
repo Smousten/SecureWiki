@@ -46,6 +46,11 @@ namespace SecureWiki
             var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             // var pythonDir = Path.Combine(baseDir, @"Pyfuse_mediaWiki/");
             // var pythonScipt = Path.Combine(pythonDir, @"passthroughfs.py");
+
+            // Create mountdir if it does not already exist
+            var mountdirPath = Path.Combine(baseDir, @"fuse/example/mountdir");
+            Directory.CreateDirectory(mountdirPath);
+            
             var cDir = Path.Combine(baseDir, @"fuse/src/");
             var cExe = Path.Combine(cDir, @"bbfs");
             ProcessStartInfo start = new ProcessStartInfo();

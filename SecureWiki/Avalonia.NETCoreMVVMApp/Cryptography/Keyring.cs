@@ -70,15 +70,11 @@ namespace SecureWiki.Cryptography
         {
             foreach (var file in keyringEntry.dataFiles)
             {
-                Console.WriteLine(keyringEntry.name +  " Creating file at: " + Path.Combine(path, file.fileName));
                 File.Create(Path.Combine(path, file.fileName)).Dispose();
             }
 
-            Console.WriteLine("Number of keyrings in list: " + keyringEntry.keyrings.Count);
-
             foreach (var childKeyRing in keyringEntry.keyrings)
             {
-                Console.WriteLine(childKeyRing.name +  " Creating directory at: " + Path.Combine(path, childKeyRing.name));
                 Directory.CreateDirectory(Path.Combine(path, childKeyRing.name));
                 CreateFileStructureRecursion(childKeyRing, Path.Combine(path, childKeyRing.name));
             }
@@ -140,7 +136,7 @@ namespace SecureWiki.Cryptography
             
             DataFileEntry dataFileEntry = new()
             {
-                fileName = filename,
+                filename = filename,
                 symmKey = key,
                 iv = iv,
                 privateKey = privateKey,
@@ -176,7 +172,7 @@ namespace SecureWiki.Cryptography
             // Find the keyring where the new keyring is inserted
             var foundKeyring = FindKeyringPath(existingKeyRing, filepath);
             foundKeyring.keyrings.Add(newKeyringEntry);
-
+            
             JsonSerializerOptions options = new() {WriteIndented = true};
 
             var jsonData = JsonSerializer.Serialize(existingKeyRing, options);

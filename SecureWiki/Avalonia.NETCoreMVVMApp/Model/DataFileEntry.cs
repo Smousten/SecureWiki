@@ -2,7 +2,7 @@ namespace SecureWiki.Model
 {
     public class DataFileEntry
     {
-        public string fileName { get; set; } 
+        public string filename { get; set; } 
         public byte[] symmKey { get; set; }
         public byte[] iv { get; set; }
         public byte[] privateKey { get; set; }
