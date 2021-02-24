@@ -1,28 +1,24 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using SecureWiki.Cryptography;
-using SecureWiki.MediaWiki;
 
 namespace SecureWiki.ClientApplication
 {
     public class TCPListener
     {
-        private Int32 port;
-        private IPAddress localAddr;
-        private Manager manager;
-        private NetworkStream stream;
+        private readonly Int32 _port;
+        private readonly IPAddress _localAddr;
+        private readonly Manager _manager;
+        private NetworkStream? _stream;
 
         public TCPListener(int port, string localAddr, Manager manager)
         {
-            this.port = port;
-            this.localAddr = IPAddress.Parse(localAddr);
-            this.manager = manager;
+            this._port = port;
+            this._localAddr = IPAddress.Parse(localAddr);
+            this._manager = manager;
         }
 
         public void RunListener()
@@ -35,7 +31,7 @@ namespace SecureWiki.ClientApplication
             TcpListener server = null;
             try
             {
-                server = new TcpListener(localAddr, port);
+                server = new TcpListener(_localAddr, _port);
                 server.Start();
 
                 ListenLoop(server);
@@ -53,25 +49,25 @@ namespace SecureWiki.ClientApplication
         private void ListenLoop(TcpListener server)
         {
             Byte[] bytes = new Byte[256];
-            String data = null;
+            string? data = null;
             int input;
 
             while (true)
             {
-                Console.Write("Waiting for TCP connection at port:" + port);
+                Console.Write("Waiting for TCP connection at port:" + _port);
 
                 TcpClient client = server.AcceptTcpClient();
-                Console.WriteLine("Connected at port:" + port);
+                Console.WriteLine("Connected at port:" + _port);
 
-                stream = client.GetStream();
+                _stream = client.GetStream();
                 
                 // Reset data for each iteration
                 data = null;
 
-                while ((input = stream.Read(bytes, 0, bytes.Length)) != 0)
+                while ((input = _stream.Read(bytes, 0, bytes.Length)) != 0)
                 {
                     // Convert input bytes to ASCII before use
-                    data = System.Text.Encoding.ASCII.GetString(bytes, 0, input);
+                    data = Encoding.ASCII.GetString(bytes, 0, input);
                     Operations(data);
                 }
 
@@ -90,32 +86,30 @@ namespace SecureWiki.ClientApplication
             // var filepathsplit = filepath.Split("/");
             // var filename = filepathsplit[^1];
             if (op.Length < 2) return;
-            var filepath = op[1].Substring(1);
-            char[] arr = filepath.Where(c => (char.IsLetterOrDigit(c) || 
+            var filePath = op[1].Substring(1);
+            char[] arr = filePath.Where(c => (char.IsLetterOrDigit(c) || 
                                               char.IsWhiteSpace(c) || 
                                               c == '.' || c == '/')).ToArray(); 
             
-            filepath = new string(arr);
-            var filepathsplit = filepath.Split("/", 2);
-            var filename = filepathsplit[^1];
+            filePath = new string(arr);
+            var filePathSplit = filePath.Split("/", 2);
+            var filename = filePathSplit[^1];
             switch (op[0])
             {
                 case "release":
                     if (RealFileName(filename))
                     {
-                        manager.UploadNewVersion(filename);
+                        _manager.UploadNewVersion(filename);
                     }
                     break;
                 case "create":
                     if (RealFileName(filename))
                     {
-                        manager.AddNewFile(filepath, filename);
+                        _manager.AddNewFile(filePath, filename);
                     }
                     break;
                 case "mkdir":
-                    Console.WriteLine("filename: " + filename);
-                    Console.WriteLine("filepath: " + filepath);
-                    manager.AddNewKeyRing(filepath, filename);
+                    _manager.AddNewKeyRing(filePath, filename);
                     break;
                 case "rename":
                     if (RealFileName(filename))
@@ -123,27 +117,16 @@ namespace SecureWiki.ClientApplication
                         var renamePathSplit = op[1].Split("%", 2);
                         var oldPath = renamePathSplit[0].Substring(1);
                         var newPath = renamePathSplit[1].Substring(1);
-                        Console.WriteLine("Renaming file: " + filename);
-                        Console.WriteLine("Old path: " + oldPath);
-                        Console.WriteLine("New path: " + newPath);
-                        manager.RenameFile(oldPath, newPath);
+                        _manager.RenameFile(oldPath, newPath);
                     }
                     break;
                 case "read":
                     if (RealFileName(filename))
                     {
-                        Task<string> decryptedTextTask = manager.ReadFile(filename);
+                        Task<string> decryptedTextTask = _manager.ReadFile(filename);
                         string decryptedText = decryptedTextTask.Result;
                         byte[] byData = Encoding.ASCII.GetBytes(decryptedText);
-                        // byte[] byDataLen = BitConverter.GetBytes(byData.Length);
-                        // Console.WriteLine(BitConverter.ToInt32(byDataLen));
-                        //
-                        // byte[] rv = new byte[byDataLen.Length + byData.Length];
-                        // Buffer.BlockCopy(byDataLen, 0, rv, 0, byDataLen.Length);
-                        // Buffer.BlockCopy(byData, 0, rv, byDataLen.Length, byData.Length);
-                        // stream.Write(rv);
-                        stream.Write(byData);
-                        Console.WriteLine("sending to server socket: {0}", Encoding.ASCII.GetString(byData));
+                        _stream?.Write(byData);
                     }
                     break;
             }

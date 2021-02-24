@@ -7,18 +7,18 @@ namespace SecureWiki.Cryptography
 {
     public class Crypto
     {
-        private readonly Aes aesAlg;
-        private string key = "RP4Jvz5Gv0Fxret3YoOJzrA+BkV2PTK1QcuAucAgVOc=";
-        private string iv = "awFCaG5DVbr+3zaTRM4O2A==";
+        // private readonly Aes aesAlg;
+        // private string key = "RP4Jvz5Gv0Fxret3YoOJzrA+BkV2PTK1QcuAucAgVOc=";
+        // private string iv = "awFCaG5DVbr+3zaTRM4O2A==";
 
         public Crypto()
         {
-            aesAlg = Aes.Create();
-            aesAlg.Key = Convert.FromBase64String(key);
-            aesAlg.IV = Convert.FromBase64String(iv);
+            // aesAlg = Aes.Create();
+            // aesAlg.Key = Convert.FromBase64String(key);
+            // aesAlg.IV = Convert.FromBase64String(iv);
         }
 
-        public byte[] EncryptAESStringToBytes(string plainText)
+        public byte[] EncryptAesStringToBytes(string plainText, byte[] key, byte[] iv)
         {
             // Ensure argument validity
             if (plainText == null || plainText.Length <= 0)
@@ -29,28 +29,37 @@ namespace SecureWiki.Cryptography
                 throw new ArgumentNullException(nameof(iv));
             byte[] encrypted;
 
-            // Build encryptor for transforming the plaintext to ciphertext
-            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-            // Build necessary streams
-            using (MemoryStream msEncrypt = new())
+            using (Aes aesAlg = Aes.Create())
             {
-                using (CryptoStream csEncrypt = new(msEncrypt, encryptor, CryptoStreamMode.Write))
+                aesAlg.Key = key;
+                aesAlg.IV = iv;
+                
+                // Build encryptor for transforming the plaintext to ciphertext
+                ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+                
+                aesAlg.Padding = PaddingMode.PKCS7;
+
+                // Build necessary streams
+                using (MemoryStream msEncrypt = new())
                 {
-                    using (StreamWriter swEncrypt = new(csEncrypt))
+                    using (CryptoStream csEncrypt = new(msEncrypt, encryptor, CryptoStreamMode.Write))
                     {
-                        //Write input plaintext to the stream writer
-                        swEncrypt.Write(plainText);
+                        using (StreamWriter swEncrypt = new(csEncrypt))
+                        {
+                            //Write input plaintext to the stream writer
+                            swEncrypt.Write(plainText);
+                        }
+
+                        // Convert memory stream to byte array
+                        encrypted = msEncrypt.ToArray();
                     }
-                    // Convert memory stream to byte array
-                    encrypted = msEncrypt.ToArray();
                 }
             }
-
             return encrypted;
         }
 
-        public string DecryptAESBytesToString(byte[] cipherText)
+        public string DecryptAESBytesToString(byte[] cipherText, byte[] key, byte[] iv)
         {
             // Ensure argument validity
             if (cipherText == null || cipherText.Length <= 0)
@@ -62,30 +71,36 @@ namespace SecureWiki.Cryptography
 
             string plaintext = null;
 
-            // Build encryptor for transforming the ciphertext to plaintext
-            ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-
-            // Build necessary streams
-            using (MemoryStream msDecrypt = new(cipherText))
+            using (Aes aesAlg = Aes.Create())
             {
-                using (CryptoStream csDecrypt = new(msDecrypt, decryptor, CryptoStreamMode.Read))
+                aesAlg.Key = key;
+                aesAlg.IV = iv;
+                // Build encryptor for transforming the ciphertext to plaintext
+                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+                
+                aesAlg.Padding = PaddingMode.PKCS7;
+
+                // Build necessary streams
+                using (MemoryStream msDecrypt = new(cipherText))
                 {
-                    using (StreamReader srDecrypt = new(csDecrypt))
+                    using (CryptoStream csDecrypt = new(msDecrypt, decryptor, CryptoStreamMode.Read))
                     {
-                        //Read input ciphertext from the stream reader
-                        plaintext = srDecrypt.ReadToEnd();
+                        using (StreamReader srDecrypt = new(csDecrypt))
+                        {
+                            //Read input ciphertext from the stream reader
+                            plaintext = srDecrypt.ReadToEnd();
+                        }
                     }
                 }
             }
-
             return plaintext;
         }
 
         public (byte[] privateKey, byte[] publicKey) generateRSAparams()
         {
             // Generate a key pair.  
-            RSA rsa = RSA.Create();  
-            
+            RSA rsa = RSA.Create();
+
             // Export the RSA keys and return them  
             var privateKey = rsa.ExportRSAPrivateKey();
             var publicKey = rsa.ExportRSAPublicKey();
@@ -113,7 +128,7 @@ namespace SecureWiki.Cryptography
         {
             RSACryptoServiceProvider rsa = new();
             rsa.ImportParameters(key);
-            
+
             var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
             return rsa.SignData(plainTextBytes, SHA256.Create());
         }
@@ -128,12 +143,10 @@ namespace SecureWiki.Cryptography
                 var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
                 return rsa.VerifyData(plainTextBytes, SHA256.Create(), signedData);
             }
-            catch(CryptographicException e)
+            catch (CryptographicException e)
             {
-
                 return false;
             }
         }
-        
     }
 }

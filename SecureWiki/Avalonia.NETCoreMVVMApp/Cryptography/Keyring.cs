@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using SecureWiki.Model;
 
@@ -58,7 +59,7 @@ namespace SecureWiki.Cryptography
         }
 
         // Returns root keyring as deserialized json object with no arguments
-        private KeyringEntry ReadKeyRing()
+        public KeyringEntry ReadKeyRing()
         {
             var keyringFilePath = GetKeyringFilePath();
             return GetRootKeyring(keyringFilePath);
@@ -134,8 +135,10 @@ namespace SecureWiki.Cryptography
 
             var (key, iv) = _crypto.generateAESparams();
             var (privateKey, publicKey) = _crypto.generateRSAparams();
-
-            // TODO: Generate encrypted pageName on wikipedia
+            
+            var filenameBytes = _crypto.EncryptAesStringToBytes(filename, key, iv);
+            var encryptedFilename = BitConverter.ToString(filenameBytes);
+            
             DataFileEntry dataFileEntry = new()
             {
                 fileName = filename,
@@ -143,9 +146,9 @@ namespace SecureWiki.Cryptography
                 iv = iv,
                 privateKey = privateKey,
                 publicKey = publicKey,
-                revisionNr = -1,
+                revisionNr = "-1",
                 serverLink = "http://localhost/mediawiki/api.php",
-                pageName = filename
+                pageTitle = encryptedFilename
             };
 
             // Find the keyring where the new datafile is inserted
@@ -179,6 +182,13 @@ namespace SecureWiki.Cryptography
 
             var jsonData = JsonSerializer.Serialize(existingKeyRing, options);
             File.WriteAllText(keyringFilePath, jsonData);
+        }
+        
+        // Find the datafile with the given name -- better performance if whole filepath is given
+        public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)
+        {
+            var dataFile = keyring.dataFiles.Find(f => f.fileName.Equals(filename));
+            return dataFile ?? keyring.keyrings.Select(childKeyRing => GetDataFile(filename, childKeyRing)).FirstOrDefault();
         }
 
         // Rename or change location of datafile/keyring in root keyringEntry 

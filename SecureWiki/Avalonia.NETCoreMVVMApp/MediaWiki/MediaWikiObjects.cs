@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Threading.Channels;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 
 namespace SecureWiki.MediaWiki
