@@ -9,6 +9,6 @@ namespace SecureWiki.Model
         public byte[] publicKey { get; set; }
         public string revisionNr { get; set; }
         public string serverLink { get; set; }
-        public string pageTitle { get; set; }
+        public string pagename { get; set; }
     }
 }

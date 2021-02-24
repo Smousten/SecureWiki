@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using SecureWiki.Model;
 
@@ -91,7 +91,7 @@ namespace SecureWiki.Cryptography
             {
                 name = "",
                 dataFiles = new List<DataFileEntry>(),
-                keyrings = new List<KeyringEntry>()
+                keyrings = new ObservableCollection<KeyringEntry>()
             };
             JsonSerializerOptions options = new() {WriteIndented = true};
             var jsonData = JsonSerializer.Serialize(newKeyringEntry, options);
@@ -109,18 +109,17 @@ namespace SecureWiki.Cryptography
                 return rootKeyring;
             }
 
-            var childKeyring = rootKeyring.keyrings.Find(f => f.name.Equals(filePathSplit[0]));
+            var childKeyring = rootKeyring.keyrings.FirstOrDefault(f => f.name.Equals(filePathSplit[0]));
             var newPath = string.Join("", filePathSplit.Skip(1).ToArray());
             if (childKeyring != null)
             {
                 return FindKeyringPath(childKeyring, newPath);
             }
-
             KeyringEntry intermediateKeyring = new()
             {
                 name = filePathSplit[0],
                 dataFiles = new List<DataFileEntry>(),
-                keyrings = new List<KeyringEntry>()
+                keyrings = new ObservableCollection<KeyringEntry>()
             };
             rootKeyring.keyrings.Add(intermediateKeyring);
             return FindKeyringPath(intermediateKeyring, newPath);
@@ -148,7 +147,7 @@ namespace SecureWiki.Cryptography
                 publicKey = publicKey,
                 revisionNr = "-1",
                 serverLink = "http://localhost/mediawiki/api.php",
-                pageTitle = encryptedFilename
+                pagename = encryptedFilename
             };
 
             // Find the keyring where the new datafile is inserted
@@ -171,7 +170,7 @@ namespace SecureWiki.Cryptography
             {
                 name = keyringName,
                 dataFiles = new List<DataFileEntry>(),
-                keyrings = new List<KeyringEntry>()
+                keyrings = new ObservableCollection<KeyringEntry>()
             };
 
             // Find the keyring where the new keyring is inserted
@@ -219,7 +218,7 @@ namespace SecureWiki.Cryptography
             }
             
             // Find keyring in oldkeyring
-            var keyring = oldKeyring.keyrings.Find(f => f.name.Equals(oldName));
+            var keyring = oldKeyring.keyrings.FirstOrDefault(f => f.name.Equals(oldName));
             if (keyring != null)
             {
                 oldKeyring.keyrings.Remove(keyring);
