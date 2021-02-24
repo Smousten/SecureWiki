@@ -8,179 +8,149 @@ using SecureWiki.Model;
 
 namespace SecureWiki.Cryptography
 {
-    public class KeyRing
+    public class Keyring
     {
-        private readonly Crypto crypto = new();
+        private readonly Crypto _crypto = new();
 
         public void InitKeyring()
         {
-            var currentDir = Directory.GetCurrentDirectory();
-            var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
-            const string? filename = "KeyRing.json";
-            var filepath = Path.Combine(path, filename);
-            // Check if file exists
-            if (File.Exists(filepath))
-            {
-                // ReadKeyRing();
-                // GetAllDataFiles();
-            }
-            else
+            var filepath = GetKeyringFilePath();
+            // Check if file does not exist
+            if (!File.Exists(filepath))
             {
                 CreateNewKeyRing(filepath);
             }
 
             var keyring = ReadKeyRing();
-            if (keyring.name != null)
-            {
-                CreateFileStructure(keyring);
-            }
+            // Create file structure in rootdir
+            CreateFileStructureRecursion(keyring, GetRootDirPath());
         }
 
+        // Returns absolute file path to fuse rootdir as string
         private string GetRootDirPath()
         {
-            // Python
+            // Python fuse
             // var filepath = "Pyfuse_mediaWiki/srcTest/";
-            // C
-            var filepath = "fuse/example/rootdir/";
+            // C fuse
+            var filePath = "fuse/example/rootdir/";
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-            var rootDir = Path.Combine(projectDir, @filepath);
+            var rootDir = Path.Combine(projectDir, filePath);
             return rootDir;
         }
 
-        private string KeyringFilePath()
+        // Returns absolute file path to keyring jsonfile as string
+        private string GetKeyringFilePath()
         {
             var currentDir = Directory.GetCurrentDirectory();
             var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
-            var keyringFileName = "KeyRing.json";
+            var keyringFileName = "Keyring.json";
             var keyringFilePath = Path.Combine(path, keyringFileName);
             return keyringFilePath;
         }
 
-        private Model.KeyringEntry ExistingKeyRing(string keyringFilePath)
+        // Returns root keyring as deserialized json object
+        private KeyringEntry GetRootKeyring(string keyringFilePath)
         {
             var jsonData = File.ReadAllText(keyringFilePath);
-            var existingKeyRing = JsonSerializer.Deserialize<Model.KeyringEntry>(jsonData)
-                                  ?? new Model.KeyringEntry();
-            Console.WriteLine("existingKeyRing.name: " + existingKeyRing.name);
+            var existingKeyRing = JsonSerializer.Deserialize<KeyringEntry>(jsonData)
+                                  ?? new KeyringEntry();
             return existingKeyRing;
         }
 
-        public Model.KeyringEntry? ReadKeyRing()
+        // Returns root keyring as deserialized json object with no arguments
+        public KeyringEntry ReadKeyRing()
         {
-            var keyringFilePath = KeyringFilePath();
-            return ExistingKeyRing(keyringFilePath);
+            var keyringFilePath = GetKeyringFilePath();
+            return GetRootKeyring(keyringFilePath);
         }
 
-        private void CreateFileStructure(Model.KeyringEntry keyringEntry)
-        {
-            CreateFileStructureRecursion(keyringEntry, GetRootDirPath());
-        }
-
-        private void CreateFileStructureRecursion(Model.KeyringEntry keyringEntry, string path)
+        // Recursively creates all files and folders from root keyring
+        private void CreateFileStructureRecursion(KeyringEntry keyringEntry, string path)
         {
             foreach (var file in keyringEntry.dataFiles)
             {
+                Console.WriteLine(keyringEntry.name +  " Creating file at: " + Path.Combine(path, file.filename));
                 File.Create(Path.Combine(path, file.filename)).Dispose();
             }
 
-            foreach (KeyringEntry childKeyRing in keyringEntry.keyrings)
+            Console.WriteLine("CreateFileStructureRecursion:- Number of keyrings in list: " + keyringEntry.keyrings.Count);
+
+            foreach (var childKeyRing in keyringEntry.keyrings)
             {
-                Directory.CreateDirectory(Path.Combine(path, @childKeyRing.name));
-                CreateFileStructureRecursion(childKeyRing, Path.Combine(path, @childKeyRing.name));
+                Console.WriteLine(childKeyRing.name +  " Creating directory at: " + Path.Combine(path, childKeyRing.name));
+                Directory.CreateDirectory(Path.Combine(path, childKeyRing.name));
+                CreateFileStructureRecursion(childKeyRing, Path.Combine(path, childKeyRing.name));
             }
         }
 
-        // Create new keyRing file with empty keyRing object
+        // Create new keyring.json file with empty keyring object
         private void CreateNewKeyRing(string filepath)
         {
-            Model.KeyringEntry neyKeyringEntry = new()
+            KeyringEntry newKeyringEntry = new()
             {
                 name = "",
-                dataFiles = new List<DataFile>(),
+                dataFiles = new List<DataFileEntry>(),
                 keyrings = new ObservableCollection<KeyringEntry>()
             };
             JsonSerializerOptions options = new() {WriteIndented = true};
-            var jsonData = JsonSerializer.Serialize(neyKeyringEntry, options);
+            var jsonData = JsonSerializer.Serialize(newKeyringEntry, options);
             File.WriteAllText(filepath, jsonData);
         }
 
-        private Model.KeyringEntry findKeyRingPathOld(Model.KeyringEntry keyringEntry, string currentPath, string targetPath,
-            string filename)
+        // Returns the keyringEntry where the new keyring/datafile should be inserted
+        private KeyringEntry FindKeyringPath(KeyringEntry rootKeyring, string filePath)
         {
-            Console.WriteLine("Current path is: " + currentPath);
-            ;
-            if ((currentPath + filename).Equals(targetPath))
-            {
-                Console.WriteLine("Found correct nested keyring with name:" + keyringEntry.name);
-                return keyringEntry;
-            }
-        
-            foreach (var childKeyRing in keyringEntry.keyrings)
-            {
-                return findKeyRingPathOld(childKeyRing, currentPath + childKeyRing.name, targetPath, filename);
-            }
-        
-            return null;
-        }
+            var filePathSplit = filePath.Split("/");
 
-        private Model.KeyringEntry findKeyRingPath(Model.KeyringEntry rootKeyring, string filepath)
-        {
-            var filepathsplit = filepath.Split("/");
-            Console.WriteLine("Curretn file path is: " + filepath);
-            if (filepathsplit.Length <= 1)
+            // Found keyring entry to insert into
+            if (filePathSplit.Length <= 1)
             {
-                Console.WriteLine("filepathsplit length is 1");
                 return rootKeyring;
             }
-
-            KeyringEntry childKeyring = rootKeyring.keyrings.Where(f => f.name.Equals(filepathsplit[0])).First();
-            var newPath = String.Join("",filepathsplit.Skip(1).ToArray());
+            KeyringEntry childKeyring = rootKeyring.keyrings.Where(f => f.name.Equals(filePathSplit[0])).First();
+            var newPath = string.Join("", filePathSplit.Skip(1).ToArray());
             if (childKeyring != null)
             {
-                Console.WriteLine("Found childkeyring at: " + childKeyring.name);
-                return findKeyRingPath(childKeyring, newPath);
+                return FindKeyringPath(childKeyring, newPath);
             }
-            else
+
+            KeyringEntry intermediateKeyring = new()
             {
-                Console.WriteLine("Child keyring not found");
-                Model.KeyringEntry intermediateKeyring = new()
-                {
-                    name = filepathsplit[0],
-                    dataFiles = new List<DataFile>(),
-                    keyrings = new ObservableCollection<KeyringEntry>()
-                };
-                rootKeyring.keyrings.Add(intermediateKeyring);
-                return findKeyRingPath(intermediateKeyring, newPath);
-            }
+                name = filePathSplit[0],
+                dataFiles = new List<DataFileEntry>(),
+                keyrings = new ObservableCollection<KeyringEntry>()
+            };
+            rootKeyring.keyrings.Add(intermediateKeyring);
+            return FindKeyringPath(intermediateKeyring, newPath);
         }
 
         // Add new data file to existing keyring json file
         public void AddNewFile(string filepath, string filename)
         {
-            var keyringFilePath = KeyringFilePath();
+            var keyringFilePath = GetKeyringFilePath();
 
-            var existingKeyRing = ExistingKeyRing(keyringFilePath);
+            var existingKeyRing = GetRootKeyring(keyringFilePath);
 
-            var (key, iv) = crypto.generateAESparams();
-            var (privateKey, publicKey) = crypto.generateRSAparams();
+            var (key, iv) = _crypto.generateAESparams();
+            var (privateKey, publicKey) = _crypto.generateRSAparams();
 
             // TODO: Generate encrypted pageName on wikipedia
-            DataFile newfile = new()
+            DataFileEntry dataFileEntry = new()
             {
                 filename = filename,
                 symmKey = key,
                 iv = iv,
                 privateKey = privateKey,
                 publicKey = publicKey,
-                revisionNr = -1,
+                revisionNr = "-1",
                 serverLink = "http://localhost/mediawiki/api.php",
                 pagename = filename
             };
 
             // Find the keyring where the new datafile is inserted
-            var foundKeyring = findKeyRingPath(existingKeyRing, filepath);
-            foundKeyring.dataFiles.Add(newfile);
+            var foundKeyring = FindKeyringPath(existingKeyRing, filepath);
+            foundKeyring.dataFiles.Add(dataFileEntry);
 
             JsonSerializerOptions options = new() {WriteIndented = true};
 
@@ -188,65 +158,69 @@ namespace SecureWiki.Cryptography
             File.WriteAllText(keyringFilePath, jsonData);
         }
 
-        public void AddNewKeyRing(string filepath, string keyname)
+        // Add new data file to existing keyring json file
+        public void AddNewKeyRing(string filepath, string keyringName)
         {
-            var keyringFilePath = KeyringFilePath();
-            var existingKeyRing = ExistingKeyRing(keyringFilePath);
+            var keyringFilePath = GetKeyringFilePath();
+            var existingKeyRing = GetRootKeyring(keyringFilePath);
 
-            Model.KeyringEntry newKeyringEntry = new()
+            KeyringEntry newKeyringEntry = new()
             {
-                name = keyname,
-                dataFiles = new List<DataFile>(),
+                name = keyringName,
+                dataFiles = new List<DataFileEntry>(),
                 keyrings = new ObservableCollection<KeyringEntry>()
             };
 
             // Find the keyring where the new keyring is inserted
-            // var correctKeyRing = findKeyRingPath(existingKeyRing, "", filepath, keyname);
-            // correctKeyRing.keyRings.Add(newKeyRing);
-            var foundKeyring = findKeyRingPath(existingKeyRing, filepath);
+            var foundKeyring = FindKeyringPath(existingKeyRing, filepath);
             foundKeyring.keyrings.Add(newKeyringEntry);
-            
+
             JsonSerializerOptions options = new() {WriteIndented = true};
 
             var jsonData = JsonSerializer.Serialize(existingKeyRing, options);
             File.WriteAllText(keyringFilePath, jsonData);
         }
 
-        // Return datafile with given filename from key ring
-        public DataFile? GetDataFile(string filename, Model.KeyringEntry keyringEntry)
+        // Rename or change location of datafile/keyring in root keyringEntry 
+        public void Rename(string oldPath, string newPath)
         {
-            var dataFile = keyringEntry.dataFiles.Find(f => f.filename.Equals(filename));
-            return dataFile ?? keyringEntry.keyrings.Select(childKeyRing => GetDataFile(filename, childKeyRing)).FirstOrDefault();
-        }
+            var keyringFilePath = GetKeyringFilePath();
 
-        public List<DataFile> GetAllDataFiles()
-        {
-            var allDataFiles = new List<DataFile>();
-            var keyRing = ReadKeyRing();
-            allDataFiles = GetAllFilesRecursion(keyRing);
-            return allDataFiles;
-        }
+            var rootKeyring = GetRootKeyring(keyringFilePath);
+            var oldKeyring = FindKeyringPath(rootKeyring, oldPath);
+            var newKeyring = FindKeyringPath(rootKeyring, newPath);
 
-        // Returns list of all datafiles in keyRing json file
-        private List<DataFile> GetAllFilesRecursion(Model.KeyringEntry keyringEntry)
-        {
-            var dataFiles = keyringEntry.dataFiles;
-            if (keyringEntry.keyrings.Count == 0)
+            var oldNameSplit = newPath.Split("/", 2);
+            var oldName = oldNameSplit[^1];
+            oldName = oldName.TrimEnd('\0');
+
+            var newNameSplit = newPath.Split("/", 2);
+            var newName = newNameSplit[^1];
+            newName = newName.TrimEnd('\0');
+
+            // Rename/relocate datafile/keyring
+            // Find data file in oldkeyring
+            var dataFile = oldKeyring.dataFiles.Find(f => f.filename.Equals(oldName));
+            if (dataFile != null)
             {
-                return dataFiles;
+                oldKeyring.dataFiles.Remove(dataFile);
+                dataFile.filename = newName;
+                newKeyring.dataFiles.Add(dataFile);
             }
-
-            foreach (var childKeyRing in keyringEntry.keyrings)
-            {
-                dataFiles.AddRange(GetAllFilesRecursion(childKeyRing));
-            }
-
-            return dataFiles;
-        }
-
-        public void RenameFile(string filepath, string oldname, string newname)
-        {
             
+            // Find keyring in oldkeyring
+            var keyring = oldKeyring.keyrings.Where(f => f.name.Equals(oldName)).First();
+            if (keyring != null)
+            {
+                oldKeyring.keyrings.Remove(keyring);
+                keyring.name = newName;
+                newKeyring.keyrings.Add(keyring);
+            }
+
+            JsonSerializerOptions options = new() {WriteIndented = true};
+
+            var jsonData = JsonSerializer.Serialize(rootKeyring, options);
+            File.WriteAllText(keyringFilePath, jsonData);
         }
     }
 }

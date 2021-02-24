@@ -8,7 +8,7 @@ namespace SecureWiki.Model
 
         public ObservableCollection<KeyringEntry> keyrings { get; set; } 
             = new();
-        public ObservableCollection<DataFile> dataFiles { get; set; } 
+        public ObservableCollection<DataFileEntry> dataFiles { get; set; } 
             = new();
         
         public ObservableCollection<object> combinedList
@@ -21,7 +21,7 @@ namespace SecureWiki.Model
                 {
                     output.Add(entry);
                 }
-                foreach (DataFile entry in dataFiles)
+                foreach (DataFileEntry entry in dataFiles)
                 {
                     output.Add(entry);
                 }

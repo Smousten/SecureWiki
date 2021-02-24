@@ -41,20 +41,20 @@
         
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <StackPanel Orientation="Vertical">
-                <TreeView Items="{Binding rootKeyring}" x:Name="TreeView1">
+                <TreeView Items="{Binding rootKeyring}" Name="TreeView1">
                     <TreeView.DataTemplates>
                         <TreeDataTemplate DataType="Models:RootKeyring" ItemsSource="{Binding combinedList}">
-                            <CheckBox IsChecked="False">
+                            <CheckBox IsChecked="False" Name="CheckBox" Checked="CheckBox_CheckedChangedKeyring" Unchecked="CheckBox_CheckedChangedKeyring">
                                 <TextBlock Foreground="Red" Text="{Binding name}"></TextBlock>
                             </CheckBox>
                         </TreeDataTemplate>
                         <TreeDataTemplate DataType="Models:KeyringEntry" ItemsSource="{Binding combinedList}">
-                            <CheckBox IsChecked="False" Checked="CheckBox_CheckedChanged">
+                            <CheckBox IsChecked="False" Name="CheckBox" Checked="CheckBox_CheckedChangedKeyring" Unchecked="CheckBox_CheckedChangedKeyring">
                                 <TextBlock Text="{Binding name}"></TextBlock>
                             </CheckBox>
                         </TreeDataTemplate>
-                        <DataTemplate DataType="Models:DataFile" >
-                            <CheckBox IsChecked="True" Checked="CheckBox_CheckedChanged" Unchecked="CheckBox_CheckedChanged">
+                        <DataTemplate DataType="Models:DataFileEntry" >
+                            <CheckBox IsChecked="False" Name="CheckBox" Checked="CheckBox_CheckedChanged">
                                 <TextBlock Foreground="Blue" Text="{Binding filename}"></TextBlock>
                             </CheckBox>
                         </DataTemplate>
