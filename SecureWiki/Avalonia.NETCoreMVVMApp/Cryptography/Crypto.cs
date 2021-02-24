@@ -11,13 +11,6 @@ namespace SecureWiki.Cryptography
         // private string key = "RP4Jvz5Gv0Fxret3YoOJzrA+BkV2PTK1QcuAucAgVOc=";
         // private string iv = "awFCaG5DVbr+3zaTRM4O2A==";
 
-        public Crypto()
-        {
-            // aesAlg = Aes.Create();
-            // aesAlg.Key = Convert.FromBase64String(key);
-            // aesAlg.IV = Convert.FromBase64String(iv);
-        }
-
         public byte[] EncryptAesStringToBytes(string plainText, byte[] key, byte[] iv)
         {
             // Ensure argument validity
@@ -69,7 +62,7 @@ namespace SecureWiki.Cryptography
             if (iv == null || iv.Length <= 0)
                 throw new ArgumentNullException("iv");
 
-            string plaintext = null;
+            string plaintext;
 
             using (Aes aesAlg = Aes.Create())
             {
@@ -124,29 +117,32 @@ namespace SecureWiki.Cryptography
         //     }
         // }
 
-        public byte[] SignData(RSAParameters key, string plainText)
+        public byte[] SignData(byte[] key, string plainText)
         {
-            RSACryptoServiceProvider rsa = new();
-            rsa.ImportParameters(key);
+            // RSACryptoServiceProvider rsa = new();
+            // rsa.ImportRSAPrivateKey(key);
+            //
+            // var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
+            // return rsa.SignData(plainTextBytes, SHA256.Create());
 
-            var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
-            return rsa.SignData(plainTextBytes, SHA256.Create());
+            throw new InvalidOperationException();
         }
 
-        public bool VerifyData(RSAParameters key, string plainText, byte[] signedData)
+        public bool VerifyData(byte[] key, string plainText, byte[] signedData)
         {
-            try
-            {
-                RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-                rsa.ImportParameters(key);
-
-                var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
-                return rsa.VerifyData(plainTextBytes, SHA256.Create(), signedData);
-            }
-            catch (CryptographicException e)
-            {
-                return false;
-            }
+            // try
+            // {
+            //     RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
+            //     rsa.ImportParameters(key);
+            //
+            //     var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
+            //     return rsa.VerifyData(plainTextBytes, SHA256.Create(), signedData);
+            // }
+            // catch (CryptographicException e)
+            // {
+            //     return false;
+            // }
+            throw new InvalidOperationException();
         }
     }
 }

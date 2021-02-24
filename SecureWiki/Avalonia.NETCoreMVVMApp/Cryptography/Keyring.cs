@@ -40,7 +40,7 @@ namespace SecureWiki.Cryptography
         }
 
         // Returns absolute file path to keyring jsonfile as string
-        private string GetKeyringFilePath()
+        public string GetKeyringFilePath()
         {
             var currentDir = Directory.GetCurrentDirectory();
             var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
@@ -106,7 +106,8 @@ namespace SecureWiki.Cryptography
             }
 
             var childKeyring = rootKeyring.keyrings.FirstOrDefault(f => f.name.Equals(filePathSplit[0]));
-            var newPath = string.Join("", filePathSplit.Skip(1).ToArray());
+            var newPath = string.Join("/", filePathSplit.Skip(1).ToArray());
+
             if (childKeyring != null)
             {
                 return FindKeyringPath(childKeyring, newPath);
@@ -168,7 +169,7 @@ namespace SecureWiki.Cryptography
                 dataFiles = new List<DataFileEntry>(),
                 keyrings = new ObservableCollection<KeyringEntry>()
             };
-
+            
             // Find the keyring where the new keyring is inserted
             var foundKeyring = FindKeyringPath(existingKeyRing, filepath);
             foundKeyring.keyrings.Add(newKeyringEntry);

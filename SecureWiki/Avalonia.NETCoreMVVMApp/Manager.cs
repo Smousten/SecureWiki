@@ -1,5 +1,10 @@
 using System;
+using System.Diagnostics;
+using System.Net;
 using System.Net.Http;
+using System.Net.Mail;
+using System.Net.Mime;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using SecureWiki.ClientApplication;
@@ -21,6 +26,9 @@ namespace SecureWiki
         private Crypto _crypto;
         private TCPListener tcpListener;
         private static HttpClient httpClient = new();
+        
+        private readonly string _smtpClientEmail = "SecureWikiMails@gmail.com";
+        private readonly string _smtpClientPassword = "SecureWiki";
 
         public delegate void PrintTest(string input);
 
@@ -34,7 +42,8 @@ namespace SecureWiki
 
         public void Run()
         {
-            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this);
+            // wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
+            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
             _keyring = new Keyring();
             _crypto = new Crypto();
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
@@ -99,10 +108,20 @@ namespace SecureWiki
         {
             await wikiHandler.UploadNewVersion(pageTitle);
         }
+        
+        public void SetMediaWikiServer(string url)
+        {
+            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
+        }
 
         public Task<string> ReadFile(string filename)
         {
             return wikiHandler.ReadFile(filename);
+        }
+        
+        public void LoginToMediaWiki(string username, string password)
+        {
+            throw new NotImplementedException();
         }
         
         // Delegated Keyring functions
@@ -140,6 +159,52 @@ namespace SecureWiki
         public string DecryptAesBytesToString(byte[] pageContentBytes, byte[] symmKey, byte[] iv)
         {
             return _crypto.DecryptAESBytesToString(pageContentBytes, symmKey, iv);
+        }
+
+        public byte[] SignData(byte[] privateKey, string plainText)
+        {
+            return _crypto.SignData(privateKey, plainText);
+        }
+
+        public bool VerifyData(byte[] publicKey, string plainText, byte[] signedData)
+        {
+            return _crypto.VerifyData(publicKey, plainText, signedData);
+        }
+
+
+        public void SendEmail(string recipientEmail)
+        {
+            // string mailto = string.Format("xdg-email mailto:{0}?subject={1}&body={2}", recipientEmail, "SecureWiki", "Hello");
+            // Console.WriteLine(mailto);
+            // Process.Start(mailto);
+            var smtpClient = new SmtpClient("smtp.gmail.com")
+            {
+                Port = 587,
+                Credentials = new NetworkCredential(_smtpClientEmail, _smtpClientPassword),
+                EnableSsl = true,
+            };
+            
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(_smtpClientEmail),
+                Subject = "SecureWiki file sharing",
+                Body = "<h1>Hello</h1>" +
+                        "<br />You have received a new keyring" +
+                        "<p>Sincerely,<br />" +
+                        "<br />" +
+                        "<br />" +
+                        "Kevin Sanders<br />" +
+                        "<i>Vice President</i></p>",
+                IsBodyHtml = true,
+            };
+            // TODO: send selected keyring and not all
+            var keyringPath = _keyring.GetKeyringFilePath();
+            var attachment = new Attachment(keyringPath, MediaTypeNames.Application.Json);
+            mailMessage.Attachments.Add(attachment);
+            mailMessage.To.Add(recipientEmail);
+            
+            Console.WriteLine(recipientEmail);
+            smtpClient.Send(mailMessage);
         }
     }
 }

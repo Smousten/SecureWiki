@@ -92,7 +92,7 @@ namespace SecureWiki.ClientApplication
                                               c == '.' || c == '/')).ToArray(); 
             
             filePath = new string(arr);
-            var filePathSplit = filePath.Split("/", 2);
+            var filePathSplit = filePath.Split("/");
             var filename = filePathSplit[^1];
             switch (op[0])
             {

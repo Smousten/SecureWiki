@@ -1,6 +1,9 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
@@ -8,12 +11,20 @@ namespace SecureWiki.MediaWiki
 {
     public class WikiHandler
     {
-        private const string URL = "http://localhost/mediawiki/api.php";
+        private string URL = "http://localhost/mediawiki/api.php";
 
         private readonly HttpClient _client;
         private readonly Manager _manager;
         public readonly MediaWikiObjects MWO;
 
+        public WikiHandler(string username, string password, HttpClient inputClient, Manager manager, string ip)
+        {
+            URL = "http://" + ip + "/mediawiki/api.php";
+            MWO = new MediaWikiObjects(inputClient, username, password, ip);
+            _client = inputClient;
+            _manager = manager;
+        }
+        
         public WikiHandler(string username, string password, HttpClient inputClient, Manager manager)
         {
             MWO = new MediaWikiObjects(inputClient, username, password);
@@ -97,9 +108,13 @@ namespace SecureWiki.MediaWiki
 
             if (dataFile != null)
             {
+                // Sign plaintext
+                // var hash = _manager.SignData(dataFile.privateKey, plainText);
+                
                 var encryptedBytes = _manager.EncryptAesStringToBytes(plainText, dataFile.symmKey, dataFile.iv);
                 var encryptedText = BitConverter.ToString(encryptedBytes);
-
+                // var encryptedText = BitConverter.ToString(encryptedBytes) + BitConverter.ToString(hash);
+                
                 var encryptedPagetitleBytes = _manager.EncryptAesStringToBytes(filename, dataFile.symmKey, dataFile.iv);
                 var encryptedPagetitleString = BitConverter.ToString(encryptedPagetitleBytes);
 
@@ -232,8 +247,22 @@ namespace SecureWiki.MediaWiki
             byte[] array = new byte[arr.Length];
             for (int i = 0; i < arr.Length; i++) array[i] = Convert.ToByte(arr[i], 16);
             var pageContentBytes = array;
-            
+
             var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes, dataFile.symmKey, dataFile.iv);
+
+            // Verify data from mediaWiki
+            // var decryptedBytes = Encoding.UTF8.GetBytes(decryptedText);
+            // var pageContentHashStringBytes = pageContent.Skip(decryptedBytes.Length - 32).ToArray();
+            // var pageContentHashBytes = pageContentHashStringBytes.Select(byte.Parse).ToArray();
+            // var pageContentTextStringBytes = pageContent.Take(decryptedBytes.Length - 32).ToArray();
+            // var pageContentTextBytes = pageContentTextStringBytes.Select(byte.Parse).ToArray();
+            // var plainText = Encoding.UTF8.GetString(pageContentTextBytes);
+            // if (!_manager.VerifyData(dataFile.publicKey, plainText, pageContentHashBytes))
+            // {
+            //     Console.WriteLine("Verifying failed...");
+            // }
+            
+            
             return decryptedText;
         }
     }

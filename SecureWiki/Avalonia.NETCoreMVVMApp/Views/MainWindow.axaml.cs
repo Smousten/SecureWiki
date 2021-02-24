@@ -148,5 +148,30 @@ namespace SecureWiki.Views
 
             return (TreeViewItem) parent;
         }
+
+        private void ButtonIP_Click(object? sender, RoutedEventArgs e)
+        {
+            var textBox = this.FindControl<TextBox>("TextBoxIp");
+            var ip = textBox.Text;
+            manager.SetMediaWikiServer(ip);
+        }
+
+        private void ButtonLogin_Click(object? sender, RoutedEventArgs e)
+        {
+            var textBoxUser = this.FindControl<TextBox>("TextBoxUser");
+            var username = textBoxUser.Text;
+            
+            var textBoxPass = this.FindControl<TextBox>("TextBoxPass");
+            var password = textBoxUser.Text;
+
+            manager.LoginToMediaWiki(username, password);
+        }
+
+        private void ButtonMail(object? sender, RoutedEventArgs e)
+        {
+            var textBoxMail = this.FindControl<TextBox>("TextBoxMail");
+            var recipientEmail = textBoxMail.Text;
+            manager.SendEmail(recipientEmail);
+        }
     }
 }

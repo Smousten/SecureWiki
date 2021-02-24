@@ -13,6 +13,13 @@ namespace SecureWiki.ViewModels
         
         public ObservableCollection<KeyringEntry> keyringEntries  { get; set; }
         public ObservableCollection<RootKeyring> rootKeyring { get; set; }
+        public string IP { get; set; } = "127.0.0.1";
+
+        public string Username { get; set; }
+        public string Password { get; set; }
+
+        public object MailRecipient { get; set; }
+
         private KeyringEntry rootKeyringEntry;
 
         public MainWindowViewModel()
@@ -29,8 +36,7 @@ namespace SecureWiki.ViewModels
             
             //rootKeyring = new ObservableCollection<RootKeyring>(FillRootKeyring());
             rootKeyring = new ObservableCollection<RootKeyring>(BuildRootKeyring(rootKeyringEntry));
-
-
+            
         }
 
         private List<RootKeyring> BuildRootKeyring(KeyringEntry inputKeyringEntry)
