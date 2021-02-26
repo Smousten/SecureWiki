@@ -103,7 +103,7 @@ namespace SecureWiki.MediaWiki
             var keyring = _manager.ReadKeyRing();
             var dataFile = _manager.GetDataFile(filename, keyring);
 
-            if (dataFile != null)
+            if (dataFile != null || !plainText.Equals(""));
             {
                 // Sign plaintext
                 var hash = _manager.SignData(dataFile.privateKey, plainText);
@@ -250,6 +250,7 @@ namespace SecureWiki.MediaWiki
             if (!_manager.VerifyData(dataFile.publicKey, textString, hashBytes))
             {
                 Console.WriteLine("Verifying failed...");
+                return "Verifying failed...";
             }
             return textString.Equals("") ? "This text is stored securely." : textString;
         }
