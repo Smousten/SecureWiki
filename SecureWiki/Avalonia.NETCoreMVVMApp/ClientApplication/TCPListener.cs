@@ -54,7 +54,7 @@ namespace SecureWiki.ClientApplication
 
             while (true)
             {
-                Console.Write("Waiting for TCP connection at port:" + _port);
+                Console.WriteLine("Waiting for TCP connection at port:" + _port);
 
                 TcpClient client = server.AcceptTcpClient();
                 Console.WriteLine("Connected at port:" + _port);
