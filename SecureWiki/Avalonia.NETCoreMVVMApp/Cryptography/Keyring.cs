@@ -129,8 +129,8 @@ namespace SecureWiki.Cryptography
 
             var existingKeyRing = GetRootKeyring(keyringFilePath);
 
-            var (key, iv) = _crypto.generateAESparams();
-            var (privateKey, publicKey) = _crypto.generateRSAparams();
+            var (key, iv) = _crypto.GenerateAesParams();
+            var (privateKey, publicKey) = _crypto.GenerateRsaParams();
             
             var filenameBytes = _crypto.EncryptAesStringToBytes(filename, key, iv);
             var encryptedFilename = BitConverter.ToString(filenameBytes);

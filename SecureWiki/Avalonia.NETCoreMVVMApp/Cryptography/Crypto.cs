@@ -7,10 +7,6 @@ namespace SecureWiki.Cryptography
 {
     public class Crypto
     {
-        // private readonly Aes aesAlg;
-        // private string key = "RP4Jvz5Gv0Fxret3YoOJzrA+BkV2PTK1QcuAucAgVOc=";
-        // private string iv = "awFCaG5DVbr+3zaTRM4O2A==";
-
         public byte[] EncryptAesStringToBytes(string plainText, byte[] key, byte[] iv)
         {
             // Ensure argument validity
@@ -52,7 +48,7 @@ namespace SecureWiki.Cryptography
             return encrypted;
         }
 
-        public string DecryptAESBytesToString(byte[] cipherText, byte[] key, byte[] iv)
+        public string DecryptAesBytesToString(byte[] cipherText, byte[] key, byte[] iv)
         {
             // Ensure argument validity
             if (cipherText == null || cipherText.Length <= 0)
@@ -89,7 +85,7 @@ namespace SecureWiki.Cryptography
             return plaintext;
         }
 
-        public (byte[] privateKey, byte[] publicKey) generateRSAparams()
+        public (byte[] privateKey, byte[] publicKey) GenerateRsaParams()
         {
             // Generate a key pair.  
             RSA rsa = RSA.Create();
@@ -100,7 +96,7 @@ namespace SecureWiki.Cryptography
             return (privateKey, publicKey);
         }
 
-        public (byte[] Key, byte[] IV) generateAESparams()
+        public (byte[] Key, byte[] IV) GenerateAesParams()
         {
             Aes aes = Aes.Create();
             aes.GenerateKey();
@@ -108,41 +104,32 @@ namespace SecureWiki.Cryptography
             return (aes.Key, aes.IV);
         }
 
-        // public byte[] ComputeSha256(string plainText)
-        // {
-        //     using (SHA256 sha256 = SHA256.Create())
-        //     {
-        //         var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
-        //         return sha256.ComputeHash(plainTextBytes);
-        //     }
-        // }
-
+        // Returns signed plaintext using private key stored in datafile object
         public byte[] SignData(byte[] key, string plainText)
         {
-            // RSACryptoServiceProvider rsa = new();
-            // rsa.ImportRSAPrivateKey(key);
-            //
-            // var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
-            // return rsa.SignData(plainTextBytes, SHA256.Create());
 
-            throw new InvalidOperationException();
+            RSACryptoServiceProvider rsa = new();
+            rsa.ImportRSAPrivateKey(key, out _);
+            var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
+            return rsa.SignData(plainTextBytes, SHA256.Create());
         }
 
+        // Verify the signature from signedData hash, plaintext and public key stored in datafile object
         public bool VerifyData(byte[] key, string plainText, byte[] signedData)
         {
-            // try
-            // {
-            //     RSACryptoServiceProvider rsa = new RSACryptoServiceProvider();
-            //     rsa.ImportParameters(key);
-            //
-            //     var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
-            //     return rsa.VerifyData(plainTextBytes, SHA256.Create(), signedData);
-            // }
-            // catch (CryptographicException e)
-            // {
-            //     return false;
-            // }
-            throw new InvalidOperationException();
+            try
+            {
+                RSACryptoServiceProvider rsa = new();
+                rsa.ImportRSAPublicKey(key, out _);
+            
+                var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
+                return rsa.VerifyData(plainTextBytes, SHA256.Create(), signedData);
+            }
+            catch (CryptographicException e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
         }
     }
 }

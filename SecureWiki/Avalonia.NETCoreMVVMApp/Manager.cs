@@ -43,7 +43,7 @@ namespace SecureWiki
         public void Run()
         {
             // wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
-            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
+            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this);
             _keyring = new Keyring();
             _crypto = new Crypto();
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
@@ -158,7 +158,7 @@ namespace SecureWiki
 
         public string DecryptAesBytesToString(byte[] pageContentBytes, byte[] symmKey, byte[] iv)
         {
-            return _crypto.DecryptAESBytesToString(pageContentBytes, symmKey, iv);
+            return _crypto.DecryptAesBytesToString(pageContentBytes, symmKey, iv);
         }
 
         public byte[] SignData(byte[] privateKey, string plainText)

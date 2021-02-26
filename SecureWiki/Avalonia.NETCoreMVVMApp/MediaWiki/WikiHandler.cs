@@ -1,9 +1,6 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
@@ -24,7 +21,7 @@ namespace SecureWiki.MediaWiki
             _client = inputClient;
             _manager = manager;
         }
-        
+
         public WikiHandler(string username, string password, HttpClient inputClient, Manager manager)
         {
             MWO = new MediaWikiObjects(inputClient, username, password);
@@ -109,12 +106,12 @@ namespace SecureWiki.MediaWiki
             if (dataFile != null)
             {
                 // Sign plaintext
-                // var hash = _manager.SignData(dataFile.privateKey, plainText);
-                
-                var encryptedBytes = _manager.EncryptAesStringToBytes(plainText, dataFile.symmKey, dataFile.iv);
+                var hash = _manager.SignData(dataFile.privateKey, plainText);
+
+                // var encryptedBytes = _manager.EncryptAesStringToBytes(plainText, dataFile.symmKey, dataFile.iv);
+                var encryptedBytes = _manager.EncryptAesStringToBytes(plainText + BitConverter.ToString(hash),
+                    dataFile.symmKey, dataFile.iv);
                 var encryptedText = BitConverter.ToString(encryptedBytes);
-                // var encryptedText = BitConverter.ToString(encryptedBytes) + BitConverter.ToString(hash);
-                
                 var encryptedPagetitleBytes = _manager.EncryptAesStringToBytes(filename, dataFile.symmKey, dataFile.iv);
                 var encryptedPagetitleString = BitConverter.ToString(encryptedPagetitleBytes);
 
@@ -207,11 +204,11 @@ namespace SecureWiki.MediaWiki
         {
             var keyring = _manager.ReadKeyRing();
             var dataFile = _manager.GetDataFile(filename, keyring);
-            
+
             if (dataFile == null) return "This text is stored securely.";
             var encryptedFilenameBytes = _manager.EncryptAesStringToBytes(filename, dataFile.symmKey, dataFile.iv);
             var encryptedFilenameString = BitConverter.ToString(encryptedFilenameBytes);
-            
+
             // TODO: Use MediaWikiObjects to Get Page content. Handle exceptions when the page does not exist on mediaWiki
             // MediaWikiObjects.PageQuery.PageContent pc = new(MWO, encryptedFilenameString);
             // string pageContent = pc.GetContent();
@@ -231,39 +228,39 @@ namespace SecureWiki.MediaWiki
             getData += "&rvslots=*";
             getData += "&rvprop=content";
             getData += "&format=json";
-            
+
             HttpResponseMessage response = await _client.GetAsync(URL + getData);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
             JObject responseJson = JObject.Parse(responseBody);
             Console.Write(responseJson);
-            
+
             var pageContentPair = responseJson.SelectToken("query.pages.*.revisions[0].slots.main")?.Last?.ToString();
             var pageContent = pageContentPair?.Split(":", 2);
             if (pageContent == null) return "This text is stored securely.";
             var trim = pageContent[1].Substring(2, pageContent[1].Length - 3);
-            
-            string[] arr = trim.Split('-');
-            byte[] array = new byte[arr.Length];
-            for (int i = 0; i < arr.Length; i++) array[i] = Convert.ToByte(arr[i], 16);
-            var pageContentBytes = array;
+
+            var pageContentBytes = BitConverterStringToBytes(trim);
 
             var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes, dataFile.symmKey, dataFile.iv);
 
-            // Verify data from mediaWiki
-            // var decryptedBytes = Encoding.UTF8.GetBytes(decryptedText);
-            // var pageContentHashStringBytes = pageContent.Skip(decryptedBytes.Length - 32).ToArray();
-            // var pageContentHashBytes = pageContentHashStringBytes.Select(byte.Parse).ToArray();
-            // var pageContentTextStringBytes = pageContent.Take(decryptedBytes.Length - 32).ToArray();
-            // var pageContentTextBytes = pageContentTextStringBytes.Select(byte.Parse).ToArray();
-            // var plainText = Encoding.UTF8.GetString(pageContentTextBytes);
-            // if (!_manager.VerifyData(dataFile.publicKey, plainText, pageContentHashBytes))
-            // {
-            //     Console.WriteLine("Verifying failed...");
-            // }
-            
-            
-            return decryptedText;
+            var textString = decryptedText.Substring(0,decryptedText.Length-767);
+            var hashString = decryptedText.Substring(decryptedText.Length - 767);
+            var hashBytes = BitConverterStringToBytes(hashString);
+            if (!_manager.VerifyData(dataFile.publicKey, textString, hashBytes))
+            {
+                Console.WriteLine("Verifying failed...");
+            }
+            return textString.Equals("") ? "This text is stored securely." : textString;
+        }
+
+        private static byte[] BitConverterStringToBytes(string input)
+        {
+            string[] arr = input.Split('-');
+            byte[] array = new byte[arr.Length];
+            for (int i = 0; i < arr.Length; i++) array[i] = Convert.ToByte(arr[i], 16);
+            var pageContentBytes = array;
+            return pageContentBytes;
         }
     }
 }
