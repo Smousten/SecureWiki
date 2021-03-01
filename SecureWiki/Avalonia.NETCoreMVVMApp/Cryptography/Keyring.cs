@@ -229,27 +229,48 @@ namespace SecureWiki.Cryptography
             File.WriteAllText(keyringFilePath, jsonData);
         }
 
-        public void RemoveFile(string filePath, string filename, string type)
+        // public void RemoveFile(string filePath, string filename, string type)
+        // {
+        //     var keyringFilePath = GetKeyringFilePath();
+        //     var existingKeyRing = GetRootKeyring(keyringFilePath);
+        //
+        //     // Find the keyring where the data file is located
+        //     var foundKeyring = FindKeyringPath(existingKeyRing, filePath);
+        //
+        //     if (type.Equals("file"))
+        //     {
+        //         var fileToRemove = foundKeyring.dataFiles.Find(f => f.filename.Equals(filename));
+        //         if (fileToRemove != null) foundKeyring.dataFiles.Remove(fileToRemove);
+        //     }
+        //     else
+        //     {
+        //         var keyringToRemove = foundKeyring.keyrings.FirstOrDefault(f => f.name.Equals(filename));
+        //         if (keyringToRemove != null) foundKeyring.keyrings.Remove(keyringToRemove);
+        //     }
+        //
+        //     JsonSerializerOptions options = new() {WriteIndented = true};
+        //
+        //     var jsonData = JsonSerializer.Serialize(existingKeyRing, options);
+        //     File.WriteAllText(keyringFilePath, jsonData);
+        // }
+
+        public void RemoveFile(string filePath, string filename)
         {
             var keyringFilePath = GetKeyringFilePath();
             var existingKeyRing = GetRootKeyring(keyringFilePath);
-
+            
             // Find the keyring where the data file is located
             var foundKeyring = FindKeyringPath(existingKeyRing, filePath);
 
-            if (type.Equals("file"))
-            {
-                var fileToRemove = foundKeyring.dataFiles.Find(f => f.filename.Equals(filename));
-                if (fileToRemove != null) foundKeyring.dataFiles.Remove(fileToRemove);
-            }
-            else
-            {
-                var keyringToRemove = foundKeyring.keyrings.FirstOrDefault(f => f.name.Equals(filename));
-                if (keyringToRemove != null) foundKeyring.keyrings.Remove(keyringToRemove);
-            }
-
+            // Remove file or keyring from parent keyring
+            var fileToRemove = foundKeyring.dataFiles.Find(f => f.filename.Equals(filename));
+            if (fileToRemove != null) foundKeyring.dataFiles.Remove(fileToRemove);
+            
+            var keyringToRemove = foundKeyring.keyrings.FirstOrDefault(f => f.name.Equals(filename));
+            if (keyringToRemove != null) foundKeyring.keyrings.Remove(keyringToRemove);
+            
             JsonSerializerOptions options = new() {WriteIndented = true};
-
+            
             var jsonData = JsonSerializer.Serialize(existingKeyRing, options);
             File.WriteAllText(keyringFilePath, jsonData);
         }

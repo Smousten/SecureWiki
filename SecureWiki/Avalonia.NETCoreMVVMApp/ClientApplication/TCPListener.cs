@@ -98,24 +98,33 @@ namespace SecureWiki.ClientApplication
                 case "release":
                     if (RealFileName(filename))
                     {
-                        await _manager.UploadNewVersion(filename);
+                        await _manager.UploadNewVersion(filename, filePath);
                     }
+
                     break;
                 case "create":
                     if (RealFileName(filename))
                     {
                         _manager.AddNewFile(filePath, filename);
                     }
+
                     break;
                 case "mkdir":
                     _manager.AddNewKeyRing(filePath, filename);
                     break;
                 case "rename":
-                    if (RealFileName(filename))
+                    var renamePathSplit = op[1].Split("%", 2);
+                    var oldPath = renamePathSplit[0].Substring(1);
+                    var newPath = renamePathSplit[1].Substring(1);
+                    if (newPath.Contains(".Trash"))
                     {
-                        var renamePathSplit = op[1].Split("%", 2);
-                        var oldPath = renamePathSplit[0].Substring(1);
-                        var newPath = renamePathSplit[1].Substring(1);
+                        var oldFilePathSplit = oldPath.Split("/");
+                        var oldFilename = oldFilePathSplit[^1];
+                        _manager.RemoveFile(oldPath, oldFilename);
+                    }
+                    else if (RealFileName(filename))
+                    {
+
                         _manager.RenameFile(oldPath, newPath);
                     }
                     break;

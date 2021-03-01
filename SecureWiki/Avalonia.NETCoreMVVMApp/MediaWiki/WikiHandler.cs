@@ -93,11 +93,11 @@ namespace SecureWiki.MediaWiki
         //     }
         // }
 
-        public async Task UploadNewVersion(string filename)
+        public async Task UploadNewVersion(string filename, string filepath)
         {
             // Refactor later - uploadNewVersion and createNewPage use same API
             // var filepath = "Pyfuse_mediaWiki/srcTest/" + filename;
-            var srcDir = GetRootDir(filename);
+            var srcDir = GetRootDir(filepath);
             var plainText = await File.ReadAllTextAsync(srcDir);
 
             var keyring = _manager.ReadKeyRing();
@@ -147,9 +147,9 @@ namespace SecureWiki.MediaWiki
             */
         }
 
-        private static string GetRootDir(string filename)
+        private static string GetRootDir(string relativeFilepath)
         {
-            var filepath = "fuse/example/rootdir/" + filename;
+            var filepath = "fuse/example/rootdir/" + relativeFilepath;
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var srcDir = Path.Combine(projectDir, @filepath);
@@ -200,7 +200,7 @@ namespace SecureWiki.MediaWiki
             Console.WriteLine("WikiHandler printing: " + input);
         }
 
-        public async Task<string> ReadFile(string filename)
+        public string ReadFile(string filename)
         {
             var keyring = _manager.ReadKeyRing();
             var dataFile = _manager.GetDataFile(filename, keyring);
@@ -209,41 +209,12 @@ namespace SecureWiki.MediaWiki
             var encryptedFilenameBytes = _manager.EncryptAesStringToBytes(filename, dataFile.symmKey, dataFile.iv);
             var encryptedFilenameString = BitConverter.ToString(encryptedFilenameBytes);
 
-            // TODO: Use MediaWikiObjects to Get Page content. Handle exceptions when the page does not exist on mediaWiki
-            // MediaWikiObjects.PageQuery.PageContent pc = new(MWO, encryptedFilenameString);
-            // string pageContent = pc.GetContent();
-            //
-            // string[] arr = pageContent.Split('-');
-            // byte[] array = new byte[arr.Length];
-            // for (int i = 0; i < arr.Length; i++) array[i] = Convert.ToByte(arr[i], 16);
-            // var pageContentBytes = array;
-            //
-            // var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes, dataFile.symmKey, dataFile.iv);
-            // return decryptedText;
-            //
-            string getData = "?action=query";
-            // getData += "&titles=" + filename;
-            getData += "&titles=" + encryptedFilenameString;
-            getData += "&prop=revisions";
-            getData += "&rvslots=*";
-            getData += "&rvprop=content";
-            getData += "&format=json";
-
-            HttpResponseMessage response = await _client.GetAsync(URL + getData);
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
-            JObject responseJson = JObject.Parse(responseBody);
-            Console.Write(responseJson);
-
-            var pageContentPair = responseJson.SelectToken("query.pages.*.revisions[0].slots.main")?.Last?.ToString();
-            var pageContent = pageContentPair?.Split(":", 2);
-            if (pageContent == null) return "This text is stored securely.";
-            var trim = pageContent[1].Substring(2, pageContent[1].Length - 3);
-
-            var pageContentBytes = BitConverterStringToBytes(trim);
-
+            MediaWikiObjects.PageQuery.PageContent pc = new(MWO, encryptedFilenameString);
+            string pageContent = pc.GetContent();
+            
+            var pageContentBytes = BitConverterStringToBytes(pageContent);
+            
             var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes, dataFile.symmKey, dataFile.iv);
-
             var textString = decryptedText.Substring(0,decryptedText.Length-767);
             var hashString = decryptedText.Substring(decryptedText.Length - 767);
             var hashBytes = BitConverterStringToBytes(hashString);

@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
@@ -17,6 +18,7 @@ using SecureWiki.ClientApplication;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
 using SecureWiki.Model;
+using SecureWiki.ViewModels;
 using Brushes = Avalonia.Media.Brushes;
 
 namespace SecureWiki.Views
@@ -513,5 +515,20 @@ namespace SecureWiki.Views
         }
 
 
+        private void CheckBox_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox cb)
+            {
+                DataFileEntry dataFile = cb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
+                Console.WriteLine(dataFile.filename);
+            }
+            
+            
+
+
+            Console.WriteLine("test");
+            
+            // manager.GetAllRevisions("Www");
+        }
     }
 }

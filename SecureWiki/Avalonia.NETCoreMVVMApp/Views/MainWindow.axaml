@@ -82,10 +82,20 @@
             </StackPanel>
                 
         </ScrollViewer>
-        <!-- <StackPanel Orientation="Vertical" VerticalAlignment="Top" Height="150" Width="300" x:Name="RevisionControl"> -->
-        <!--     <TextBlock Text="{Binding fileSelected}"></TextBlock> -->
-        <!-- </StackPanel> -->
-        <!-- -->
+        <ContentControl Content="{Binding selectedFile}">
+            <ContentControl.ContentTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0">File properties: </TextBlock>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding selectedFile.filename}"/>
+                        </Grid>
+                    </StackPanel>
+                </DataTemplate>
+            </ContentControl.ContentTemplate>
+
+        </ContentControl>
+
     </DockPanel>
     
     

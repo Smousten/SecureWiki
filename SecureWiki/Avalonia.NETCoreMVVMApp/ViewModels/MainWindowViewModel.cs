@@ -18,6 +18,8 @@ namespace SecureWiki.ViewModels
 
         public object MailRecipient { get; set; }
 
+        public DataFileEntry selectedFile { get; set; }
+
         private KeyringEntry rootKeyringEntry;
 
         public MainWindowViewModel()

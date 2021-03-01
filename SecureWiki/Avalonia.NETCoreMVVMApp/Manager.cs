@@ -104,9 +104,9 @@ namespace SecureWiki
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
-        public async Task UploadNewVersion(string pageTitle)
+        public async Task UploadNewVersion(string pageTitle, string filepath)
         {
-            await wikiHandler.UploadNewVersion(pageTitle);
+            await wikiHandler.UploadNewVersion(pageTitle, filepath);
         }
         
         public void SetMediaWikiServer(string url)
@@ -146,9 +146,14 @@ namespace SecureWiki
             return _keyring.ReadKeyRing();
         }
         
-        public void RemoveFile(string filePath, string filename, string type)
+        // public void RemoveFile(string filePath, string filename, string type)
+        // {
+        //     _keyring.RemoveFile(filePath, filename, type);
+        // }
+        
+        public void RemoveFile(string filePath, string filename)
         {
-            _keyring.RemoveFile(filePath, filename, type);
+            _keyring.RemoveFile(filePath, filename);
         }
 
         // Delegated Crypto functions
@@ -212,5 +217,7 @@ namespace SecureWiki
             Console.WriteLine(recipientEmail);
             smtpClient.Send(mailMessage);
         }
+
+
     }
 }
