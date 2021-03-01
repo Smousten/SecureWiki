@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SecureWiki.ClientApplication
 {
@@ -75,7 +74,7 @@ namespace SecureWiki.ClientApplication
             }
         }
 
-        private void Operations(String inputData)
+        private async void Operations(String inputData)
         {
             Console.WriteLine("Received: {0}", inputData);
             var op = inputData.Split(new[] {':'}, 2);
@@ -99,7 +98,7 @@ namespace SecureWiki.ClientApplication
                 case "release":
                     if (RealFileName(filename))
                     {
-                        _manager.UploadNewVersion(filename);
+                        await _manager.UploadNewVersion(filename);
                     }
                     break;
                 case "create":
@@ -123,12 +122,26 @@ namespace SecureWiki.ClientApplication
                 case "read":
                     if (RealFileName(filename))
                     {
-                        Task<string> decryptedTextTask = _manager.ReadFile(filename);
-                        string decryptedText = decryptedTextTask.Result;
+                        string decryptedText = _manager.ReadFile(filename);
                         byte[] byData = Encoding.ASCII.GetBytes(decryptedText);
                         _stream?.Write(byData);
                     }
                     break;
+                // TODO: Does not currently work because fuse does not remove the file but instead calls rename to move the file to a .Trash directory
+                //
+                // case "rmfile":
+                //     if (RealFileName(filename))
+                //     {
+                //         _manager.RemoveFile(filePath, filename, "file");
+                //     }
+                //     break;
+                // case "rmdir":
+                //     if (RealFileName(filename))
+                //     {
+                //         _manager.RemoveFile(filePath, filename, "keyring");
+                //     }
+                //
+                //     break;
             }
         }
         

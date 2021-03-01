@@ -340,7 +340,7 @@ namespace SecureWiki.Views
             var username = textBoxUser.Text;
             
             var textBoxPass = this.FindControl<TextBox>("TextBoxPass");
-            var password = textBoxUser.Text;
+            var password = textBoxPass.Text;
 
             manager.LoginToMediaWiki(username, password);
         }

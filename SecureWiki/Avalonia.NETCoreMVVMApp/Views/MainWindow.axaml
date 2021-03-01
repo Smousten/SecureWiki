@@ -76,6 +76,10 @@
             </StackPanel>
                 
         </ScrollViewer>
+        <!-- <StackPanel Orientation="Vertical" VerticalAlignment="Top" Height="150" Width="300" x:Name="RevisionControl"> -->
+        <!--     <TextBlock Text="{Binding fileSelected}"></TextBlock> -->
+        <!-- </StackPanel> -->
+        <!-- -->
     </DockPanel>
     
     

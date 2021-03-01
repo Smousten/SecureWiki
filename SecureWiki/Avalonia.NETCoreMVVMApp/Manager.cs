@@ -111,10 +111,11 @@ namespace SecureWiki
         
         public void SetMediaWikiServer(string url)
         {
+            httpClient = new HttpClient();
             wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
         }
 
-        public Task<string> ReadFile(string filename)
+        public string ReadFile(string filename)
         {
             return wikiHandler.ReadFile(filename);
         }
@@ -143,6 +144,11 @@ namespace SecureWiki
         public KeyringEntry ReadKeyRing()
         {
             return _keyring.ReadKeyRing();
+        }
+        
+        public void RemoveFile(string filePath, string filename, string type)
+        {
+            _keyring.RemoveFile(filePath, filename, type);
         }
 
         // Delegated Crypto functions
