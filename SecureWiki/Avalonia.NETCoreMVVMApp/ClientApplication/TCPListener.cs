@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SecureWiki.ClientApplication
 {
@@ -15,9 +16,9 @@ namespace SecureWiki.ClientApplication
 
         public TCPListener(int port, string localAddr, Manager manager)
         {
-            this._port = port;
-            this._localAddr = IPAddress.Parse(localAddr);
-            this._manager = manager;
+            _port = port;
+            _localAddr = IPAddress.Parse(localAddr);
+            _manager = manager;
         }
 
         public void RunListener()
@@ -131,12 +132,14 @@ namespace SecureWiki.ClientApplication
                 case "read":
                     if (RealFileName(filename))
                     {
-                        string decryptedText = _manager.ReadFile(filename);
+                        Task<string> decryptedTextAsync = _manager.ReadFile(filename);
+                        string decryptedText = decryptedTextAsync.Result;
                         byte[] byData = Encoding.ASCII.GetBytes(decryptedText);
+                        // byte[] byData = Convert.FromBase64String(decryptedText);
                         _stream?.Write(byData);
                     }
                     break;
-                // TODO: Does not currently work because fuse does not remove the file but instead calls rename to move the file to a .Trash directory
+
                 //
                 // case "rmfile":
                 //     if (RealFileName(filename))

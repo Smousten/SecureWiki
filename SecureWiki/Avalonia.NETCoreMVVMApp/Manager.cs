@@ -70,7 +70,7 @@ namespace SecureWiki
 
         public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
         {
-            MediaWikiObjects.PageQuery.AllRevisions allRevisions = new(wikiHandler.MWO, pageTitle);
+            MediaWikiObjects.PageQuery.AllRevisions allRevisions = new(wikiHandler.Mwo, pageTitle);
 
             allRevisions.GetAllRevisions();
             Console.WriteLine("Printing all revisions from manager:");
@@ -85,7 +85,7 @@ namespace SecureWiki
         {
             //MediaWikiObjects MWO = new(httpClient);
 
-            MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.MWO, pageTitle);
+            MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.Mwo, pageTitle);
             string output = pc.GetContent();
 
             return output;
@@ -94,13 +94,13 @@ namespace SecureWiki
 
         public void UndoRevisionsByID(string pageTitle, string startID, string endID)
         {
-            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = new(wikiHandler.MWO, pageTitle);
+            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = new(wikiHandler.Mwo, pageTitle);
             undoRevisions.UndoRevisionsByID(startID, endID);
         }
 
         public void DeleteRevisionsByID(string pageTitle, string IDs)
         {
-            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = new(wikiHandler.MWO, pageTitle);
+            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = new(wikiHandler.Mwo, pageTitle);
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
@@ -115,7 +115,7 @@ namespace SecureWiki
             wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
         }
 
-        public string ReadFile(string filename)
+        public Task<string> ReadFile(string filename)
         {
             return wikiHandler.ReadFile(filename);
         }

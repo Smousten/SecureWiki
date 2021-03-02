@@ -68,7 +68,7 @@
                             </CheckBox>
                         </TreeDataTemplate>
                         <DataTemplate DataType="Models:DataFileEntry" >
-                            <CheckBox IsChecked="False" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+                            <CheckBox IsChecked="False" Name="CheckBox" Initialized="CheckBox_OnInitialized" Click="CheckBox_OnClick">
                                 <TextBlock Foreground="Blue" Text="{Binding filename}"></TextBlock>
                             </CheckBox>
                         </DataTemplate>
@@ -90,6 +90,9 @@
                             <TextBlock Grid.Row="0" Grid.Column="0">File properties: </TextBlock>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding selectedFile.filename}"/>
                         </Grid>
+                    <ComboBox SelectedIndex="0" Items="{Binding revisions}">
+                        
+                    </ComboBox>
                     </StackPanel>
                 </DataTemplate>
             </ContentControl.ContentTemplate>

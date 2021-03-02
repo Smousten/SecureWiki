@@ -111,6 +111,7 @@ namespace SecureWiki.Cryptography
             RSACryptoServiceProvider rsa = new();
             rsa.ImportRSAPrivateKey(key, out _);
             var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
+            // var plainTextBytes = Convert.FromBase64String(plainText);
             return rsa.SignData(plainTextBytes, SHA256.Create());
         }
 
@@ -121,8 +122,9 @@ namespace SecureWiki.Cryptography
             {
                 RSACryptoServiceProvider rsa = new();
                 rsa.ImportRSAPublicKey(key, out _);
-            
+
                 var plainTextBytes = Encoding.ASCII.GetBytes(plainText);
+                // var plainTextBytes = Convert.FromBase64String(plainText);
                 return rsa.VerifyData(plainTextBytes, SHA256.Create(), signedData);
             }
             catch (CryptographicException e)

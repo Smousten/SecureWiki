@@ -89,10 +89,9 @@ namespace SecureWiki.Cryptography
                 dataFiles = new List<DataFileEntry>(),
                 keyrings = new ObservableCollection<KeyringEntry>()
             };
-            JsonSerializerOptions options = new() {WriteIndented = true};
-            var jsonData = JsonSerializer.Serialize(newKeyringEntry, options);
-            File.WriteAllText(filepath, jsonData);
+            SerializeAndWriteFile(filepath, newKeyringEntry);
         }
+
 
         // Returns the keyringEntry where the new keyring/datafile should be inserted
         private KeyringEntry FindKeyringPath(KeyringEntry rootKeyring, string filePath)
@@ -112,6 +111,7 @@ namespace SecureWiki.Cryptography
             {
                 return FindKeyringPath(childKeyring, newPath);
             }
+
             KeyringEntry intermediateKeyring = new()
             {
                 name = filePathSplit[0],
@@ -126,15 +126,15 @@ namespace SecureWiki.Cryptography
         public void AddNewFile(string filepath, string filename)
         {
             var keyringFilePath = GetKeyringFilePath();
-
             var existingKeyRing = GetRootKeyring(keyringFilePath);
 
             var (key, iv) = _crypto.GenerateAesParams();
             var (privateKey, publicKey) = _crypto.GenerateRsaParams();
-            
+
             var filenameBytes = _crypto.EncryptAesStringToBytes(filename, key, iv);
-            var encryptedFilename = BitConverter.ToString(filenameBytes);
-            
+            // var encryptedFilename = BitConverter.ToString(filenameBytes);
+
+            var encryptedFilename = Convert.ToBase64String(filenameBytes);
             DataFileEntry dataFileEntry = new()
             {
                 filename = filename,
@@ -151,10 +151,7 @@ namespace SecureWiki.Cryptography
             var foundKeyring = FindKeyringPath(existingKeyRing, filepath);
             foundKeyring.dataFiles.Add(dataFileEntry);
 
-            JsonSerializerOptions options = new() {WriteIndented = true};
-
-            var jsonData = JsonSerializer.Serialize(existingKeyRing, options);
-            File.WriteAllText(keyringFilePath, jsonData);
+            SerializeAndWriteFile(keyringFilePath, existingKeyRing);
         }
 
         // Add new data file to existing keyring json file
@@ -169,22 +166,20 @@ namespace SecureWiki.Cryptography
                 dataFiles = new List<DataFileEntry>(),
                 keyrings = new ObservableCollection<KeyringEntry>()
             };
-            
+
             // Find the keyring where the new keyring is inserted
             var foundKeyring = FindKeyringPath(existingKeyRing, filepath);
             foundKeyring.keyrings.Add(newKeyringEntry);
-            
-            JsonSerializerOptions options = new() {WriteIndented = true};
 
-            var jsonData = JsonSerializer.Serialize(existingKeyRing, options);
-            File.WriteAllText(keyringFilePath, jsonData);
+            SerializeAndWriteFile(keyringFilePath, existingKeyRing);
         }
-        
+
         // Find the datafile with the given name -- better performance if whole filepath is given
         public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)
         {
             var dataFile = keyring.dataFiles.Find(f => f.filename.Equals(filename));
-            return dataFile ?? keyring.keyrings.Select(childKeyRing => GetDataFile(filename, childKeyRing)).FirstOrDefault();
+            return dataFile ?? keyring.keyrings.Select(childKeyRing => GetDataFile(filename, childKeyRing))
+                .FirstOrDefault();
         }
 
         // Rename or change location of datafile/keyring in root keyringEntry 
@@ -213,7 +208,7 @@ namespace SecureWiki.Cryptography
                 dataFile.filename = newName;
                 newKeyring.dataFiles.Add(dataFile);
             }
-            
+
             // Find keyring in oldkeyring
             var keyring = oldKeyring.keyrings.FirstOrDefault(f => f.name.Equals(oldName));
             if (keyring != null)
@@ -223,10 +218,7 @@ namespace SecureWiki.Cryptography
                 newKeyring.keyrings.Add(keyring);
             }
 
-            JsonSerializerOptions options = new() {WriteIndented = true};
-
-            var jsonData = JsonSerializer.Serialize(rootKeyring, options);
-            File.WriteAllText(keyringFilePath, jsonData);
+            SerializeAndWriteFile(keyringFilePath, rootKeyring);
         }
 
         // public void RemoveFile(string filePath, string filename, string type)
@@ -258,21 +250,25 @@ namespace SecureWiki.Cryptography
         {
             var keyringFilePath = GetKeyringFilePath();
             var existingKeyRing = GetRootKeyring(keyringFilePath);
-            
+
             // Find the keyring where the data file is located
             var foundKeyring = FindKeyringPath(existingKeyRing, filePath);
 
             // Remove file or keyring from parent keyring
             var fileToRemove = foundKeyring.dataFiles.Find(f => f.filename.Equals(filename));
             if (fileToRemove != null) foundKeyring.dataFiles.Remove(fileToRemove);
-            
+
             var keyringToRemove = foundKeyring.keyrings.FirstOrDefault(f => f.name.Equals(filename));
             if (keyringToRemove != null) foundKeyring.keyrings.Remove(keyringToRemove);
-            
+
+            SerializeAndWriteFile(keyringFilePath, existingKeyRing);
+        }
+
+        private static void SerializeAndWriteFile(string filepath, KeyringEntry newKeyringEntry)
+        {
             JsonSerializerOptions options = new() {WriteIndented = true};
-            
-            var jsonData = JsonSerializer.Serialize(existingKeyRing, options);
-            File.WriteAllText(keyringFilePath, jsonData);
+            var jsonData = JsonSerializer.Serialize(newKeyringEntry, options);
+            File.WriteAllText(filepath, jsonData);
         }
     }
 }

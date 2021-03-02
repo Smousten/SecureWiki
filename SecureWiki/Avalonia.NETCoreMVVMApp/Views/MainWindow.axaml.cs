@@ -28,6 +28,7 @@ namespace SecureWiki.Views
         
         private WikiHandler wikiHandler;
         private Keyring _keyring;
+        private MainWindowViewModel _viewModel = new();
         private TCPListener tcpListener;
         private Manager manager;
         public List<EventHandler<RoutedEventArgs>> CheckBoxEventHandlers = new();
@@ -520,6 +521,8 @@ namespace SecureWiki.Views
             if (sender is CheckBox cb)
             {
                 DataFileEntry dataFile = cb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
+                _viewModel.selectedFile = dataFile;
+                //_viewModel.revisions = manager.GetAllRevisions(dataFile.pagename);
                 Console.WriteLine(dataFile.filename);
             }
             

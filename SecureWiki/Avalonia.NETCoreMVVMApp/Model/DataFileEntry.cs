@@ -1,5 +1,5 @@
 namespace SecureWiki.Model
-{
+{ 
     public class DataFileEntry
     {
         public string filename { get; set; } 

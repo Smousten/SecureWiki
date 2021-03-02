@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using SecureWiki.Cryptography;
+using SecureWiki.MediaWiki;
 using SecureWiki.Model;
 using SecureWiki.Views;
 
@@ -19,6 +20,12 @@ namespace SecureWiki.ViewModels
         public object MailRecipient { get; set; }
 
         public DataFileEntry selectedFile { get; set; }
+
+        public MediaWikiObjects.PageQuery.AllRevisions revisions
+        {
+            get { throw new NotImplementedException(); }
+            set => throw new NotImplementedException();
+        }
 
         private KeyringEntry rootKeyringEntry;
 
