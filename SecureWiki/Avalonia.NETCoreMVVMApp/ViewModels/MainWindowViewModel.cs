@@ -32,7 +32,6 @@ namespace SecureWiki.ViewModels
         public MainWindowViewModel()
         {
             rootKeyring = new ObservableCollection<RootKeyring>(BuildRootKeyring());
-
         }
 
         private List<RootKeyring> BuildRootKeyring()

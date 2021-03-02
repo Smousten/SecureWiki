@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -79,12 +81,26 @@ namespace SecureWiki.Views
              //InitCheckBoxHandlers((TreeViewItem) TV.GetLogicalChildren().First(c => c.GetType() == typeof(TreeViewItem)));
         }
 
-        // TODO: run script to unmount fuse dir
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
             Console.WriteLine();
             Console.WriteLine("Window is closing");
+            
+            var currentDir = Directory.GetCurrentDirectory();
+            var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
+            var mountdirPath = Path.Combine(baseDir, @"fuse/example/mountdir");
+            Console.WriteLine(mountdirPath);
+            
+            ProcessStartInfo start = new();
+            start.FileName = "/bin/fusermount";
+            start.Arguments = string.Format("{0} {1}", "-u ", mountdirPath);
+
+            start.UseShellExecute = false;
+            start.RedirectStandardOutput = true;
+            Process process = Process.Start(start);
+            process?.WaitForExit();
+            process?.Close();
         }
 
         private void MainWindow_Shown(object sender, EventArgs e)

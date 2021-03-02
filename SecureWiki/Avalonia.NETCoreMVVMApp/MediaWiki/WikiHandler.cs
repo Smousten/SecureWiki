@@ -256,13 +256,13 @@ namespace SecureWiki.MediaWiki
             return textString.Equals("") ? "This text is stored securely." : textString;
         }
 
-        private static byte[] BitConverterStringToBytes(string input)
-        {
-            string[] arr = input.Split('-');
-            byte[] array = new byte[arr.Length];
-            for (int i = 0; i < arr.Length; i++) array[i] = Convert.ToByte(arr[i], 16);
-            var pageContentBytes = array;
-            return pageContentBytes;
-        }
+        // private static byte[] BitConverterStringToBytes(string input)
+        // {
+        //     string[] arr = input.Split('-');
+        //     byte[] array = new byte[arr.Length];
+        //     for (int i = 0; i < arr.Length; i++) array[i] = Convert.ToByte(arr[i], 16);
+        //     var pageContentBytes = array;
+        //     return pageContentBytes;
+        // }
     }
 }
