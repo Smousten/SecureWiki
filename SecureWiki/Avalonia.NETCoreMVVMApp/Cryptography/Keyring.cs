@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
+using Newtonsoft.Json;
 using SecureWiki.Model;
 
 namespace SecureWiki.Cryptography
@@ -53,7 +53,9 @@ namespace SecureWiki.Cryptography
         private KeyringEntry GetRootKeyring(string keyringFilePath)
         {
             var jsonData = File.ReadAllText(keyringFilePath);
-            var existingKeyRing = JsonSerializer.Deserialize<KeyringEntry>(jsonData)
+            // var existingKeyRing = JsonSerializer.Deserialize<KeyringEntry>(jsonData)
+            //                       ?? new KeyringEntry();
+            var existingKeyRing = JsonConvert.DeserializeObject<KeyringEntry>(jsonData) 
                                   ?? new KeyringEntry();
             return existingKeyRing;
         }
@@ -266,8 +268,7 @@ namespace SecureWiki.Cryptography
 
         private static void SerializeAndWriteFile(string filepath, KeyringEntry newKeyringEntry)
         {
-            JsonSerializerOptions options = new() {WriteIndented = true};
-            var jsonData = JsonSerializer.Serialize(newKeyringEntry, options);
+            var jsonData = JsonConvert.SerializeObject(newKeyringEntry, Formatting.Indented);
             File.WriteAllText(filepath, jsonData);
         }
     }

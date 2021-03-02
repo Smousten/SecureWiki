@@ -513,22 +513,25 @@ namespace SecureWiki.MediaWiki
             Console.WriteLine("LoginHttpClient:- resonseBody: " + responseBody);
             JObject responseJson = JObject.Parse(responseBody);
             
-            string loginToken = (string) responseJson["query"]?["tokens"]?["logintoken"];
+            var loginToken = responseJson["query"]?["tokens"]?["logintoken"]?.ToString();
             Console.WriteLine("LoginHttpClient:- LoginToken: " + loginToken);
             
             string action = "?action=clientlogin";
-            var values = new List<KeyValuePair<string, string>>
+            if (loginToken != null)
             {
-                new("format", "json"),
-                new("loginreturnurl", "http://example.org"),
-                new("logintoken", loginToken),
-                new("username", username),
-                new("password", password)
-            };
-            HttpResponseMessage responseClientLogin =
-                httpClient.PostAsync(URL + action, new FormUrlEncodedContent(values)).Result;
-            string responseBodyClientLogin = responseClientLogin.Content.ReadAsStringAsync().Result;
-            Console.WriteLine("LoginHttpClient:- responseBodyClientLogin: " + responseBodyClientLogin);
+                var values = new List<KeyValuePair<string, string>>
+                {
+                    new("format", "json"),
+                    new("loginreturnurl", "http://example.org"),
+                    new("logintoken", loginToken),
+                    new("username", username),
+                    new("password", password)
+                };
+                HttpResponseMessage responseClientLogin =
+                    httpClient.PostAsync(URL + action, new FormUrlEncodedContent(values)).Result;
+                string responseBodyClientLogin = responseClientLogin.Content.ReadAsStringAsync().Result;
+                Console.WriteLine("LoginHttpClient:- responseBodyClientLogin: " + responseBodyClientLogin);
+            }
 
             MWuserID = username;
             MWuserPassword = password;

@@ -90,15 +90,13 @@ namespace SecureWiki.Views
             var currentDir = Directory.GetCurrentDirectory();
             var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var mountdirPath = Path.Combine(baseDir, @"fuse/example/mountdir");
-            Console.WriteLine(mountdirPath);
-            
             ProcessStartInfo start = new();
             start.FileName = "/bin/fusermount";
-            start.Arguments = string.Format("{0} {1}", "-u ", mountdirPath);
+            start.Arguments = $"-u {mountdirPath}";
 
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
-            Process process = Process.Start(start);
+            var process = Process.Start(start);
             process?.WaitForExit();
             process?.Close();
         }
