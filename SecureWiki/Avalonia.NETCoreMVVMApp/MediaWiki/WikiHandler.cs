@@ -89,8 +89,6 @@ namespace SecureWiki.MediaWiki
             getData += "&rvprop=content";
             getData += "&format=json";
 
-            Console.WriteLine("Read get request: " + _url + getData);
-
             HttpResponseMessage response = await _client.GetAsync(_url + getData);
             response.EnsureSuccessStatusCode();
             string responseBody = await response.Content.ReadAsStringAsync();
