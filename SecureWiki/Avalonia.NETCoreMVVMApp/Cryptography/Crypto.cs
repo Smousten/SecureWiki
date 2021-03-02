@@ -7,7 +7,7 @@ namespace SecureWiki.Cryptography
 {
     public class Crypto
     {
-        public byte[] EncryptAesStringToBytes(string plainText, byte[] key, byte[] iv)
+        public byte[] EncryptAESStringToBytes(string plainText, byte[] key, byte[] iv)
         {
             // Ensure argument validity
             if (plainText == null || plainText.Length <= 0)
@@ -48,7 +48,7 @@ namespace SecureWiki.Cryptography
             return encrypted;
         }
 
-        public string DecryptAesBytesToString(byte[] cipherText, byte[] key, byte[] iv)
+        public string DecryptAESBytesToString(byte[] cipherText, byte[] key, byte[] iv)
         {
             // Ensure argument validity
             if (cipherText == null || cipherText.Length <= 0)
@@ -85,7 +85,7 @@ namespace SecureWiki.Cryptography
             return plaintext;
         }
 
-        public (byte[] privateKey, byte[] publicKey) GenerateRsaParams()
+        public (byte[] privateKey, byte[] publicKey) GenerateRSAParams()
         {
             // Generate a key pair.  
             RSA rsa = RSA.Create();
@@ -96,7 +96,7 @@ namespace SecureWiki.Cryptography
             return (privateKey, publicKey);
         }
 
-        public (byte[] Key, byte[] IV) GenerateAesParams()
+        public (byte[] Key, byte[] IV) GenerateAESParams()
         {
             Aes aes = Aes.Create();
             aes.GenerateKey();

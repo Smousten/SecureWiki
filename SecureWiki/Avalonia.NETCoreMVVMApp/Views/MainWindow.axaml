@@ -11,9 +11,11 @@
         Title="Avalonia.NETCoreMVVMApp"
         Padding="10"><!--Width="300" Height="400"-->
 
+    <!--
     <Design.DataContext>
         <viewModels:MainWindowViewModel/>
     </Design.DataContext>
+    -->
 
     <!--<TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     -->
@@ -55,20 +57,20 @@
         
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <StackPanel Orientation="Vertical">
-                <TreeView Items="{Binding rootKeyring}" Name="TreeView1">
+                <TreeView Items="{Binding rootKeyringCollection, Mode=TwoWay}" Name="TreeView1">
                     <TreeView.DataTemplates>
                         <TreeDataTemplate DataType="Models:RootKeyring" ItemsSource="{Binding combinedList}">
-                            <CheckBox IsChecked="False" Name="CheckBox" Initialized="CheckBox_OnInitialized">
-                                <TextBlock Foreground="Red" Text="{Binding name}"></TextBlock>
+                            <CheckBox IsChecked="{Binding Checked}" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+                                <TextBlock Foreground="Red" Text="{Binding Name, Mode=TwoWay}"></TextBlock>
                             </CheckBox>
                         </TreeDataTemplate>
                         <TreeDataTemplate DataType="Models:KeyringEntry" ItemsSource="{Binding combinedList}">
-                            <CheckBox IsChecked="False" Name="CheckBox" Initialized="CheckBox_OnInitialized">
-                                <TextBlock Text="{Binding name}"></TextBlock>
+                            <CheckBox IsChecked="{Binding Checked}" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+                                <TextBlock Text="{Binding Name}"></TextBlock>
                             </CheckBox>
                         </TreeDataTemplate>
                         <DataTemplate DataType="Models:DataFileEntry" >
-                            <CheckBox IsChecked="False" Name="CheckBox" Initialized="CheckBox_OnInitialized" Click="CheckBox_OnClick">
+                            <CheckBox IsChecked="{Binding Checked}" Name="CheckBox" Initialized="CheckBox_OnInitialized">
                                 <TextBlock Foreground="Blue" Text="{Binding filename}"></TextBlock>
                             </CheckBox>
                         </DataTemplate>

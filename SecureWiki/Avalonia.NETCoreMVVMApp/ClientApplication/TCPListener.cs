@@ -75,7 +75,8 @@ namespace SecureWiki.ClientApplication
             }
         }
 
-        private async void Operations(String inputData)
+        // TODO: Fix empty messages
+        private void Operations(String inputData)
         {
             Console.WriteLine("Received: {0}", inputData);
             var op = inputData.Split(new[] {':'}, 2);
@@ -99,16 +100,14 @@ namespace SecureWiki.ClientApplication
                 case "release":
                     if (RealFileName(filename))
                     {
-                        await _manager.UploadNewVersion(filename, filePath);
+                        _manager.UploadNewVersion(filename, filePath);
                     }
-
                     break;
                 case "create":
                     if (RealFileName(filename))
                     {
                         _manager.AddNewFile(filePath, filename);
                     }
-
                     break;
                 case "mkdir":
                     _manager.AddNewKeyRing(filePath, filename);

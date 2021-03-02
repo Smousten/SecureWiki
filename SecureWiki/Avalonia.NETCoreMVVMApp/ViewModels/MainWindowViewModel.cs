@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
+using ReactiveUI;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
 using SecureWiki.Model;
@@ -11,14 +14,42 @@ namespace SecureWiki.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public ObservableCollection<RootKeyring> rootKeyring { get; set; }
+        private ObservableCollection<RootKeyring> _rootKeyringCollection;
+        public ObservableCollection<RootKeyring> rootKeyringCollection 
+        {
+            get
+            {
+              return _rootKeyringCollection;  
+            }
+            set
+            {
+                _rootKeyringCollection = value;
+                this.RaisePropertyChanged(nameof(rootKeyringCollection));
+                Console.WriteLine("rootKeyringCollection set");
+            }
+                
+        }
         public string IP { get; set; } = "127.0.0.1";
 
-        public string Username { get; set; }
+        private string _Username;
+        public string Username
+        {
+            get
+            {
+                return _Username;
+            }
+            set
+            {
+                _Username = value;
+                this.RaisePropertyChanged("Username");
+            }
+        }
         public string Password { get; set; }
 
         public object MailRecipient { get; set; }
 
+        public RootKeyring rootKeyring;
+        
         public DataFileEntry selectedFile { get; set; }
 
         public MediaWikiObjects.PageQuery.AllRevisions revisions
@@ -27,29 +58,12 @@ namespace SecureWiki.ViewModels
             set => throw new NotImplementedException();
         }
 
-        private KeyringEntry rootKeyringEntry;
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(RootKeyring rk)
         {
-            rootKeyring = new ObservableCollection<RootKeyring>(BuildRootKeyring());
-        }
-
-        private List<RootKeyring> BuildRootKeyring()
-        {
-            ObservableCollection<RootKeyring> rkr = new();
-            RootKeyring rk = new();
-            Keyring kr = new();
-
-            kr.InitKeyring();
-            KeyringEntry rootKeyringEntry = kr.ReadKeyRing();
-            
-            rk.name = "Keyrings:";
-            rk.keyrings = rootKeyringEntry.keyrings;
-            rk.dataFiles = new ObservableCollection<DataFileEntry>(rootKeyringEntry.dataFiles);
-            Console.WriteLine("BuildRootKeyring:- rk datafile count: " + rk.dataFiles.Count);
-            rkr.Add(rk);
-
-            return rkr.ToList();
+            rootKeyring = rk;
+            rootKeyringCollection = new ObservableCollection<RootKeyring>();
+            rootKeyringCollection.Add(rootKeyring);
         }
     }
 }

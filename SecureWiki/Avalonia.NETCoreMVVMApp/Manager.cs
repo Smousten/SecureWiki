@@ -26,6 +26,8 @@ namespace SecureWiki
         private Crypto _crypto;
         private TCPListener tcpListener;
         private static HttpClient httpClient = new();
+
+        public RootKeyring rootKeyring;
         
         private readonly string _smtpClientEmail = "SecureWikiMails@gmail.com";
         private readonly string _smtpClientPassword = "SecureWiki";
@@ -34,24 +36,23 @@ namespace SecureWiki
 
         public PrintTest printTest;
 
-        public Manager(Thread createrThread)
+        public Manager(Thread createrThread, RootKeyring rk)
         {
             GUIThread = createrThread;
             printTest = PrintTestMethod;
+            rootKeyring = rk;
         }
 
         public void Run()
         {
-            // wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
-            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this);
-            _keyring = new Keyring();
+            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
+            _keyring = new Keyring(rootKeyring);
             _crypto = new Crypto();
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
 
             _keyring.InitKeyring();
 
-            TCPListenerThread = new(tcpListener.RunListener);
-            TCPListenerThread.IsBackground = true;
+            TCPListenerThread = new Thread(tcpListener.RunListener) {IsBackground = true};
             TCPListenerThread.Start();
 
             Thread.Sleep(1000);
@@ -59,8 +60,6 @@ namespace SecureWiki
             Thread fuseThread = new(Program.RunFuse);
             fuseThread.IsBackground = true;
             fuseThread.Start();
-
-            //printTest("www2");
         }
 
         public void PrintTestMethod(string input)
@@ -70,7 +69,7 @@ namespace SecureWiki
 
         public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
         {
-            MediaWikiObjects.PageQuery.AllRevisions allRevisions = new(wikiHandler.Mwo, pageTitle);
+            MediaWikiObjects.PageQuery.AllRevisions allRevisions = new(wikiHandler.MWO, pageTitle);
 
             allRevisions.GetAllRevisions();
             Console.WriteLine("Printing all revisions from manager:");
@@ -83,9 +82,7 @@ namespace SecureWiki
 
         public string GetPageContent(string pageTitle)
         {
-            //MediaWikiObjects MWO = new(httpClient);
-
-            MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.Mwo, pageTitle);
+            MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.MWO, pageTitle);
             string output = pc.GetContent();
 
             return output;
@@ -94,13 +91,13 @@ namespace SecureWiki
 
         public void UndoRevisionsByID(string pageTitle, string startID, string endID)
         {
-            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = new(wikiHandler.Mwo, pageTitle);
+            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = new(wikiHandler.MWO, pageTitle);
             undoRevisions.UndoRevisionsByID(startID, endID);
         }
 
         public void DeleteRevisionsByID(string pageTitle, string IDs)
         {
-            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = new(wikiHandler.Mwo, pageTitle);
+            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = new(wikiHandler.MWO, pageTitle);
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
@@ -164,12 +161,12 @@ namespace SecureWiki
 
         public byte[] EncryptAesStringToBytes(string plainText, byte[] symmKey, byte[] iv)
         {
-            return _crypto.EncryptAesStringToBytes(plainText, symmKey, iv);
+            return _crypto.EncryptAESStringToBytes(plainText, symmKey, iv);
         }
 
         public string DecryptAesBytesToString(byte[] pageContentBytes, byte[] symmKey, byte[] iv)
         {
-            return _crypto.DecryptAesBytesToString(pageContentBytes, symmKey, iv);
+            return _crypto.DecryptAESBytesToString(pageContentBytes, symmKey, iv);
         }
 
         public byte[] SignData(byte[] privateKey, string plainText)
@@ -217,7 +214,5 @@ namespace SecureWiki
             Console.WriteLine(recipientEmail);
             smtpClient.Send(mailMessage);
         }
-
-
     }
 }

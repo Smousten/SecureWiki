@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -16,6 +17,7 @@ using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.VisualTree;
+using DynamicData;
 using SecureWiki.ClientApplication;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
@@ -30,36 +32,31 @@ namespace SecureWiki.Views
         
         private WikiHandler wikiHandler;
         private Keyring _keyring;
-        private MainWindowViewModel _viewModel = new();
+        private RootKeyring _rootKeyring = new();
+        private readonly object rootKeyringLock = new();
         private TCPListener tcpListener;
         private Manager manager;
+        public MainWindowViewModel _viewModel;
         public List<EventHandler<RoutedEventArgs>> CheckBoxEventHandlers = new();
         
         
         
         public MainWindow()
         {
+            // Populate global list of CheckBox event handlers
+            CheckBoxEventHandlers.Add(CheckBox_CheckedChangedUpdateParent);
+            CheckBoxEventHandlers.Add(CheckBox_CheckedChangedUpdateChildren);
+            
+            _viewModel = new(_rootKeyring);
+            DataContext = _viewModel;
             InitializeComponent();
-
-            /*
-            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED");
-            keyRing = new KeyRing();
-            tcpListener = new TCPListener(11111, "127.0.1.1", wikiHandler, keyRing);
-            Thread instanceCaller = new(tcpListener.RunListener);
-            instanceCaller.Start();
-            Thread fuseThread = new(Program.RunFuse);
-            fuseThread.Start();
-            */
-
             
-            
-            manager = new(Thread.CurrentThread);
+            manager = new(Thread.CurrentThread, _rootKeyring);
             Thread ManagerThread = new(manager.Run);
             ManagerThread.IsBackground = true;
             ManagerThread.Name = "ManagerThread";
             ManagerThread.Start();
 
-            
             
             //Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
             
@@ -71,14 +68,6 @@ namespace SecureWiki.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
-
-
-             
-             //
-             //
-             // this.FindControl<TreeView>("TreeView1").ExpandSubTree();
-
-             //InitCheckBoxHandlers((TreeViewItem) TV.GetLogicalChildren().First(c => c.GetType() == typeof(TreeViewItem)));
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -105,16 +94,13 @@ namespace SecureWiki.Views
         {
             Console.WriteLine("MainWindow_Shown");
             
-            CheckBoxEventHandlers.Add(CheckBox_CheckedChangedUpdateParent);
-            CheckBoxEventHandlers.Add(CheckBox_CheckedChangedUpdateChildren);
             
-            TreeView TV = this.FindControl<TreeView>("TreeView1");
+            
 
+            // Expand root node in TreeView
+            TreeView TV = this.FindControl<TreeView>("TreeView1");
             TreeViewItem root = (TreeViewItem) TV.GetLogicalChildren().First(c => c.GetType() == typeof(TreeViewItem));
             root.IsExpanded = true;
-
-            // Console.WriteLine("Initialising CheckBox event handlers");
-            // InitCheckBoxHandlers(root);
         }
 
         public void Button1_Click(object sender, RoutedEventArgs e)
@@ -161,11 +147,14 @@ namespace SecureWiki.Views
 
         private void Button2_Click(object? sender, RoutedEventArgs e)
         {
-            Button1_Click(this, e);
+            // Button1_Click(this, e);
 
-            manager.GetAllRevisions("Www");
+            // manager.GetAllRevisions("Www");
             //MediaWikiObjects.PageQuery.AllRevisions allRev = new("Www");
-            //allRev.GetAllRevisions();        
+            //allRev.GetAllRevisions();    
+            
+            _rootKeyring.PrintInfoRecursively();
+            
         }
 
         private void Button3_Click(object? sender, RoutedEventArgs e)
@@ -365,15 +354,12 @@ namespace SecureWiki.Views
             // }
             if (anyUnchecked == false || atleastTwoChecked || (ancestorChecked && anyChecked))
             {
-                // parentcb.IsChecked = true;
                 UpdateCheckBoxWithoutTriggeringEventHandler(parentcb, true, CheckBox_CheckedChangedUpdateChildren);
             }
             else if (anyChecked == false)
             {
                 UpdateCheckBoxWithoutTriggeringEventHandler(parentcb, false, CheckBox_CheckedChangedUpdateChildren);
-                // parentcb.IsChecked = false;
             }
-            
         }
 
         private void UpdateChildrenTVICheckBoxes(TreeViewItem TVI)
@@ -420,39 +406,17 @@ namespace SecureWiki.Views
 
         private void InitCheckBoxHandlers(TreeViewItem root)
         {
-            foreach (TreeViewItem subItem in root.GetLogicalChildren().Where(c => c.GetType() == typeof(TreeViewItem)))
+            foreach (TreeViewItem TVI in root.GetLogicalChildren().Where(c => c.GetType() == typeof(TreeViewItem)))
             {
                 // Console.WriteLine("Child found");
-                CheckBox cb = (CheckBox) subItem.GetLogicalChildren()
+                CheckBox cb = (CheckBox) TVI.GetLogicalChildren()
                     .First(c => c.GetType() == typeof(CheckBox));
-                
-                RemoveAllCheckedUncheckedEventHandlers(cb);
-                
-                if (subItem.DataContext.GetType() == typeof(KeyringEntry))
+                SetCheckBoxCheckedUncheckedEventHandlers(TVI, cb);
+
+                // Check own children
+                if (TVI.DataContext.GetType() != typeof(DataFileEntry))
                 {
-                    // Console.WriteLine("KeyringEntry found");
-                    cb.Checked += CheckBox_CheckedChangedUpdateChildren;
-                    cb.Unchecked += CheckBox_CheckedChangedUpdateChildren;
-                    cb.Checked += CheckBox_CheckedChangedUpdateParent;
-                    cb.Unchecked += CheckBox_CheckedChangedUpdateParent;
-                    
-                    // Check own children
-                    InitCheckBoxHandlers(subItem);
-                }
-                else if (subItem.DataContext.GetType() == typeof(DataFileEntry))
-                {
-                    // Console.WriteLine("DataFileEntry found");
-                    cb.Checked += CheckBox_CheckedChangedUpdateParent;
-                    cb.Unchecked += CheckBox_CheckedChangedUpdateParent;
-                }
-                else if (subItem.DataContext.GetType() == typeof(RootKeyring))
-                {
-                    // Console.WriteLine("RootKeyring found");
-                    cb.Checked += CheckBox_CheckedChangedUpdateChildren;
-                    cb.Unchecked += CheckBox_CheckedChangedUpdateChildren;
-                    
-                    // Check own children
-                    InitCheckBoxHandlers(subItem);
+                    InitCheckBoxHandlers(TVI);
                 }
             }
         }
@@ -462,26 +426,40 @@ namespace SecureWiki.Views
             CheckBox cb = sender as CheckBox;
 
             TreeViewItem TVI = GetTreeViewItemParent(cb);
-            
-            RemoveAllCheckedUncheckedEventHandlers(cb);
-            
-            if (TVI.DataContext.GetType() == typeof(KeyringEntry))
+
+            SetCheckBoxCheckedUncheckedEventHandlers(TVI, cb);
+
+            // Let Keyrings and DataFiles inherit IsChecked value from parent (root)Keyring
+            if (TVI.DataContext.GetType() != typeof(RootKeyring))
             {
-                // Console.WriteLine("CheckBox_OnInitialized: KeyringEntry found");
+                TreeViewItem TVIParent = GetTreeViewItemParent(TVI);
+                CheckBox parentcb = (CheckBox) TVIParent.GetLogicalChildren()
+                    .First(c => c.GetType() == typeof(CheckBox));
+                cb.IsChecked = parentcb.IsChecked;
+            }
+        }
+
+        private void SetCheckBoxCheckedUncheckedEventHandlers(TreeViewItem parent, CheckBox cb)
+        {
+            RemoveAllCheckedUncheckedEventHandlers(cb);
+                
+            if (parent.DataContext.GetType() == typeof(KeyringEntry))
+            {
+                // Console.WriteLine("KeyringEntry found");
                 cb.Checked += CheckBox_CheckedChangedUpdateChildren;
                 cb.Unchecked += CheckBox_CheckedChangedUpdateChildren;
                 cb.Checked += CheckBox_CheckedChangedUpdateParent;
                 cb.Unchecked += CheckBox_CheckedChangedUpdateParent;
             }
-            else if (TVI.DataContext.GetType() == typeof(DataFileEntry))
+            else if (parent.DataContext.GetType() == typeof(DataFileEntry))
             {
-                // Console.WriteLine("CheckBox_OnInitialized: DataFileEntry found");
+                // Console.WriteLine("DataFileEntry found");
                 cb.Checked += CheckBox_CheckedChangedUpdateParent;
                 cb.Unchecked += CheckBox_CheckedChangedUpdateParent;
             }
-            else if (TVI.DataContext.GetType() == typeof(RootKeyring))
+            else if (parent.DataContext.GetType() == typeof(RootKeyring))
             {
-                // Console.WriteLine("CheckBox_OnInitialized: RootKeyring found");
+                // Console.WriteLine("RootKeyring found");
                 cb.Checked += CheckBox_CheckedChangedUpdateChildren;
                 cb.Unchecked += CheckBox_CheckedChangedUpdateChildren;
             }

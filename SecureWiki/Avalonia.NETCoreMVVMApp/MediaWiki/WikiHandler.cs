@@ -12,19 +12,19 @@ namespace SecureWiki.MediaWiki
 
         private readonly HttpClient _client;
         private readonly Manager _manager;
-        public readonly MediaWikiObjects Mwo;
+        public readonly MediaWikiObjects MWO;
 
         public WikiHandler(string username, string password, HttpClient inputClient, Manager manager, string ip)
         {
             _url = "http://" + ip + "/mediawiki/api.php";
-            Mwo = new MediaWikiObjects(inputClient, username, password, ip);
+            MWO = new MediaWikiObjects(inputClient, username, password, ip);
             _client = inputClient;
             _manager = manager;
         }
 
         public WikiHandler(string username, string password, HttpClient inputClient, Manager manager)
         {
-            Mwo = new MediaWikiObjects(inputClient, username, password);
+            MWO = new MediaWikiObjects(inputClient, username, password);
             _client = inputClient;
             _manager = manager;
         }
@@ -50,7 +50,7 @@ namespace SecureWiki.MediaWiki
                 var encryptedPagetitleBytes = _manager.EncryptAesStringToBytes(filename, dataFile.symmKey, dataFile.iv);
                 var encryptedPagetitleString = Convert.ToBase64String(encryptedPagetitleBytes);
 
-                MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(Mwo, encryptedPagetitleString);
+                MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(MWO, encryptedPagetitleString);
                 uploadNewRevision.UploadContent(encryptedText);
             }
         }
