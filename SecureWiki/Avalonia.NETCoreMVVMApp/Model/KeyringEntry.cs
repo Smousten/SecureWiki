@@ -103,7 +103,7 @@ namespace SecureWiki.Model
         public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            Console.WriteLine("OnPropertyChanged in Keyring, property: " + propertyName);
+            // Console.WriteLine("OnPropertyChanged in Keyring, property: " + propertyName);
         }
 
         public void CopyFromOtherKeyring(KeyringEntry ke)
