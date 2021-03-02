@@ -27,12 +27,12 @@ namespace SecureWiki.Cryptography
         }
 
         // Returns absolute file path to fuse rootdir as string
-        private string GetRootDirPath()
+        private static string GetRootDirPath()
         {
             // Python fuse
             // var filepath = "Pyfuse_mediaWiki/srcTest/";
             // C fuse
-            var filePath = "fuse/example/rootdir/";
+            const string? filePath = "fuse/example/rootdir/";
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var rootDir = Path.Combine(projectDir, filePath);

@@ -37,7 +37,7 @@ namespace SecureWiki.MediaWiki
             var keyring = _manager.ReadKeyRing();
             var dataFile = _manager.GetDataFile(filename, keyring);
 
-            if (dataFile != null && !plainText.Equals(""))
+            if (dataFile != null)
             {
                 // Sign plaintext
                 var hash = _manager.SignData(dataFile.privateKey, plainText);
@@ -77,14 +77,19 @@ namespace SecureWiki.MediaWiki
             if (dataFile == null) return "This text is stored securely.";
             var encryptedFilenameBytes = _manager.EncryptAesStringToBytes(filename, dataFile.symmKey, dataFile.iv);
             var encryptedFilenameString = Convert.ToBase64String(encryptedFilenameBytes);
+            
+            // URL does not allow + character, instead encode as hexadecimal
+            var encryptedFilenameStringEncoded = encryptedFilenameString.Replace("+", "%2B");
 
             // TODO: use MediaWikiObjects get page content. Fix null pointers
             string getData = "?action=query";
-            getData += "&titles=" + encryptedFilenameString;
+            getData += "&titles=" + encryptedFilenameStringEncoded;
             getData += "&prop=revisions";
             getData += "&rvslots=*";
             getData += "&rvprop=content";
             getData += "&format=json";
+
+            Console.WriteLine("Read get request: " + _url + getData);
 
             HttpResponseMessage response = await _client.GetAsync(_url + getData);
             response.EnsureSuccessStatusCode();
