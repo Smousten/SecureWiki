@@ -112,7 +112,7 @@ namespace SecureWiki
             wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
         }
 
-        public Task<string> ReadFile(string filename)
+        public string ReadFile(string filename)
         {
             return wikiHandler.ReadFile(filename);
         }

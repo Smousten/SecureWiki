@@ -28,7 +28,7 @@ namespace SecureWiki.ClientApplication
 
         private void SetupTcpListener()
         {
-            TcpListener server = null;
+            TcpListener? server = null;
             try
             {
                 server = new TcpListener(_localAddr, _port);
@@ -48,9 +48,7 @@ namespace SecureWiki.ClientApplication
 
         private void ListenLoop(TcpListener server)
         {
-            Byte[] bytes = new Byte[256];
-            string? data = null;
-            int input;
+            var bytes = new byte[256];
 
             while (true)
             {
@@ -62,12 +60,12 @@ namespace SecureWiki.ClientApplication
                 _stream = client.GetStream();
                 
                 // Reset data for each iteration
-                data = null;
 
+                int input;
                 while ((input = _stream.Read(bytes, 0, bytes.Length)) != 0)
                 {
                     // Convert input bytes to ASCII before use
-                    data = Encoding.ASCII.GetString(bytes, 0, input);
+                    var data = Encoding.ASCII.GetString(bytes, 0, input);
                     Operations(data);
                 }
 
@@ -75,18 +73,12 @@ namespace SecureWiki.ClientApplication
             }
         }
 
-        // TODO: Fix empty messages
         private void Operations(String inputData)
         {
-            Console.WriteLine("Received: {0}", inputData);
             var op = inputData.Split(new[] {':'}, 2);
-            // var path = inputData.Split("/srcTest/", 2);
-            // var filename = path[^1];
-            // var srcDir = inputData.Split("/srcTest/", 2);
-            // var filepath = srcDir[^1]; 
-            // var filepathsplit = filepath.Split("/");
-            // var filename = filepathsplit[^1];
+            // Input must contain operation and arguments
             if (op.Length < 2) return;
+            Console.WriteLine("Received: {0}", inputData);
             var filePath = op[1].Substring(1);
             char[] arr = filePath.Where(c => (char.IsLetterOrDigit(c) || 
                                               char.IsWhiteSpace(c) || 
@@ -116,25 +108,27 @@ namespace SecureWiki.ClientApplication
                     var renamePathSplit = op[1].Split("%", 2);
                     var oldPath = renamePathSplit[0].Substring(1);
                     var newPath = renamePathSplit[1].Substring(1);
+                    
+                    // Remove if file is moved to trash folder
                     if (newPath.Contains(".Trash"))
                     {
                         var oldFilePathSplit = oldPath.Split("/");
                         var oldFilename = oldFilePathSplit[^1];
                         _manager.RemoveFile(oldPath, oldFilename);
                     }
+                    // Else if the new filename is not goutputstream or .trash then rename
                     else if (RealFileName(filename))
                     {
-
                         _manager.RenameFile(oldPath, newPath);
                     }
                     break;
                 case "read":
                     if (RealFileName(filename))
                     {
-                        Task<string> decryptedTextAsync = _manager.ReadFile(filename);
-                        string decryptedText = decryptedTextAsync.Result;
+                        // Task<string> decryptedTextAsync = _manager.ReadFile(filename);
+                        // string decryptedText = decryptedTextAsync.Result;
+                        var decryptedText = _manager.ReadFile(filename);
                         byte[] byData = Encoding.ASCII.GetBytes(decryptedText);
-                        // byte[] byData = Convert.FromBase64String(decryptedText);
                         _stream?.Write(byData);
                     }
                     break;

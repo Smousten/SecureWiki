@@ -69,7 +69,7 @@ namespace SecureWiki.MediaWiki
             Console.WriteLine("WikiHandler printing: " + input);
         }
 
-        public async Task<string> ReadFile(string filename)
+        public string ReadFile(string filename)
         {
             var keyring = _manager.ReadKeyRing();
             var dataFile = _manager.GetDataFile(filename, keyring);
@@ -80,28 +80,33 @@ namespace SecureWiki.MediaWiki
             
             // URL does not allow + character, instead encode as hexadecimal
             var encryptedFilenameStringEncoded = encryptedFilenameString.Replace("+", "%2B");
+            
+            MediaWikiObjects.PageQuery.PageContent getPageContent = new(MWO, encryptedFilenameStringEncoded);
+            var pageContent = getPageContent.GetContent();
+            if (pageContent.Equals("")) return "File does not exist on server";
+            var pageContentBytes = Convert.FromBase64String(pageContent);
+            
+            // string getData = "?action=query";
+            // getData += "&titles=" + encryptedFilenameStringEncoded;
+            // getData += "&prop=revisions";
+            // getData += "&rvslots=*";
+            // getData += "&rvprop=content";
+            // getData += "&format=json";
+            //
+            // HttpResponseMessage response = await _client.GetAsync(_url + getData);
+            // response.EnsureSuccessStatusCode();
+            // string responseBody = await response.Content.ReadAsStringAsync();
+            // JObject responseJson = JObject.Parse(responseBody);
+            // Console.WriteLine(responseJson);
+            //
+            // var pageContentPair = responseJson.SelectToken("query.pages.*.revisions[0].slots.main")?.Last?.ToString();
+            // var pageContent = pageContentPair?.Split(":", 2);
+            // if (pageContent == null) return "This text is stored securely.";
+            
+            // var trim = pageContent[1].Substring(2, pageContent[1].Length - 3);
 
-            // TODO: use MediaWikiObjects get page content. Fix null pointers
-            string getData = "?action=query";
-            getData += "&titles=" + encryptedFilenameStringEncoded;
-            getData += "&prop=revisions";
-            getData += "&rvslots=*";
-            getData += "&rvprop=content";
-            getData += "&format=json";
-
-            HttpResponseMessage response = await _client.GetAsync(_url + getData);
-            response.EnsureSuccessStatusCode();
-            string responseBody = await response.Content.ReadAsStringAsync();
-            JObject responseJson = JObject.Parse(responseBody);
-            Console.WriteLine(responseJson);
-
-            var pageContentPair = responseJson.SelectToken("query.pages.*.revisions[0].slots.main")?.Last?.ToString();
-            var pageContent = pageContentPair?.Split(":", 2);
-            if (pageContent == null) return "This text is stored securely.";
-            var trim = pageContent[1].Substring(2, pageContent[1].Length - 3);
-
-            var pageContentBytes = Convert.FromBase64String(trim);
-
+            // var pageContentBytes = Convert.FromBase64String(trim);
+                
             var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes, dataFile.symmKey, dataFile.iv);
             var textString = decryptedText.Substring(0, decryptedText.Length - 344);
             var hashString = decryptedText.Substring(decryptedText.Length - 344);
