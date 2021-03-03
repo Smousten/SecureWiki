@@ -28,6 +28,7 @@ namespace SecureWiki.Cryptography
            
             // Read Keyring.json into rootKeyring
             ReadIntoKeyring(rootKeyring);
+            UpdateKeyringParentPropertyRecursively(rootKeyring);
             
             CreateFileStructureRecursion(rootKeyring, GetRootDirPath());
         }
@@ -295,6 +296,20 @@ namespace SecureWiki.Cryptography
         {
             var jsonData = JsonConvert.SerializeObject(newKeyringEntry, Formatting.Indented);
             File.WriteAllText(filepath, jsonData);
+        }
+
+        private void UpdateKeyringParentPropertyRecursively(KeyringEntry ke)
+        {
+            foreach (DataFileEntry item in ke.dataFiles)
+            {
+                item.Parent = ke;
+            }
+
+            foreach (KeyringEntry item in ke.keyrings)
+            {
+                item.Parent = ke;
+                UpdateKeyringParentPropertyRecursively(item);
+            }
         }
     }
 }

@@ -13,9 +13,11 @@ namespace SecureWiki.Model
         public RootKeyring()
         {
             Name = "Root";
+            IsChecked = false;
+            CheckedChanged += CheckedChangedUpdateChildren;
         }
-        
-        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public new event PropertyChangedEventHandler? PropertyChanged;
         [NotifyPropertyChangedInvocator]
          public override void OnPropertyChanged([CallerMemberName] string propertyName = null)
          {
