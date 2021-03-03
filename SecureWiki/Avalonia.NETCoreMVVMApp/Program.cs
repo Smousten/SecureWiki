@@ -62,8 +62,8 @@ namespace SecureWiki
             
             Console.WriteLine(rootdir + "\n" + mountdir);
 
-            // start.Arguments = string.Format("{0} {1} {2}", "-o direct_io", rootdir, mountdir);
-            start.Arguments = string.Format("{0} {1}", rootdir, mountdir);
+            start.Arguments = string.Format("{0} {1} {2}", "-o direct_io", rootdir, mountdir);
+            // start.Arguments = string.Format("{0} {1}", rootdir, mountdir);
 
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;

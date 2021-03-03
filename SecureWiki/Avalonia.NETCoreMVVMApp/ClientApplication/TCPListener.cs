@@ -3,7 +3,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SecureWiki.ClientApplication
 {
@@ -73,7 +72,7 @@ namespace SecureWiki.ClientApplication
             }
         }
 
-        private void Operations(String inputData)
+        private async void Operations(String inputData)
         {
             var op = inputData.Split(new[] {':'}, 2);
             // Input must contain operation and arguments
@@ -92,7 +91,7 @@ namespace SecureWiki.ClientApplication
                 case "release":
                     if (RealFileName(filename))
                     {
-                        _manager.UploadNewVersion(filename, filePath);
+                        await _manager.UploadNewVersion(filename, filePath);
                     }
                     break;
                 case "create":
@@ -129,7 +128,19 @@ namespace SecureWiki.ClientApplication
                         // string decryptedText = decryptedTextAsync.Result;
                         var decryptedText = _manager.ReadFile(filename);
                         byte[] byData = Encoding.ASCII.GetBytes(decryptedText);
-                        _stream?.Write(byData);
+                        // _stream?.Write(byData);
+                        byte[] byDataLen = BitConverter.GetBytes(byData.Length);
+                        byte[] msgPath = Encoding.ASCII.GetBytes(op[1]);
+                        byte[] msgPathLen = BitConverter.GetBytes(msgPath.Length);
+                        
+                        byte[] rv = new byte[msgPathLen.Length + byDataLen.Length + msgPath.Length + byData.Length];
+                        Buffer.BlockCopy(msgPathLen, 0, rv, 0, msgPathLen.Length);
+                        Buffer.BlockCopy(byDataLen, 0, rv, msgPathLen.Length, byDataLen.Length);
+                        Buffer.BlockCopy(msgPath, 0, rv, msgPathLen.Length + byDataLen.Length, msgPath.Length);
+                        Buffer.BlockCopy(byData, 0, rv, msgPathLen.Length + byDataLen.Length + msgPath.Length, byData.Length);
+                        _stream?.Write(rv);
+                        Console.WriteLine(rv.Length);
+                        Console.WriteLine("sending to server socket: {0} {1} {2} {3}", BitConverter.ToInt32(msgPathLen), BitConverter.ToInt32(byDataLen), Encoding.ASCII.GetString(msgPath), Encoding.ASCII.GetString(byData));
                     }
                     break;
 

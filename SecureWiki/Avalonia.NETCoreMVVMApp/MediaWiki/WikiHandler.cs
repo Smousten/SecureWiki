@@ -33,11 +33,12 @@ namespace SecureWiki.MediaWiki
         {
             var srcDir = GetRootDir(filepath);
             var plainText = await File.ReadAllTextAsync(srcDir);
+            Console.WriteLine("Upload plain text: " + plainText);
 
             var keyring = _manager.ReadKeyRing();
             var dataFile = _manager.GetDataFile(filename, keyring);
 
-            if (dataFile != null)
+            if (dataFile != null && !plainText.Equals(""))
             {
                 // Sign plaintext
                 var hash = _manager.SignData(dataFile.privateKey, plainText);
@@ -108,9 +109,12 @@ namespace SecureWiki.MediaWiki
             // var pageContentBytes = Convert.FromBase64String(trim);
                 
             var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes, dataFile.symmKey, dataFile.iv);
+            Console.WriteLine("Read file decrypted " + decryptedText);
             var textString = decryptedText.Substring(0, decryptedText.Length - 344);
             var hashString = decryptedText.Substring(decryptedText.Length - 344);
             var hashBytes = Convert.FromBase64String(hashString);
+
+            Console.WriteLine("Read file decrypted text: " + textString);
 
             if (!_manager.VerifyData(dataFile.publicKey, textString, hashBytes))
             {

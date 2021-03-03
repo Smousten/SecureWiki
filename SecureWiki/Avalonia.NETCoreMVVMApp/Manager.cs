@@ -57,9 +57,9 @@ namespace SecureWiki
 
             Thread.Sleep(1000);
 
-            Thread fuseThread = new(Program.RunFuse);
-            fuseThread.IsBackground = true;
-            fuseThread.Start();
+            // Thread fuseThread = new(Program.RunFuse);
+            // fuseThread.IsBackground = true;
+            // fuseThread.Start();
         }
 
         public void PrintTestMethod(string input)
