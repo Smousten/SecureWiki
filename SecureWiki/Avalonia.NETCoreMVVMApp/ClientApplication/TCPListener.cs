@@ -72,7 +72,7 @@ namespace SecureWiki.ClientApplication
             }
         }
 
-        private async void Operations(String inputData)
+        private void Operations(String inputData)
         {
             var op = inputData.Split(new[] {':'}, 2);
             // Input must contain operation and arguments
@@ -91,7 +91,7 @@ namespace SecureWiki.ClientApplication
                 case "release":
                     if (RealFileName(filename))
                     {
-                        await _manager.UploadNewVersion(filename, filePath);
+                        _manager.UploadNewVersion(filename, filePath);
                     }
                     break;
                 case "create":

@@ -29,10 +29,10 @@ namespace SecureWiki.MediaWiki
             _manager = manager;
         }
 
-        public async Task UploadNewVersion(string filename, string filepath)
+        public void UploadNewVersion(string filename, string filepath)
         {
             var srcDir = GetRootDir(filepath);
-            var plainText = await File.ReadAllTextAsync(srcDir);
+            var plainText = File.ReadAllText(srcDir);
             Console.WriteLine("Upload plain text: " + plainText);
 
             var keyring = _manager.ReadKeyRing();

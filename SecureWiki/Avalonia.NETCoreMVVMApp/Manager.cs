@@ -101,9 +101,9 @@ namespace SecureWiki
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
-        public async Task UploadNewVersion(string pageTitle, string filepath)
+        public void UploadNewVersion(string pageTitle, string filepath)
         {
-            await wikiHandler.UploadNewVersion(pageTitle, filepath);
+            wikiHandler.UploadNewVersion(pageTitle, filepath);
         }
         
         public void SetMediaWikiServer(string url)
