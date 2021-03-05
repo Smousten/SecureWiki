@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
@@ -28,6 +29,7 @@ namespace SecureWiki
         private static HttpClient httpClient = new();
 
         public RootKeyring rootKeyring;
+        public Dictionary<DataFileEntry, string> RequestedRevision = new();
         
         private readonly string _smtpClientEmail = "SecureWikiMails@gmail.com";
         private readonly string _smtpClientPassword = "SecureWiki";
@@ -80,13 +82,21 @@ namespace SecureWiki
             return output;
         }
 
-        public string GetPageContent(string pageTitle)
+        public string GetPageContent(string pageTitle, string revID)
         {
-            MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.MWO, pageTitle);
+            MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.MWO, pageTitle, revID);
             string output = pc.GetContent();
-
+        
             return output;
         }
+        
+        // public string GetPageContent(string pageTitle)
+        // {
+        //     MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.MWO, pageTitle);
+        //     string output = pc.GetContent();
+        //
+        //     return output;
+        // }
 
 
         public void UndoRevisionsByID(string pageTitle, string startID, string endID)

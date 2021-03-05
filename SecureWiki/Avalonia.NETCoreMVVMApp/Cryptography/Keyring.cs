@@ -100,7 +100,7 @@ namespace SecureWiki.Cryptography
         {
             KeyringEntry newKeyringEntry = new()
             {
-                Name = "",
+                Name = "Root",
                 dataFiles = new ObservableCollection<DataFileEntry>(),
                 keyrings = new ObservableCollection<KeyringEntry>()
             };

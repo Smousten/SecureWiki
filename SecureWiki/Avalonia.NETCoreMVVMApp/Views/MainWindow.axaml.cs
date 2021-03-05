@@ -12,6 +12,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
@@ -159,7 +160,8 @@ namespace SecureWiki.Views
 
         private void Button3_Click(object? sender, RoutedEventArgs e)
         {
-            string content = manager.GetPageContent("Www");
+            // string content = manager.GetPageContent("Www");
+            string content = manager.GetPageContent("Www", "-1");
             
             var textBox1 = this.FindControl<TextBox>("TextBox1");
 
@@ -481,16 +483,64 @@ namespace SecureWiki.Views
             {
                 DataFileEntry dataFile = cb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
                 _viewModel.selectedFile = dataFile;
-                //_viewModel.revisions = manager.GetAllRevisions(dataFile.pagename);
+                _viewModel.revisions = manager.GetAllRevisions(dataFile.pagename).revisionList;
+                // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
+                // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
                 Console.WriteLine(dataFile.filename);
             }
-            
-            
-
-
-            Console.WriteLine("test");
-            
             // manager.GetAllRevisions("Www");
+        }
+
+        private void CheckBox_OnDoubleTapped(object? sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox cb)
+            {
+                DataFileEntry dataFile = cb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
+                _viewModel.selectedFile = dataFile;
+                _viewModel.revisions = manager.GetAllRevisions(dataFile.pagename).revisionList;
+                // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
+                // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
+                Console.WriteLine(dataFile.filename);
+            }
+            // manager.GetAllRevisions("Www");
+        }
+
+        private void InputElement_OnDoubleTapped(object? sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox cb)
+            {
+                DataFileEntry dataFile = cb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
+                _viewModel.selectedFile = dataFile;
+                _viewModel.revisions = manager.GetAllRevisions(dataFile.pagename).revisionList;
+                // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
+                // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
+                Console.WriteLine(dataFile.filename);
+            }
+            // manager.GetAllRevisions("Www");
+        }
+
+        private void CheckBox_OnKeyDown(object? sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.R) return;
+            if (sender is CheckBox cb)
+            {
+                DataFileEntry dataFile = cb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
+                _viewModel.selectedFile = dataFile;
+                _viewModel.revisions = manager.GetAllRevisions(dataFile.pagename).revisionList;
+                // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
+                // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
+                Console.WriteLine(dataFile.filename);
+            }
+            // manager.GetAllRevisions("Www");
+        }
+
+        private void SelectedRevisionButton_OnClick(object? sender, RoutedEventArgs e)
+        {
+            if (_viewModel.selectedRevision.revisionID != null)
+            {
+                Console.WriteLine(_viewModel.selectedRevision.revisionID);
+                manager.RequestedRevision.Add(_viewModel.selectedFile, _viewModel.selectedRevision.revisionID);
+            }
         }
     }
 }

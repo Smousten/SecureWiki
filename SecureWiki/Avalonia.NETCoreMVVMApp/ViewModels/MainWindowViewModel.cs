@@ -50,12 +50,25 @@ namespace SecureWiki.ViewModels
 
         public RootKeyring rootKeyring;
         
-        public DataFileEntry selectedFile { get; set; }
-
-        public MediaWikiObjects.PageQuery.AllRevisions revisions
+        private DataFileEntry _selectedFile;
+        public DataFileEntry selectedFile
         {
-            get { throw new NotImplementedException(); }
-            set => throw new NotImplementedException();
+            get => _selectedFile;
+            set => this.RaiseAndSetIfChanged(ref _selectedFile, value);
+        }
+
+        private List<Revision> _revisions;
+        public List<Revision> revisions
+        {
+            get => _revisions;
+            set => this.RaiseAndSetIfChanged(ref _revisions, value);
+        }
+
+        private Revision _selectedRevision;
+        public Revision selectedRevision
+        {
+            get => _selectedRevision;
+            set => this.RaiseAndSetIfChanged(ref _selectedRevision, value);
         }
 
 

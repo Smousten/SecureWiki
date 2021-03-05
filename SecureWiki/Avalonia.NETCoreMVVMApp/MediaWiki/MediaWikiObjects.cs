@@ -7,12 +7,12 @@ namespace SecureWiki.MediaWiki
 {
     public class Revision
     {
-        public string? revisionID;
-        public string? flags;
-        public string? timestamp;
-        public string? user;
-        public string? size;
-        public string? content;
+        public string? revisionID { get; set; }
+        public string? flags { get; set; }
+        public string? timestamp { get; set; }
+        public string? user { get; set; }
+        public string? size { get; set; }
+        public string? content { get; set; }
     }
 
     public class Action
@@ -170,12 +170,19 @@ namespace SecureWiki.MediaWiki
             public class PageContent : PageQuery
             {
                 private Revision revision = new();
-
-                public PageContent(MediaWikiObjects source, string pageTitle) : base(source)
+                private string revID = "-1";
+                
+                public PageContent(MediaWikiObjects source, string pageTitle, string revisionID) : base(source)
                 {
                     this.pageTitle = pageTitle;
+                    revID = revisionID;
                 }
 
+                // public PageContent(MediaWikiObjects source, string pageTitle) : base(source)
+                // {
+                //     this.pageTitle = pageTitle;
+                // }
+                
                 public PageContent(string pageTitle, HttpClient client)
                 {
                     this.pageTitle = pageTitle;
@@ -199,6 +206,11 @@ namespace SecureWiki.MediaWiki
                     queryBody += "&rvprop=ids|flags|timestamp|user|size|content";
                     queryBody += "&formatversion=2";
                     queryBody += "&format=json";
+                    if (!revID.Equals("-1"))
+                    {
+                        queryBody += "&rvstartid" + revID;
+                        queryBody += "&rvendid" + revID;
+                    }
 
                     string query = queryBody;
 
@@ -224,7 +236,7 @@ namespace SecureWiki.MediaWiki
                     {
                         Console.WriteLine(token.ToString());
 
-                        Revision rev = new Revision();
+                        Revision rev = new();
                         rev.revisionID = token.SelectToken("revid")?.ToString();
                         rev.flags = token.SelectToken("flags")?.ToString();
                         rev.timestamp = token.SelectToken("timestamp")?.ToString();

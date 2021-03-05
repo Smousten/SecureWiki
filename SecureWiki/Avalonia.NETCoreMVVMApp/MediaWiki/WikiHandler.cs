@@ -82,8 +82,25 @@ namespace SecureWiki.MediaWiki
             // URL does not allow + character, instead encode as hexadecimal
             var encryptedFilenameStringEncoded = encryptedFilenameString.Replace("+", "%2B");
             
-            MediaWikiObjects.PageQuery.PageContent getPageContent = new(MWO, encryptedFilenameStringEncoded);
+            // Check if user has requested old page revision
+            MediaWikiObjects.PageQuery.PageContent getPageContent;
+
+            Console.WriteLine("Read manager has requestedRevision for {0} datafiles", _manager.RequestedRevision.Count);
+            
+            if (_manager.RequestedRevision.ContainsKey(dataFile))
+            {
+                var revID = _manager.RequestedRevision[dataFile];
+                getPageContent = new(MWO, encryptedFilenameStringEncoded, revID);
+            }
+            else
+            {
+                getPageContent = new(MWO, encryptedFilenameStringEncoded, "-1");
+            }
             var pageContent = getPageContent.GetContent();
+            
+            // MediaWikiObjects.PageQuery.PageContent getPageContent = new(MWO, encryptedFilenameStringEncoded);
+            // var pageContent = getPageContent.GetContent();
+            
             if (pageContent.Equals("")) return "File does not exist on server";
             var pageContentBytes = Convert.FromBase64String(pageContent);
             
