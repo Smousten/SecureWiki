@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+using Avalonia.Remote.Protocol.Input;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using ReactiveUI;
@@ -23,8 +25,10 @@ namespace SecureWiki.Model
             set
             {
                 _isChecked = value;
+                Console.WriteLine("Keyring '{0}' set to '{1}'", Name, value);
                 OnPropertyChanged(nameof(IsChecked));
                 OnCheckedChanged(EventArgs.Empty);
+                Console.WriteLine("Keyring '{0}' finished setting", Name);
             }
         }
         
@@ -90,9 +94,23 @@ namespace SecureWiki.Model
             RaisePropertyChanged(nameof(combinedList));
         }
         
+        public void RemoveKeyring(KeyringEntry keyringEntry)
+        {
+            keyrings.Remove(keyringEntry);
+            RaisePropertyChanged(nameof(keyrings));
+            RaisePropertyChanged(nameof(combinedList));
+        }
+        
         public void AddDataFile(DataFileEntry dataFile)
         {
             dataFiles.Add(dataFile);
+            RaisePropertyChanged(nameof(dataFiles));
+            RaisePropertyChanged(nameof(combinedList));
+        }
+        
+        public void RemoveDataFile(DataFileEntry dataFile)
+        {
+            dataFiles.Remove(dataFile);
             RaisePropertyChanged(nameof(dataFiles));
             RaisePropertyChanged(nameof(combinedList));
         }
@@ -166,10 +184,11 @@ namespace SecureWiki.Model
             }
         }
 
-        public void UpdateIsCheckedBasedOnChildren()
+        public virtual void UpdateIsCheckedBasedOnChildren()
         {
+            Console.WriteLine("UpdateIsCheckedBasedOnChildren in keyring.Name='{0}'", Name);
             // Prevent feedback loop
-            CheckedChanged -= CheckedChangedUpdateChildren;
+            this.CheckedChanged -= this.CheckedChangedUpdateChildren;
             
             bool anyChecked = false;
             bool atleastTwoChecked = false;
@@ -250,7 +269,7 @@ namespace SecureWiki.Model
             }
             
             // Restore event handler
-            CheckedChanged += CheckedChangedUpdateChildren;
+            this.CheckedChanged += this.CheckedChangedUpdateChildren;
         }
 
 
@@ -261,14 +280,143 @@ namespace SecureWiki.Model
             
             Name = ke.Name;
             
+            MergeAllEntriesFromOtherKeyring(ke);
+        }
+        
+        public void MergeAllEntriesFromOtherKeyring(KeyringEntry ke)
+        {
             foreach (KeyringEntry item in ke.keyrings)
             {
-                AddKeyring(item);
+                bool nameAlreadyInUse = false;
+                foreach (KeyringEntry ownKe in keyrings)
+                {
+                    if (item.Name.Equals(ownKe.Name))
+                    {
+                        nameAlreadyInUse = true;
+                        
+                        ownKe.MergeAllEntriesFromOtherKeyring(item);
+                        
+                        break;
+                    }
+                }
+
+                if (nameAlreadyInUse == false)
+                {
+                    AddKeyring(item);                    
+                }
             }
             
             foreach (DataFileEntry item in ke.dataFiles)
             {
-                AddDataFile(item);
+                bool nameAlreadyInUse = false;
+                bool fileAlreadyExists = false;
+                foreach (DataFileEntry ownDF in dataFiles)
+                {
+                    
+                    if (item.filename.Equals(ownDF.filename))
+                    {
+                        if (item.IsEqual(ownDF))
+                        {
+                            Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Exact copy already exists", 
+                                item.filename, IsChecked, Parent?.Name ?? "null");
+                            fileAlreadyExists = true;
+                        }
+                        else
+                        {
+                            Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Name is used by existing file", 
+                                item.filename, IsChecked, Parent?.Name ?? "null");
+                            nameAlreadyInUse = true;
+                        }
+                        
+                        break;
+                    }
+                }
+                
+                // Rename new datafile if name is already in use
+                if (nameAlreadyInUse)
+                {
+                    int cnt = 1;
+                    bool newNameInUse = true;
+                    while (newNameInUse)
+                    {
+                        string newName = item.filename + "(" + cnt + ")";
+                        
+                        newNameInUse = dataFiles.Any(x => x.filename.Equals(newName));
+                        if (newNameInUse == false)
+                        {
+                            item.filename = newName;
+                            break;
+                        }
+
+                        cnt++;
+                    }
+                }
+
+                if (fileAlreadyExists == false)
+                {
+                    Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Adding file", 
+                        item.filename, IsChecked, Parent?.Name ?? "null");
+                    AddDataFile(item);
+                }
+            }
+        }
+
+        public void AddToOtherKeyringRecursivelyBasedOnIsChecked(KeyringEntry outputKeyring)
+        {
+            foreach (KeyringEntry ke in keyrings)
+            {
+                KeyringEntry keCopy = new();
+                keCopy.Name = ke.Name;
+                outputKeyring.AddKeyring(keCopy);
+                
+                ke.AddToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
+            }
+            
+            foreach (DataFileEntry dataFileEntry in dataFiles)
+            {
+                if (dataFileEntry.IsChecked == true)
+                {
+                    outputKeyring.AddDataFile(dataFileEntry);                    
+                }
+            }
+        }
+
+        public bool HasDataFileEntryDescendant()
+        {
+
+            if (dataFiles.Count > 0)
+            {
+                return true;
+            }
+            
+            foreach (KeyringEntry ke in keyrings)
+            {
+                if (ke.HasDataFileEntryDescendant() == true)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void RemoveEmptyDescendantsRecursively()
+        {
+            List<KeyringEntry> removeList = new();
+            foreach (KeyringEntry ke in keyrings)
+            {
+                if (ke.HasDataFileEntryDescendant() == false)
+                {
+                    removeList.Add(ke);
+                }
+                else
+                {
+                    ke.RemoveEmptyDescendantsRecursively();
+                }
+            }
+            foreach (KeyringEntry ke in removeList)
+            {
+                RemoveKeyring(ke);
             }
         }
 

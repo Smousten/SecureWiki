@@ -153,6 +153,17 @@ namespace SecureWiki
             _keyring.RemoveFile(filePath, filename);
         }
 
+        public void ExportKeyring()
+        {
+            _keyring.ExportRootKeyringBasedOnIsChecked();
+        }
+
+        public void ImportKeyring(string importPath)
+        {
+            Console.WriteLine("Manager:- ImportKeyring('{0}')", importPath);
+            _keyring.ImportRootKeyring(importPath);
+        }
+
         // Delegated Crypto functions
         public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)
         {
