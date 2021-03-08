@@ -29,7 +29,7 @@ namespace SecureWiki
         private static HttpClient httpClient = new();
 
         public RootKeyring rootKeyring;
-        public Dictionary<DataFileEntry, string> RequestedRevision = new();
+        public Dictionary<string, string> RequestedRevision = new();
         
         private readonly string _smtpClientEmail = "SecureWikiMails@gmail.com";
         private readonly string _smtpClientPassword = "SecureWiki";

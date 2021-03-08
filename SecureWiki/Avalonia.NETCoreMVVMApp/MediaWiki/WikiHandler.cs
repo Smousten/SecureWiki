@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -86,10 +87,20 @@ namespace SecureWiki.MediaWiki
             MediaWikiObjects.PageQuery.PageContent getPageContent;
 
             Console.WriteLine("Read manager has requestedRevision for {0} datafiles", _manager.RequestedRevision.Count);
-            
-            if (_manager.RequestedRevision.ContainsKey(dataFile))
+
+            if (_manager.RequestedRevision.Count > 0)
             {
-                var revID = _manager.RequestedRevision[dataFile];
+                Console.WriteLine("Expected to read: " + _manager.RequestedRevision.FirstOrDefault().Key);
+                Console.WriteLine("Actually read: " + dataFile.pagename);
+
+
+
+            }
+            
+            if (_manager.RequestedRevision.ContainsKey(dataFile.pagename))
+            {
+                var revID = _manager.RequestedRevision[dataFile.pagename];
+                Console.WriteLine("Read manager has revId {0} for datafile {1}", revID, dataFile.filename);
                 getPageContent = new(MWO, encryptedFilenameStringEncoded, revID);
             }
             else

@@ -150,6 +150,6 @@ namespace SecureWiki.Model
         {
             Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}'", 
                 filename, IsChecked, Parent?.Name ?? "null");
-        } 
+        }
     }
 }

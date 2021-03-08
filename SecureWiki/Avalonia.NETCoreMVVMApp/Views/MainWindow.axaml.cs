@@ -573,7 +573,14 @@ namespace SecureWiki.Views
             if (_viewModel.selectedRevision.revisionID != null)
             {
                 Console.WriteLine(_viewModel.selectedRevision.revisionID);
-                manager.RequestedRevision.Add(_viewModel.selectedFile, _viewModel.selectedRevision.revisionID);
+                if (manager.RequestedRevision.ContainsKey(_viewModel.selectedFile.pagename))
+                {
+                    manager.RequestedRevision[_viewModel.selectedFile.pagename] = _viewModel.selectedRevision.revisionID;
+                }
+                else
+                {
+                    manager.RequestedRevision.Add(_viewModel.selectedFile.pagename, _viewModel.selectedRevision.revisionID);
+                }
             }
         }
     }

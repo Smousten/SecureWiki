@@ -208,8 +208,8 @@ namespace SecureWiki.MediaWiki
                     queryBody += "&format=json";
                     if (!revID.Equals("-1"))
                     {
-                        queryBody += "&rvstartid" + revID;
-                        queryBody += "&rvendid" + revID;
+                        queryBody += "&rvstartid=" + revID;
+                        queryBody += "&rvendid=" + revID;
                     }
 
                     string query = queryBody;
