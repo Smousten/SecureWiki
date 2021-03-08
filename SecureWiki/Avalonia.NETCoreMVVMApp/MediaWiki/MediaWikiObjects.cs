@@ -75,7 +75,7 @@ namespace SecureWiki.MediaWiki
         public abstract class PageQuery : MediaWikiObjects
         {
             private string pageID;
-            private string pageTitle;
+            public string pageTitle;
 
             public abstract string BuildQuery();
             public abstract void ParseJObject(JObject inputJObject);
@@ -169,7 +169,7 @@ namespace SecureWiki.MediaWiki
 
             public class PageContent : PageQuery
             {
-                private Revision revision = new();
+                public Revision revision = new();
                 private string revID = "-1";
                 
                 public PageContent(MediaWikiObjects source, string pageTitle, string revisionID) : base(source)

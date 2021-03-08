@@ -25,10 +25,36 @@ namespace SecureWiki.Model
             set
             {
                 _isChecked = value;
-                Console.WriteLine("Keyring '{0}' set to '{1}'", Name, value);
+                // Console.WriteLine("Keyring '{0}' set to '{1}'", Name, value);
                 OnPropertyChanged(nameof(IsChecked));
+                OnPropertyChanged(nameof(IsCheckedWriteEnabled));
                 OnCheckedChanged(EventArgs.Empty);
-                Console.WriteLine("Keyring '{0}' finished setting", Name);
+                // Console.WriteLine("Keyring '{0}' finished setting", Name);
+            }
+        }
+        
+        private bool? _isCheckedWrite = false;
+        public bool? IsCheckedWrite
+        {
+            get
+            {
+                return (_isCheckedWrite ?? false);
+            }
+            set
+            {
+                _isCheckedWrite = value;
+                Console.WriteLine("Keyring '{0}': IsCheckedWrite set to '{1}'", Name, value);
+                OnPropertyChanged(nameof(IsCheckedWrite));
+                OnCheckedWriteChanged(EventArgs.Empty);
+                Console.WriteLine("Keyring '{0}': IsCheckedWrite finished setting", Name);
+            }
+        }
+      
+        public bool IsCheckedWriteEnabled
+        {
+            get
+            {
+                return IsChecked ?? false;
             }
         }
         
@@ -85,6 +111,7 @@ namespace SecureWiki.Model
             
             CheckedChanged += CheckedChangedUpdateParent;
             CheckedChanged += CheckedChangedUpdateChildren;
+            CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
         }
         
         public void AddKeyring(KeyringEntry keyringEntry)
@@ -152,24 +179,34 @@ namespace SecureWiki.Model
                 handler(this, e);
             }
         }
+        
+        protected virtual void OnCheckedWriteChanged(EventArgs e)
+        {
+            EventHandler handler = CheckedWriteChanged;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
 
         public event EventHandler CheckedChanged;
+        public event EventHandler CheckedWriteChanged;
 
         protected void CheckedChangedUpdateParent(object? sender, EventArgs e)
         {
-            Console.WriteLine("CheckedChangedUpdateParent in keyring.Name='{0}' : entered", Name);
+            // Console.WriteLine("CheckedChangedUpdateParent in keyring.Name='{0}' : entered", Name);
             Parent?.UpdateIsCheckedBasedOnChildren();
         }
         
         protected void CheckedChangedUpdateChildren(object? sender, EventArgs e)
         {
-            Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : entered", Name);
+            // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : entered", Name);
             foreach (KeyringEntry child in keyrings)
             {
                 child.CheckedChanged -= child.CheckedChangedUpdateParent;
-                Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'", Name, child.Name);
+                // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'", Name, child.Name);
                 child.IsChecked = IsChecked;
-                Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'", Name, child.Name);
+                // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'", Name, child.Name);
                 child.CheckedChanged += child.CheckedChangedUpdateParent;
             }
             
@@ -177,10 +214,23 @@ namespace SecureWiki.Model
             {
                 child.CheckedChanged -= child.CheckedChangedUpdateParent;
                 // child.CheckedChanged += CheckedChangedUpdateParent;
-                Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'", Name, child.filename);
+                // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'", Name, child.filename);
                 child.IsChecked = IsChecked;
-                Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'", Name, child.filename);
+                // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'", Name, child.filename);
                 child.CheckedChanged += child.CheckedChangedUpdateParent;
+            }
+        }
+        
+        protected void CheckedWriteChangedUpdateChildren(object? sender, EventArgs e)
+        {
+            foreach (KeyringEntry child in keyrings)
+            {
+                child.IsCheckedWrite = IsCheckedWrite;
+            }
+            
+            foreach (DataFileEntry child in dataFiles)
+            {
+                child.IsCheckedWrite = IsCheckedWrite;
             }
         }
 
@@ -253,7 +303,12 @@ namespace SecureWiki.Model
                 ancestorList.Add(localParent);
                 localParent = localParent.Parent;
             }
-            
+
+            // Console.WriteLine("AnyUnchecked='{0}'", anyUnchecked);
+            // Console.WriteLine("AnyChecked='{0}'", anyChecked);
+            // Console.WriteLine("atleastTwoChecked='{0}'", atleastTwoChecked);
+            // Console.WriteLine("ancestorChecked='{0}'", ancestorChecked);
+            //
             // Change here to interact with IsThreeState properly
             // if (anyChecked && anyUnchecked)
             // {
@@ -342,13 +397,23 @@ namespace SecureWiki.Model
                         string newName = item.filename + "(" + cnt + ")";
                         
                         newNameInUse = dataFiles.Any(x => x.filename.Equals(newName));
-                        if (newNameInUse == false)
+                        if (newNameInUse)
+                        {
+                            DataFileEntry df = dataFiles.First(x => x.filename.Equals(newName));
+
+                            if (df.HasSameStaticProperties(item))
+                            {
+                                fileAlreadyExists = true;
+                                break;
+                            }
+
+                            cnt++;
+                        }
+                        else
                         {
                             item.filename = newName;
                             break;
                         }
-
-                        cnt++;
                     }
                 }
 
@@ -377,6 +442,22 @@ namespace SecureWiki.Model
                 if (dataFileEntry.IsChecked == true)
                 {
                     outputKeyring.AddDataFile(dataFileEntry);                    
+                }
+            }
+        }
+
+        public void PrepareForExportRecursively()
+        {
+            foreach (KeyringEntry ke in keyrings)
+            {
+                ke.PrepareForExportRecursively();
+            }
+            
+            foreach (DataFileEntry dataFileEntry in dataFiles)
+            {
+                if (dataFileEntry.IsCheckedWrite != true)
+                {
+                    dataFileEntry.privateKey = null;
                 }
             }
         }

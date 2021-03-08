@@ -67,20 +67,43 @@
                 <TreeView Items="{Binding rootKeyringCollection, Mode=TwoWay}" Name="TreeView1">
                     <TreeView.DataTemplates>
                         <TreeDataTemplate DataType="Models:RootKeyring" ItemsSource="{Binding combinedList}">
-                            <CheckBox IsChecked="{Binding IsChecked}" Name="CheckBox" Initialized="CheckBox_OnInitialized">
-                                <TextBlock Foreground="Red" Text="{Binding Name, Mode=TwoWay}"></TextBlock>
-                            </CheckBox>
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+                                    
+                                </CheckBox>
+                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
+                                    
+                                </CheckBox>
+                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
+                                    <TextBlock Foreground="Red" Text="{Binding Name, Mode=TwoWay}"></TextBlock>
+                                </Border>
+                            </StackPanel>
                         </TreeDataTemplate>
                         <TreeDataTemplate DataType="Models:KeyringEntry" ItemsSource="{Binding combinedList}">
-                            <CheckBox IsChecked="{Binding IsChecked}" Name="CheckBox" Initialized="CheckBox_OnInitialized">
-                                <TextBlock Text="{Binding Name}"></TextBlock>
-                            </CheckBox>
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+                                    
+                                </CheckBox>
+                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
+                                    
+                                </CheckBox>
+                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
+                                    <TextBlock Text="{Binding Name}"></TextBlock>
+                                </Border>
+                            </StackPanel>
                         </TreeDataTemplate>
-                        <DataTemplate DataType="Models:DataFileEntry">
-                            <CheckBox IsChecked="{Binding IsChecked}" Name="CheckBox"
-                                      Initialized="CheckBox_OnInitialized" KeyDown="CheckBox_OnKeyDown">
-                                <TextBlock Foreground="Blue" Text="{Binding filename}" />
-                            </CheckBox>
+                        <DataTemplate DataType="Models:DataFileEntry" >
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized" KeyDown="CheckBox_OnKeyDown">
+                                    
+                                </CheckBox>
+                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
+                                    
+                                </CheckBox>
+                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
+                                    <TextBlock Foreground="Blue" VerticalAlignment="Center" Text="{Binding filename}"></TextBlock>
+                                </Border>
+                            </StackPanel>
                         </DataTemplate>
                     </TreeView.DataTemplates>
                     <!--
@@ -90,6 +113,7 @@
                     -->
                 </TreeView>
             </StackPanel>
+                
         </ScrollViewer>
         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <StackPanel>
@@ -127,5 +151,5 @@
     <!--
     </DockPanel>
     -->
-
+    
 </Window>

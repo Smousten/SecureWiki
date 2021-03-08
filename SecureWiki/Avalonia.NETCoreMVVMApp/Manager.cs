@@ -27,6 +27,7 @@ namespace SecureWiki
         private Crypto _crypto;
         private TCPListener tcpListener;
         private static HttpClient httpClient = new();
+        public CacheManager cacheManager = new();
 
         public RootKeyring rootKeyring;
         public Dictionary<string, string> RequestedRevision = new();
@@ -47,7 +48,8 @@ namespace SecureWiki
 
         public void Run()
         {
-            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
+            wikiHandler = new WikiHandler("new_mysql_user", 
+                "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
             _keyring = new Keyring(rootKeyring);
             _crypto = new Crypto();
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
@@ -66,7 +68,8 @@ namespace SecureWiki
 
         public void PrintTestMethod(string input)
         {
-            Console.WriteLine("ManagerThread printing: " + input + " from thread:" + Thread.CurrentThread.Name);
+            Console.WriteLine("ManagerThread printing: " + input + " from thread:" + 
+                              Thread.CurrentThread.Name);
         }
 
         public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
@@ -101,25 +104,37 @@ namespace SecureWiki
 
         public void UndoRevisionsByID(string pageTitle, string startID, string endID)
         {
-            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = new(wikiHandler.MWO, pageTitle);
+            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = 
+                new(wikiHandler.MWO, pageTitle);
             undoRevisions.UndoRevisionsByID(startID, endID);
         }
 
         public void DeleteRevisionsByID(string pageTitle, string IDs)
         {
-            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = new(wikiHandler.MWO, pageTitle);
+            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = 
+                new(wikiHandler.MWO, pageTitle);
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
-        public void UploadNewVersion(string pageTitle, string filepath)
+        public void UploadNewVersion(string filename, string filepath)
         {
-            wikiHandler.UploadNewVersion(pageTitle, filepath);
+            DataFileEntry df = GetDataFile(filename, rootKeyring);
+            if (df?.privateKey != null)
+            {
+                wikiHandler.UploadNewVersion(df, filepath);                
+            }
+            else
+            {
+                Console.WriteLine("{0}: the corresponding DataFileEntry does not contain" +
+                                  " a private key, upload cancelled", filepath);
+            }
         }
         
         public void SetMediaWikiServer(string url)
         {
             httpClient = new HttpClient();
-            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
+            wikiHandler = new WikiHandler("new_mysql_user", 
+                "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
         }
 
         public string ReadFile(string filename)
@@ -203,7 +218,8 @@ namespace SecureWiki
 
         public void SendEmail(string recipientEmail)
         {
-            // string mailto = string.Format("xdg-email mailto:{0}?subject={1}&body={2}", recipientEmail, "SecureWiki", "Hello");
+            // string mailto = string.Format("xdg-email mailto:{0}?subject={1}&body={2}",
+            // recipientEmail, "SecureWiki", "Hello");
             // Console.WriteLine(mailto);
             // Process.Start(mailto);
             var smtpClient = new SmtpClient("smtp.gmail.com")
@@ -228,7 +244,8 @@ namespace SecureWiki
             };
             // TODO: send selected keyring and not all
             var keyringPath = _keyring.GetKeyringFilePath();
-            var attachment = new Attachment(keyringPath, MediaTypeNames.Application.Json);
+            var attachment = new Attachment(keyringPath, 
+                MediaTypeNames.Application.Json);
             mailMessage.Attachments.Add(attachment);
             mailMessage.To.Add(recipientEmail);
             

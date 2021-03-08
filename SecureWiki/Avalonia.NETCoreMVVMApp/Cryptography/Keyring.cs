@@ -329,6 +329,7 @@ namespace SecureWiki.Cryptography
             RootKeyring rk = CreateRootKeyringBasedOnIsChecked();
            
             rk.RemoveEmptyDescendantsRecursively();
+            rk.PrepareForExportRecursively();
             
             var currentDir = Directory.GetCurrentDirectory();
             var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
@@ -342,14 +343,17 @@ namespace SecureWiki.Cryptography
 
         public void ImportRootKeyring(string importPath)
         {
-            Console.WriteLine("Keyring.cs:- ImportRootKeyring('{0}') entered", importPath);
+            // Read RootKeyring from import path and initialise
             RootKeyring rk = GetRootKeyring(importPath);
             UpdateKeyringParentPropertyRecursively(rk);
-            Console.WriteLine("rk.PrintInfoRecursively():");
-            rk.PrintInfoRecursively();
-            Console.WriteLine("rk.PrintInfoRecursively() passed");
+
+            // Merge imported RootKeyring into current RootKeyring
             rootKeyring.MergeAllEntriesFromOtherKeyring(rk);
-            Console.WriteLine("Keyring.cs:- ImportRootKeyring('{0}') finished", importPath);
+            CreateFileStructureRecursion(rootKeyring, GetRootDirPath());
+            
+            // Write changes to Keyring.json
+            // var keyringFilePath = GetKeyringFilePath();
+            // SerializeAndWriteFile(keyringFilePath, rootKeyring);
         }
     }
 }

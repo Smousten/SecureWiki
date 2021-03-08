@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using SecureWiki.Model;
 
 namespace SecureWiki.MediaWiki
 {
@@ -30,16 +31,13 @@ namespace SecureWiki.MediaWiki
             _manager = manager;
         }
 
-        public void UploadNewVersion(string filename, string filepath)
+        public void UploadNewVersion(DataFileEntry dataFile, string filepath)
         {
             var srcDir = GetRootDir(filepath);
             var plainText = File.ReadAllText(srcDir);
             Console.WriteLine("Upload plain text: " + plainText);
 
-            var keyring = _manager.ReadKeyRing();
-            var dataFile = _manager.GetDataFile(filename, keyring);
-
-            if (dataFile != null && !plainText.Equals(""))
+            if (!plainText.Equals(""))
             {
                 // Sign plaintext
                 var hash = _manager.SignData(dataFile.privateKey, plainText);
@@ -49,7 +47,7 @@ namespace SecureWiki.MediaWiki
 
                 var encryptedText = Convert.ToBase64String(encryptedBytes);
 
-                var encryptedPagetitleBytes = _manager.EncryptAesStringToBytes(filename, dataFile.symmKey, dataFile.iv);
+                var encryptedPagetitleBytes = _manager.EncryptAesStringToBytes(dataFile.filename, dataFile.symmKey, dataFile.iv);
                 var encryptedPagetitleString = Convert.ToBase64String(encryptedPagetitleBytes);
 
                 MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(MWO, encryptedPagetitleString);
@@ -134,8 +132,12 @@ namespace SecureWiki.MediaWiki
                 Console.WriteLine("Verifying failed...");
                 return "Verifying failed...";
             }
+            
+            var output = textString.Equals("") ? "This text is stored securely." : textString;
 
-            return textString.Equals("") ? "This text is stored securely." : textString;
+            _manager.cacheManager.AddEntry(getPageContent.pageTitle, getPageContent.revision);
+            
+            return output;
         }
     }
 }
