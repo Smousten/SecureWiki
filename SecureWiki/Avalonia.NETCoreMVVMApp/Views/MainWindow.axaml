@@ -4,7 +4,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:SecureWiki.ViewModels"
         xmlns:Models="clr-namespace:SecureWiki.Model"
-        xmlns:secureWiki="clr-namespace:SecureWiki"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="SecureWiki.Views.MainWindow"
         Opened="MainWindow_Shown"
@@ -25,9 +24,9 @@
     -->
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="1*" />
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <StackPanel Orientation="Vertical" VerticalAlignment="Top" Height="150" Width="300" x:Name="ButtonControlSp">
@@ -36,51 +35,50 @@
             <TextBox Name="NameTextBox"></TextBox>
             <TextBlock Name="MessageLabel"></TextBlock>        
             -->
-
-            <TextBox Name="TextBox1" IsReadOnly="True" Width="{Binding  Width,ElementName=ButtonControlSp}"
-                     TextWrapping="Wrap">
+            
+            <TextBox Name="TextBox1" IsReadOnly="True" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap">
                 The user may not modify the contents of this TextBox.
             </TextBox>
-
+            
             <Button Name="Button1" Click="Button1_Click">Button1</Button>
-            <Button Name="Button2" Click="Button2_Click">Button2</Button>
-            <Button Name="Button3" Click="Button3_Click">Button3</Button>
-
+            <Button Name="Button2" Click="Button2_Click">Print keyring info</Button>
+            <Button Name="Button3" Click="Button3_Click">Export keyring</Button>
+            <Button Name="Button4" Click="Button4_Click">Import keyring</Button>
+            
             <TextBlock>Enter IP address of MediaWiki server</TextBlock>
-            <TextBox Name="TextBoxIp" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
-                     Text="{Binding IP}" />
+            <TextBox Name="TextBoxIp" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" Text="{Binding IP}">
+            </TextBox>
             <Button Name="ButtonIp" Click="ButtonIP_Click">Change</Button>
 
             <TextBlock>Login to MediaWiki</TextBlock>
-            <TextBox Name="TextBoxUser" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
-                     Text="{Binding Username}" Watermark="Username" />
-            <TextBox Name="TextBoxPass" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
-                     Text="{Binding Password}" Watermark="Password" />
+            <TextBox Name="TextBoxUser" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" Text="{Binding Username}" Watermark="Username">
+            </TextBox>
+            <TextBox Name="TextBoxPass" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" Text="{Binding Password}" Watermark="Password">
+            </TextBox>
             <Button Name="ButtonLogin" Click="ButtonLogin_Click">Login</Button>
-
+            
             <TextBlock>Share selected keyring</TextBlock>
-            <TextBox Name="TextBoxMail" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
-                     Text="{Binding MailRecipient}" Watermark="Recipient email" />
+            <TextBox Name="TextBoxMail" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" Text="{Binding MailRecipient}" Watermark="Recipient email">
+            </TextBox>
             <Button Name="ButtonMail" Click="ButtonMail">Send</Button>
 
-
+            
         </StackPanel>
+        
 
-
+        
         <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <StackPanel Orientation="Vertical">
                 <TreeView Items="{Binding rootKeyringCollection, Mode=TwoWay}" Name="TreeView1">
                     <TreeView.DataTemplates>
                         <TreeDataTemplate DataType="Models:RootKeyring" ItemsSource="{Binding combinedList}">
-                            <CheckBox IsChecked="{Binding IsChecked}" Name="CheckBox"
-                                      Initialized="CheckBox_OnInitialized">
-                                <TextBlock Foreground="Red" Text="{Binding Name, Mode=TwoWay}" />
+                            <CheckBox IsChecked="{Binding IsChecked}" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+                                <TextBlock Foreground="Red" Text="{Binding Name, Mode=TwoWay}"></TextBlock>
                             </CheckBox>
                         </TreeDataTemplate>
                         <TreeDataTemplate DataType="Models:KeyringEntry" ItemsSource="{Binding combinedList}">
-                            <CheckBox IsChecked="{Binding IsChecked}" Name="CheckBox"
-                                      Initialized="CheckBox_OnInitialized" >
-                                <TextBlock Text="{Binding Name}" />
+                            <CheckBox IsChecked="{Binding IsChecked}" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+                                <TextBlock Text="{Binding Name}"></TextBlock>
                             </CheckBox>
                         </TreeDataTemplate>
                         <DataTemplate DataType="Models:DataFileEntry">

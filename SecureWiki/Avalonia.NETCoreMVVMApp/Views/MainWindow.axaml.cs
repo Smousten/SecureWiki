@@ -9,6 +9,7 @@ using System.Threading;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
@@ -160,12 +161,45 @@ namespace SecureWiki.Views
 
         private void Button3_Click(object? sender, RoutedEventArgs e)
         {
+            //
             // string content = manager.GetPageContent("Www");
-            string content = manager.GetPageContent("Www", "-1");
+            //
+            // var textBox1 = this.FindControl<TextBox>("TextBox1");
+            //
+            // textBox1.Text = content;
             
-            var textBox1 = this.FindControl<TextBox>("TextBox1");
+            manager.ExportKeyring();
+            
+        }
 
-            textBox1.Text = content;
+        private void Button4_Click(object? sender, RoutedEventArgs e)
+        {
+            string importPath = OpenFileDialogAndGetJsonPath().ToString();
+            var textBox = this.FindControl<TextBox>("TextBox1");
+            textBox.Text = importPath;
+        }
+
+        private async Task<string> OpenFileDialogAndGetJsonPath()
+        {
+            Console.WriteLine("OpenFileDialogAndGetJsonPath entered");
+            OpenFileDialog dialog = new();
+            dialog.Filters.Add(new FileDialogFilter() { Extensions =  { "json" } });
+            Console.WriteLine("Dialog created");
+            var output = await dialog.ShowAsync(this);
+            Console.WriteLine("Dialog shown");
+            if (output == null)
+            {
+                Console.WriteLine("Output is null");
+                var res = await dialog.ShowAsync(this);
+            }
+            
+            Console.WriteLine("Returning OpenFileDialog output='{0}'", output[0]);
+            var textBox = this.FindControl<TextBox>("TextBox1");
+            textBox.Text = output[0];
+
+            manager.ImportKeyring(output[0]);
+
+            return output[0];
         }
 
         // TODO: finish this

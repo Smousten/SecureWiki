@@ -60,10 +60,13 @@ namespace SecureWiki.Cryptography
         private RootKeyring GetRootKeyring(string keyringFilePath)
         {
             var jsonData = File.ReadAllText(keyringFilePath);
+            Console.WriteLine("GetRootKeyring:- File.ReadAllText('{0}')", keyringFilePath);
+            // Console.WriteLine(jsonData);
             // var existingKeyRing = JsonSerializer.Deserialize<KeyringEntry>(jsonData)
             //                       ?? new KeyringEntry();
             var existingKeyRing = JsonConvert.DeserializeObject<RootKeyring>(jsonData)
                 ?? new RootKeyring();
+            Console.WriteLine("Deserialize passed");
             return existingKeyRing;
         }
 
@@ -310,6 +313,43 @@ namespace SecureWiki.Cryptography
                 item.Parent = ke;
                 UpdateKeyringParentPropertyRecursively(item);
             }
+        }
+
+        public RootKeyring CreateRootKeyringBasedOnIsChecked()
+        {
+            RootKeyring outputRootKeyring = new();
+
+            rootKeyring.AddToOtherKeyringRecursivelyBasedOnIsChecked(outputRootKeyring);
+
+            return outputRootKeyring;
+        }
+
+        public void ExportRootKeyringBasedOnIsChecked()
+        {
+            RootKeyring rk = CreateRootKeyringBasedOnIsChecked();
+           
+            rk.RemoveEmptyDescendantsRecursively();
+            
+            var currentDir = Directory.GetCurrentDirectory();
+            var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+            var keyringFileName = "KeyringExport.json";
+            var keyringFilePath = Path.Combine(path, keyringFileName);
+
+            var filepath = keyringFilePath;
+            
+            SerializeAndWriteFile(filepath, rk);
+        }
+
+        public void ImportRootKeyring(string importPath)
+        {
+            Console.WriteLine("Keyring.cs:- ImportRootKeyring('{0}') entered", importPath);
+            RootKeyring rk = GetRootKeyring(importPath);
+            UpdateKeyringParentPropertyRecursively(rk);
+            Console.WriteLine("rk.PrintInfoRecursively():");
+            rk.PrintInfoRecursively();
+            Console.WriteLine("rk.PrintInfoRecursively() passed");
+            rootKeyring.MergeAllEntriesFromOtherKeyring(rk);
+            Console.WriteLine("Keyring.cs:- ImportRootKeyring('{0}') finished", importPath);
         }
     }
 }
