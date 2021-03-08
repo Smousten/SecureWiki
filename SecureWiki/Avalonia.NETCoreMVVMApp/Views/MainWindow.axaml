@@ -57,12 +57,7 @@
             </TextBox>
             <Button Name="ButtonLogin" Click="ButtonLogin_Click">Login</Button>
             
-            <TextBlock>Share selected keyring</TextBlock>
-            <TextBox Name="TextBoxMail" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" Text="{Binding MailRecipient}" Watermark="Recipient email">
-            </TextBox>
-            <Button Name="ButtonMail" Click="ButtonMail">Send</Button>
 
-            
         </StackPanel>
         
 
@@ -108,6 +103,8 @@
                         </DataTemplate>
                     </ContentControl.ContentTemplate>
                 </ContentControl>
+                <TextBlock Text="Download selected revision" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                <Button Name="SelectedRevisionButton" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}" Click="SelectedRevisionButton_OnClick">Click me!</Button>
                 <ListBox Items="{Binding revisions, Mode=TwoWay}" SelectionMode="Single" SelectedItem="{Binding selectedRevision}" Width="300">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
@@ -124,8 +121,6 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-                <TextBlock>Download selected revision</TextBlock>
-                <Button Name="SelectedRevisionButton" Click="SelectedRevisionButton_OnClick">Click me!</Button>
             </StackPanel>
         </ScrollViewer>
     </Grid>

@@ -85,18 +85,6 @@ namespace SecureWiki.MediaWiki
             
             // Check if user has requested old page revision
             MediaWikiObjects.PageQuery.PageContent getPageContent;
-
-            Console.WriteLine("Read manager has requestedRevision for {0} datafiles", _manager.RequestedRevision.Count);
-
-            if (_manager.RequestedRevision.Count > 0)
-            {
-                Console.WriteLine("Expected to read: " + _manager.RequestedRevision.FirstOrDefault().Key);
-                Console.WriteLine("Actually read: " + dataFile.pagename);
-
-
-
-            }
-            
             if (_manager.RequestedRevision.ContainsKey(dataFile.pagename))
             {
                 var revID = _manager.RequestedRevision[dataFile.pagename];
@@ -137,12 +125,9 @@ namespace SecureWiki.MediaWiki
             // var pageContentBytes = Convert.FromBase64String(trim);
                 
             var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes, dataFile.symmKey, dataFile.iv);
-            Console.WriteLine("Read file decrypted " + decryptedText);
             var textString = decryptedText.Substring(0, decryptedText.Length - 344);
             var hashString = decryptedText.Substring(decryptedText.Length - 344);
             var hashBytes = Convert.FromBase64String(hashString);
-
-            Console.WriteLine("Read file decrypted text: " + textString);
 
             if (!_manager.VerifyData(dataFile.publicKey, textString, hashBytes))
             {
