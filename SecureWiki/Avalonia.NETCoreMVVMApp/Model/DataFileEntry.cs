@@ -117,13 +117,13 @@ namespace SecureWiki.Model
                 var ownValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(this, null);
                 var refValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(reference, null);
 
-                Console.WriteLine("Testing property: '{0}'='{1}'", prop, ownValue);
+                // Console.WriteLine("Testing property: '{0}'='{1}'", prop, ownValue);
                 
                 if (ownValue.GetType() == typeof(string))
                 {
                     if (!(ownValue.Equals(refValue)))
                     {
-                        Console.WriteLine("string: '{0}'!='{1}'", ownValue, refValue);
+                        // Console.WriteLine("string: '{0}'!='{1}'", ownValue, refValue);
                         return false;
                     }
                 }
@@ -133,13 +133,13 @@ namespace SecureWiki.Model
                     var byteArrayRef = refValue as byte[];
                     if (!((byteArrayOwn ?? throw new InvalidOperationException()).SequenceEqual(byteArrayRef ?? throw new InvalidOperationException())))
                     {
-                        Console.WriteLine("ByteArray: '{0}'!='{1}'", byteArrayOwn, byteArrayRef);
+                        // Console.WriteLine("ByteArray: '{0}'!='{1}'", byteArrayOwn, byteArrayRef);
                         return false;
                     }
                 }
                 else
                 {
-                    Console.WriteLine("'{0}'=='{1}'", ownValue, refValue);
+                    // Console.WriteLine("'{0}'=='{1}'", ownValue, refValue);
                 }
             }
 
