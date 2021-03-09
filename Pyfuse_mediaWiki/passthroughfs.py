@@ -570,7 +570,7 @@ def main():
         pyfuse3.close(unmount=False)
         raise
     log.debug('Unmounting..')
-    pyfuse3.close()
+    pyfuse3.close(unmount=True)
     client.close()
 
 if __name__ == '__main__':

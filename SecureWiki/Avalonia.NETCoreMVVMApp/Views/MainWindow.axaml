@@ -1,0 +1,155 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:SecureWiki.ViewModels"
+        xmlns:Models="clr-namespace:SecureWiki.Model"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
+        x:Class="SecureWiki.Views.MainWindow"
+        Opened="MainWindow_Shown"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Please find a better name"
+        Padding="10"><!--Width="300" Height="400"-->
+
+    <!--
+    <Design.DataContext>
+        <viewModels:MainWindowViewModel/>
+    </Design.DataContext>
+    -->
+
+    <!--<TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    -->
+    <!--
+    <DockPanel Dock="Top" LastChildFill="True" x:Name="TopLevelDockPanel">
+    -->
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Orientation="Vertical" VerticalAlignment="Top" Height="150" Width="300" x:Name="ButtonControlSp">
+            <!--
+            <TextBlock Name="NameLabel">What is your name?</TextBlock>
+            <TextBox Name="NameTextBox"></TextBox>
+            <TextBlock Name="MessageLabel"></TextBlock>        
+            -->
+            
+            <TextBox Name="TextBox1" IsReadOnly="True" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap">
+                The user may not modify the contents of this TextBox.
+            </TextBox>
+            
+            <Button Name="Button1" Click="Button1_Click">Button1</Button>
+            <Button Name="Button2" Click="Button2_Click">Print keyring info</Button>
+            <Button Name="Button3" Click="Button3_Click">Export keyring</Button>
+            <Button Name="Button4" Click="Button4_Click">Import keyring</Button>
+            
+            <TextBlock>Enter IP address of MediaWiki server</TextBlock>
+            <TextBox Name="TextBoxIp" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" Text="{Binding IP}">
+            </TextBox>
+            <Button Name="ButtonIp" Click="ButtonIP_Click">Change</Button>
+
+            <TextBlock>Login to MediaWiki</TextBlock>
+            <TextBox Name="TextBoxUser" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" Text="{Binding Username}" Watermark="Username">
+            </TextBox>
+            <TextBox Name="TextBoxPass" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" Text="{Binding Password}" Watermark="Password">
+            </TextBox>
+            <Button Name="ButtonLogin" Click="ButtonLogin_Click">Login</Button>
+            
+
+        </StackPanel>
+        
+
+        
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <StackPanel Orientation="Vertical">
+                <TreeView Items="{Binding rootKeyringCollection, Mode=TwoWay}" Name="TreeView1">
+                    <TreeView.DataTemplates>
+                        <TreeDataTemplate DataType="Models:RootKeyring" ItemsSource="{Binding combinedList}">
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+                                    
+                                </CheckBox>
+                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
+                                    
+                                </CheckBox>
+                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
+                                    <TextBlock Foreground="Red" Text="{Binding Name, Mode=TwoWay}"></TextBlock>
+                                </Border>
+                            </StackPanel>
+                        </TreeDataTemplate>
+                        <TreeDataTemplate DataType="Models:KeyringEntry" ItemsSource="{Binding combinedList}">
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+                                    
+                                </CheckBox>
+                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
+                                    
+                                </CheckBox>
+                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
+                                    <TextBlock Text="{Binding Name}"></TextBlock>
+                                </Border>
+                            </StackPanel>
+                        </TreeDataTemplate>
+                        <DataTemplate DataType="Models:DataFileEntry" >
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized" KeyDown="CheckBox_OnKeyDown">
+                                    
+                                </CheckBox>
+                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
+                                    
+                                </CheckBox>
+                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
+                                    <TextBlock Foreground="Blue" VerticalAlignment="Center" Text="{Binding filename}"></TextBlock>
+                                </Border>
+                            </StackPanel>
+                        </DataTemplate>
+                    </TreeView.DataTemplates>
+                    <!--
+                    <Style Selector="TreeViewItem" >
+                        <Setter Property="IsExpanded" Value="True"></Setter>
+                    </Style>
+                    -->
+                </TreeView>
+            </StackPanel>
+                
+        </ScrollViewer>
+        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <StackPanel>
+                <ContentControl Content="{Binding selectedFile, Mode=TwoWay}" Width="300">
+                    <ContentControl.ContentTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
+                                <TextBlock Grid.Row="0" Grid.Column="0">Filename: </TextBlock>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding filename}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
+                <TextBlock Text="Download selected revision" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                <Button Name="SelectedRevisionButton" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}" Click="SelectedRevisionButton_OnClick">Click me!</Button>
+                <ListBox Items="{Binding revisions, Mode=TwoWay}" SelectionMode="Single" SelectedItem="{Binding selectedRevision}" Width="300">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto, Auto, Auto">
+                                <TextBlock Grid.Row="0" Grid.Column="0">revisionID: </TextBlock>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding revisionID}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0">owner: </TextBlock>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding user}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0">time: </TextBlock>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding timestamp}"/>
+                                <TextBlock Grid.Row="3" Grid.Column="0">size: </TextBlock>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding size}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+    <!--
+    </DockPanel>
+    -->
+    
+</Window>

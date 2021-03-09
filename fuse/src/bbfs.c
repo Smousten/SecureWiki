@@ -40,6 +40,7 @@
 #include <sys/time.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #ifdef HAVE_SYS_XATTR_H
 #include <sys/xattr.h>
@@ -52,6 +53,7 @@
 #define CHUNK_SIZE 512
 
 int sockfd, conffd;
+pthread_mutex_t lock;
 
 int create_TCP_client()
 {
@@ -138,13 +140,13 @@ int bb_getattr(const char *path, struct stat *statbuf)
     int retstat;
     char fpath[PATH_MAX];
 
-    log_msg("\nbb_getattr(path=\"%s\", statbuf=0x%08x)\n",
-            path, statbuf);
+    // log_msg("\nbb_getattr(path=\"%s\", statbuf=0x%08x)\n",
+    //         path, statbuf);
     bb_fullpath(fpath, path);
 
     retstat = log_syscall("lstat", lstat(fpath, statbuf), 0);
 
-    log_stat(statbuf);
+    // log_stat(statbuf);
 
     return retstat;
 }
@@ -233,6 +235,18 @@ int bb_mkdir(const char *path, mode_t mode)
 {
     char fpath[PATH_MAX];
 
+    char *trashFile = ".Trash";
+    char *goutput = "goutputstream";
+
+    if (strstr(path, trashFile) == NULL && strstr(path, goutput) == NULL)
+    {
+        char buff[1024];
+        bzero(buff, sizeof(buff));
+        strcpy(buff, "mkdir:");
+        strcat(buff, path);
+        write(sockfd, buff, sizeof(buff));
+    }
+
     log_msg("\nbb_mkdir(path=\"%s\", mode=0%3o)\n",
             path, mode);
     bb_fullpath(fpath, path);
@@ -244,6 +258,18 @@ int bb_mkdir(const char *path, mode_t mode)
 int bb_unlink(const char *path)
 {
     char fpath[PATH_MAX];
+    
+    char *trashFile = ".Trash";
+    char *goutput = "goutputstream";
+
+    if (strstr(path, trashFile) == NULL && strstr(path, goutput) == NULL)
+    {
+        char buff[1024];
+        bzero(buff, sizeof(buff));
+        strcpy(buff, "rmfile:");
+        strcat(buff, path);
+        write(sockfd, buff, sizeof(buff));
+    }
 
     log_msg("bb_unlink(path=\"%s\")\n",
             path);
@@ -256,6 +282,18 @@ int bb_unlink(const char *path)
 int bb_rmdir(const char *path)
 {
     char fpath[PATH_MAX];
+
+    char *trashFile = ".Trash";
+    char *goutput = "goutputstream";
+
+    if (strstr(path, trashFile) == NULL && strstr(path, goutput) == NULL)
+    {
+        char buff[1024];
+        bzero(buff, sizeof(buff));
+        strcpy(buff, "rmdir:");
+        strcat(buff, path);
+        write(sockfd, buff, sizeof(buff));
+    }
 
     log_msg("bb_rmdir(path=\"%s\")\n",
             path);
@@ -296,6 +334,8 @@ int bb_rename(const char *path, const char *newpath)
         bzero(buff, sizeof(buff));
         strcpy(buff, "rename:");
         strcat(buff, path);
+        strcat(buff, "%");
+        strcat(buff, newpath);
         write(sockfd, buff, sizeof(buff));
     }
 
@@ -427,25 +467,73 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
     char *trashFile = ".Trash";
     char *goutput = "goutputstream";
 
+    log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
+            path, buf, size, offset, fi);
+    // no need to get fpath on this one, since I work from fi->fh not the path
+    log_fi(fi);
+
     if (strstr(path, trashFile) == NULL && strstr(path, goutput) == NULL)
     {
         char buff[1024];
         bzero(buff, sizeof(buff));
         strcpy(buff, "read:");
         strcat(buff, path);
+        pthread_mutex_lock(&lock);
         write(sockfd, buff, sizeof(buff));
 
-        char msg[4096];
+        char msg[1048576];
+
+        char text_msg[1048576];
+        char path_msg[1024];
+        int path_len;
+        int text_len;
+
+        int recv_len;
         bzero(msg, sizeof(msg));
-        int recv_len = recv(sockfd, msg, sizeof(msg), 0);
+        // recv_len = recv(sockfd, msg, sizeof(msg), 0);
+
+        while (1)
+        {
+            recv_len = recv(sockfd, msg, sizeof(msg), 0);
+            pthread_mutex_unlock(&lock);
+            log_msg("\n msg received: %s\n", msg);
+            log_msg("\n msg received length: %d\n", recv_len);
+            memcpy(&path_len, msg, 4);
+            memcpy(&text_len, msg+4, 4);
+            memcpy(path_msg, msg+8, path_len);
+            memcpy(text_msg, msg+8+path_len, text_len);
+
+            log_msg("\n msgPath received: %s", path_msg);
+            log_msg("\n msgPathLen received: %d", path_len);
+            log_msg("\n msgText received: %s", text_msg);
+            log_msg("\n msgTextLen received: %d", text_len);
+            log_msg("\n expected path: %s, received path: %s", path, path_msg);
+
+            if (strcmp(path, path_msg) == 0) {
+                log_msg("\n Received correct msg for: %s", path);
+                break;
+            }
+        }
+        
         if (recv_len < 0)
         {
             return (-errno);
         }
+
+        if (offset < text_len)
+        {
+            if (offset + size > text_len) {
+                size = text_len - offset;
+            }
+            memcpy(buf, text_msg + offset, size);
+            bzero(msg, sizeof(msg));
+        }
+        else
+            size = 0;
+        log_msg("\n bb_read return: %d\n", size);    
+        return size; 
         // int recv_len = recv(sockfd, msg, sizeof(msg), MSG_WAITALL);
         // int recv_len = recvall(sockfd, msg, sizeof(msg));
-        log_msg("\n msg received: %s\n", msg);
-        log_msg("\n msg received length: %d\n", recv_len);
 
         // memcpy(buf, msg+4, recv_len-4);
         // memcpy(buf, msg, recv_len);
@@ -454,22 +542,24 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
         // sync();
         // return recv_len;
 
+        // Can load from MediaWiki but content is shared between files?
         if (offset < recv_len)
         {
-            if (offset + size > recv_len)
+            if (offset + size > recv_len) {
                 size = recv_len - offset;
+            }
             memcpy(buf, msg + offset, size);
+            bzero(msg, sizeof(msg));
         }
         else
             size = 0;
         log_msg("\n bb_read return: %d\n", size);    
         return size; 
+        // memcpy(buf, msg, size);
+        // bzero(msg, sizeof(msg));
     }
 
-    log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
-            path, buf, size, offset, fi);
-    // no need to get fpath on this one, since I work from fi->fh not the path
-    log_fi(fi);
+
 
     return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
 }
