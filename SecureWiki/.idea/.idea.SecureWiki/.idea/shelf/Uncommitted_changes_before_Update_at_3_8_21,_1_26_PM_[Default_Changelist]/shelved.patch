@@ -1,0 +1,388 @@
+Index: Avalonia.NETCoreMVVMApp/Model/KeyringEntry.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using System;\nusing System.Collections.Generic;\nusing System.Collections.ObjectModel;\nusing System.ComponentModel;\nusing System.Linq;\nusing System.Runtime.CompilerServices;\nusing System.Text.Json.Serialization;\nusing Avalonia.Remote.Protocol.Input;\nusing JetBrains.Annotations;\nusing Newtonsoft.Json;\nusing ReactiveUI;\n\nnamespace SecureWiki.Model\n{\n    [JsonObject(MemberSerialization.OptIn)]\n    public class KeyringEntry : IReactiveObject\n    {\n        private bool? _isChecked = false;\n        public bool? IsChecked\n        {\n            get\n            {\n                return (_isChecked ?? false);\n            }\n            set\n            {\n                _isChecked = value;\n                Console.WriteLine(\"Keyring '{0}' set to '{1}'\", Name, value);\n                OnPropertyChanged(nameof(IsChecked));\n                OnCheckedChanged(EventArgs.Empty);\n                Console.WriteLine(\"Keyring '{0}' finished setting\", Name);\n            }\n        }\n        \n        private string name;\n        [JsonProperty]\n        public string Name\n        {\n            get { return name;}\n            set\n            {\n                name = value; \n                RaisePropertyChanged(nameof(Name));\n            }\n        }\n\n        private KeyringEntry? _parent;\n        public KeyringEntry? Parent\n        {\n            get => _parent;\n            set\n            {\n                _parent = value; \n                RaisePropertyChanged(nameof(Parent));\n            }\n        }\n        \n        [JsonProperty]\n        public ObservableCollection<KeyringEntry> keyrings { get; set; } = new();\n        [JsonProperty]\n        public ObservableCollection<DataFileEntry> dataFiles { get; set; } = new();\n\n        public ObservableCollection<object> combinedList\n        {\n            get\n            {\n                var output = new ObservableCollection<object>();\n\n                foreach (KeyringEntry entry in keyrings)\n                {\n                    output.Add(entry);\n                }\n                foreach (DataFileEntry entry in dataFiles)\n                {\n                    output.Add(entry);\n                }\n                \n                return output;\n            }   \n        }\n\n        public KeyringEntry()\n        {\n            // IsChecked = false;\n            \n            CheckedChanged += CheckedChangedUpdateParent;\n            CheckedChanged += CheckedChangedUpdateChildren;\n        }\n        \n        public void AddKeyring(KeyringEntry keyringEntry)\n        {\n            keyrings.Add(keyringEntry);\n            RaisePropertyChanged(nameof(keyrings));\n            RaisePropertyChanged(nameof(combinedList));\n        }\n        \n        public void RemoveKeyring(KeyringEntry keyringEntry)\n        {\n            keyrings.Remove(keyringEntry);\n            RaisePropertyChanged(nameof(keyrings));\n            RaisePropertyChanged(nameof(combinedList));\n        }\n        \n        public void AddDataFile(DataFileEntry dataFile)\n        {\n            dataFiles.Add(dataFile);\n            RaisePropertyChanged(nameof(dataFiles));\n            RaisePropertyChanged(nameof(combinedList));\n        }\n        \n        public void RemoveDataFile(DataFileEntry dataFile)\n        {\n            dataFiles.Remove(dataFile);\n            RaisePropertyChanged(nameof(dataFiles));\n            RaisePropertyChanged(nameof(combinedList));\n        }\n\n        public event PropertyChangedEventHandler? PropertyChanged;\n        public event PropertyChangingEventHandler? PropertyChanging;\n        \n        public void RaisePropertyChanging(PropertyChangingEventArgs args)\n        {\n            throw new NotImplementedException();\n        }\n\n        public void RaisePropertyChanged(PropertyChangedEventArgs args)\n        {\n            throw new NotImplementedException();\n        }\n\n        public void RaisePropertyChanged(string propertyName)\n        {\n            PropertyChangedEventHandler handler = PropertyChanged;\n            if (handler != null)\n            {\n                handler(this, new PropertyChangedEventArgs(propertyName));\n            }\n        }\n\n        [NotifyPropertyChangedInvocator]\n        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)\n        {\n            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));\n            // Console.WriteLine(\"OnPropertyChanged in Keyring, property: \" + propertyName);\n        }\n        \n        protected virtual void OnCheckedChanged(EventArgs e)\n        {\n            EventHandler handler = CheckedChanged;\n            if (handler != null)\n            {\n                handler(this, e);\n            }\n        }\n\n        public event EventHandler CheckedChanged;\n\n        protected void CheckedChangedUpdateParent(object? sender, EventArgs e)\n        {\n            Console.WriteLine(\"CheckedChangedUpdateParent in keyring.Name='{0}' : entered\", Name);\n            Parent?.UpdateIsCheckedBasedOnChildren();\n        }\n        \n        protected void CheckedChangedUpdateChildren(object? sender, EventArgs e)\n        {\n            Console.WriteLine(\"CheckedChangedUpdateChildren in keyring.Name='{0}' : entered\", Name);\n            foreach (KeyringEntry child in keyrings)\n            {\n                child.CheckedChanged -= child.CheckedChangedUpdateParent;\n                Console.WriteLine(\"CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'\", Name, child.Name);\n                child.IsChecked = IsChecked;\n                Console.WriteLine(\"CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'\", Name, child.Name);\n                child.CheckedChanged += child.CheckedChangedUpdateParent;\n            }\n            \n            foreach (DataFileEntry child in dataFiles)\n            {\n                child.CheckedChanged -= child.CheckedChangedUpdateParent;\n                // child.CheckedChanged += CheckedChangedUpdateParent;\n                Console.WriteLine(\"CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'\", Name, child.filename);\n                child.IsChecked = IsChecked;\n                Console.WriteLine(\"CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'\", Name, child.filename);\n                child.CheckedChanged += child.CheckedChangedUpdateParent;\n            }\n        }\n\n        public virtual void UpdateIsCheckedBasedOnChildren()\n        {\n            Console.WriteLine(\"UpdateIsCheckedBasedOnChildren in keyring.Name='{0}'\", Name);\n            // Prevent feedback loop\n            this.CheckedChanged -= this.CheckedChangedUpdateChildren;\n            \n            bool anyChecked = false;\n            bool atleastTwoChecked = false;\n            bool anyUnchecked = false;\n            bool ancestorChecked = false;\n            \n            foreach (KeyringEntry child in keyrings)\n            {\n                if (child.IsChecked == true)\n                {\n                    if (anyChecked)\n                    {\n                        atleastTwoChecked = true;\n                    }\n                    anyChecked = true;\n                }\n                else\n                {\n                    anyUnchecked = true;\n                    \n                }\n            }\n            \n            foreach (DataFileEntry child in dataFiles)\n            {\n                if (child.IsChecked == true)\n                {\n                    if (anyChecked)\n                    {\n                        atleastTwoChecked = true;\n                    }\n                    anyChecked = true;\n                }\n                else\n                {\n                    anyUnchecked = true;\n                    \n                }\n            }\n\n            var localParent = Parent;\n            List<KeyringEntry> ancestorList = new();\n\n            while (localParent != null)\n            {\n                if (localParent.IsChecked == true)\n                {\n                    ancestorChecked = true;\n\n                    foreach (KeyringEntry item in ancestorList)\n                    {\n                        item.CheckedChanged -= item.CheckedChangedUpdateChildren;\n                        item.CheckedChanged -= item.CheckedChangedUpdateParent;\n                        item.IsChecked = true;\n                        item.CheckedChanged += item.CheckedChangedUpdateChildren;\n                        item.CheckedChanged += item.CheckedChangedUpdateParent;\n                    }\n\n                    break;\n                }\n\n                ancestorList.Add(localParent);\n                localParent = localParent.Parent;\n            }\n            \n            // Change here to interact with IsThreeState properly\n            // if (anyChecked && anyUnchecked)\n            // {\n            //     // parentcb.IsChecked = false;\n            // }\n            if (anyUnchecked == false || atleastTwoChecked || (ancestorChecked && anyChecked))\n            {\n                IsChecked = true;\n            }\n            else if (anyChecked == false)\n            {\n                IsChecked = false;\n            }\n            \n            // Restore event handler\n            this.CheckedChanged += this.CheckedChangedUpdateChildren;\n        }\n\n\n        public void CopyFromOtherKeyring(KeyringEntry ke)\n        {\n            keyrings.Clear();\n            dataFiles.Clear();\n            \n            Name = ke.Name;\n            \n            MergeAllEntriesFromOtherKeyring(ke);\n        }\n        \n        public void MergeAllEntriesFromOtherKeyring(KeyringEntry ke)\n        {\n            foreach (KeyringEntry item in ke.keyrings)\n            {\n                bool nameAlreadyInUse = false;\n                foreach (KeyringEntry ownKe in keyrings)\n                {\n                    if (item.Name.Equals(ownKe.Name))\n                    {\n                        nameAlreadyInUse = true;\n                        \n                        ownKe.MergeAllEntriesFromOtherKeyring(item);\n                        \n                        break;\n                    }\n                }\n\n                if (nameAlreadyInUse == false)\n                {\n                    AddKeyring(item);                    \n                }\n            }\n            \n            foreach (DataFileEntry item in ke.dataFiles)\n            {\n                bool nameAlreadyInUse = false;\n                bool fileAlreadyExists = false;\n                foreach (DataFileEntry ownDF in dataFiles)\n                {\n                    \n                    if (item.filename.Equals(ownDF.filename))\n                    {\n                        if (item.IsEqual(ownDF))\n                        {\n                            Console.WriteLine(\"DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Exact copy already exists\", \n                                item.filename, IsChecked, Parent?.Name ?? \"null\");\n                            fileAlreadyExists = true;\n                        }\n                        else\n                        {\n                            Console.WriteLine(\"DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Name is used by existing file\", \n                                item.filename, IsChecked, Parent?.Name ?? \"null\");\n                            nameAlreadyInUse = true;\n                        }\n                        \n                        break;\n                    }\n                }\n                \n                // Rename new datafile if name is already in use\n                if (nameAlreadyInUse)\n                {\n                    int cnt = 1;\n                    bool newNameInUse = true;\n                    while (newNameInUse)\n                    {\n                        string newName = item.filename + \"(\" + cnt + \")\";\n                        \n                        newNameInUse = dataFiles.Any(x => x.filename.Equals(newName));\n                        if (newNameInUse == false)\n                        {\n                            item.filename = newName;\n                            break;\n                        }\n\n                        cnt++;\n                    }\n                }\n\n                if (fileAlreadyExists == false)\n                {\n                    Console.WriteLine(\"DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Adding file\", \n                        item.filename, IsChecked, Parent?.Name ?? \"null\");\n                    AddDataFile(item);\n                }\n            }\n        }\n\n        public void AddToOtherKeyringRecursivelyBasedOnIsChecked(KeyringEntry outputKeyring)\n        {\n            foreach (KeyringEntry ke in keyrings)\n            {\n                KeyringEntry keCopy = new();\n                keCopy.Name = ke.Name;\n                outputKeyring.AddKeyring(keCopy);\n                \n                ke.AddToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);\n            }\n            \n            foreach (DataFileEntry dataFileEntry in dataFiles)\n            {\n                if (dataFileEntry.IsChecked == true)\n                {\n                    outputKeyring.AddDataFile(dataFileEntry);                    \n                }\n            }\n        }\n\n        public bool HasDataFileEntryDescendant()\n        {\n\n            if (dataFiles.Count > 0)\n            {\n                return true;\n            }\n            \n            foreach (KeyringEntry ke in keyrings)\n            {\n                if (ke.HasDataFileEntryDescendant() == true)\n                {\n                    return true;\n                }\n            }\n\n            return false;\n        }\n\n        public void RemoveEmptyDescendantsRecursively()\n        {\n            List<KeyringEntry> removeList = new();\n            foreach (KeyringEntry ke in keyrings)\n            {\n                if (ke.HasDataFileEntryDescendant() == false)\n                {\n                    removeList.Add(ke);\n                }\n                else\n                {\n                    ke.RemoveEmptyDescendantsRecursively();\n                }\n            }\n            foreach (KeyringEntry ke in removeList)\n            {\n                RemoveKeyring(ke);\n            }\n        }\n\n        public void PrintInfoRecursively()\n        {\n            Console.WriteLine(\"KeyRing: Name='{0}', Checked='{1}', Parent.Name='{2}'\", \n                Name, IsChecked, Parent?.Name ?? \"null\");\n            foreach (DataFileEntry item in dataFiles)\n            {\n                item.PrintInfo();\n            }\n\n            foreach (KeyringEntry item in keyrings)\n            {\n                item.PrintInfoRecursively();\n            }\n        }\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/Model/KeyringEntry.cs b/Avalonia.NETCoreMVVMApp/Model/KeyringEntry.cs
+--- a/Avalonia.NETCoreMVVMApp/Model/KeyringEntry.cs	(revision 602388f8afa40a4309eb81149db7edb86154e869)
++++ b/Avalonia.NETCoreMVVMApp/Model/KeyringEntry.cs	(date 1615204228106)
+@@ -25,10 +25,36 @@
+             set
+             {
+                 _isChecked = value;
+-                Console.WriteLine("Keyring '{0}' set to '{1}'", Name, value);
++                // Console.WriteLine("Keyring '{0}' set to '{1}'", Name, value);
+                 OnPropertyChanged(nameof(IsChecked));
++                OnPropertyChanged(nameof(IsCheckedWriteEnabled));
+                 OnCheckedChanged(EventArgs.Empty);
+-                Console.WriteLine("Keyring '{0}' finished setting", Name);
++                // Console.WriteLine("Keyring '{0}' finished setting", Name);
++            }
++        }
++        
++        private bool? _isCheckedWrite = false;
++        public bool? IsCheckedWrite
++        {
++            get
++            {
++                return (_isCheckedWrite ?? false);
++            }
++            set
++            {
++                _isCheckedWrite = value;
++                Console.WriteLine("Keyring '{0}': IsCheckedWrite set to '{1}'", Name, value);
++                OnPropertyChanged(nameof(IsCheckedWrite));
++                OnCheckedWriteChanged(EventArgs.Empty);
++                Console.WriteLine("Keyring '{0}': IsCheckedWrite finished setting", Name);
++            }
++        }
++      
++        public bool IsCheckedWriteEnabled
++        {
++            get
++            {
++                return IsChecked ?? false;
+             }
+         }
+         
+@@ -85,6 +111,7 @@
+             
+             CheckedChanged += CheckedChangedUpdateParent;
+             CheckedChanged += CheckedChangedUpdateChildren;
++            CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
+         }
+         
+         public void AddKeyring(KeyringEntry keyringEntry)
+@@ -152,24 +179,34 @@
+                 handler(this, e);
+             }
+         }
++        
++        protected virtual void OnCheckedWriteChanged(EventArgs e)
++        {
++            EventHandler handler = CheckedWriteChanged;
++            if (handler != null)
++            {
++                handler(this, e);
++            }
++        }
+ 
+         public event EventHandler CheckedChanged;
++        public event EventHandler CheckedWriteChanged;
+ 
+         protected void CheckedChangedUpdateParent(object? sender, EventArgs e)
+         {
+-            Console.WriteLine("CheckedChangedUpdateParent in keyring.Name='{0}' : entered", Name);
++            // Console.WriteLine("CheckedChangedUpdateParent in keyring.Name='{0}' : entered", Name);
+             Parent?.UpdateIsCheckedBasedOnChildren();
+         }
+         
+         protected void CheckedChangedUpdateChildren(object? sender, EventArgs e)
+         {
+-            Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : entered", Name);
++            // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : entered", Name);
+             foreach (KeyringEntry child in keyrings)
+             {
+                 child.CheckedChanged -= child.CheckedChangedUpdateParent;
+-                Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'", Name, child.Name);
++                // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'", Name, child.Name);
+                 child.IsChecked = IsChecked;
+-                Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'", Name, child.Name);
++                // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'", Name, child.Name);
+                 child.CheckedChanged += child.CheckedChangedUpdateParent;
+             }
+             
+@@ -177,12 +214,25 @@
+             {
+                 child.CheckedChanged -= child.CheckedChangedUpdateParent;
+                 // child.CheckedChanged += CheckedChangedUpdateParent;
+-                Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'", Name, child.filename);
++                // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'", Name, child.filename);
+                 child.IsChecked = IsChecked;
+-                Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'", Name, child.filename);
++                // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'", Name, child.filename);
+                 child.CheckedChanged += child.CheckedChangedUpdateParent;
+             }
+         }
++        
++        protected void CheckedWriteChangedUpdateChildren(object? sender, EventArgs e)
++        {
++            foreach (KeyringEntry child in keyrings)
++            {
++                child.IsCheckedWrite = IsCheckedWrite;
++            }
++            
++            foreach (DataFileEntry child in dataFiles)
++            {
++                child.IsCheckedWrite = IsCheckedWrite;
++            }
++        }
+ 
+         public virtual void UpdateIsCheckedBasedOnChildren()
+         {
+@@ -253,7 +303,12 @@
+                 ancestorList.Add(localParent);
+                 localParent = localParent.Parent;
+             }
+-            
++
++            // Console.WriteLine("AnyUnchecked='{0}'", anyUnchecked);
++            // Console.WriteLine("AnyChecked='{0}'", anyChecked);
++            // Console.WriteLine("atleastTwoChecked='{0}'", atleastTwoChecked);
++            // Console.WriteLine("ancestorChecked='{0}'", ancestorChecked);
++            //
+             // Change here to interact with IsThreeState properly
+             // if (anyChecked && anyUnchecked)
+             // {
+@@ -342,13 +397,23 @@
+                         string newName = item.filename + "(" + cnt + ")";
+                         
+                         newNameInUse = dataFiles.Any(x => x.filename.Equals(newName));
+-                        if (newNameInUse == false)
++                        if (newNameInUse)
++                        {
++                            DataFileEntry df = dataFiles.First(x => x.filename.Equals(newName));
++
++                            if (df.HasSameStaticProperties(item))
++                            {
++                                fileAlreadyExists = true;
++                                break;
++                            }
++
++                            cnt++;
++                        }
++                        else
+                         {
+                             item.filename = newName;
+                             break;
+                         }
+-
+-                        cnt++;
+                     }
+                 }
+ 
+@@ -381,6 +446,22 @@
+             }
+         }
+ 
++        public void PrepareForExportRecursively()
++        {
++            foreach (KeyringEntry ke in keyrings)
++            {
++                ke.PrepareForExportRecursively();
++            }
++            
++            foreach (DataFileEntry dataFileEntry in dataFiles)
++            {
++                if (dataFileEntry.IsCheckedWrite != true)
++                {
++                    dataFileEntry.privateKey = null;
++                }
++            }
++        }
++
+         public bool HasDataFileEntryDescendant()
+         {
+ 
+Index: Avalonia.NETCoreMVVMApp/Model/DataFileEntry.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using System;\nusing System.ComponentModel;\nusing System.Linq;\nusing System.Reflection;\nusing System.Runtime.CompilerServices;\nusing JetBrains.Annotations;\nusing Newtonsoft.Json;\nusing ReactiveUI;\n\nnamespace SecureWiki.Model\n{\n    [JsonObject(MemberSerialization.OptIn)]\n    public class DataFileEntry : IReactiveObject\n    {\n        [JsonProperty]\n        public string filename { get; set; }\n        [JsonProperty]\n        public byte[] symmKey { get; set; }\n        [JsonProperty]\n        public byte[] iv { get; set; }\n        [JsonProperty]\n        public byte[] privateKey { get; set; }\n        [JsonProperty]\n        public byte[] publicKey { get; set; }\n        [JsonProperty]\n        public string revisionNr { get; set; }\n        [JsonProperty]\n        public string serverLink { get; set; }\n        [JsonProperty]\n        public string pagename { get; set; }\n\n        private KeyringEntry? _parent;\n        public KeyringEntry? Parent\n        {\n            get => _parent;\n            set\n            {\n                _parent = value; \n                RaisePropertyChanged(nameof(Parent));\n            }\n        }\n        private bool? _isChecked = false;\n        public bool? IsChecked\n        {\n            get\n            {\n                return (_isChecked ?? false);\n            }\n            set\n            {\n                _isChecked = value;\n                // Console.WriteLine(\"DataFile '{0}' set to '{1}'\", filename, value);\n                OnPropertyChanged(nameof(IsChecked));\n                OnCheckedChanged(EventArgs.Empty);\n                // Console.WriteLine(\"DataFile '{0}' finished setting\");\n            }\n        }\n        \n        public DataFileEntry()\n        {\n            // IsChecked = false;\n            CheckedChanged -= CheckedChangedUpdateParent;\n            CheckedChanged += CheckedChangedUpdateParent;\n            // Console.WriteLine(\"DataFile '{0}' initialised\", filename);\n        }\n\n        public event PropertyChangedEventHandler? PropertyChanged;\n        public event PropertyChangingEventHandler? PropertyChanging;\n        public void RaisePropertyChanging(PropertyChangingEventArgs args)\n        {\n            throw new NotImplementedException();\n        }\n\n        public void RaisePropertyChanged(PropertyChangedEventArgs args)\n        {\n            throw new NotImplementedException();\n        }\n        \n        public void RaisePropertyChanged(string propertyName)\n        {\n            PropertyChangedEventHandler handler = PropertyChanged;\n            if (handler != null)\n            {\n                handler(this, new PropertyChangedEventArgs(propertyName));\n            }\n        }\n        \n        [NotifyPropertyChangedInvocator]\n        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)\n        {\n            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));\n            // Console.WriteLine(\"OnPropertyChanged in DatFileEntry, property: \" + propertyName);\n        }\n        \n        protected virtual void OnCheckedChanged(EventArgs e)\n        {\n            EventHandler handler = CheckedChanged;\n            if (handler != null)\n            {\n                handler(this, e);                \n            }\n        }\n\n        public event EventHandler CheckedChanged;\n\n        public void CheckedChangedUpdateParent(object? sender, EventArgs e)\n        {\n            Console.WriteLine(\"CheckedChangedUpdateParent entered in datafile.filename='{0}'\", filename);\n            Parent.UpdateIsCheckedBasedOnChildren();\n        }\n\n        public bool IsEqual(DataFileEntry reference)\n        {\n            PropertyInfo[] properties = typeof(DataFileEntry).GetProperties();\n            foreach (PropertyInfo prop in properties)\n            {\n                var ownValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(this, null);\n                var refValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(reference, null);\n\n                // Console.WriteLine(\"Testing property: '{0}'='{1}'\", prop, ownValue);\n                \n                if (ownValue.GetType() == typeof(string))\n                {\n                    if (!(ownValue.Equals(refValue)))\n                    {\n                        // Console.WriteLine(\"string: '{0}'!='{1}'\", ownValue, refValue);\n                        return false;\n                    }\n                }\n                else if (ownValue.GetType() == typeof(byte[]))\n                {\n                    var byteArrayOwn = ownValue as byte[];\n                    var byteArrayRef = refValue as byte[];\n                    if (!((byteArrayOwn ?? throw new InvalidOperationException()).SequenceEqual(byteArrayRef ?? throw new InvalidOperationException())))\n                    {\n                        // Console.WriteLine(\"ByteArray: '{0}'!='{1}'\", byteArrayOwn, byteArrayRef);\n                        return false;\n                    }\n                }\n                else\n                {\n                    // Console.WriteLine(\"'{0}'=='{1}'\", ownValue, refValue);\n                }\n            }\n\n            return true;\n        }\n\n        public void PrintInfo()\n        {\n            Console.WriteLine(\"DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}'\", \n                filename, IsChecked, Parent?.Name ?? \"null\");\n        } \n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/Model/DataFileEntry.cs b/Avalonia.NETCoreMVVMApp/Model/DataFileEntry.cs
+--- a/Avalonia.NETCoreMVVMApp/Model/DataFileEntry.cs	(revision 602388f8afa40a4309eb81149db7edb86154e869)
++++ b/Avalonia.NETCoreMVVMApp/Model/DataFileEntry.cs	(date 1615204228066)
+@@ -1,4 +1,5 @@
+ using System;
++using System.Collections.Generic;
+ using System.ComponentModel;
+ using System.Linq;
+ using System.Reflection;
+@@ -19,7 +20,7 @@
+         [JsonProperty]
+         public byte[] iv { get; set; }
+         [JsonProperty]
+-        public byte[] privateKey { get; set; }
++        public byte[]? privateKey { get; set; }
+         [JsonProperty]
+         public byte[] publicKey { get; set; }
+         [JsonProperty]
+@@ -51,11 +52,36 @@
+                 _isChecked = value;
+                 // Console.WriteLine("DataFile '{0}' set to '{1}'", filename, value);
+                 OnPropertyChanged(nameof(IsChecked));
++                OnPropertyChanged(nameof(IsCheckedWriteEnabled));
+                 OnCheckedChanged(EventArgs.Empty);
+                 // Console.WriteLine("DataFile '{0}' finished setting");
+             }
+         }
+         
++        private bool? _isCheckedWrite = false;
++        public bool? IsCheckedWrite
++        {
++            get
++            {
++                return (_isCheckedWrite ?? false);
++            }
++            set
++            {
++                _isCheckedWrite = value;
++                Console.WriteLine("Datafile '{0}': IsCheckedWrite set to '{1}'", filename, value);
++                OnPropertyChanged(nameof(IsCheckedWrite));
++                Console.WriteLine("Datafile '{0}': IsCheckedWrite finished setting", filename);
++            }
++        }
++        
++        public bool IsCheckedWriteEnabled
++        {
++            get
++            {
++                return IsChecked ?? false;
++            }
++        }
++        
+         public DataFileEntry()
+         {
+             // IsChecked = false;
+@@ -111,9 +137,37 @@
+ 
+         public bool IsEqual(DataFileEntry reference)
+         {
++            return CompareProperties(reference, null);
++        }
++
++        public bool HasSameStaticProperties(DataFileEntry reference)
++        {
++            // Construct ignore list and populate with non-static properties
++            List<PropertyInfo> ignoreList = new();
++            ignoreList.Add(typeof(DataFileEntry).GetProperty(nameof(filename)));
++            ignoreList.Add(typeof(DataFileEntry).GetProperty(nameof(revisionNr)));
++
++            return CompareProperties(reference, ignoreList);
++        }
++
++        private bool CompareProperties(DataFileEntry reference, List<PropertyInfo>? ignoreList)
++        {
+             PropertyInfo[] properties = typeof(DataFileEntry).GetProperties();
++
++            List<PropertyInfo> propertiesToBeCompared = new();
++
+             foreach (PropertyInfo prop in properties)
+             {
++                if (ignoreList?.Contains(prop) == true)
++                {
++                    continue;
++                }
++
++                propertiesToBeCompared.Add(prop);
++            }
++            
++            foreach (PropertyInfo prop in propertiesToBeCompared)
++            {
+                 var ownValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(this, null);
+                 var refValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(reference, null);
+ 
+Index: Avalonia.NETCoreMVVMApp/Cryptography/Keyring.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using System;\nusing System.Collections.ObjectModel;\nusing System.IO;\nusing System.Linq;\nusing Newtonsoft.Json;\nusing SecureWiki.Model;\n\nnamespace SecureWiki.Cryptography\n{\n    public class Keyring\n    {\n        private readonly Crypto _crypto = new();\n        public RootKeyring rootKeyring;\n\n        public Keyring(RootKeyring rk)\n        {\n            rootKeyring = rk;\n        }\n\n        public void InitKeyring()\n        {\n            var filepath = GetKeyringFilePath();\n            // Check if file does not exist\n            if (!File.Exists(filepath))\n            {\n                CreateNewKeyRing(filepath);\n            }\n           \n            // Read Keyring.json into rootKeyring\n            ReadIntoKeyring(rootKeyring);\n            UpdateKeyringParentPropertyRecursively(rootKeyring);\n            \n            CreateFileStructureRecursion(rootKeyring, GetRootDirPath());\n        }\n\n        // Returns absolute file path to fuse rootdir as string\n        private static string GetRootDirPath()\n        {\n            // Python fuse\n            // var filepath = \"Pyfuse_mediaWiki/srcTest/\";\n            // C fuse\n            const string? filePath = \"fuse/example/rootdir/\";\n            var currentDir = Directory.GetCurrentDirectory();\n            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @\"../../../../..\"));\n            var rootDir = Path.Combine(projectDir, filePath);\n            return rootDir;\n        }\n\n        // Returns absolute file path to keyring jsonfile as string\n        public string GetKeyringFilePath()\n        {\n            var currentDir = Directory.GetCurrentDirectory();\n            var path = Path.GetFullPath(Path.Combine(currentDir, @\"../../..\"));\n            var keyringFileName = \"Keyring.json\";\n            var keyringFilePath = Path.Combine(path, keyringFileName);\n            return keyringFilePath;\n        }\n\n        // Returns root keyring as deserialized json object\n        private RootKeyring GetRootKeyring(string keyringFilePath)\n        {\n            var jsonData = File.ReadAllText(keyringFilePath);\n            Console.WriteLine(\"GetRootKeyring:- File.ReadAllText('{0}')\", keyringFilePath);\n            // Console.WriteLine(jsonData);\n            // var existingKeyRing = JsonSerializer.Deserialize<KeyringEntry>(jsonData)\n            //                       ?? new KeyringEntry();\n            var existingKeyRing = JsonConvert.DeserializeObject<RootKeyring>(jsonData)\n                ?? new RootKeyring();\n            Console.WriteLine(\"Deserialize passed\");\n            return existingKeyRing;\n        }\n\n        // Returns root keyring as deserialized json object with no arguments\n        public KeyringEntry ReadKeyRing()\n        {\n            var keyringFilePath = GetKeyringFilePath();\n            return GetRootKeyring(keyringFilePath);\n        }\n\n        public void ReadIntoKeyring(RootKeyring rk)\n        {\n            KeyringEntry readKeyring = ReadKeyRing();\n            rk.CopyFromOtherKeyring(readKeyring);\n        }\n\n        // Recursively creates all files and folders from root keyring\n        private void CreateFileStructureRecursion(KeyringEntry keyringEntry, string path)\n        {\n            foreach (var file in keyringEntry.dataFiles)\n            {\n                File.Create(Path.Combine(path, file.filename)).Dispose();\n            }\n\n            foreach (var childKeyRing in keyringEntry.keyrings)\n            {\n                Directory.CreateDirectory(Path.Combine(path, childKeyRing.Name));\n                CreateFileStructureRecursion(childKeyRing, Path.Combine(path, childKeyRing.Name));\n            }\n        }\n\n        // Create new keyring.json file with empty keyring object\n        private void CreateNewKeyRing(string filepath)\n        {\n            KeyringEntry newKeyringEntry = new()\n            {\n                Name = \"\",\n                dataFiles = new ObservableCollection<DataFileEntry>(),\n                keyrings = new ObservableCollection<KeyringEntry>()\n            };\n            // JsonSerializerOptions options = new() {WriteIndented = true};\n            // var jsonData = JsonSerializer.Serialize(newKeyringEntry, options);\n            var jsonData = JsonConvert.SerializeObject(newKeyringEntry, Formatting.Indented);\n            File.WriteAllText(filepath, jsonData);\n        }\n\n        // Returns the keyringEntry where the new keyring/datafile should be inserted\n        private KeyringEntry FindKeyringPath(KeyringEntry keyring, string filePath)\n        {\n            var filePathSplit = filePath.Split(\"/\");\n\n            // Found keyring entry to insert into\n            if (filePathSplit.Length <= 1)\n            {\n                return keyring;\n            }\n\n            var childKeyring = keyring.keyrings.FirstOrDefault(f => f.Name.Equals(filePathSplit[0]));\n            var newPath = string.Join(\"/\", filePathSplit.Skip(1).ToArray());\n\n            if (childKeyring != null)\n            {\n                return FindKeyringPath(childKeyring, newPath);\n            }\n            KeyringEntry intermediateKeyring = new()\n            {\n                Name = filePathSplit[0],\n                dataFiles = new ObservableCollection<DataFileEntry>(),\n                keyrings = new ObservableCollection<KeyringEntry>()\n            };\n            keyring.AddKeyring(intermediateKeyring);\n            return FindKeyringPath(intermediateKeyring, newPath);\n        }\n\n        // Add new data file to existing keyring json file\n        public void AddNewFile(string filepath, string filename)\n        {\n            var keyringFilePath = GetKeyringFilePath();\n\n            // var existingKeyRing = GetRootKeyring(keyringFilePath);\n        \n            \n            var (key, iv) = _crypto.GenerateAESParams();\n            var (privateKey, publicKey) = _crypto.GenerateRSAParams();\n            \n            var filenameBytes = _crypto.EncryptAESStringToBytes(filename, key, iv);\n            // var encryptedFilename = BitConverter.ToString(filenameBytes);\n\n            var encryptedFilename = Convert.ToBase64String(filenameBytes);\n            DataFileEntry dataFileEntry = new()\n            {\n                filename = filename,\n                symmKey = key,\n                iv = iv,\n                privateKey = privateKey,\n                publicKey = publicKey,\n                revisionNr = \"-1\",\n                serverLink = \"http://localhost/mediawiki/api.php\",\n                pagename = encryptedFilename\n            };\n\n            // Find the keyring where the new datafile is inserted\n            var foundKeyring = FindKeyringPath(rootKeyring, filepath);\n            foundKeyring.AddDataFile(dataFileEntry);\n\n            // JsonSerializerOptions options = new() {WriteIndented = true};\n\n            var jsonData = JsonConvert.SerializeObject(rootKeyring, Formatting.Indented);\n            // var jsonData = JsonSerializer.Serialize(existingKeyRing, options);\n            File.WriteAllText(keyringFilePath, jsonData);\n        }\n\n        // Add new data file to existing keyring json file\n        public void AddNewKeyRing(string filepath, string keyringName)\n        {\n            var keyringFilePath = GetKeyringFilePath();\n            // var existingKeyRing = GetRootKeyring(keyringFilePath);\n\n            KeyringEntry newKeyringEntry = new()\n            {\n                Name = keyringName,\n                dataFiles = new ObservableCollection<DataFileEntry>(),\n                keyrings = new ObservableCollection<KeyringEntry>()\n            };\n            \n            // Find the keyring where the new keyring is inserted\n            var foundKeyring = FindKeyringPath(rootKeyring, filepath);\n            foundKeyring.AddKeyring(newKeyringEntry);\n            \n            // JsonSerializerOptions options = new() {WriteIndented = true};\n\n            // var jsonData = JsonSerializer.Serialize(existingKeyRing, options);\n            SerializeAndWriteFile(keyringFilePath, rootKeyring);\n        }\n        \n        // Find the datafile with the given name -- better performance if whole filepath is given\n        public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)\n        {\n            var dataFile = keyring.dataFiles.FirstOrDefault(f => f.filename.Equals(filename));\n            return dataFile ?? keyring.keyrings.Select(childKeyRing => GetDataFile(filename, childKeyRing)).FirstOrDefault();\n        }\n\n        // Rename or change location of datafile/keyring in root keyringEntry \n        public void Rename(string oldPath, string newPath)\n        {\n            var keyringFilePath = GetKeyringFilePath();\n            \n            // var rootKeyring = GetRootKeyring(keyringFilePath);\n            var oldKeyring = FindKeyringPath(rootKeyring, oldPath);\n            var newKeyring = FindKeyringPath(rootKeyring, newPath);\n\n            var oldNameSplit = newPath.Split(\"/\", 2);\n            var oldName = oldNameSplit[^1];\n            oldName = oldName.TrimEnd('\\0');\n\n            var newNameSplit = newPath.Split(\"/\", 2);\n            var newName = newNameSplit[^1];\n            newName = newName.TrimEnd('\\0');\n\n            // Rename/relocate datafile/keyring\n            // Find data file in oldkeyring\n            DataFileEntry? dataFile = oldKeyring.dataFiles.FirstOrDefault(f => f.filename.Equals(oldName));\n            if (dataFile != null)\n            {\n                oldKeyring.dataFiles.Remove(dataFile);\n                dataFile.filename = newName;\n                newKeyring.AddDataFile(dataFile);\n            }\n            \n            // Find keyring in oldkeyring\n            var keyring = oldKeyring.keyrings.FirstOrDefault(f => f.Name.Equals(oldName));\n            if (keyring != null)\n            {\n                oldKeyring.keyrings.Remove(keyring);\n                keyring.Name = newName;\n                newKeyring.AddKeyring(keyring);\n            }\n\n            // JsonSerializerOptions options = new() {WriteIndented = true};\n\n            // var jsonData = JsonSerializer.Serialize(rootKeyring, options);\n            SerializeAndWriteFile(keyringFilePath, this.rootKeyring);\n        }\n        \n        // public void RemoveFile(string filePath, string filename, string type)\n        // {\n        //     var keyringFilePath = GetKeyringFilePath();\n        //     var existingKeyRing = GetRootKeyring(keyringFilePath);\n        //\n        //     // Find the keyring where the data file is located\n        //     var foundKeyring = FindKeyringPath(existingKeyRing, filePath);\n        //\n        //     if (type.Equals(\"file\"))\n        //     {\n        //         var fileToRemove = foundKeyring.dataFiles.Find(f => f.filename.Equals(filename));\n        //         if (fileToRemove != null) foundKeyring.dataFiles.Remove(fileToRemove);\n        //     }\n        //     else\n        //     {\n        //         var keyringToRemove = foundKeyring.keyrings.FirstOrDefault(f => f.name.Equals(filename));\n        //         if (keyringToRemove != null) foundKeyring.keyrings.Remove(keyringToRemove);\n        //     }\n        //\n        //     JsonSerializerOptions options = new() {WriteIndented = true};\n        //\n        //     var jsonData = JsonSerializer.Serialize(existingKeyRing, options);\n        //     File.WriteAllText(keyringFilePath, jsonData);\n        // }\n\n        \n        public void RemoveFile(string filePath, string filename)\n        {\n            var keyringFilePath = GetKeyringFilePath();\n            var existingKeyRing = GetRootKeyring(keyringFilePath);\n\n            // Find the keyring where the data file is located\n            var foundKeyring = FindKeyringPath(existingKeyRing, filePath);\n\n            // Remove file or keyring from parent keyring\n            var fileToRemove = foundKeyring.dataFiles.FirstOrDefault(f => f.filename.Equals(filename));\n            if (fileToRemove != null) foundKeyring.dataFiles.Remove(fileToRemove);\n\n            var keyringToRemove = foundKeyring.keyrings.FirstOrDefault(f => f.Name.Equals(filename));\n            if (keyringToRemove != null) foundKeyring.keyrings.Remove(keyringToRemove);\n\n            SerializeAndWriteFile(keyringFilePath, existingKeyRing);\n        }\n\n        private static void SerializeAndWriteFile(string filepath, KeyringEntry newKeyringEntry)\n        {\n            var jsonData = JsonConvert.SerializeObject(newKeyringEntry, Formatting.Indented);\n            File.WriteAllText(filepath, jsonData);\n        }\n\n        private void UpdateKeyringParentPropertyRecursively(KeyringEntry ke)\n        {\n            foreach (DataFileEntry item in ke.dataFiles)\n            {\n                item.Parent = ke;\n            }\n\n            foreach (KeyringEntry item in ke.keyrings)\n            {\n                item.Parent = ke;\n                UpdateKeyringParentPropertyRecursively(item);\n            }\n        }\n\n        public RootKeyring CreateRootKeyringBasedOnIsChecked()\n        {\n            RootKeyring outputRootKeyring = new();\n\n            rootKeyring.AddToOtherKeyringRecursivelyBasedOnIsChecked(outputRootKeyring);\n\n            return outputRootKeyring;\n        }\n\n        public void ExportRootKeyringBasedOnIsChecked()\n        {\n            RootKeyring rk = CreateRootKeyringBasedOnIsChecked();\n           \n            rk.RemoveEmptyDescendantsRecursively();\n            \n            var currentDir = Directory.GetCurrentDirectory();\n            var path = Path.GetFullPath(Path.Combine(currentDir, @\"../../..\"));\n            var keyringFileName = \"KeyringExport.json\";\n            var keyringFilePath = Path.Combine(path, keyringFileName);\n\n            var filepath = keyringFilePath;\n            \n            SerializeAndWriteFile(filepath, rk);\n        }\n\n        public void ImportRootKeyring(string importPath)\n        {\n            Console.WriteLine(\"Keyring.cs:- ImportRootKeyring('{0}') entered\", importPath);\n            RootKeyring rk = GetRootKeyring(importPath);\n            UpdateKeyringParentPropertyRecursively(rk);\n            Console.WriteLine(\"rk.PrintInfoRecursively():\");\n            rk.PrintInfoRecursively();\n            Console.WriteLine(\"rk.PrintInfoRecursively() passed\");\n            rootKeyring.MergeAllEntriesFromOtherKeyring(rk);\n            Console.WriteLine(\"Keyring.cs:- ImportRootKeyring('{0}') finished\", importPath);\n        }\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/Cryptography/Keyring.cs b/Avalonia.NETCoreMVVMApp/Cryptography/Keyring.cs
+--- a/Avalonia.NETCoreMVVMApp/Cryptography/Keyring.cs	(revision 602388f8afa40a4309eb81149db7edb86154e869)
++++ b/Avalonia.NETCoreMVVMApp/Cryptography/Keyring.cs	(date 1615204227998)
+@@ -329,6 +329,7 @@
+             RootKeyring rk = CreateRootKeyringBasedOnIsChecked();
+            
+             rk.RemoveEmptyDescendantsRecursively();
++            rk.PrepareForExportRecursively();
+             
+             var currentDir = Directory.GetCurrentDirectory();
+             var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+@@ -342,14 +343,12 @@
+ 
+         public void ImportRootKeyring(string importPath)
+         {
+-            Console.WriteLine("Keyring.cs:- ImportRootKeyring('{0}') entered", importPath);
++            // Read RootKeyring from import path and initialise
+             RootKeyring rk = GetRootKeyring(importPath);
+             UpdateKeyringParentPropertyRecursively(rk);
+-            Console.WriteLine("rk.PrintInfoRecursively():");
+-            rk.PrintInfoRecursively();
+-            Console.WriteLine("rk.PrintInfoRecursively() passed");
++
++            // Merge imported RootKeyring into current RootKeyring
+             rootKeyring.MergeAllEntriesFromOtherKeyring(rk);
+-            Console.WriteLine("Keyring.cs:- ImportRootKeyring('{0}') finished", importPath);
+         }
+     }
+ }
+\ No newline at end of file
+Index: Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><Window xmlns=\"https://github.com/avaloniaui\"\n        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"\n        xmlns:d=\"http://schemas.microsoft.com/expression/blend/2008\"\n        xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"\n        xmlns:viewModels=\"clr-namespace:SecureWiki.ViewModels\"\n        xmlns:Models=\"clr-namespace:SecureWiki.Model\"\n        mc:Ignorable=\"d\" d:DesignWidth=\"500\" d:DesignHeight=\"400\"\n        x:Class=\"SecureWiki.Views.MainWindow\"\n        Opened=\"MainWindow_Shown\"\n        Icon=\"/Assets/avalonia-logo.ico\"\n        Title=\"Please find a better name\"\n        Padding=\"10\"><!--Width=\"300\" Height=\"400\"-->\n\n    <!--\n    <Design.DataContext>\n        <viewModels:MainWindowViewModel/>\n    </Design.DataContext>\n    -->\n\n    <!--<TextBlock Text=\"{Binding Greeting}\" HorizontalAlignment=\"Center\" VerticalAlignment=\"Center\"/>\n    -->\n    <!--\n    <DockPanel Dock=\"Top\" LastChildFill=\"True\" x:Name=\"TopLevelDockPanel\">\n    -->\n    <Grid>\n        <Grid.ColumnDefinitions>\n            <ColumnDefinition Width=\"Auto\"></ColumnDefinition>\n            <ColumnDefinition Width=\"1*\"></ColumnDefinition>\n            <ColumnDefinition Width=\"Auto\"></ColumnDefinition>\n        </Grid.ColumnDefinitions>\n\n        <StackPanel Orientation=\"Vertical\" VerticalAlignment=\"Top\" Height=\"150\" Width=\"300\" x:Name=\"ButtonControlSp\">\n            <!--\n            <TextBlock Name=\"NameLabel\">What is your name?</TextBlock>\n            <TextBox Name=\"NameTextBox\"></TextBox>\n            <TextBlock Name=\"MessageLabel\"></TextBlock>        \n            -->\n            \n            <TextBox Name=\"TextBox1\" IsReadOnly=\"True\" Width=\"{Binding  Width,ElementName=ButtonControlSp}\" TextWrapping=\"Wrap\">\n                The user may not modify the contents of this TextBox.\n            </TextBox>\n            \n            <Button Name=\"Button1\" Click=\"Button1_Click\">Button1</Button>\n            <Button Name=\"Button2\" Click=\"Button2_Click\">Print keyring info</Button>\n            <Button Name=\"Button3\" Click=\"Button3_Click\">Export keyring</Button>\n            <Button Name=\"Button4\" Click=\"Button4_Click\">Import keyring</Button>\n            \n            <TextBlock>Enter IP address of MediaWiki server</TextBlock>\n            <TextBox Name=\"TextBoxIp\" Width=\"{Binding  Width,ElementName=ButtonControlSp}\" TextWrapping=\"Wrap\" Text=\"{Binding IP}\">\n            </TextBox>\n            <Button Name=\"ButtonIp\" Click=\"ButtonIP_Click\">Change</Button>\n\n            <TextBlock>Login to MediaWiki</TextBlock>\n            <TextBox Name=\"TextBoxUser\" Width=\"{Binding  Width,ElementName=ButtonControlSp}\" TextWrapping=\"Wrap\" Text=\"{Binding Username}\" Watermark=\"Username\">\n            </TextBox>\n            <TextBox Name=\"TextBoxPass\" Width=\"{Binding  Width,ElementName=ButtonControlSp}\" TextWrapping=\"Wrap\" Text=\"{Binding Password}\" Watermark=\"Password\">\n            </TextBox>\n            <Button Name=\"ButtonLogin\" Click=\"ButtonLogin_Click\">Login</Button>\n            \n            <TextBlock>Share selected keyring</TextBlock>\n            <TextBox Name=\"TextBoxMail\" Width=\"{Binding  Width,ElementName=ButtonControlSp}\" TextWrapping=\"Wrap\" Text=\"{Binding MailRecipient}\" Watermark=\"Recipient email\">\n            </TextBox>\n            <Button Name=\"ButtonMail\" Click=\"ButtonMail\">Send</Button>\n\n            \n        </StackPanel>\n        \n\n        \n        <ScrollViewer Grid.Column=\"1\" VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Auto\">\n            <StackPanel Orientation=\"Vertical\">\n                <TreeView Items=\"{Binding rootKeyringCollection, Mode=TwoWay}\" Name=\"TreeView1\">\n                    <TreeView.DataTemplates>\n                        <TreeDataTemplate DataType=\"Models:RootKeyring\" ItemsSource=\"{Binding combinedList}\">\n                            <CheckBox IsChecked=\"{Binding IsChecked}\" Name=\"CheckBox\" Initialized=\"CheckBox_OnInitialized\">\n                                <TextBlock Foreground=\"Red\" Text=\"{Binding Name, Mode=TwoWay}\"></TextBlock>\n                            </CheckBox>\n                        </TreeDataTemplate>\n                        <TreeDataTemplate DataType=\"Models:KeyringEntry\" ItemsSource=\"{Binding combinedList}\">\n                            <CheckBox IsChecked=\"{Binding IsChecked}\" Name=\"CheckBox\" Initialized=\"CheckBox_OnInitialized\">\n                                <TextBlock Text=\"{Binding Name}\"></TextBlock>\n                            </CheckBox>\n                        </TreeDataTemplate>\n                        <DataTemplate DataType=\"Models:DataFileEntry\" >\n                            <CheckBox IsChecked=\"{Binding IsChecked}\" Name=\"CheckBox\" Initialized=\"CheckBox_OnInitialized\">\n                                <TextBlock Foreground=\"Blue\" Text=\"{Binding filename}\"></TextBlock>\n                            </CheckBox>\n                        </DataTemplate>\n                    </TreeView.DataTemplates>\n                    <!--\n                    <Style Selector=\"TreeViewItem\" >\n                        <Setter Property=\"IsExpanded\" Value=\"True\"></Setter>\n                    </Style>\n                    -->\n                </TreeView>\n            </StackPanel>\n                \n        </ScrollViewer>\n        \n        <ContentControl Grid.Column=\"2\" Content=\"{Binding selectedFile}\" Width=\"150\">\n            <ContentControl.ContentTemplate>\n                <DataTemplate>\n                    <StackPanel>\n                        <Grid ColumnDefinitions=\"Auto,Auto\" RowDefinitions=\"Auto,Auto\">\n                            <TextBlock Grid.Row=\"0\" Grid.Column=\"0\">File properties: </TextBlock>\n                            <TextBlock Grid.Row=\"0\" Grid.Column=\"1\" Text=\"{Binding selectedFile.filename}\"/>\n                        </Grid>\n                        <ComboBox SelectedIndex=\"0\" Items=\"{Binding revisions}\">\n                        \n                        </ComboBox>\n                    </StackPanel>\n                </DataTemplate>\n            </ContentControl.ContentTemplate>\n\n        </ContentControl>\n\n    </Grid>\n    <!--\n    </DockPanel>\n    -->\n    \n</Window>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml b/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml
+--- a/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml	(revision 602388f8afa40a4309eb81149db7edb86154e869)
++++ b/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml	(date 1615201656427)
+@@ -72,19 +72,43 @@
+                 <TreeView Items="{Binding rootKeyringCollection, Mode=TwoWay}" Name="TreeView1">
+                     <TreeView.DataTemplates>
+                         <TreeDataTemplate DataType="Models:RootKeyring" ItemsSource="{Binding combinedList}">
+-                            <CheckBox IsChecked="{Binding IsChecked}" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+-                                <TextBlock Foreground="Red" Text="{Binding Name, Mode=TwoWay}"></TextBlock>
+-                            </CheckBox>
++                            <StackPanel Orientation="Horizontal">
++                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
++                                    
++                                </CheckBox>
++                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
++                                    
++                                </CheckBox>
++                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
++                                    <TextBlock Foreground="Red" Text="{Binding Name, Mode=TwoWay}"></TextBlock>
++                                </Border>
++                            </StackPanel>
+                         </TreeDataTemplate>
+                         <TreeDataTemplate DataType="Models:KeyringEntry" ItemsSource="{Binding combinedList}">
+-                            <CheckBox IsChecked="{Binding IsChecked}" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+-                                <TextBlock Text="{Binding Name}"></TextBlock>
+-                            </CheckBox>
++                            <StackPanel Orientation="Horizontal">
++                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
++                                    
++                                </CheckBox>
++                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
++                                    
++                                </CheckBox>
++                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
++                                    <TextBlock Text="{Binding Name}"></TextBlock>
++                                </Border>
++                            </StackPanel>
+                         </TreeDataTemplate>
+                         <DataTemplate DataType="Models:DataFileEntry" >
+-                            <CheckBox IsChecked="{Binding IsChecked}" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+-                                <TextBlock Foreground="Blue" Text="{Binding filename}"></TextBlock>
+-                            </CheckBox>
++                            <StackPanel Orientation="Horizontal">
++                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
++                                    
++                                </CheckBox>
++                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
++                                    
++                                </CheckBox>
++                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
++                                    <TextBlock Foreground="Blue" VerticalAlignment="Center" Text="{Binding filename}"></TextBlock>
++                                </Border>
++                            </StackPanel>
+                         </DataTemplate>
+                     </TreeView.DataTemplates>
+                     <!--

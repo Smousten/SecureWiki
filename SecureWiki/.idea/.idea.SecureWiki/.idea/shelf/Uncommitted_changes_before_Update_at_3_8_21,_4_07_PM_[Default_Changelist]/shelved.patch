@@ -1,0 +1,753 @@
+Index: Avalonia.NETCoreMVVMApp/Model/KeyringEntry.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using System;\nusing System.Collections.Generic;\nusing System.Collections.ObjectModel;\nusing System.ComponentModel;\nusing System.Linq;\nusing System.Runtime.CompilerServices;\nusing System.Text.Json.Serialization;\nusing Avalonia.Remote.Protocol.Input;\nusing JetBrains.Annotations;\nusing Newtonsoft.Json;\nusing ReactiveUI;\n\nnamespace SecureWiki.Model\n{\n    [JsonObject(MemberSerialization.OptIn)]\n    public class KeyringEntry : IReactiveObject\n    {\n        private bool? _isChecked = false;\n        public bool? IsChecked\n        {\n            get\n            {\n                return (_isChecked ?? false);\n            }\n            set\n            {\n                _isChecked = value;\n                Console.WriteLine(\"Keyring '{0}' set to '{1}'\", Name, value);\n                OnPropertyChanged(nameof(IsChecked));\n                OnCheckedChanged(EventArgs.Empty);\n                Console.WriteLine(\"Keyring '{0}' finished setting\", Name);\n            }\n        }\n        \n        private string name;\n        [JsonProperty]\n        public string Name\n        {\n            get { return name;}\n            set\n            {\n                name = value; \n                RaisePropertyChanged(nameof(Name));\n            }\n        }\n\n        private KeyringEntry? _parent;\n        public KeyringEntry? Parent\n        {\n            get => _parent;\n            set\n            {\n                _parent = value; \n                RaisePropertyChanged(nameof(Parent));\n            }\n        }\n        \n        [JsonProperty]\n        public ObservableCollection<KeyringEntry> keyrings { get; set; } = new();\n        [JsonProperty]\n        public ObservableCollection<DataFileEntry> dataFiles { get; set; } = new();\n\n        public ObservableCollection<object> combinedList\n        {\n            get\n            {\n                var output = new ObservableCollection<object>();\n\n                foreach (KeyringEntry entry in keyrings)\n                {\n                    output.Add(entry);\n                }\n                foreach (DataFileEntry entry in dataFiles)\n                {\n                    output.Add(entry);\n                }\n                \n                return output;\n            }   \n        }\n\n        public KeyringEntry()\n        {\n            // IsChecked = false;\n            \n            CheckedChanged += CheckedChangedUpdateParent;\n            CheckedChanged += CheckedChangedUpdateChildren;\n        }\n        \n        public void AddKeyring(KeyringEntry keyringEntry)\n        {\n            keyrings.Add(keyringEntry);\n            RaisePropertyChanged(nameof(keyrings));\n            RaisePropertyChanged(nameof(combinedList));\n        }\n        \n        public void RemoveKeyring(KeyringEntry keyringEntry)\n        {\n            keyrings.Remove(keyringEntry);\n            RaisePropertyChanged(nameof(keyrings));\n            RaisePropertyChanged(nameof(combinedList));\n        }\n        \n        public void AddDataFile(DataFileEntry dataFile)\n        {\n            dataFiles.Add(dataFile);\n            RaisePropertyChanged(nameof(dataFiles));\n            RaisePropertyChanged(nameof(combinedList));\n        }\n        \n        public void RemoveDataFile(DataFileEntry dataFile)\n        {\n            dataFiles.Remove(dataFile);\n            RaisePropertyChanged(nameof(dataFiles));\n            RaisePropertyChanged(nameof(combinedList));\n        }\n\n        public event PropertyChangedEventHandler? PropertyChanged;\n        public event PropertyChangingEventHandler? PropertyChanging;\n        \n        public void RaisePropertyChanging(PropertyChangingEventArgs args)\n        {\n            throw new NotImplementedException();\n        }\n\n        public void RaisePropertyChanged(PropertyChangedEventArgs args)\n        {\n            throw new NotImplementedException();\n        }\n\n        public void RaisePropertyChanged(string propertyName)\n        {\n            PropertyChangedEventHandler handler = PropertyChanged;\n            if (handler != null)\n            {\n                handler(this, new PropertyChangedEventArgs(propertyName));\n            }\n        }\n\n        [NotifyPropertyChangedInvocator]\n        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)\n        {\n            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));\n            // Console.WriteLine(\"OnPropertyChanged in Keyring, property: \" + propertyName);\n        }\n        \n        protected virtual void OnCheckedChanged(EventArgs e)\n        {\n            EventHandler handler = CheckedChanged;\n            if (handler != null)\n            {\n                handler(this, e);\n            }\n        }\n\n        public event EventHandler CheckedChanged;\n\n        protected void CheckedChangedUpdateParent(object? sender, EventArgs e)\n        {\n            Console.WriteLine(\"CheckedChangedUpdateParent in keyring.Name='{0}' : entered\", Name);\n            Parent?.UpdateIsCheckedBasedOnChildren();\n        }\n        \n        protected void CheckedChangedUpdateChildren(object? sender, EventArgs e)\n        {\n            Console.WriteLine(\"CheckedChangedUpdateChildren in keyring.Name='{0}' : entered\", Name);\n            foreach (KeyringEntry child in keyrings)\n            {\n                child.CheckedChanged -= child.CheckedChangedUpdateParent;\n                Console.WriteLine(\"CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'\", Name, child.Name);\n                child.IsChecked = IsChecked;\n                Console.WriteLine(\"CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'\", Name, child.Name);\n                child.CheckedChanged += child.CheckedChangedUpdateParent;\n            }\n            \n            foreach (DataFileEntry child in dataFiles)\n            {\n                child.CheckedChanged -= child.CheckedChangedUpdateParent;\n                // child.CheckedChanged += CheckedChangedUpdateParent;\n                Console.WriteLine(\"CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'\", Name, child.filename);\n                child.IsChecked = IsChecked;\n                Console.WriteLine(\"CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'\", Name, child.filename);\n                child.CheckedChanged += child.CheckedChangedUpdateParent;\n            }\n        }\n\n        public virtual void UpdateIsCheckedBasedOnChildren()\n        {\n            Console.WriteLine(\"UpdateIsCheckedBasedOnChildren in keyring.Name='{0}'\", Name);\n            // Prevent feedback loop\n            this.CheckedChanged -= this.CheckedChangedUpdateChildren;\n            \n            bool anyChecked = false;\n            bool atleastTwoChecked = false;\n            bool anyUnchecked = false;\n            bool ancestorChecked = false;\n            \n            foreach (KeyringEntry child in keyrings)\n            {\n                if (child.IsChecked == true)\n                {\n                    if (anyChecked)\n                    {\n                        atleastTwoChecked = true;\n                    }\n                    anyChecked = true;\n                }\n                else\n                {\n                    anyUnchecked = true;\n                    \n                }\n            }\n            \n            foreach (DataFileEntry child in dataFiles)\n            {\n                if (child.IsChecked == true)\n                {\n                    if (anyChecked)\n                    {\n                        atleastTwoChecked = true;\n                    }\n                    anyChecked = true;\n                }\n                else\n                {\n                    anyUnchecked = true;\n                    \n                }\n            }\n\n            var localParent = Parent;\n            List<KeyringEntry> ancestorList = new();\n\n            while (localParent != null)\n            {\n                if (localParent.IsChecked == true)\n                {\n                    ancestorChecked = true;\n\n                    foreach (KeyringEntry item in ancestorList)\n                    {\n                        item.CheckedChanged -= item.CheckedChangedUpdateChildren;\n                        item.CheckedChanged -= item.CheckedChangedUpdateParent;\n                        item.IsChecked = true;\n                        item.CheckedChanged += item.CheckedChangedUpdateChildren;\n                        item.CheckedChanged += item.CheckedChangedUpdateParent;\n                    }\n\n                    break;\n                }\n\n                ancestorList.Add(localParent);\n                localParent = localParent.Parent;\n            }\n            \n            // Change here to interact with IsThreeState properly\n            // if (anyChecked && anyUnchecked)\n            // {\n            //     // parentcb.IsChecked = false;\n            // }\n            if (anyUnchecked == false || atleastTwoChecked || (ancestorChecked && anyChecked))\n            {\n                IsChecked = true;\n            }\n            else if (anyChecked == false)\n            {\n                IsChecked = false;\n            }\n            \n            // Restore event handler\n            this.CheckedChanged += this.CheckedChangedUpdateChildren;\n        }\n\n\n        public void CopyFromOtherKeyring(KeyringEntry ke)\n        {\n            keyrings.Clear();\n            dataFiles.Clear();\n            \n            Name = ke.Name;\n            \n            MergeAllEntriesFromOtherKeyring(ke);\n        }\n        \n        public void MergeAllEntriesFromOtherKeyring(KeyringEntry ke)\n        {\n            foreach (KeyringEntry item in ke.keyrings)\n            {\n                bool nameAlreadyInUse = false;\n                foreach (KeyringEntry ownKe in keyrings)\n                {\n                    if (item.Name.Equals(ownKe.Name))\n                    {\n                        nameAlreadyInUse = true;\n                        \n                        ownKe.MergeAllEntriesFromOtherKeyring(item);\n                        \n                        break;\n                    }\n                }\n\n                if (nameAlreadyInUse == false)\n                {\n                    AddKeyring(item);                    \n                }\n            }\n            \n            foreach (DataFileEntry item in ke.dataFiles)\n            {\n                bool nameAlreadyInUse = false;\n                bool fileAlreadyExists = false;\n                foreach (DataFileEntry ownDF in dataFiles)\n                {\n                    \n                    if (item.filename.Equals(ownDF.filename))\n                    {\n                        if (item.IsEqual(ownDF))\n                        {\n                            Console.WriteLine(\"DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Exact copy already exists\", \n                                item.filename, IsChecked, Parent?.Name ?? \"null\");\n                            fileAlreadyExists = true;\n                        }\n                        else\n                        {\n                            Console.WriteLine(\"DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Name is used by existing file\", \n                                item.filename, IsChecked, Parent?.Name ?? \"null\");\n                            nameAlreadyInUse = true;\n                        }\n                        \n                        break;\n                    }\n                }\n                \n                // Rename new datafile if name is already in use\n                if (nameAlreadyInUse)\n                {\n                    int cnt = 1;\n                    bool newNameInUse = true;\n                    while (newNameInUse)\n                    {\n                        string newName = item.filename + \"(\" + cnt + \")\";\n                        \n                        newNameInUse = dataFiles.Any(x => x.filename.Equals(newName));\n                        if (newNameInUse == false)\n                        {\n                            item.filename = newName;\n                            break;\n                        }\n\n                        cnt++;\n                    }\n                }\n\n                if (fileAlreadyExists == false)\n                {\n                    Console.WriteLine(\"DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Adding file\", \n                        item.filename, IsChecked, Parent?.Name ?? \"null\");\n                    AddDataFile(item);\n                }\n            }\n        }\n\n        public void AddToOtherKeyringRecursivelyBasedOnIsChecked(KeyringEntry outputKeyring)\n        {\n            foreach (KeyringEntry ke in keyrings)\n            {\n                KeyringEntry keCopy = new();\n                keCopy.Name = ke.Name;\n                outputKeyring.AddKeyring(keCopy);\n                \n                ke.AddToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);\n            }\n            \n            foreach (DataFileEntry dataFileEntry in dataFiles)\n            {\n                if (dataFileEntry.IsChecked == true)\n                {\n                    outputKeyring.AddDataFile(dataFileEntry);                    \n                }\n            }\n        }\n\n        public bool HasDataFileEntryDescendant()\n        {\n\n            if (dataFiles.Count > 0)\n            {\n                return true;\n            }\n            \n            foreach (KeyringEntry ke in keyrings)\n            {\n                if (ke.HasDataFileEntryDescendant() == true)\n                {\n                    return true;\n                }\n            }\n\n            return false;\n        }\n\n        public void RemoveEmptyDescendantsRecursively()\n        {\n            List<KeyringEntry> removeList = new();\n            foreach (KeyringEntry ke in keyrings)\n            {\n                if (ke.HasDataFileEntryDescendant() == false)\n                {\n                    removeList.Add(ke);\n                }\n                else\n                {\n                    ke.RemoveEmptyDescendantsRecursively();\n                }\n            }\n            foreach (KeyringEntry ke in removeList)\n            {\n                RemoveKeyring(ke);\n            }\n        }\n\n        public void PrintInfoRecursively()\n        {\n            Console.WriteLine(\"KeyRing: Name='{0}', Checked='{1}', Parent.Name='{2}'\", \n                Name, IsChecked, Parent?.Name ?? \"null\");\n            foreach (DataFileEntry item in dataFiles)\n            {\n                item.PrintInfo();\n            }\n\n            foreach (KeyringEntry item in keyrings)\n            {\n                item.PrintInfoRecursively();\n            }\n        }\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/Model/KeyringEntry.cs b/Avalonia.NETCoreMVVMApp/Model/KeyringEntry.cs
+--- a/Avalonia.NETCoreMVVMApp/Model/KeyringEntry.cs	(revision 66693c29c0812961cd84fde26cf022c35aa52d63)
++++ b/Avalonia.NETCoreMVVMApp/Model/KeyringEntry.cs	(date 1615206365429)
+@@ -25,10 +25,36 @@
+             set
+             {
+                 _isChecked = value;
+-                Console.WriteLine("Keyring '{0}' set to '{1}'", Name, value);
++                // Console.WriteLine("Keyring '{0}' set to '{1}'", Name, value);
+                 OnPropertyChanged(nameof(IsChecked));
++                OnPropertyChanged(nameof(IsCheckedWriteEnabled));
+                 OnCheckedChanged(EventArgs.Empty);
+-                Console.WriteLine("Keyring '{0}' finished setting", Name);
++                // Console.WriteLine("Keyring '{0}' finished setting", Name);
++            }
++        }
++        
++        private bool? _isCheckedWrite = false;
++        public bool? IsCheckedWrite
++        {
++            get
++            {
++                return (_isCheckedWrite ?? false);
++            }
++            set
++            {
++                _isCheckedWrite = value;
++                Console.WriteLine("Keyring '{0}': IsCheckedWrite set to '{1}'", Name, value);
++                OnPropertyChanged(nameof(IsCheckedWrite));
++                OnCheckedWriteChanged(EventArgs.Empty);
++                Console.WriteLine("Keyring '{0}': IsCheckedWrite finished setting", Name);
++            }
++        }
++      
++        public bool IsCheckedWriteEnabled
++        {
++            get
++            {
++                return IsChecked ?? false;
+             }
+         }
+         
+@@ -85,6 +111,7 @@
+             
+             CheckedChanged += CheckedChangedUpdateParent;
+             CheckedChanged += CheckedChangedUpdateChildren;
++            CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
+         }
+         
+         public void AddKeyring(KeyringEntry keyringEntry)
+@@ -152,24 +179,34 @@
+                 handler(this, e);
+             }
+         }
++        
++        protected virtual void OnCheckedWriteChanged(EventArgs e)
++        {
++            EventHandler handler = CheckedWriteChanged;
++            if (handler != null)
++            {
++                handler(this, e);
++            }
++        }
+ 
+         public event EventHandler CheckedChanged;
++        public event EventHandler CheckedWriteChanged;
+ 
+         protected void CheckedChangedUpdateParent(object? sender, EventArgs e)
+         {
+-            Console.WriteLine("CheckedChangedUpdateParent in keyring.Name='{0}' : entered", Name);
++            // Console.WriteLine("CheckedChangedUpdateParent in keyring.Name='{0}' : entered", Name);
+             Parent?.UpdateIsCheckedBasedOnChildren();
+         }
+         
+         protected void CheckedChangedUpdateChildren(object? sender, EventArgs e)
+         {
+-            Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : entered", Name);
++            // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : entered", Name);
+             foreach (KeyringEntry child in keyrings)
+             {
+                 child.CheckedChanged -= child.CheckedChangedUpdateParent;
+-                Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'", Name, child.Name);
++                // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'", Name, child.Name);
+                 child.IsChecked = IsChecked;
+-                Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'", Name, child.Name);
++                // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'", Name, child.Name);
+                 child.CheckedChanged += child.CheckedChangedUpdateParent;
+             }
+             
+@@ -177,12 +214,25 @@
+             {
+                 child.CheckedChanged -= child.CheckedChangedUpdateParent;
+                 // child.CheckedChanged += CheckedChangedUpdateParent;
+-                Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'", Name, child.filename);
++                // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Updating child='{1}'", Name, child.filename);
+                 child.IsChecked = IsChecked;
+-                Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'", Name, child.filename);
++                // Console.WriteLine("CheckedChangedUpdateChildren in keyring.Name='{0}' : Restoring child='{1}'", Name, child.filename);
+                 child.CheckedChanged += child.CheckedChangedUpdateParent;
+             }
+         }
++        
++        protected void CheckedWriteChangedUpdateChildren(object? sender, EventArgs e)
++        {
++            foreach (KeyringEntry child in keyrings)
++            {
++                child.IsCheckedWrite = IsCheckedWrite;
++            }
++            
++            foreach (DataFileEntry child in dataFiles)
++            {
++                child.IsCheckedWrite = IsCheckedWrite;
++            }
++        }
+ 
+         public virtual void UpdateIsCheckedBasedOnChildren()
+         {
+@@ -253,7 +303,12 @@
+                 ancestorList.Add(localParent);
+                 localParent = localParent.Parent;
+             }
+-            
++
++            // Console.WriteLine("AnyUnchecked='{0}'", anyUnchecked);
++            // Console.WriteLine("AnyChecked='{0}'", anyChecked);
++            // Console.WriteLine("atleastTwoChecked='{0}'", atleastTwoChecked);
++            // Console.WriteLine("ancestorChecked='{0}'", ancestorChecked);
++            //
+             // Change here to interact with IsThreeState properly
+             // if (anyChecked && anyUnchecked)
+             // {
+@@ -342,13 +397,23 @@
+                         string newName = item.filename + "(" + cnt + ")";
+                         
+                         newNameInUse = dataFiles.Any(x => x.filename.Equals(newName));
+-                        if (newNameInUse == false)
++                        if (newNameInUse)
++                        {
++                            DataFileEntry df = dataFiles.First(x => x.filename.Equals(newName));
++
++                            if (df.HasSameStaticProperties(item))
++                            {
++                                fileAlreadyExists = true;
++                                break;
++                            }
++
++                            cnt++;
++                        }
++                        else
+                         {
+                             item.filename = newName;
+                             break;
+                         }
+-
+-                        cnt++;
+                     }
+                 }
+ 
+@@ -381,6 +446,22 @@
+             }
+         }
+ 
++        public void PrepareForExportRecursively()
++        {
++            foreach (KeyringEntry ke in keyrings)
++            {
++                ke.PrepareForExportRecursively();
++            }
++            
++            foreach (DataFileEntry dataFileEntry in dataFiles)
++            {
++                if (dataFileEntry.IsCheckedWrite != true)
++                {
++                    dataFileEntry.privateKey = null;
++                }
++            }
++        }
++
+         public bool HasDataFileEntryDescendant()
+         {
+ 
+Index: Avalonia.NETCoreMVVMApp/Manager.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using System;\nusing System.Collections.Generic;\nusing System.Diagnostics;\nusing System.Net;\nusing System.Net.Http;\nusing System.Net.Mail;\nusing System.Net.Mime;\nusing System.Security.Cryptography;\nusing System.Threading;\nusing System.Threading.Tasks;\nusing SecureWiki.ClientApplication;\nusing SecureWiki.Cryptography;\nusing SecureWiki.MediaWiki;\nusing SecureWiki.Model;\n\nnamespace SecureWiki\n{\n    public class Manager\n    {\n        private Thread TCPListenerThread;\n        private Thread WikiHandlerThread;\n        private Thread CryptoThread;\n        private Thread GUIThread;\n\n        private WikiHandler wikiHandler;\n        private Keyring _keyring;\n        private Crypto _crypto;\n        private TCPListener tcpListener;\n        private static HttpClient httpClient = new();\n\n        public RootKeyring rootKeyring;\n        public Dictionary<string, string> RequestedRevision = new();\n        \n        private readonly string _smtpClientEmail = \"SecureWikiMails@gmail.com\";\n        private readonly string _smtpClientPassword = \"SecureWiki\";\n\n        public delegate void PrintTest(string input);\n\n        public PrintTest printTest;\n\n        public Manager(Thread createrThread, RootKeyring rk)\n        {\n            GUIThread = createrThread;\n            printTest = PrintTestMethod;\n            rootKeyring = rk;\n        }\n\n        public void Run()\n        {\n            wikiHandler = new WikiHandler(\"new_mysql_user\", \"THISpasswordSHOULDbeCHANGED\", httpClient, this, \"127.0.0.1\");\n            _keyring = new Keyring(rootKeyring);\n            _crypto = new Crypto();\n            tcpListener = new TCPListener(11111, \"127.0.1.1\", this);\n\n            _keyring.InitKeyring();\n\n            TCPListenerThread = new Thread(tcpListener.RunListener) {IsBackground = true};\n            TCPListenerThread.Start();\n\n            Thread.Sleep(1000);\n\n            Thread fuseThread = new(Program.RunFuse);\n            fuseThread.IsBackground = true;\n            fuseThread.Start();\n        }\n\n        public void PrintTestMethod(string input)\n        {\n            Console.WriteLine(\"ManagerThread printing: \" + input + \" from thread:\" + Thread.CurrentThread.Name);\n        }\n\n        public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)\n        {\n            MediaWikiObjects.PageQuery.AllRevisions allRevisions = new(wikiHandler.MWO, pageTitle);\n\n            allRevisions.GetAllRevisions();\n            Console.WriteLine(\"Printing all revisions from manager:\");\n            allRevisions.PrintAllRevisions();\n\n            MediaWikiObjects.PageQuery.AllRevisions output = allRevisions;\n\n            return output;\n        }\n\n        public string GetPageContent(string pageTitle, string revID)\n        {\n            MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.MWO, pageTitle, revID);\n            string output = pc.GetContent();\n        \n            return output;\n        }\n        \n        // public string GetPageContent(string pageTitle)\n        // {\n        //     MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.MWO, pageTitle);\n        //     string output = pc.GetContent();\n        //\n        //     return output;\n        // }\n\n\n        public void UndoRevisionsByID(string pageTitle, string startID, string endID)\n        {\n            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = new(wikiHandler.MWO, pageTitle);\n            undoRevisions.UndoRevisionsByID(startID, endID);\n        }\n\n        public void DeleteRevisionsByID(string pageTitle, string IDs)\n        {\n            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = new(wikiHandler.MWO, pageTitle);\n            deleteRevisions.DeleteRevisionsByIDString(IDs);\n        }\n\n        public void UploadNewVersion(string pageTitle, string filepath)\n        {\n            wikiHandler.UploadNewVersion(pageTitle, filepath);\n        }\n        \n        public void SetMediaWikiServer(string url)\n        {\n            httpClient = new HttpClient();\n            wikiHandler = new WikiHandler(\"new_mysql_user\", \"THISpasswordSHOULDbeCHANGED\", httpClient, this, url);\n        }\n\n        public string ReadFile(string filename)\n        {\n            return wikiHandler.ReadFile(filename);\n        }\n        \n        public void LoginToMediaWiki(string username, string password)\n        {\n            throw new NotImplementedException();\n        }\n        \n        // Delegated Keyring functions\n        public void AddNewFile(string filepath, string filename)\n        {\n            _keyring.AddNewFile(filepath, filename);\n        }\n\n        public void AddNewKeyRing(string filepath, string keyname)\n        {\n            _keyring.AddNewKeyRing(filepath, keyname);\n        }\n\n        public void RenameFile(string oldPath, string newPath)\n        {\n            _keyring.Rename(oldPath, newPath);\n        }\n\n        public KeyringEntry ReadKeyRing()\n        {\n            return _keyring.ReadKeyRing();\n        }\n        \n        // public void RemoveFile(string filePath, string filename, string type)\n        // {\n        //     _keyring.RemoveFile(filePath, filename, type);\n        // }\n        \n        public void RemoveFile(string filePath, string filename)\n        {\n            _keyring.RemoveFile(filePath, filename);\n        }\n\n        public void ExportKeyring()\n        {\n            _keyring.ExportRootKeyringBasedOnIsChecked();\n        }\n\n        public void ImportKeyring(string importPath)\n        {\n            Console.WriteLine(\"Manager:- ImportKeyring('{0}')\", importPath);\n            _keyring.ImportRootKeyring(importPath);\n        }\n\n        // Delegated Crypto functions\n        public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)\n        {\n            return _keyring.GetDataFile(filename, keyring);\n        }\n\n        public byte[] EncryptAesStringToBytes(string plainText, byte[] symmKey, byte[] iv)\n        {\n            return _crypto.EncryptAESStringToBytes(plainText, symmKey, iv);\n        }\n\n        public string DecryptAesBytesToString(byte[] pageContentBytes, byte[] symmKey, byte[] iv)\n        {\n            return _crypto.DecryptAESBytesToString(pageContentBytes, symmKey, iv);\n        }\n\n        public byte[] SignData(byte[] privateKey, string plainText)\n        {\n            return _crypto.SignData(privateKey, plainText);\n        }\n\n        public bool VerifyData(byte[] publicKey, string plainText, byte[] signedData)\n        {\n            return _crypto.VerifyData(publicKey, plainText, signedData);\n        }\n\n\n        public void SendEmail(string recipientEmail)\n        {\n            // string mailto = string.Format(\"xdg-email mailto:{0}?subject={1}&body={2}\", recipientEmail, \"SecureWiki\", \"Hello\");\n            // Console.WriteLine(mailto);\n            // Process.Start(mailto);\n            var smtpClient = new SmtpClient(\"smtp.gmail.com\")\n            {\n                Port = 587,\n                Credentials = new NetworkCredential(_smtpClientEmail, _smtpClientPassword),\n                EnableSsl = true,\n            };\n            \n            var mailMessage = new MailMessage\n            {\n                From = new MailAddress(_smtpClientEmail),\n                Subject = \"SecureWiki file sharing\",\n                Body = \"<h1>Hello</h1>\" +\n                        \"<br />You have received a new keyring\" +\n                        \"<p>Sincerely,<br />\" +\n                        \"<br />\" +\n                        \"<br />\" +\n                        \"Kevin Sanders<br />\" +\n                        \"<i>Vice President</i></p>\",\n                IsBodyHtml = true,\n            };\n            // TODO: send selected keyring and not all\n            var keyringPath = _keyring.GetKeyringFilePath();\n            var attachment = new Attachment(keyringPath, MediaTypeNames.Application.Json);\n            mailMessage.Attachments.Add(attachment);\n            mailMessage.To.Add(recipientEmail);\n            \n            Console.WriteLine(recipientEmail);\n            smtpClient.Send(mailMessage);\n        }\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/Manager.cs b/Avalonia.NETCoreMVVMApp/Manager.cs
+--- a/Avalonia.NETCoreMVVMApp/Manager.cs	(revision 66693c29c0812961cd84fde26cf022c35aa52d63)
++++ b/Avalonia.NETCoreMVVMApp/Manager.cs	(date 1615215819966)
+@@ -27,6 +27,7 @@
+         private Crypto _crypto;
+         private TCPListener tcpListener;
+         private static HttpClient httpClient = new();
++        public CacheManager cacheManager = new();
+ 
+         public RootKeyring rootKeyring;
+         public Dictionary<string, string> RequestedRevision = new();
+@@ -47,7 +48,8 @@
+ 
+         public void Run()
+         {
+-            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
++            wikiHandler = new WikiHandler("new_mysql_user", 
++                "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
+             _keyring = new Keyring(rootKeyring);
+             _crypto = new Crypto();
+             tcpListener = new TCPListener(11111, "127.0.1.1", this);
+@@ -66,7 +68,8 @@
+ 
+         public void PrintTestMethod(string input)
+         {
+-            Console.WriteLine("ManagerThread printing: " + input + " from thread:" + Thread.CurrentThread.Name);
++            Console.WriteLine("ManagerThread printing: " + input + " from thread:" + 
++                              Thread.CurrentThread.Name);
+         }
+ 
+         public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
+@@ -101,25 +104,37 @@
+ 
+         public void UndoRevisionsByID(string pageTitle, string startID, string endID)
+         {
+-            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = new(wikiHandler.MWO, pageTitle);
++            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = 
++                new(wikiHandler.MWO, pageTitle);
+             undoRevisions.UndoRevisionsByID(startID, endID);
+         }
+ 
+         public void DeleteRevisionsByID(string pageTitle, string IDs)
+         {
+-            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = new(wikiHandler.MWO, pageTitle);
++            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = 
++                new(wikiHandler.MWO, pageTitle);
+             deleteRevisions.DeleteRevisionsByIDString(IDs);
+         }
+ 
+-        public void UploadNewVersion(string pageTitle, string filepath)
++        public void UploadNewVersion(string filename, string filepath)
+         {
+-            wikiHandler.UploadNewVersion(pageTitle, filepath);
++            DataFileEntry df = GetDataFile(filename, rootKeyring);
++            if (df?.privateKey != null)
++            {
++                wikiHandler.UploadNewVersion(df, filepath);                
++            }
++            else
++            {
++                Console.WriteLine("{0}: the corresponding DataFileEntry does not contain" +
++                                  " a private key, upload cancelled", filepath);
++            }
+         }
+         
+         public void SetMediaWikiServer(string url)
+         {
+             httpClient = new HttpClient();
+-            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
++            wikiHandler = new WikiHandler("new_mysql_user", 
++                "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
+         }
+ 
+         public string ReadFile(string filename)
+@@ -203,7 +218,8 @@
+ 
+         public void SendEmail(string recipientEmail)
+         {
+-            // string mailto = string.Format("xdg-email mailto:{0}?subject={1}&body={2}", recipientEmail, "SecureWiki", "Hello");
++            // string mailto = string.Format("xdg-email mailto:{0}?subject={1}&body={2}",
++            // recipientEmail, "SecureWiki", "Hello");
+             // Console.WriteLine(mailto);
+             // Process.Start(mailto);
+             var smtpClient = new SmtpClient("smtp.gmail.com")
+@@ -228,7 +244,8 @@
+             };
+             // TODO: send selected keyring and not all
+             var keyringPath = _keyring.GetKeyringFilePath();
+-            var attachment = new Attachment(keyringPath, MediaTypeNames.Application.Json);
++            var attachment = new Attachment(keyringPath, 
++                MediaTypeNames.Application.Json);
+             mailMessage.Attachments.Add(attachment);
+             mailMessage.To.Add(recipientEmail);
+             
+Index: Avalonia.NETCoreMVVMApp/Model/DataFileEntry.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using System;\nusing System.ComponentModel;\nusing System.Linq;\nusing System.Reflection;\nusing System.Runtime.CompilerServices;\nusing JetBrains.Annotations;\nusing Newtonsoft.Json;\nusing ReactiveUI;\n\nnamespace SecureWiki.Model\n{\n    [JsonObject(MemberSerialization.OptIn)]\n    public class DataFileEntry : IReactiveObject\n    {\n        [JsonProperty]\n        public string filename { get; set; }\n        [JsonProperty]\n        public byte[] symmKey { get; set; }\n        [JsonProperty]\n        public byte[] iv { get; set; }\n        [JsonProperty]\n        public byte[] privateKey { get; set; }\n        [JsonProperty]\n        public byte[] publicKey { get; set; }\n        [JsonProperty]\n        public string revisionNr { get; set; }\n        [JsonProperty]\n        public string serverLink { get; set; }\n        [JsonProperty]\n        public string pagename { get; set; }\n\n        private KeyringEntry? _parent;\n        public KeyringEntry? Parent\n        {\n            get => _parent;\n            set\n            {\n                _parent = value; \n                RaisePropertyChanged(nameof(Parent));\n            }\n        }\n        private bool? _isChecked = false;\n        public bool? IsChecked\n        {\n            get\n            {\n                return (_isChecked ?? false);\n            }\n            set\n            {\n                _isChecked = value;\n                // Console.WriteLine(\"DataFile '{0}' set to '{1}'\", filename, value);\n                OnPropertyChanged(nameof(IsChecked));\n                OnCheckedChanged(EventArgs.Empty);\n                // Console.WriteLine(\"DataFile '{0}' finished setting\");\n            }\n        }\n        \n        public DataFileEntry()\n        {\n            // IsChecked = false;\n            CheckedChanged -= CheckedChangedUpdateParent;\n            CheckedChanged += CheckedChangedUpdateParent;\n            // Console.WriteLine(\"DataFile '{0}' initialised\", filename);\n        }\n\n        public event PropertyChangedEventHandler? PropertyChanged;\n        public event PropertyChangingEventHandler? PropertyChanging;\n        public void RaisePropertyChanging(PropertyChangingEventArgs args)\n        {\n            throw new NotImplementedException();\n        }\n\n        public void RaisePropertyChanged(PropertyChangedEventArgs args)\n        {\n            throw new NotImplementedException();\n        }\n        \n        public void RaisePropertyChanged(string propertyName)\n        {\n            PropertyChangedEventHandler handler = PropertyChanged;\n            if (handler != null)\n            {\n                handler(this, new PropertyChangedEventArgs(propertyName));\n            }\n        }\n        \n        [NotifyPropertyChangedInvocator]\n        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)\n        {\n            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));\n            // Console.WriteLine(\"OnPropertyChanged in DatFileEntry, property: \" + propertyName);\n        }\n        \n        protected virtual void OnCheckedChanged(EventArgs e)\n        {\n            EventHandler handler = CheckedChanged;\n            if (handler != null)\n            {\n                handler(this, e);                \n            }\n        }\n\n        public event EventHandler CheckedChanged;\n\n        public void CheckedChangedUpdateParent(object? sender, EventArgs e)\n        {\n            Console.WriteLine(\"CheckedChangedUpdateParent entered in datafile.filename='{0}'\", filename);\n            Parent.UpdateIsCheckedBasedOnChildren();\n        }\n\n        public bool IsEqual(DataFileEntry reference)\n        {\n            PropertyInfo[] properties = typeof(DataFileEntry).GetProperties();\n            foreach (PropertyInfo prop in properties)\n            {\n                var ownValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(this, null);\n                var refValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(reference, null);\n\n                // Console.WriteLine(\"Testing property: '{0}'='{1}'\", prop, ownValue);\n                \n                if (ownValue.GetType() == typeof(string))\n                {\n                    if (!(ownValue.Equals(refValue)))\n                    {\n                        // Console.WriteLine(\"string: '{0}'!='{1}'\", ownValue, refValue);\n                        return false;\n                    }\n                }\n                else if (ownValue.GetType() == typeof(byte[]))\n                {\n                    var byteArrayOwn = ownValue as byte[];\n                    var byteArrayRef = refValue as byte[];\n                    if (!((byteArrayOwn ?? throw new InvalidOperationException()).SequenceEqual(byteArrayRef ?? throw new InvalidOperationException())))\n                    {\n                        // Console.WriteLine(\"ByteArray: '{0}'!='{1}'\", byteArrayOwn, byteArrayRef);\n                        return false;\n                    }\n                }\n                else\n                {\n                    // Console.WriteLine(\"'{0}'=='{1}'\", ownValue, refValue);\n                }\n            }\n\n            return true;\n        }\n\n        public void PrintInfo()\n        {\n            Console.WriteLine(\"DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}'\", \n                filename, IsChecked, Parent?.Name ?? \"null\");\n        }\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/Model/DataFileEntry.cs b/Avalonia.NETCoreMVVMApp/Model/DataFileEntry.cs
+--- a/Avalonia.NETCoreMVVMApp/Model/DataFileEntry.cs	(revision 66693c29c0812961cd84fde26cf022c35aa52d63)
++++ b/Avalonia.NETCoreMVVMApp/Model/DataFileEntry.cs	(date 1615206365445)
+@@ -1,4 +1,5 @@
+ using System;
++using System.Collections.Generic;
+ using System.ComponentModel;
+ using System.Linq;
+ using System.Reflection;
+@@ -19,7 +20,7 @@
+         [JsonProperty]
+         public byte[] iv { get; set; }
+         [JsonProperty]
+-        public byte[] privateKey { get; set; }
++        public byte[]? privateKey { get; set; }
+         [JsonProperty]
+         public byte[] publicKey { get; set; }
+         [JsonProperty]
+@@ -51,11 +52,36 @@
+                 _isChecked = value;
+                 // Console.WriteLine("DataFile '{0}' set to '{1}'", filename, value);
+                 OnPropertyChanged(nameof(IsChecked));
++                OnPropertyChanged(nameof(IsCheckedWriteEnabled));
+                 OnCheckedChanged(EventArgs.Empty);
+                 // Console.WriteLine("DataFile '{0}' finished setting");
+             }
+         }
+         
++        private bool? _isCheckedWrite = false;
++        public bool? IsCheckedWrite
++        {
++            get
++            {
++                return (_isCheckedWrite ?? false);
++            }
++            set
++            {
++                _isCheckedWrite = value;
++                Console.WriteLine("Datafile '{0}': IsCheckedWrite set to '{1}'", filename, value);
++                OnPropertyChanged(nameof(IsCheckedWrite));
++                Console.WriteLine("Datafile '{0}': IsCheckedWrite finished setting", filename);
++            }
++        }
++        
++        public bool IsCheckedWriteEnabled
++        {
++            get
++            {
++                return IsChecked ?? false;
++            }
++        }
++        
+         public DataFileEntry()
+         {
+             // IsChecked = false;
+@@ -111,9 +137,37 @@
+ 
+         public bool IsEqual(DataFileEntry reference)
+         {
++            return CompareProperties(reference, null);
++        }
++
++        public bool HasSameStaticProperties(DataFileEntry reference)
++        {
++            // Construct ignore list and populate with non-static properties
++            List<PropertyInfo> ignoreList = new();
++            ignoreList.Add(typeof(DataFileEntry).GetProperty(nameof(filename)));
++            ignoreList.Add(typeof(DataFileEntry).GetProperty(nameof(revisionNr)));
++
++            return CompareProperties(reference, ignoreList);
++        }
++
++        private bool CompareProperties(DataFileEntry reference, List<PropertyInfo>? ignoreList)
++        {
+             PropertyInfo[] properties = typeof(DataFileEntry).GetProperties();
++
++            List<PropertyInfo> propertiesToBeCompared = new();
++
+             foreach (PropertyInfo prop in properties)
+             {
++                if (ignoreList?.Contains(prop) == true)
++                {
++                    continue;
++                }
++
++                propertiesToBeCompared.Add(prop);
++            }
++            
++            foreach (PropertyInfo prop in propertiesToBeCompared)
++            {
+                 var ownValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(this, null);
+                 var refValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(reference, null);
+ 
+Index: Avalonia.NETCoreMVVMApp/Cryptography/Keyring.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using System;\nusing System.Collections.ObjectModel;\nusing System.IO;\nusing System.Linq;\nusing Newtonsoft.Json;\nusing SecureWiki.Model;\n\nnamespace SecureWiki.Cryptography\n{\n    public class Keyring\n    {\n        private readonly Crypto _crypto = new();\n        public RootKeyring rootKeyring;\n\n        public Keyring(RootKeyring rk)\n        {\n            rootKeyring = rk;\n        }\n\n        public void InitKeyring()\n        {\n            var filepath = GetKeyringFilePath();\n            // Check if file does not exist\n            if (!File.Exists(filepath))\n            {\n                CreateNewKeyRing(filepath);\n            }\n           \n            // Read Keyring.json into rootKeyring\n            ReadIntoKeyring(rootKeyring);\n            UpdateKeyringParentPropertyRecursively(rootKeyring);\n            \n            CreateFileStructureRecursion(rootKeyring, GetRootDirPath());\n        }\n\n        // Returns absolute file path to fuse rootdir as string\n        private static string GetRootDirPath()\n        {\n            // Python fuse\n            // var filepath = \"Pyfuse_mediaWiki/srcTest/\";\n            // C fuse\n            const string? filePath = \"fuse/example/rootdir/\";\n            var currentDir = Directory.GetCurrentDirectory();\n            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @\"../../../../..\"));\n            var rootDir = Path.Combine(projectDir, filePath);\n            return rootDir;\n        }\n\n        // Returns absolute file path to keyring jsonfile as string\n        public string GetKeyringFilePath()\n        {\n            var currentDir = Directory.GetCurrentDirectory();\n            var path = Path.GetFullPath(Path.Combine(currentDir, @\"../../..\"));\n            var keyringFileName = \"Keyring.json\";\n            var keyringFilePath = Path.Combine(path, keyringFileName);\n            return keyringFilePath;\n        }\n\n        // Returns root keyring as deserialized json object\n        private RootKeyring GetRootKeyring(string keyringFilePath)\n        {\n            var jsonData = File.ReadAllText(keyringFilePath);\n            Console.WriteLine(\"GetRootKeyring:- File.ReadAllText('{0}')\", keyringFilePath);\n            // Console.WriteLine(jsonData);\n            // var existingKeyRing = JsonSerializer.Deserialize<KeyringEntry>(jsonData)\n            //                       ?? new KeyringEntry();\n            var existingKeyRing = JsonConvert.DeserializeObject<RootKeyring>(jsonData)\n                ?? new RootKeyring();\n            Console.WriteLine(\"Deserialize passed\");\n            return existingKeyRing;\n        }\n\n        // Returns root keyring as deserialized json object with no arguments\n        public KeyringEntry ReadKeyRing()\n        {\n            var keyringFilePath = GetKeyringFilePath();\n            return GetRootKeyring(keyringFilePath);\n        }\n\n        public void ReadIntoKeyring(RootKeyring rk)\n        {\n            KeyringEntry readKeyring = ReadKeyRing();\n            rk.CopyFromOtherKeyring(readKeyring);\n        }\n\n        // Recursively creates all files and folders from root keyring\n        private void CreateFileStructureRecursion(KeyringEntry keyringEntry, string path)\n        {\n            foreach (var file in keyringEntry.dataFiles)\n            {\n                File.Create(Path.Combine(path, file.filename)).Dispose();\n            }\n\n            foreach (var childKeyRing in keyringEntry.keyrings)\n            {\n                Directory.CreateDirectory(Path.Combine(path, childKeyRing.Name));\n                CreateFileStructureRecursion(childKeyRing, Path.Combine(path, childKeyRing.Name));\n            }\n        }\n\n        // Create new keyring.json file with empty keyring object\n        private void CreateNewKeyRing(string filepath)\n        {\n            KeyringEntry newKeyringEntry = new()\n            {\n                Name = \"Root\",\n                dataFiles = new ObservableCollection<DataFileEntry>(),\n                keyrings = new ObservableCollection<KeyringEntry>()\n            };\n            // JsonSerializerOptions options = new() {WriteIndented = true};\n            // var jsonData = JsonSerializer.Serialize(newKeyringEntry, options);\n            var jsonData = JsonConvert.SerializeObject(newKeyringEntry, Formatting.Indented);\n            File.WriteAllText(filepath, jsonData);\n        }\n\n        // Returns the keyringEntry where the new keyring/datafile should be inserted\n        private KeyringEntry FindKeyringPath(KeyringEntry keyring, string filePath)\n        {\n            var filePathSplit = filePath.Split(\"/\");\n\n            // Found keyring entry to insert into\n            if (filePathSplit.Length <= 1)\n            {\n                return keyring;\n            }\n\n            var childKeyring = keyring.keyrings.FirstOrDefault(f => f.Name.Equals(filePathSplit[0]));\n            var newPath = string.Join(\"/\", filePathSplit.Skip(1).ToArray());\n\n            if (childKeyring != null)\n            {\n                return FindKeyringPath(childKeyring, newPath);\n            }\n            KeyringEntry intermediateKeyring = new()\n            {\n                Name = filePathSplit[0],\n                dataFiles = new ObservableCollection<DataFileEntry>(),\n                keyrings = new ObservableCollection<KeyringEntry>()\n            };\n            keyring.AddKeyring(intermediateKeyring);\n            return FindKeyringPath(intermediateKeyring, newPath);\n        }\n\n        // Add new data file to existing keyring json file\n        public void AddNewFile(string filepath, string filename)\n        {\n            var keyringFilePath = GetKeyringFilePath();\n\n            // var existingKeyRing = GetRootKeyring(keyringFilePath);\n        \n            \n            var (key, iv) = _crypto.GenerateAESParams();\n            var (privateKey, publicKey) = _crypto.GenerateRSAParams();\n            \n            var filenameBytes = _crypto.EncryptAESStringToBytes(filename, key, iv);\n            // var encryptedFilename = BitConverter.ToString(filenameBytes);\n\n            var encryptedFilename = Convert.ToBase64String(filenameBytes);\n            DataFileEntry dataFileEntry = new()\n            {\n                filename = filename,\n                symmKey = key,\n                iv = iv,\n                privateKey = privateKey,\n                publicKey = publicKey,\n                revisionNr = \"-1\",\n                serverLink = \"http://localhost/mediawiki/api.php\",\n                pagename = encryptedFilename\n            };\n\n            // Find the keyring where the new datafile is inserted\n            var foundKeyring = FindKeyringPath(rootKeyring, filepath);\n            foundKeyring.AddDataFile(dataFileEntry);\n\n            // JsonSerializerOptions options = new() {WriteIndented = true};\n\n            var jsonData = JsonConvert.SerializeObject(rootKeyring, Formatting.Indented);\n            // var jsonData = JsonSerializer.Serialize(existingKeyRing, options);\n            File.WriteAllText(keyringFilePath, jsonData);\n        }\n\n        // Add new data file to existing keyring json file\n        public void AddNewKeyRing(string filepath, string keyringName)\n        {\n            var keyringFilePath = GetKeyringFilePath();\n            // var existingKeyRing = GetRootKeyring(keyringFilePath);\n\n            KeyringEntry newKeyringEntry = new()\n            {\n                Name = keyringName,\n                dataFiles = new ObservableCollection<DataFileEntry>(),\n                keyrings = new ObservableCollection<KeyringEntry>()\n            };\n            \n            // Find the keyring where the new keyring is inserted\n            var foundKeyring = FindKeyringPath(rootKeyring, filepath);\n            foundKeyring.AddKeyring(newKeyringEntry);\n            \n            // JsonSerializerOptions options = new() {WriteIndented = true};\n\n            // var jsonData = JsonSerializer.Serialize(existingKeyRing, options);\n            SerializeAndWriteFile(keyringFilePath, rootKeyring);\n        }\n        \n        // Find the datafile with the given name -- better performance if whole filepath is given\n        public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)\n        {\n            var dataFile = keyring.dataFiles.FirstOrDefault(f => f.filename.Equals(filename));\n            return dataFile ?? keyring.keyrings.Select(childKeyRing => GetDataFile(filename, childKeyRing)).FirstOrDefault();\n        }\n\n        // Rename or change location of datafile/keyring in root keyringEntry \n        public void Rename(string oldPath, string newPath)\n        {\n            var keyringFilePath = GetKeyringFilePath();\n            \n            // var rootKeyring = GetRootKeyring(keyringFilePath);\n            var oldKeyring = FindKeyringPath(rootKeyring, oldPath);\n            var newKeyring = FindKeyringPath(rootKeyring, newPath);\n\n            var oldNameSplit = newPath.Split(\"/\", 2);\n            var oldName = oldNameSplit[^1];\n            oldName = oldName.TrimEnd('\\0');\n\n            var newNameSplit = newPath.Split(\"/\", 2);\n            var newName = newNameSplit[^1];\n            newName = newName.TrimEnd('\\0');\n\n            // Rename/relocate datafile/keyring\n            // Find data file in oldkeyring\n            DataFileEntry? dataFile = oldKeyring.dataFiles.FirstOrDefault(f => f.filename.Equals(oldName));\n            if (dataFile != null)\n            {\n                oldKeyring.dataFiles.Remove(dataFile);\n                dataFile.filename = newName;\n                newKeyring.AddDataFile(dataFile);\n            }\n            \n            // Find keyring in oldkeyring\n            var keyring = oldKeyring.keyrings.FirstOrDefault(f => f.Name.Equals(oldName));\n            if (keyring != null)\n            {\n                oldKeyring.keyrings.Remove(keyring);\n                keyring.Name = newName;\n                newKeyring.AddKeyring(keyring);\n            }\n\n            // JsonSerializerOptions options = new() {WriteIndented = true};\n\n            // var jsonData = JsonSerializer.Serialize(rootKeyring, options);\n            SerializeAndWriteFile(keyringFilePath, this.rootKeyring);\n        }\n        \n        // public void RemoveFile(string filePath, string filename, string type)\n        // {\n        //     var keyringFilePath = GetKeyringFilePath();\n        //     var existingKeyRing = GetRootKeyring(keyringFilePath);\n        //\n        //     // Find the keyring where the data file is located\n        //     var foundKeyring = FindKeyringPath(existingKeyRing, filePath);\n        //\n        //     if (type.Equals(\"file\"))\n        //     {\n        //         var fileToRemove = foundKeyring.dataFiles.Find(f => f.filename.Equals(filename));\n        //         if (fileToRemove != null) foundKeyring.dataFiles.Remove(fileToRemove);\n        //     }\n        //     else\n        //     {\n        //         var keyringToRemove = foundKeyring.keyrings.FirstOrDefault(f => f.name.Equals(filename));\n        //         if (keyringToRemove != null) foundKeyring.keyrings.Remove(keyringToRemove);\n        //     }\n        //\n        //     JsonSerializerOptions options = new() {WriteIndented = true};\n        //\n        //     var jsonData = JsonSerializer.Serialize(existingKeyRing, options);\n        //     File.WriteAllText(keyringFilePath, jsonData);\n        // }\n\n        \n        public void RemoveFile(string filePath, string filename)\n        {\n            var keyringFilePath = GetKeyringFilePath();\n            var existingKeyRing = GetRootKeyring(keyringFilePath);\n\n            // Find the keyring where the data file is located\n            var foundKeyring = FindKeyringPath(existingKeyRing, filePath);\n\n            // Remove file or keyring from parent keyring\n            var fileToRemove = foundKeyring.dataFiles.FirstOrDefault(f => f.filename.Equals(filename));\n            if (fileToRemove != null) foundKeyring.dataFiles.Remove(fileToRemove);\n\n            var keyringToRemove = foundKeyring.keyrings.FirstOrDefault(f => f.Name.Equals(filename));\n            if (keyringToRemove != null) foundKeyring.keyrings.Remove(keyringToRemove);\n\n            SerializeAndWriteFile(keyringFilePath, existingKeyRing);\n        }\n\n        private static void SerializeAndWriteFile(string filepath, KeyringEntry newKeyringEntry)\n        {\n            var jsonData = JsonConvert.SerializeObject(newKeyringEntry, Formatting.Indented);\n            File.WriteAllText(filepath, jsonData);\n        }\n\n        private void UpdateKeyringParentPropertyRecursively(KeyringEntry ke)\n        {\n            foreach (DataFileEntry item in ke.dataFiles)\n            {\n                item.Parent = ke;\n            }\n\n            foreach (KeyringEntry item in ke.keyrings)\n            {\n                item.Parent = ke;\n                UpdateKeyringParentPropertyRecursively(item);\n            }\n        }\n\n        public RootKeyring CreateRootKeyringBasedOnIsChecked()\n        {\n            RootKeyring outputRootKeyring = new();\n\n            rootKeyring.AddToOtherKeyringRecursivelyBasedOnIsChecked(outputRootKeyring);\n\n            return outputRootKeyring;\n        }\n\n        public void ExportRootKeyringBasedOnIsChecked()\n        {\n            RootKeyring rk = CreateRootKeyringBasedOnIsChecked();\n           \n            rk.RemoveEmptyDescendantsRecursively();\n            \n            var currentDir = Directory.GetCurrentDirectory();\n            var path = Path.GetFullPath(Path.Combine(currentDir, @\"../../..\"));\n            var keyringFileName = \"KeyringExport.json\";\n            var keyringFilePath = Path.Combine(path, keyringFileName);\n\n            var filepath = keyringFilePath;\n            \n            SerializeAndWriteFile(filepath, rk);\n        }\n\n        public void ImportRootKeyring(string importPath)\n        {\n            Console.WriteLine(\"Keyring.cs:- ImportRootKeyring('{0}') entered\", importPath);\n            RootKeyring rk = GetRootKeyring(importPath);\n            UpdateKeyringParentPropertyRecursively(rk);\n            Console.WriteLine(\"rk.PrintInfoRecursively():\");\n            rk.PrintInfoRecursively();\n            Console.WriteLine(\"rk.PrintInfoRecursively() passed\");\n            rootKeyring.MergeAllEntriesFromOtherKeyring(rk);\n            Console.WriteLine(\"Keyring.cs:- ImportRootKeyring('{0}') finished\", importPath);\n        }\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/Cryptography/Keyring.cs b/Avalonia.NETCoreMVVMApp/Cryptography/Keyring.cs
+--- a/Avalonia.NETCoreMVVMApp/Cryptography/Keyring.cs	(revision 66693c29c0812961cd84fde26cf022c35aa52d63)
++++ b/Avalonia.NETCoreMVVMApp/Cryptography/Keyring.cs	(date 1615208013800)
+@@ -329,6 +329,7 @@
+             RootKeyring rk = CreateRootKeyringBasedOnIsChecked();
+            
+             rk.RemoveEmptyDescendantsRecursively();
++            rk.PrepareForExportRecursively();
+             
+             var currentDir = Directory.GetCurrentDirectory();
+             var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+@@ -342,14 +343,17 @@
+ 
+         public void ImportRootKeyring(string importPath)
+         {
+-            Console.WriteLine("Keyring.cs:- ImportRootKeyring('{0}') entered", importPath);
++            // Read RootKeyring from import path and initialise
+             RootKeyring rk = GetRootKeyring(importPath);
+             UpdateKeyringParentPropertyRecursively(rk);
+-            Console.WriteLine("rk.PrintInfoRecursively():");
+-            rk.PrintInfoRecursively();
+-            Console.WriteLine("rk.PrintInfoRecursively() passed");
++
++            // Merge imported RootKeyring into current RootKeyring
+             rootKeyring.MergeAllEntriesFromOtherKeyring(rk);
+-            Console.WriteLine("Keyring.cs:- ImportRootKeyring('{0}') finished", importPath);
++            CreateFileStructureRecursion(rootKeyring, GetRootDirPath());
++            
++            // Write changes to Keyring.json
++            // var keyringFilePath = GetKeyringFilePath();
++            // SerializeAndWriteFile(keyringFilePath, rootKeyring);
+         }
+     }
+ }
+\ No newline at end of file
+Index: Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using System;\nusing System.Collections.Generic;\nusing System.Net.Http;\nusing Newtonsoft.Json.Linq;\n\nnamespace SecureWiki.MediaWiki\n{\n    public class Revision\n    {\n        public string? revisionID { get; set; }\n        public string? flags { get; set; }\n        public string? timestamp { get; set; }\n        public string? user { get; set; }\n        public string? size { get; set; }\n        public string? content { get; set; }\n    }\n\n    public class Action\n    {\n        public string action;\n        public List<KeyValuePair<string, string>> values = new();\n\n        public void AddValuePair(string key, string value)\n        {\n            int cnt = values.Count;\n            values.Insert(cnt, new KeyValuePair<string, string>(key, value));\n        }\n    }\n\n    public class MediaWikiObjects\n    {\n        private string URL = \"http://localhost/mediawiki/api.php\";\n\n        // private string URL;\n        private string MWuserID;\n        private string MWuserPassword;\n\n        public JObject JOTokens;\n\n        private HttpClient httpClient;\n        public bool loggedIn = false;\n\n        public MediaWikiObjects()\n        {\n        }\n\n        public MediaWikiObjects(MediaWikiObjects source)\n        {\n            // URL = source.URL;\n            MWuserID = source.MWuserID;\n            MWuserPassword = source.MWuserPassword;\n            httpClient = source.httpClient;\n            loggedIn = source.loggedIn;\n        }\n\n        public MediaWikiObjects(HttpClient client, bool isClientLoggedIn)\n        {\n            httpClient = client;\n            loggedIn = isClientLoggedIn;\n        }\n\n        public MediaWikiObjects(HttpClient client, string username, string password)\n        {\n            httpClient = client;\n            LoginMediaWiki(username, password);\n        }\n\n        public MediaWikiObjects(HttpClient client, string username, string password, string ip)\n        {\n            URL = \"http://\" + ip + \"/mediawiki/api.php\";\n            httpClient = client;\n            LoginMediaWiki(username, password);\n        }\n\n        public abstract class PageQuery : MediaWikiObjects\n        {\n            private string pageID;\n            private string pageTitle;\n\n            public abstract string BuildQuery();\n            public abstract void ParseJObject(JObject inputJObject);\n\n            public PageQuery()\n            {\n            }\n\n            public PageQuery(MediaWikiObjects source) : base(source)\n            {\n            }\n\n\n            public class AllRevisions : PageQuery\n            {\n                public List<Revision> revisionList = new();\n\n                public AllRevisions(MediaWikiObjects source, string pageTitle) : base(source)\n                {\n                    this.pageTitle = pageTitle;\n                }\n\n                public AllRevisions(string pageTitle, HttpClient client)\n                {\n                    this.pageTitle = pageTitle;\n                    httpClient = client;\n                }\n\n                public List<Revision> GetAllRevisions()\n                {\n                    PostRequest();\n\n                    return revisionList;\n                }\n\n                public void PrintAllRevisions()\n                {\n                    foreach (var rev in revisionList)\n                    {\n                        Console.WriteLine(\"RevID: {0}, timestamp: {1}, content: {2}\", rev.revisionID, rev.timestamp,\n                            rev.content);\n                    }\n                }\n\n                public override string BuildQuery()\n                {\n                    string queryBody = \"?action=query\";\n                    queryBody += \"&titles=\" + pageTitle;\n                    queryBody += \"&prop=revisions\";\n                    queryBody += \"&rvslots=*\";\n                    queryBody += \"&rvlimit=max\";\n                    queryBody += \"&rvprop=ids|flags|timestamp|user|size\";\n                    queryBody += \"&formatversion=2\";\n                    queryBody += \"&format=json\";\n\n                    string query = queryBody;\n\n                    return query;\n                }\n\n                public override void ParseJObject(JObject inputJObject)\n                {\n                    // Print input JObject\n                    /*\n                    foreach (var pair in inputJObject)\n                    {\n                        Console.WriteLine(\"{0}: {1}\", pair.Key, pair.Value);\n                    }\n                    */\n\n                    // Read the relevant fields of each revision entry into a Revision object\n                    // and add it to the list of revisions\n                    foreach (var token in inputJObject.SelectTokens(\"query.pages[0].revisions[*]\"))\n                    {\n                        Revision tmp = new();\n                        tmp.revisionID = token.SelectToken(\"revid\")?.ToString();\n                        tmp.flags = token.SelectToken(\"flags\")?.ToString();\n                        tmp.timestamp = token.SelectToken(\"timestamp\")?.ToString();\n                        tmp.user = token.SelectToken(\"user\")?.ToString();\n                        tmp.size = token.SelectToken(\"size\")?.ToString();\n\n                        revisionList.Add(tmp);\n                    }\n\n                    //Console.WriteLine(\"revCount: \" + revCount);\n                    //Console.WriteLine(\"number of entries in revisionList: \" + revisionList.Count);\n                    //Console.WriteLine(\"Size of first, last entry: {0}, {1}\", revisionList[0].size, revisionList[revisionList.Count-1].size);\n                    Console.WriteLine(\"Loaded {0} entries into revisionList\", revisionList.Count);\n                }\n            }\n\n            public class PageContent : PageQuery\n            {\n                private Revision revision = new();\n                private string revID = \"-1\";\n                \n                public PageContent(MediaWikiObjects source, string pageTitle, string revisionID) : base(source)\n                {\n                    this.pageTitle = pageTitle;\n                    revID = revisionID;\n                }\n\n                // public PageContent(MediaWikiObjects source, string pageTitle) : base(source)\n                // {\n                //     this.pageTitle = pageTitle;\n                // }\n                \n                public PageContent(string pageTitle, HttpClient client)\n                {\n                    this.pageTitle = pageTitle;\n                    httpClient = client;\n                }\n\n                public string GetContent()\n                {\n                    PostRequest();\n\n                    return revision.content ?? string.Empty;\n                }\n\n                public override string BuildQuery()\n                {\n                    string queryBody = \"?action=query\";\n                    queryBody += \"&titles=\" + pageTitle;\n                    queryBody += \"&prop=revisions\";\n                    queryBody += \"&rvslots=*\";\n                    queryBody += \"&rvlimit=1\";\n                    queryBody += \"&rvprop=ids|flags|timestamp|user|size|content\";\n                    queryBody += \"&formatversion=2\";\n                    queryBody += \"&format=json\";\n                    if (!revID.Equals(\"-1\"))\n                    {\n                        queryBody += \"&rvstartid=\" + revID;\n                        queryBody += \"&rvendid=\" + revID;\n                    }\n\n                    string query = queryBody;\n\n                    return query;\n                }\n\n                public override void ParseJObject(JObject inputJObject)\n                {\n                    // Print input JObject\n\n                    foreach (var pair in inputJObject)\n                    {\n                        Console.WriteLine(\"{0}: {1}\", pair.Key, pair.Value);\n                    }\n\n\n                    // Read the relevant fields of each revision entry into a Revision object\n                    // and add it to the list of revisions\n                    JToken? token = inputJObject.SelectToken(\"query.pages[0].revisions[0]\");\n\n                    Console.WriteLine(\"token.ToString():\");\n                    if (token != null)\n                    {\n                        Console.WriteLine(token.ToString());\n\n                        Revision rev = new();\n                        rev.revisionID = token.SelectToken(\"revid\")?.ToString();\n                        rev.flags = token.SelectToken(\"flags\")?.ToString();\n                        rev.timestamp = token.SelectToken(\"timestamp\")?.ToString();\n                        rev.user = token.SelectToken(\"user\")?.ToString();\n                        rev.size = token.SelectToken(\"size\")?.ToString();\n                        rev.content = token.SelectToken(\"slots.main.content\")?.ToString();\n\n                        revision = rev;\n                        if (revision.content != null)\n                            Console.WriteLine(\"Length of revision content, first 20 chars: {0}, {1}\",\n                                revision.content.Length, revision.content.Substring(0, 20));\n                    }\n\n                    //Console.WriteLine(\"revCount: \" + revCount);\n                    //Console.WriteLine(\"number of entries in revisionList: \" + revisionList.Count);\n                    //Console.WriteLine(\"Size of first, last entry: {0}, {1}\", revisionList[0].size, revisionList[revisionList.Count-1].size);\n                    // Console.WriteLine(\"Length of revision content, first 20 chars: {0}, {1}\",\n                    //     revision.content.Length, revision.content.Substring(0, 20));\n                }\n            }\n\n\n            public void PostRequest()\n            {\n                if (!loggedIn)\n                {\n                    throw new NotLoggedInException(\"PostRequest()\");\n                }\n\n                string query = BuildQuery();\n\n                JObject httpResponse = GetHttpResponse(query);\n\n                ParseJObject(httpResponse);\n            }\n        }\n\n        public abstract class PageAction : MediaWikiObjects\n        {\n            public Action action = new();\n\n            public abstract Action BuildAction();\n\n            public PageAction()\n            {\n            }\n\n            public PageAction(MediaWikiObjects source) : base(source)\n            {\n            }\n\n            public class UploadNewRevision : PageAction\n            {\n                private string? pageID;\n                private string pageTitle;\n                private JObject? JOTokens;\n\n                private Revision revision = new();\n\n                public UploadNewRevision(MediaWikiObjects source, string pageTitle) : base(source)\n                {\n                    this.pageTitle = pageTitle;\n                }\n\n                public UploadNewRevision(string pageTitle, HttpClient client)\n                {\n                    this.pageTitle = pageTitle;\n                    httpClient = client;\n                }\n\n                public void UploadContent(string content)\n                {\n                    revision.content = content;\n\n                    JOTokens = GetTokens();\n\n                    action = BuildAction();\n\n                    Console.WriteLine(\"Starting upload: posting to server.\");\n\n                    PostHttpToServer(action);\n                }\n\n                public override Action BuildAction()\n                {\n                    JOTokens = GetTokens();\n                    string? editToken = ExtractToken(JOTokens, \"csrftoken\");\n\n                    action.action = \"?action=edit\";\n                    action.AddValuePair(\"title\", pageTitle);\n                    action.AddValuePair(\"token\", editToken ?? string.Empty);\n                    action.AddValuePair(\"format\", \"json\");\n                    action.AddValuePair(\"formatversion\", \"2\");\n                    action.AddValuePair(\"text\", revision.content);\n\n                    return action;\n                }\n            }\n\n            public class UndoRevisions : PageAction\n            {\n                private string? pageID;\n                private string pageTitle;\n                private JObject? JOTokens;\n                public string? undoBeginID;\n                public string? undoEndID;\n\n                private Revision revision = new();\n\n                public UndoRevisions(MediaWikiObjects source, string pageTitle) : base(source)\n                {\n                    this.pageTitle = pageTitle;\n                }\n\n                public UndoRevisions(string pageTitle, HttpClient client)\n                {\n                    this.pageTitle = pageTitle;\n                    httpClient = client;\n                }\n\n                public void UndoLastRevisionByID(string ID)\n                {\n                    UndoRevisionsByID(ID, ID);\n                }\n\n                public void UndoRevisionsByID(string startID, string endID)\n                {\n                    undoBeginID = startID;\n                    undoEndID = endID;\n\n                    action = BuildAction();\n\n                    Console.WriteLine(\"Starting upload: posting to server.\");\n\n                    PostHttpToServer(action);\n                }\n\n                public override Action BuildAction()\n                {\n                    JOTokens = GetTokens();\n                    string? editToken = ExtractToken(JOTokens, \"csrftoken\");\n\n                    action.action = \"?action=edit\";\n                    action.AddValuePair(\"title\", pageTitle);\n                    action.AddValuePair(\"token\", editToken ?? string.Empty);\n                    action.AddValuePair(\"format\", \"json\");\n                    action.AddValuePair(\"formatversion\", \"2\");\n\n                    action.AddValuePair(\"undo\", undoBeginID);\n                    action.AddValuePair(\"undoafter\", undoEndID);\n                    //action.AddValuePair(\"undo\", \"14\");\n                    //action.AddValuePair(\"undo\", \"13\");\n\n                    return action;\n                }\n            }\n\n            public class DeleteRevisions : PageAction\n            {\n                private string? pageID;\n                private string pageTitle;\n                private JObject? JOTokens;\n                public string[]? deleteID;\n                public string? IDString;\n\n                private Revision revision = new();\n\n                public DeleteRevisions(MediaWikiObjects source, string pageTitle) : base(source)\n                {\n                    this.pageTitle = pageTitle;\n                }\n\n                public DeleteRevisions(string pageTitle, HttpClient client)\n                {\n                    this.pageTitle = pageTitle;\n                    httpClient = client;\n                }\n\n                public void DeleteRevisionsByIDArray(string[] IDArray)\n                {\n                    IDString = BuildIDString(IDArray);\n\n                    action = BuildAction();\n\n                    Console.WriteLine(\"Starting DeleteRevisionsByIDArray: posting to server.\");\n\n                    PostHttpToServer(action);\n                }\n\n                public void DeleteRevisionsByIDString(string idstring)\n                {\n                    IDString = idstring;\n\n                    action = BuildAction();\n\n                    Console.WriteLine(\"Starting DeleteRevisionsByIDString: posting to server.\");\n\n                    PostHttpToServer(action);\n                }\n\n                public override Action BuildAction()\n                {\n                    JOTokens = GetTokens();\n                    string? editToken = ExtractToken(JOTokens, \"csrftoken\");\n\n                    action.action = \"?action=revisiondelete\";\n                    action.AddValuePair(\"title\", pageTitle);\n                    action.AddValuePair(\"token\", editToken ?? string.Empty);\n                    action.AddValuePair(\"format\", \"json\");\n                    action.AddValuePair(\"formatversion\", \"2\");\n\n                    action.AddValuePair(\"type\", \"revision\");\n                    action.AddValuePair(\"ids\", IDString);\n                    action.AddValuePair(\"hide\", \"comment|content|user\"); // hide all\n                    action.AddValuePair(\"reason\", \"needed doing\");\n\n                    return action;\n                }\n\n                private string BuildIDString(string[] inputArr)\n                {\n                    string output = \"\";\n\n                    output = inputArr[0];\n\n                    for (int i = 1; i < inputArr.Length; i++)\n                    {\n                        output += \"|\";\n                        output += inputArr[i];\n                    }\n\n                    return output;\n                }\n            }\n\n            public JObject GetTokens()\n            {\n                string query = \"?action=query\";\n                query += \"&meta=tokens\";\n                query += \"&format=json\";\n\n                JObject output = GetHttpResponse(query);\n\n                return output;\n            }\n\n            public string? ExtractToken(JObject JOTokens, string tokenName)\n            {\n                var token = JOTokens[\"query\"]?[\"tokens\"]?[tokenName]?.ToString();\n\n                Console.WriteLine(\"Extracted token '{0}': {1}\", tokenName, token);\n\n                return token;\n            }\n        }\n\n        public JObject GetHttpResponse(string query)\n        {\n            if (!loggedIn)\n            {\n                throw new NotLoggedInException(\"getHttpResponse\");\n            }\n\n            Console.WriteLine(\"Requesting from server:\");\n            Console.WriteLine(query);\n            HttpResponseMessage response = httpClient.GetAsync(URL + query).Result;\n\n            string responseBody = response.Content.ReadAsStringAsync().Result;\n            Console.WriteLine(\"getHttpResponse: \" + responseBody);\n\n            response.EnsureSuccessStatusCode();\n\n            JObject responseJson = JObject.Parse(responseBody);\n\n\n            return responseJson;\n        }\n\n\n        public void PostHttpToServer(Action action)\n        {\n            HttpResponseMessage httpResponseMessage =\n                httpClient.PostAsync(URL + action.action, new FormUrlEncodedContent(action.values)).Result;\n            string httpResponseMessageString = httpResponseMessage.Content.ReadAsStringAsync().Result;\n            Console.WriteLine(\"postHttpToServer: \" + httpResponseMessageString);\n        }\n\n        public void LoginMediaWiki(string username, string password)\n        {\n            // Build request\n            string query = \"?action=query\";\n            query += \"&meta=tokens\";\n            query += \"&type=login\";\n            query += \"&format=json\";\n\n            HttpResponseMessage response = httpClient.GetAsync(URL + query).Result;\n            response.EnsureSuccessStatusCode();\n            string responseBody = response.Content.ReadAsStringAsync().Result;\n            Console.WriteLine(\"LoginHttpClient:- resonseBody: \" + responseBody);\n            JObject responseJson = JObject.Parse(responseBody);\n\n            var loginToken = responseJson[\"query\"]?[\"tokens\"]?[\"logintoken\"]?.ToString();\n            Console.WriteLine(\"LoginHttpClient:- LoginToken: \" + loginToken);\n\n            string action = \"?action=clientlogin\";\n            if (loginToken == null) return;\n            var values = new List<KeyValuePair<string, string>>\n            {\n                new(\"format\", \"json\"),\n                new(\"loginreturnurl\", \"http://example.org\"),\n                new(\"logintoken\", loginToken),\n                new(\"username\", username),\n                new(\"password\", password)\n            };\n            HttpResponseMessage responseClientLogin =\n                httpClient.PostAsync(URL + action, new FormUrlEncodedContent(values)).Result;\n            string responseBodyClientLogin = responseClientLogin.Content.ReadAsStringAsync().Result;\n            Console.WriteLine(\"LoginHttpClient:- responseBodyClientLogin: \" + responseBodyClientLogin);\n            MWuserID = username;\n            MWuserPassword = password;\n            loggedIn = true;\n        }\n\n        public class NotLoggedInException : Exception\n        {\n            public NotLoggedInException(string thrownFrom) : base(thrownFrom)\n            {\n            }\n        }\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs b/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs
+--- a/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs	(revision 66693c29c0812961cd84fde26cf022c35aa52d63)
++++ b/Avalonia.NETCoreMVVMApp/MediaWiki/MediaWikiObjects.cs	(date 1615215819426)
+@@ -75,7 +75,7 @@
+         public abstract class PageQuery : MediaWikiObjects
+         {
+             private string pageID;
+-            private string pageTitle;
++            public string pageTitle;
+ 
+             public abstract string BuildQuery();
+             public abstract void ParseJObject(JObject inputJObject);
+@@ -169,7 +169,7 @@
+ 
+             public class PageContent : PageQuery
+             {
+-                private Revision revision = new();
++                public Revision revision = new();
+                 private string revID = "-1";
+                 
+                 public PageContent(MediaWikiObjects source, string pageTitle, string revisionID) : base(source)
+Index: Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>using System;\nusing System.IO;\nusing System.Linq;\nusing System.Net.Http;\nusing System.Threading.Tasks;\nusing Newtonsoft.Json.Linq;\n\nnamespace SecureWiki.MediaWiki\n{\n    public class WikiHandler\n    {\n        private readonly string _url = \"http://localhost/mediawiki/api.php\";\n\n        private readonly HttpClient _client;\n        private readonly Manager _manager;\n        public readonly MediaWikiObjects MWO;\n\n        public WikiHandler(string username, string password, HttpClient inputClient, Manager manager, string ip)\n        {\n            _url = \"http://\" + ip + \"/mediawiki/api.php\";\n            MWO = new MediaWikiObjects(inputClient, username, password, ip);\n            _client = inputClient;\n            _manager = manager;\n        }\n\n        public WikiHandler(string username, string password, HttpClient inputClient, Manager manager)\n        {\n            MWO = new MediaWikiObjects(inputClient, username, password);\n            _client = inputClient;\n            _manager = manager;\n        }\n\n        public void UploadNewVersion(string filename, string filepath)\n        {\n            var srcDir = GetRootDir(filepath);\n            var plainText = File.ReadAllText(srcDir);\n            Console.WriteLine(\"Upload plain text: \" + plainText);\n\n            var keyring = _manager.ReadKeyRing();\n            var dataFile = _manager.GetDataFile(filename, keyring);\n\n            if (dataFile != null && !plainText.Equals(\"\"))\n            {\n                // Sign plaintext\n                var hash = _manager.SignData(dataFile.privateKey, plainText);\n                var hashString = Convert.ToBase64String(hash);\n                var encryptedBytes = _manager.EncryptAesStringToBytes(plainText + hashString,\n                    dataFile.symmKey, dataFile.iv);\n\n                var encryptedText = Convert.ToBase64String(encryptedBytes);\n\n                var encryptedPagetitleBytes = _manager.EncryptAesStringToBytes(filename, dataFile.symmKey, dataFile.iv);\n                var encryptedPagetitleString = Convert.ToBase64String(encryptedPagetitleBytes);\n\n                MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(MWO, encryptedPagetitleString);\n                uploadNewRevision.UploadContent(encryptedText);\n            }\n        }\n\n        private static string GetRootDir(string relativeFilepath)\n        {\n            var filepath = \"fuse/example/rootdir/\" + relativeFilepath;\n            var currentDir = Directory.GetCurrentDirectory();\n            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @\"../../../../..\"));\n            var srcDir = Path.Combine(projectDir, @filepath);\n            return srcDir;\n        }\n\n        public void PrintTest(string input)\n        {\n            Console.WriteLine(\"WikiHandler printing: \" + input);\n        }\n\n        public string ReadFile(string filename)\n        {\n            var keyring = _manager.ReadKeyRing();\n            var dataFile = _manager.GetDataFile(filename, keyring);\n\n            if (dataFile == null) return \"This text is stored securely.\";\n            var encryptedFilenameBytes = _manager.EncryptAesStringToBytes(filename, dataFile.symmKey, dataFile.iv);\n            var encryptedFilenameString = Convert.ToBase64String(encryptedFilenameBytes);\n            \n            // URL does not allow + character, instead encode as hexadecimal\n            var encryptedFilenameStringEncoded = encryptedFilenameString.Replace(\"+\", \"%2B\");\n            \n            // Check if user has requested old page revision\n            MediaWikiObjects.PageQuery.PageContent getPageContent;\n\n            Console.WriteLine(\"Read manager has requestedRevision for {0} datafiles\", _manager.RequestedRevision.Count);\n\n            if (_manager.RequestedRevision.Count > 0)\n            {\n                Console.WriteLine(\"Expected to read: \" + _manager.RequestedRevision.FirstOrDefault().Key);\n                Console.WriteLine(\"Actually read: \" + dataFile.pagename);\n\n\n\n            }\n            \n            if (_manager.RequestedRevision.ContainsKey(dataFile.pagename))\n            {\n                var revID = _manager.RequestedRevision[dataFile.pagename];\n                Console.WriteLine(\"Read manager has revId {0} for datafile {1}\", revID, dataFile.filename);\n                getPageContent = new(MWO, encryptedFilenameStringEncoded, revID);\n            }\n            else\n            {\n                getPageContent = new(MWO, encryptedFilenameStringEncoded, \"-1\");\n            }\n            var pageContent = getPageContent.GetContent();\n            \n            // MediaWikiObjects.PageQuery.PageContent getPageContent = new(MWO, encryptedFilenameStringEncoded);\n            // var pageContent = getPageContent.GetContent();\n            \n            if (pageContent.Equals(\"\")) return \"File does not exist on server\";\n            var pageContentBytes = Convert.FromBase64String(pageContent);\n            \n            // string getData = \"?action=query\";\n            // getData += \"&titles=\" + encryptedFilenameStringEncoded;\n            // getData += \"&prop=revisions\";\n            // getData += \"&rvslots=*\";\n            // getData += \"&rvprop=content\";\n            // getData += \"&format=json\";\n            //\n            // HttpResponseMessage response = await _client.GetAsync(_url + getData);\n            // response.EnsureSuccessStatusCode();\n            // string responseBody = await response.Content.ReadAsStringAsync();\n            // JObject responseJson = JObject.Parse(responseBody);\n            // Console.WriteLine(responseJson);\n            //\n            // var pageContentPair = responseJson.SelectToken(\"query.pages.*.revisions[0].slots.main\")?.Last?.ToString();\n            // var pageContent = pageContentPair?.Split(\":\", 2);\n            // if (pageContent == null) return \"This text is stored securely.\";\n            \n            // var trim = pageContent[1].Substring(2, pageContent[1].Length - 3);\n\n            // var pageContentBytes = Convert.FromBase64String(trim);\n                \n            var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes, dataFile.symmKey, dataFile.iv);\n            Console.WriteLine(\"Read file decrypted \" + decryptedText);\n            var textString = decryptedText.Substring(0, decryptedText.Length - 344);\n            var hashString = decryptedText.Substring(decryptedText.Length - 344);\n            var hashBytes = Convert.FromBase64String(hashString);\n\n            Console.WriteLine(\"Read file decrypted text: \" + textString);\n\n            if (!_manager.VerifyData(dataFile.publicKey, textString, hashBytes))\n            {\n                Console.WriteLine(\"Verifying failed...\");\n                return \"Verifying failed...\";\n            }\n\n            return textString.Equals(\"\") ? \"This text is stored securely.\" : textString;\n        }\n    }\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs b/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs
+--- a/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs	(revision 66693c29c0812961cd84fde26cf022c35aa52d63)
++++ b/Avalonia.NETCoreMVVMApp/MediaWiki/WikiHandler.cs	(date 1615215819414)
+@@ -4,6 +4,7 @@
+ using System.Net.Http;
+ using System.Threading.Tasks;
+ using Newtonsoft.Json.Linq;
++using SecureWiki.Model;
+ 
+ namespace SecureWiki.MediaWiki
+ {
+@@ -30,16 +31,13 @@
+             _manager = manager;
+         }
+ 
+-        public void UploadNewVersion(string filename, string filepath)
++        public void UploadNewVersion(DataFileEntry dataFile, string filepath)
+         {
+             var srcDir = GetRootDir(filepath);
+             var plainText = File.ReadAllText(srcDir);
+             Console.WriteLine("Upload plain text: " + plainText);
+ 
+-            var keyring = _manager.ReadKeyRing();
+-            var dataFile = _manager.GetDataFile(filename, keyring);
+-
+-            if (dataFile != null && !plainText.Equals(""))
++            if (!plainText.Equals(""))
+             {
+                 // Sign plaintext
+                 var hash = _manager.SignData(dataFile.privateKey, plainText);
+@@ -49,7 +47,7 @@
+ 
+                 var encryptedText = Convert.ToBase64String(encryptedBytes);
+ 
+-                var encryptedPagetitleBytes = _manager.EncryptAesStringToBytes(filename, dataFile.symmKey, dataFile.iv);
++                var encryptedPagetitleBytes = _manager.EncryptAesStringToBytes(dataFile.filename, dataFile.symmKey, dataFile.iv);
+                 var encryptedPagetitleString = Convert.ToBase64String(encryptedPagetitleBytes);
+ 
+                 MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(MWO, encryptedPagetitleString);
+@@ -149,8 +147,12 @@
+                 Console.WriteLine("Verifying failed...");
+                 return "Verifying failed...";
+             }
++            
++            var output = textString.Equals("") ? "This text is stored securely." : textString;
+ 
+-            return textString.Equals("") ? "This text is stored securely." : textString;
++            _manager.cacheManager.AddEntry(getPageContent.pageTitle, getPageContent.revision);
++            
++            return output;
+         }
+     }
+ }
+\ No newline at end of file
+Index: Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><Window xmlns=\"https://github.com/avaloniaui\"\n        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"\n        xmlns:d=\"http://schemas.microsoft.com/expression/blend/2008\"\n        xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"\n        xmlns:viewModels=\"clr-namespace:SecureWiki.ViewModels\"\n        xmlns:Models=\"clr-namespace:SecureWiki.Model\"\n        mc:Ignorable=\"d\" d:DesignWidth=\"500\" d:DesignHeight=\"400\"\n        x:Class=\"SecureWiki.Views.MainWindow\"\n        Opened=\"MainWindow_Shown\"\n        Icon=\"/Assets/avalonia-logo.ico\"\n        Title=\"Please find a better name\"\n        Padding=\"10\"><!--Width=\"300\" Height=\"400\"-->\n\n    <!--\n    <Design.DataContext>\n        <viewModels:MainWindowViewModel/>\n    </Design.DataContext>\n    -->\n\n    <!--<TextBlock Text=\"{Binding Greeting}\" HorizontalAlignment=\"Center\" VerticalAlignment=\"Center\"/>\n    -->\n    <!--\n    <DockPanel Dock=\"Top\" LastChildFill=\"True\" x:Name=\"TopLevelDockPanel\">\n    -->\n    <Grid>\n        <Grid.ColumnDefinitions>\n            <ColumnDefinition Width=\"Auto\"></ColumnDefinition>\n            <ColumnDefinition Width=\"1*\"></ColumnDefinition>\n            <ColumnDefinition Width=\"Auto\"></ColumnDefinition>\n        </Grid.ColumnDefinitions>\n\n        <StackPanel Orientation=\"Vertical\" VerticalAlignment=\"Top\" Height=\"150\" Width=\"300\" x:Name=\"ButtonControlSp\">\n            <!--\n            <TextBlock Name=\"NameLabel\">What is your name?</TextBlock>\n            <TextBox Name=\"NameTextBox\"></TextBox>\n            <TextBlock Name=\"MessageLabel\"></TextBlock>        \n            -->\n            \n            <TextBox Name=\"TextBox1\" IsReadOnly=\"True\" Width=\"{Binding  Width,ElementName=ButtonControlSp}\" TextWrapping=\"Wrap\">\n                The user may not modify the contents of this TextBox.\n            </TextBox>\n            \n            <Button Name=\"Button1\" Click=\"Button1_Click\">Button1</Button>\n            <Button Name=\"Button2\" Click=\"Button2_Click\">Print keyring info</Button>\n            <Button Name=\"Button3\" Click=\"Button3_Click\">Export keyring</Button>\n            <Button Name=\"Button4\" Click=\"Button4_Click\">Import keyring</Button>\n            \n            <TextBlock>Enter IP address of MediaWiki server</TextBlock>\n            <TextBox Name=\"TextBoxIp\" Width=\"{Binding  Width,ElementName=ButtonControlSp}\" TextWrapping=\"Wrap\" Text=\"{Binding IP}\">\n            </TextBox>\n            <Button Name=\"ButtonIp\" Click=\"ButtonIP_Click\">Change</Button>\n\n            <TextBlock>Login to MediaWiki</TextBlock>\n            <TextBox Name=\"TextBoxUser\" Width=\"{Binding  Width,ElementName=ButtonControlSp}\" TextWrapping=\"Wrap\" Text=\"{Binding Username}\" Watermark=\"Username\">\n            </TextBox>\n            <TextBox Name=\"TextBoxPass\" Width=\"{Binding  Width,ElementName=ButtonControlSp}\" TextWrapping=\"Wrap\" Text=\"{Binding Password}\" Watermark=\"Password\">\n            </TextBox>\n            <Button Name=\"ButtonLogin\" Click=\"ButtonLogin_Click\">Login</Button>\n            \n            <TextBlock>Share selected keyring</TextBlock>\n            <TextBox Name=\"TextBoxMail\" Width=\"{Binding  Width,ElementName=ButtonControlSp}\" TextWrapping=\"Wrap\" Text=\"{Binding MailRecipient}\" Watermark=\"Recipient email\">\n            </TextBox>\n            <Button Name=\"ButtonMail\" Click=\"ButtonMail\">Send</Button>\n\n            \n        </StackPanel>\n        \n\n        \n        <ScrollViewer Grid.Column=\"1\" VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Auto\">\n            <StackPanel Orientation=\"Vertical\">\n                <TreeView Items=\"{Binding rootKeyringCollection, Mode=TwoWay}\" Name=\"TreeView1\">\n                    <TreeView.DataTemplates>\n                        <TreeDataTemplate DataType=\"Models:RootKeyring\" ItemsSource=\"{Binding combinedList}\">\n                            <CheckBox IsChecked=\"{Binding IsChecked}\" Name=\"CheckBox\" Initialized=\"CheckBox_OnInitialized\">\n                                <TextBlock Foreground=\"Red\" Text=\"{Binding Name, Mode=TwoWay}\"></TextBlock>\n                            </CheckBox>\n                        </TreeDataTemplate>\n                        <TreeDataTemplate DataType=\"Models:KeyringEntry\" ItemsSource=\"{Binding combinedList}\">\n                            <CheckBox IsChecked=\"{Binding IsChecked}\" Name=\"CheckBox\" Initialized=\"CheckBox_OnInitialized\">\n                                <TextBlock Text=\"{Binding Name}\"></TextBlock>\n                            </CheckBox>\n                        </TreeDataTemplate>\n                        <DataTemplate DataType=\"Models:DataFileEntry\">\n                            <CheckBox IsChecked=\"{Binding IsChecked}\" Name=\"CheckBox\"\n                                      Initialized=\"CheckBox_OnInitialized\" KeyDown=\"CheckBox_OnKeyDown\">\n                                <TextBlock Foreground=\"Blue\" Text=\"{Binding filename}\" />\n                            </CheckBox>\n                        </DataTemplate>\n                    </TreeView.DataTemplates>\n                    <!--\n                    <Style Selector=\"TreeViewItem\" >\n                        <Setter Property=\"IsExpanded\" Value=\"True\"></Setter>\n                    </Style>\n                    -->\n                </TreeView>\n            </StackPanel>\n        </ScrollViewer>\n        <ScrollViewer Grid.Column=\"2\" VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Auto\">\n            <StackPanel>\n                <ContentControl Content=\"{Binding selectedFile, Mode=TwoWay}\" Width=\"300\">\n                    <ContentControl.ContentTemplate>\n                        <DataTemplate>\n                            <Grid ColumnDefinitions=\"Auto,Auto\" RowDefinitions=\"Auto,Auto\">\n                                <TextBlock Grid.Row=\"0\" Grid.Column=\"0\">Filename: </TextBlock>\n                                <TextBlock Grid.Row=\"0\" Grid.Column=\"1\" Text=\"{Binding filename}\"/>\n                            </Grid>\n                        </DataTemplate>\n                    </ContentControl.ContentTemplate>\n                </ContentControl>\n                <ListBox Items=\"{Binding revisions, Mode=TwoWay}\" SelectionMode=\"Single\" SelectedItem=\"{Binding selectedRevision}\" Width=\"300\">\n                    <ListBox.ItemTemplate>\n                        <DataTemplate>\n                            <Grid ColumnDefinitions=\"Auto,Auto\" RowDefinitions=\"Auto,Auto, Auto, Auto\">\n                                <TextBlock Grid.Row=\"0\" Grid.Column=\"0\">revisionID: </TextBlock>\n                                <TextBlock Grid.Row=\"0\" Grid.Column=\"1\" Text=\"{Binding revisionID}\"/>\n                                <TextBlock Grid.Row=\"1\" Grid.Column=\"0\">owner: </TextBlock>\n                                <TextBlock Grid.Row=\"1\" Grid.Column=\"1\" Text=\"{Binding user}\"/>\n                                <TextBlock Grid.Row=\"2\" Grid.Column=\"0\">time: </TextBlock>\n                                <TextBlock Grid.Row=\"2\" Grid.Column=\"1\" Text=\"{Binding timestamp}\"/>\n                                <TextBlock Grid.Row=\"3\" Grid.Column=\"0\">size: </TextBlock>\n                                <TextBlock Grid.Row=\"3\" Grid.Column=\"1\" Text=\"{Binding size}\"/>\n                            </Grid>\n                        </DataTemplate>\n                    </ListBox.ItemTemplate>\n                </ListBox>\n                <TextBlock>Download selected revision</TextBlock>\n                <Button Name=\"SelectedRevisionButton\" Click=\"SelectedRevisionButton_OnClick\">Click me!</Button>\n            </StackPanel>\n        </ScrollViewer>\n    </Grid>\n    <!--\n    </DockPanel>\n    -->\n\n</Window>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml b/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml
+--- a/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml	(revision 66693c29c0812961cd84fde26cf022c35aa52d63)
++++ b/Avalonia.NETCoreMVVMApp/Views/MainWindow.axaml	(date 1615206475437)
+@@ -72,20 +72,43 @@
+                 <TreeView Items="{Binding rootKeyringCollection, Mode=TwoWay}" Name="TreeView1">
+                     <TreeView.DataTemplates>
+                         <TreeDataTemplate DataType="Models:RootKeyring" ItemsSource="{Binding combinedList}">
+-                            <CheckBox IsChecked="{Binding IsChecked}" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+-                                <TextBlock Foreground="Red" Text="{Binding Name, Mode=TwoWay}"></TextBlock>
+-                            </CheckBox>
++                            <StackPanel Orientation="Horizontal">
++                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
++                                    
++                                </CheckBox>
++                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
++                                    
++                                </CheckBox>
++                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
++                                    <TextBlock Foreground="Red" Text="{Binding Name, Mode=TwoWay}"></TextBlock>
++                                </Border>
++                            </StackPanel>
+                         </TreeDataTemplate>
+                         <TreeDataTemplate DataType="Models:KeyringEntry" ItemsSource="{Binding combinedList}">
+-                            <CheckBox IsChecked="{Binding IsChecked}" Name="CheckBox" Initialized="CheckBox_OnInitialized">
+-                                <TextBlock Text="{Binding Name}"></TextBlock>
+-                            </CheckBox>
++                            <StackPanel Orientation="Horizontal">
++                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
++                                    
++                                </CheckBox>
++                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
++                                    
++                                </CheckBox>
++                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
++                                    <TextBlock Text="{Binding Name}"></TextBlock>
++                                </Border>
++                            </StackPanel>
+                         </TreeDataTemplate>
+-                        <DataTemplate DataType="Models:DataFileEntry">
+-                            <CheckBox IsChecked="{Binding IsChecked}" Name="CheckBox"
+-                                      Initialized="CheckBox_OnInitialized" KeyDown="CheckBox_OnKeyDown">
+-                                <TextBlock Foreground="Blue" Text="{Binding filename}" />
+-                            </CheckBox>
++                        <DataTemplate DataType="Models:DataFileEntry" >
++                            <StackPanel Orientation="Horizontal">
++                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized" KeyDown="CheckBox_OnKeyDown">
++                                    
++                                </CheckBox>
++                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
++                                    
++                                </CheckBox>
++                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
++                                    <TextBlock Foreground="Blue" VerticalAlignment="Center" Text="{Binding filename}"></TextBlock>
++                                </Border>
++                            </StackPanel>
+                         </DataTemplate>
+                     </TreeView.DataTemplates>
+                     <!--
+@@ -95,6 +118,7 @@
+                     -->
+                 </TreeView>
+             </StackPanel>
++                
+         </ScrollViewer>
+         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+             <StackPanel>
+@@ -132,5 +156,5 @@
+     <!--
+     </DockPanel>
+     -->
+-
++    
+ </Window>
+\ No newline at end of file
+Index: Avalonia.NETCoreMVVMApp/Cryptography/CacheManager.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/Cryptography/CacheManager.cs b/Avalonia.NETCoreMVVMApp/Cryptography/CacheManager.cs
+new file mode 100644
+--- /dev/null	(date 1615215819070)
++++ b/Avalonia.NETCoreMVVMApp/Cryptography/CacheManager.cs	(date 1615215819070)
+@@ -0,0 +1,43 @@
++using System.Collections.Generic;
++using System.IO;
++using System.Linq;
++using SecureWiki.MediaWiki;
++
++namespace SecureWiki.Cryptography
++{
++    public class CacheManager
++    {
++        private Dictionary<string, CacheEntry> _dict = new();
++        private string _dirpath;
++
++        public CacheManager()
++        {
++            var cachePath = "RevisionCache";
++            var currentDir = Directory.GetCurrentDirectory();
++            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
++            _dirpath = Path.Combine(projectDir, cachePath);
++            Directory.CreateDirectory(_dirpath);
++        }
++
++        public void AddEntry(string pageTitle, Revision rev)
++        {
++            CacheEntry ce;
++            if (!_dict.ContainsKey(pageTitle))
++            {
++                ce = new(_dirpath, pageTitle);                
++            }
++            else
++            {
++                ce = _dict[pageTitle];
++            }
++            
++            ce.AddEntry(rev.revisionID, rev.content);
++        }
++
++        public string? GetFilePath(string pageTitle, string revid)
++        {
++            return _dict[pageTitle].GetFilePath(revid);
++        }
++    }
++}
++
+Index: Avalonia.NETCoreMVVMApp/Cryptography/RandomString.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/Cryptography/RandomString.cs b/Avalonia.NETCoreMVVMApp/Cryptography/RandomString.cs
+new file mode 100644
+--- /dev/null	(date 1615214868174)
++++ b/Avalonia.NETCoreMVVMApp/Cryptography/RandomString.cs	(date 1615214868174)
+@@ -0,0 +1,26 @@
++using System.Security.Cryptography;
++using System.Text;
++
++namespace SecureWiki.Cryptography
++{
++    public class RandomString
++    {
++        public string ComputeHash(string inputString)  
++        {  
++            // init SHA-256   
++            using (SHA256 sha256 = SHA256.Create())  
++            {  
++                // Convert input to byte array and compute hash
++                byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(inputString));  
++  
++                // Build string from byte array
++                StringBuilder sb = new();  
++                for (int i = 0; i < bytes.Length; i++)  
++                {  
++                    sb.Append(bytes[i].ToString("x2"));  
++                }  
++                return sb.ToString();  
++            }  
++        }
++    }
++}
+\ No newline at end of file
+Index: Avalonia.NETCoreMVVMApp/Cryptography/CacheEntry.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Avalonia.NETCoreMVVMApp/Cryptography/CacheEntry.cs b/Avalonia.NETCoreMVVMApp/Cryptography/CacheEntry.cs
+new file mode 100644
+--- /dev/null	(date 1615214726449)
++++ b/Avalonia.NETCoreMVVMApp/Cryptography/CacheEntry.cs	(date 1615214726449)
+@@ -0,0 +1,51 @@
++using System.Collections.Generic;
++using System.IO;
++using SecureWiki.MediaWiki;
++
++namespace SecureWiki.Cryptography
++{
++    public class CacheEntry
++    {
++        private Dictionary<string, string> _dict = new();
++        private string _dirPath;
++        private string pageTitle;
++
++        public CacheEntry(string dirPath, string pageTitle)
++        {
++            _dirPath = dirPath;
++            this.pageTitle = pageTitle;
++        }
++
++        public void AddEntry(string revid, string content)
++        {
++            var hash = new RandomString().ComputeHash(pageTitle + revid);
++            var path = Path.Combine(_dirPath, hash);
++
++            File.WriteAllText(path, content);
++            
++            _dict.Add(revid, hash);
++        }
++        
++        public void AddExistingEntry(string revid, string filename)
++        {
++            _dict.Add(revid, filename);
++        }
++        
++        public void RemoveEntry(string revid)
++        {
++            DeleteCacheFile(_dict[revid]);
++            _dict.Remove(revid);
++        }
++
++        public string? GetFilePath(string revid)
++        {
++            return _dict[revid];
++        }
++
++        private void DeleteCacheFile(string filename)
++        {
++            var path = Path.Combine(_dirPath, filename);
++            File.Delete(path);
++        }
++    }
++}
+\ No newline at end of file
