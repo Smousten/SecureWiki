@@ -1,28 +1,30 @@
 {
   "format": 1,
   "restore": {
-    "/home/smousten/Documents/SpecialeTests/SecureWiki/SecureWiki/SecureWiki.csproj": {}
+    "C:\\Users\\Nikolaj\\RiderProjects\\SpecialeTests\\SecureWiki\\SecureWiki\\SecureWiki.csproj": {}
   },
   "projects": {
-    "/home/smousten/Documents/SpecialeTests/SecureWiki/SecureWiki/SecureWiki.csproj": {
+    "C:\\Users\\Nikolaj\\RiderProjects\\SpecialeTests\\SecureWiki\\SecureWiki\\SecureWiki.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/smousten/Documents/SpecialeTests/SecureWiki/SecureWiki/SecureWiki.csproj",
+        "projectUniqueName": "C:\\Users\\Nikolaj\\RiderProjects\\SpecialeTests\\SecureWiki\\SecureWiki\\SecureWiki.csproj",
         "projectName": "SecureWiki",
-        "projectPath": "/home/smousten/Documents/SpecialeTests/SecureWiki/SecureWiki/SecureWiki.csproj",
-        "packagesPath": "/home/smousten/.nuget/packages/",
-        "outputPath": "/home/smousten/Documents/SpecialeTests/SecureWiki/SecureWiki/obj/",
+        "projectPath": "C:\\Users\\Nikolaj\\RiderProjects\\SpecialeTests\\SecureWiki\\SecureWiki\\SecureWiki.csproj",
+        "packagesPath": "C:\\Users\\Nikolaj\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Nikolaj\\RiderProjects\\SpecialeTests\\SecureWiki\\SecureWiki\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "/usr/share/dotnet/sdk/NuGetFallbackFolder"
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "/home/smousten/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Nikolaj\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net5.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -73,7 +75,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.103/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.103\\RuntimeIdentifierGraph.json"
         }
       }
     }
