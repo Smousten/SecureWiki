@@ -75,13 +75,12 @@ namespace SecureWiki.MediaWiki
         {
             MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(MWO, dataFile.pagename);
             latestRevision.GetLatestRevision();
-
+            
             return ReadFile(dataFile, latestRevision.revision.revisionID ?? "-1");
         }
 
         public string ReadFile(DataFileEntry dataFile, string revid)
         {
-
             // Check if revision already exists in cache and return output if so
             var cacheResult = _manager.AttemptReadFileFromCache(dataFile.pagename, revid);
             if (cacheResult != null)
