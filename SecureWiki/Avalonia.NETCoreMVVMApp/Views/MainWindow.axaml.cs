@@ -80,7 +80,7 @@ namespace SecureWiki.Views
             
             var currentDir = Directory.GetCurrentDirectory();
             var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-            var mountdirPath = Path.Combine(baseDir, @"fuse/example/mountdir");
+            var mountdirPath = Path.Combine(baseDir, @"fuse/directories/mountdir");
             ProcessStartInfo start = new();
             start.FileName = "/bin/fusermount";
             start.Arguments = $"-u {mountdirPath}";

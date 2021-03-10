@@ -59,7 +59,7 @@ namespace SecureWiki.MediaWiki
 
         private static string GetRootDir(string relativeFilepath)
         {
-            var filepath = "fuse/example/rootdir/" + relativeFilepath;
+            var filepath = "fuse/directories/rootdir/" + relativeFilepath;
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var srcDir = Path.Combine(projectDir, @filepath);

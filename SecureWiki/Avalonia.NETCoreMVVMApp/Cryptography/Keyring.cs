@@ -39,7 +39,7 @@ namespace SecureWiki.Cryptography
             // Python fuse
             // var filepath = "Pyfuse_mediaWiki/srcTest/";
             // C fuse
-            const string? filePath = "fuse/example/rootdir/";
+            const string? filePath = "fuse/directories/rootdir/";
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var rootDir = Path.Combine(projectDir, filePath);

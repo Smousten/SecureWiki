@@ -21,7 +21,6 @@
   underlying filesystem.  The information is saved in a logfile named
   bbfs.log, in the directory from which you run bbfs.
 */
-#include "config.h"
 #include "params.h"
 
 #include <ctype.h>
@@ -41,6 +40,8 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <strings.h>
+#include <arpa/inet.h>
 
 #ifdef HAVE_SYS_XATTR_H
 #include <sys/xattr.h>
@@ -118,7 +119,7 @@ static void bb_fullpath(char fpath[PATH_MAX], const char *path)
 {
     strcpy(fpath, BB_DATA->rootdir);
     strncat(fpath, path, PATH_MAX); // ridiculously long paths will
-        // break here
+    // break here
 
     log_msg("    bb_fullpath:  rootdir = \"%s\", path = \"%s\", fpath = \"%s\"\n",
             BB_DATA->rootdir, path, fpath);
@@ -258,7 +259,7 @@ int bb_mkdir(const char *path, mode_t mode)
 int bb_unlink(const char *path)
 {
     char fpath[PATH_MAX];
-    
+
     char *trashFile = ".Trash";
     char *goutput = "goutputstream";
 
@@ -514,7 +515,7 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
                 break;
             }
         }
-        
+
         if (recv_len < 0)
         {
             return (-errno);
@@ -530,8 +531,8 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
         }
         else
             size = 0;
-        log_msg("\n bb_read return: %d\n", size);    
-        return size; 
+        log_msg("\n bb_read return: %d\n", size);
+        return size;
         // int recv_len = recv(sockfd, msg, sizeof(msg), MSG_WAITALL);
         // int recv_len = recvall(sockfd, msg, sizeof(msg));
 
@@ -553,8 +554,8 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
         }
         else
             size = 0;
-        log_msg("\n bb_read return: %d\n", size);    
-        return size; 
+        log_msg("\n bb_read return: %d\n", size);
+        return size;
         // memcpy(buf, msg, size);
         // bzero(msg, sizeof(msg));
     }
@@ -712,7 +713,7 @@ int bb_fsync(const char *path, int datasync, struct fuse_file_info *fi)
         return log_syscall("fdatasync", fdatasync(fi->fh), 0);
     else
 #endif
-        return log_syscall("fsync", fsync(fi->fh), 0);
+    return log_syscall("fsync", fsync(fi->fh), 0);
 }
 
 #ifdef HAVE_SYS_XATTR_H
@@ -1069,46 +1070,46 @@ int bb_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *f
 }
 
 struct fuse_operations bb_oper = {
-    .getattr = bb_getattr,
-    .readlink = bb_readlink,
-    // no .getdir -- that's deprecated
-    .getdir = NULL,
-    .mknod = bb_mknod,
-    .mkdir = bb_mkdir,
-    .unlink = bb_unlink,
-    .rmdir = bb_rmdir,
-    .symlink = bb_symlink,
-    .rename = bb_rename,
-    .link = bb_link,
-    .chmod = bb_chmod,
-    .chown = bb_chown,
-    .truncate = bb_truncate,
-    .utime = bb_utime,
-    .open = bb_open,
-    .read = bb_read,
-    .write = bb_write,
-    /** Just a placeholder, don't set */ // huh???
-    .statfs = bb_statfs,
-    .flush = bb_flush,
-    .release = bb_release,
-    .fsync = bb_fsync,
+        .getattr = bb_getattr,
+        .readlink = bb_readlink,
+        // no .getdir -- that's deprecated
+        .getdir = NULL,
+        .mknod = bb_mknod,
+        .mkdir = bb_mkdir,
+        .unlink = bb_unlink,
+        .rmdir = bb_rmdir,
+        .symlink = bb_symlink,
+        .rename = bb_rename,
+        .link = bb_link,
+        .chmod = bb_chmod,
+        .chown = bb_chown,
+        .truncate = bb_truncate,
+        .utime = bb_utime,
+        .open = bb_open,
+        .read = bb_read,
+        .write = bb_write,
+        /** Just a placeholder, don't set */ // huh???
+        .statfs = bb_statfs,
+        .flush = bb_flush,
+        .release = bb_release,
+        .fsync = bb_fsync,
 
 #ifdef HAVE_SYS_XATTR_H
-    .setxattr = bb_setxattr,
+        .setxattr = bb_setxattr,
     .getxattr = bb_getxattr,
     .listxattr = bb_listxattr,
     .removexattr = bb_removexattr,
 #endif
 
-    .opendir = bb_opendir,
-    .readdir = bb_readdir,
-    .releasedir = bb_releasedir,
-    .fsyncdir = bb_fsyncdir,
-    .init = bb_init,
-    .destroy = bb_destroy,
-    .access = bb_access,
-    .ftruncate = bb_ftruncate,
-    .fgetattr = bb_fgetattr};
+        .opendir = bb_opendir,
+        .readdir = bb_readdir,
+        .releasedir = bb_releasedir,
+        .fsyncdir = bb_fsyncdir,
+        .init = bb_init,
+        .destroy = bb_destroy,
+        .access = bb_access,
+        .ftruncate = bb_ftruncate,
+        .fgetattr = bb_fgetattr};
 
 void bb_usage()
 {
