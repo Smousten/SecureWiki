@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -19,7 +20,7 @@ namespace SecureWiki.Model
         [JsonProperty]
         public byte[] iv { get; set; }
         [JsonProperty]
-        public byte[] privateKey { get; set; }
+        public byte[]? privateKey { get; set; }
         [JsonProperty]
         public byte[] publicKey { get; set; }
         [JsonProperty]
@@ -51,8 +52,33 @@ namespace SecureWiki.Model
                 _isChecked = value;
                 // Console.WriteLine("DataFile '{0}' set to '{1}'", filename, value);
                 OnPropertyChanged(nameof(IsChecked));
+                OnPropertyChanged(nameof(IsCheckedWriteEnabled));
                 OnCheckedChanged(EventArgs.Empty);
                 // Console.WriteLine("DataFile '{0}' finished setting");
+            }
+        }
+        
+        private bool? _isCheckedWrite = false;
+        public bool? IsCheckedWrite
+        {
+            get
+            {
+                return (_isCheckedWrite ?? false);
+            }
+            set
+            {
+                _isCheckedWrite = value;
+                Console.WriteLine("Datafile '{0}': IsCheckedWrite set to '{1}'", filename, value);
+                OnPropertyChanged(nameof(IsCheckedWrite));
+                Console.WriteLine("Datafile '{0}': IsCheckedWrite finished setting", filename);
+            }
+        }
+        
+        public bool IsCheckedWriteEnabled
+        {
+            get
+            {
+                return IsChecked ?? false;
             }
         }
         
@@ -111,8 +137,36 @@ namespace SecureWiki.Model
 
         public bool IsEqual(DataFileEntry reference)
         {
+            return CompareProperties(reference, null);
+        }
+
+        public bool HasSameStaticProperties(DataFileEntry reference)
+        {
+            // Construct ignore list and populate with non-static properties
+            List<PropertyInfo> ignoreList = new();
+            ignoreList.Add(typeof(DataFileEntry).GetProperty(nameof(filename)));
+            ignoreList.Add(typeof(DataFileEntry).GetProperty(nameof(revisionNr)));
+
+            return CompareProperties(reference, ignoreList);
+        }
+
+        private bool CompareProperties(DataFileEntry reference, List<PropertyInfo>? ignoreList)
+        {
             PropertyInfo[] properties = typeof(DataFileEntry).GetProperties();
+
+            List<PropertyInfo> propertiesToBeCompared = new();
+
             foreach (PropertyInfo prop in properties)
+            {
+                if (ignoreList?.Contains(prop) == true)
+                {
+                    continue;
+                }
+
+                propertiesToBeCompared.Add(prop);
+            }
+            
+            foreach (PropertyInfo prop in propertiesToBeCompared)
             {
                 var ownValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(this, null);
                 var refValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(reference, null);

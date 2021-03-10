@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mail;
@@ -8,6 +9,7 @@ using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using SecureWiki.ClientApplication;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
@@ -27,6 +29,7 @@ namespace SecureWiki
         private Crypto _crypto;
         private TCPListener tcpListener;
         private static HttpClient httpClient = new();
+        public CacheManager cacheManager;
 
         public RootKeyring rootKeyring;
         public Dictionary<string, string> RequestedRevision = new();
@@ -47,12 +50,14 @@ namespace SecureWiki
 
         public void Run()
         {
-            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
+            wikiHandler = new WikiHandler("new_mysql_user", 
+                "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
             _keyring = new Keyring(rootKeyring);
             _crypto = new Crypto();
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
 
             _keyring.InitKeyring();
+            InitializeCacheManager();
 
             TCPListenerThread = new Thread(tcpListener.RunListener) {IsBackground = true};
             TCPListenerThread.Start();
@@ -66,7 +71,8 @@ namespace SecureWiki
 
         public void PrintTestMethod(string input)
         {
-            Console.WriteLine("ManagerThread printing: " + input + " from thread:" + Thread.CurrentThread.Name);
+            Console.WriteLine("ManagerThread printing: " + input + " from thread:" + 
+                              Thread.CurrentThread.Name);
         }
 
         public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
@@ -101,30 +107,53 @@ namespace SecureWiki
 
         public void UndoRevisionsByID(string pageTitle, string startID, string endID)
         {
-            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = new(wikiHandler.MWO, pageTitle);
+            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = 
+                new(wikiHandler.MWO, pageTitle);
             undoRevisions.UndoRevisionsByID(startID, endID);
         }
 
         public void DeleteRevisionsByID(string pageTitle, string IDs)
         {
-            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = new(wikiHandler.MWO, pageTitle);
+            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = 
+                new(wikiHandler.MWO, pageTitle);
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
-        public void UploadNewVersion(string pageTitle, string filepath)
+        public void UploadNewVersion(string filename, string filepath)
         {
-            wikiHandler.UploadNewVersion(pageTitle, filepath);
+            DataFileEntry df = GetDataFile(filename, rootKeyring);
+            if (df?.privateKey != null)
+            {
+                wikiHandler.UploadNewVersion(df, filepath);                
+            }
+            else
+            {
+                Console.WriteLine("{0}: the corresponding DataFileEntry does not contain" +
+                                  " a private key, upload cancelled", filepath);
+            }
         }
         
         public void SetMediaWikiServer(string url)
         {
             httpClient = new HttpClient();
-            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
+            wikiHandler = new WikiHandler("new_mysql_user", 
+                "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
         }
 
         public string ReadFile(string filename)
         {
-            return wikiHandler.ReadFile(filename);
+            var dataFile = GetDataFile(filename, rootKeyring);
+
+            if (dataFile == null) return "This text is stored securely.";
+            
+            // var encryptedFilenameBytes = EncryptAesStringToBytes(filename, 
+            //     dataFile.symmKey, dataFile.iv);
+            // var encryptedFilenameString = Convert.ToBase64String(encryptedFilenameBytes);
+            //
+            // // URL does not allow + character, instead encode as hexadecimal
+            // var pageTitle = encryptedFilenameString.Replace("+", "%2B");
+            
+            return wikiHandler.ReadFile(dataFile);
         }
         
         public void LoginToMediaWiki(string username, string password)
@@ -174,6 +203,77 @@ namespace SecureWiki
             _keyring.ImportRootKeyring(importPath);
         }
 
+        public string? AttemptReadFileFromCache(string pageTitle, string revid)
+        {
+            
+            string? cacheResult;
+
+            if (revid.Equals("-1"))
+            {
+                Console.WriteLine("AttemptReadFileFromCache:- revid==-1");
+                cacheResult = cacheManager.GetFilePath(pageTitle);
+            }
+            else
+            {
+                cacheResult = cacheManager.GetFilePath(pageTitle, revid);                
+            }
+
+            if (cacheResult == null || File.Exists(cacheResult) == false)
+            {
+                return null;
+            }
+
+            string fileString = File.ReadAllText(cacheResult);
+            return fileString;
+        }
+
+        public void AddEntryToCache(string pageTitle, Revision rev)
+        {
+            Console.WriteLine("AddEntryToCache:- cacheManager.AddEntry('{0}', '{1}')", pageTitle, rev);
+            cacheManager.AddEntry(pageTitle, rev);
+        }
+        
+        public void SerializeCacheManagerAndWriteToFile(string path)
+        {
+            var jsonData = JsonConvert.SerializeObject(cacheManager, Formatting.Indented);
+            File.WriteAllText(path, jsonData);
+        }
+        
+        public CacheManager? ReadFromFileAndDeserializeToCacheManager(string path)
+        {
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+            var jsonData = File.ReadAllText(path);
+            var output = JsonConvert.DeserializeObject<CacheManager>(jsonData);
+
+            return output;
+        }
+        
+        private string GetCacheManagerFilePath() {
+            var currentDir = Directory.GetCurrentDirectory();
+            var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+            var cacheManagerFileName = "CacheManager.json";
+            var cacheManagerFilePath = Path.Combine(path, cacheManagerFileName);
+
+            return cacheManagerFilePath;
+        }
+        
+        public void SaveCacheManagerToFile() 
+        {
+            string path = GetCacheManagerFilePath();
+            SerializeCacheManagerAndWriteToFile(path);
+        }
+
+        public void InitializeCacheManager()
+        {
+            string path = GetCacheManagerFilePath();
+            
+            var existingCacheManager = ReadFromFileAndDeserializeToCacheManager(path) ?? new CacheManager();
+            cacheManager = existingCacheManager;
+        }
+
         // Delegated Crypto functions
         public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)
         {
@@ -203,37 +303,39 @@ namespace SecureWiki
 
         public void SendEmail(string recipientEmail)
         {
-            string mailto = string.Format("xdg-email mailto:{0}?subject={1}&body={2}", recipientEmail, "SecureWiki", "Hello");
-            Console.WriteLine(mailto);
-            Process.Start(mailto);
-            // var smtpClient = new SmtpClient("smtp.gmail.com")
-            // {
-            //     Port = 587,
-            //     Credentials = new NetworkCredential(_smtpClientEmail, _smtpClientPassword),
-            //     EnableSsl = true,
-            // };
-            //
-            // var mailMessage = new MailMessage
-            // {
-            //     From = new MailAddress(_smtpClientEmail),
-            //     Subject = "SecureWiki file sharing",
-            //     Body = "<h1>Hello</h1>" +
-            //             "<br />You have received a new keyring" +
-            //             "<p>Sincerely,<br />" +
-            //             "<br />" +
-            //             "<br />" +
-            //             "Kevin Sanders<br />" +
-            //             "<i>Vice President</i></p>",
-            //     IsBodyHtml = true,
-            // };
-            // // TODO: send selected keyring and not all
-            // var keyringPath = _keyring.GetKeyringFilePath();
-            // var attachment = new Attachment(keyringPath, MediaTypeNames.Application.Json);
-            // mailMessage.Attachments.Add(attachment);
-            // mailMessage.To.Add(recipientEmail);
-            //
-            // Console.WriteLine(recipientEmail);
-            // smtpClient.Send(mailMessage);
+            // string mailto = string.Format("xdg-email mailto:{0}?subject={1}&body={2}",
+            // recipientEmail, "SecureWiki", "Hello");
+            // Console.WriteLine(mailto);
+            // Process.Start(mailto);
+            var smtpClient = new SmtpClient("smtp.gmail.com")
+            {
+                Port = 587,
+                Credentials = new NetworkCredential(_smtpClientEmail, _smtpClientPassword),
+                EnableSsl = true,
+            };
+            
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(_smtpClientEmail),
+                Subject = "SecureWiki file sharing",
+                Body = "<h1>Hello</h1>" +
+                        "<br />You have received a new keyring" +
+                        "<p>Sincerely,<br />" +
+                        "<br />" +
+                        "<br />" +
+                        "Kevin Sanders<br />" +
+                        "<i>Vice President</i></p>",
+                IsBodyHtml = true,
+            };
+            // TODO: send selected keyring and not all
+            var keyringPath = _keyring.GetKeyringFilePath();
+            var attachment = new Attachment(keyringPath, 
+                MediaTypeNames.Application.Json);
+            mailMessage.Attachments.Add(attachment);
+            mailMessage.To.Add(recipientEmail);
+            
+            Console.WriteLine(recipientEmail);
+            smtpClient.Send(mailMessage);
         }
     }
 }

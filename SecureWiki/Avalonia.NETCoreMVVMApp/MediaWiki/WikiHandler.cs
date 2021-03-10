@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using SecureWiki.Model;
 
 namespace SecureWiki.MediaWiki
 {
@@ -30,29 +31,28 @@ namespace SecureWiki.MediaWiki
             _manager = manager;
         }
 
-        public void UploadNewVersion(string filename, string filepath)
+        public void UploadNewVersion(DataFileEntry dataFile, string filepath)
         {
             var srcDir = GetRootDir(filepath);
             var plainText = File.ReadAllText(srcDir);
             Console.WriteLine("Upload plain text: " + plainText);
 
-            var keyring = _manager.ReadKeyRing();
-            var dataFile = _manager.GetDataFile(filename, keyring);
-
-            if (dataFile != null && !plainText.Equals(""))
+            if (!plainText.Equals(""))
             {
                 // Sign plaintext
                 var hash = _manager.SignData(dataFile.privateKey, plainText);
                 var hashString = Convert.ToBase64String(hash);
-                var encryptedBytes = _manager.EncryptAesStringToBytes(plainText + hashString,
-                    dataFile.symmKey, dataFile.iv);
+                var encryptedBytes = _manager.EncryptAesStringToBytes(
+                    plainText + hashString, dataFile.symmKey, dataFile.iv);
 
                 var encryptedText = Convert.ToBase64String(encryptedBytes);
 
-                var encryptedPagetitleBytes = _manager.EncryptAesStringToBytes(filename, dataFile.symmKey, dataFile.iv);
+                var encryptedPagetitleBytes = _manager.EncryptAesStringToBytes(
+                    dataFile.filename, dataFile.symmKey, dataFile.iv);
                 var encryptedPagetitleString = Convert.ToBase64String(encryptedPagetitleBytes);
 
-                MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(MWO, encryptedPagetitleString);
+                MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(MWO, 
+                    encryptedPagetitleString);
                 uploadNewRevision.UploadContent(encryptedText);
             }
         }
@@ -71,32 +71,39 @@ namespace SecureWiki.MediaWiki
             Console.WriteLine("WikiHandler printing: " + input);
         }
 
-        public string ReadFile(string filename)
+        public string ReadFile(DataFileEntry dataFile)
         {
-            var keyring = _manager.ReadKeyRing();
-            var dataFile = _manager.GetDataFile(filename, keyring);
+            MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(MWO, dataFile.pagename);
+            latestRevision.GetLatestRevision();
 
-            if (dataFile == null) return "This text is stored securely.";
-            var encryptedFilenameBytes = _manager.EncryptAesStringToBytes(filename, dataFile.symmKey, dataFile.iv);
-            var encryptedFilenameString = Convert.ToBase64String(encryptedFilenameBytes);
-            
-            // Check if user has requested old page revision
-            MediaWikiObjects.PageQuery.PageContent getPageContent;
-            if (_manager.RequestedRevision.ContainsKey(dataFile.pagename))
+            return ReadFile(dataFile, latestRevision.revision.revisionID ?? "-1");
+        }
+
+        public string ReadFile(DataFileEntry dataFile, string revid)
+        {
+
+            // Check if revision already exists in cache and return output if so
+            var cacheResult = _manager.AttemptReadFileFromCache(dataFile.pagename, revid);
+            if (cacheResult != null)
             {
-                var revID = _manager.RequestedRevision[dataFile.pagename];
-                Console.WriteLine("Read manager has revId {0} for datafile {1}", revID, dataFile.filename);
-                getPageContent = new(MWO, encryptedFilenameString, revID);
+                Console.WriteLine("WikiHandler:- ReadFile: Returning extracted content " +
+                                  "from cache: pageTitle='{0}', revid='{1}'", dataFile.pagename, revid);
+                return cacheResult;
             }
-            else
-            {
-                getPageContent = new(MWO, encryptedFilenameString, "-1");
-            }
+
+            MediaWikiObjects.PageQuery.PageContent getPageContent = new(MWO, dataFile.pagename, revid);
             var pageContent = getPageContent.GetContent();
-            if (pageContent.Equals("")) return "File does not exist on server";
-            var pageContentBytes = Convert.FromBase64String(pageContent);
+
+
+            if (pageContent.Equals(""))
+            {
+                return "File does not exist on server";
+            }
             
-            var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes, dataFile.symmKey, dataFile.iv);
+            var pageContentBytes = Convert.FromBase64String(pageContent);
+           
+            var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes, 
+                dataFile.symmKey, dataFile.iv);
             var textString = decryptedText.Substring(0, decryptedText.Length - 344);
             var hashString = decryptedText.Substring(decryptedText.Length - 344);
             var hashBytes = Convert.FromBase64String(hashString);
@@ -107,7 +114,16 @@ namespace SecureWiki.MediaWiki
                 return "Verifying failed...";
             }
 
-            return textString.Equals("") ? "This text is stored securely." : textString;
+            if (textString.Equals(""))
+            {
+                return "This text is stored securely.";
+            }
+
+            getPageContent.revision.content = textString;
+
+            _manager.AddEntryToCache(dataFile.pagename, getPageContent.revision);
+            
+            return textString;
         }
     }
 }
