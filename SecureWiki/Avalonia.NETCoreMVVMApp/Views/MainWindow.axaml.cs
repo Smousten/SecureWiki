@@ -78,6 +78,8 @@ namespace SecureWiki.Views
             Console.WriteLine();
             Console.WriteLine("Window is closing");
             
+            manager.SaveCacheManagerToFile();
+            
             var currentDir = Directory.GetCurrentDirectory();
             var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var mountdirPath = Path.Combine(baseDir, @"fuse/example/mountdir");

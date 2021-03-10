@@ -88,6 +88,74 @@ namespace SecureWiki.MediaWiki
             {
             }
 
+            public class LatestRevision : PageQuery
+            {
+                public Revision revision = new();
+
+                public LatestRevision(MediaWikiObjects source, string pageTitle) : base(source)
+                {
+                    this.pageTitle = pageTitle;
+                }
+
+                public LatestRevision(string pageTitle, HttpClient client)
+                {
+                    this.pageTitle = pageTitle;
+                    httpClient = client;
+                }
+
+                public Revision GetLatestRevision()
+                {
+                    PostRequest();
+
+                    return revision;
+                }
+
+                public override string BuildQuery()
+                {
+                    string queryBody = "?action=query";
+                    queryBody += "&titles=" + pageTitle;
+                    queryBody += "&prop=revisions";
+                    queryBody += "&rvslots=main";
+                    queryBody += "&rvprop=ids|flags|timestamp|user|size";
+                    queryBody += "&formatversion=2";
+                    queryBody += "&format=json";
+
+                    string query = queryBody;
+
+                    return query;
+                }
+
+                public override void ParseJObject(JObject inputJObject)
+                {
+                    // Print input JObject
+                    /*
+                    foreach (var pair in inputJObject)
+                    {
+                        Console.WriteLine("{0}: {1}", pair.Key, pair.Value);
+                    }
+                    */
+
+                    // Read the relevant fields of each revision entry into a Revision object
+                    // and add it to the list of revisions
+                    Revision tmp = new();
+                    foreach (var token in inputJObject.SelectTokens("query.pages[0].revisions[*]"))
+                    {
+                        tmp.revisionID = token.SelectToken("revid")?.ToString();
+                        tmp.flags = token.SelectToken("flags")?.ToString();
+                        tmp.timestamp = token.SelectToken("timestamp")?.ToString();
+                        tmp.user = token.SelectToken("user")?.ToString();
+                        tmp.size = token.SelectToken("size")?.ToString();
+
+                    }
+
+                    revision = tmp;
+
+                    //Console.WriteLine("revCount: " + revCount);
+                    //Console.WriteLine("number of entries in revisionList: " + revisionList.Count);
+                    //Console.WriteLine("Size of first, last entry: {0}, {1}", revisionList[0].size, revisionList[revisionList.Count-1].size);
+                    // Console.WriteLine("Loaded {0} entries into revisionList", revisionList.Count);
+                }
+            }
 
             public class AllRevisions : PageQuery
             {
@@ -219,22 +287,22 @@ namespace SecureWiki.MediaWiki
 
                 public override void ParseJObject(JObject inputJObject)
                 {
-                    // Print input JObject
-
-                    foreach (var pair in inputJObject)
-                    {
-                        Console.WriteLine("{0}: {1}", pair.Key, pair.Value);
-                    }
+                    // // Print input JObject
+                    //
+                    // foreach (var pair in inputJObject)
+                    // {
+                    //     Console.WriteLine("{0}: {1}", pair.Key, pair.Value);
+                    // }
 
 
                     // Read the relevant fields of each revision entry into a Revision object
                     // and add it to the list of revisions
                     JToken? token = inputJObject.SelectToken("query.pages[0].revisions[0]");
 
-                    Console.WriteLine("token.ToString():");
+                    // Console.WriteLine("token.ToString():");
                     if (token != null)
                     {
-                        Console.WriteLine(token.ToString());
+                        // Console.WriteLine(token.ToString());
 
                         Revision rev = new();
                         rev.revisionID = token.SelectToken("revid")?.ToString();

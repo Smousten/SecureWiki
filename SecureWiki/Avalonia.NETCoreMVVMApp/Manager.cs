@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mail;
@@ -8,6 +9,7 @@ using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using SecureWiki.ClientApplication;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
@@ -27,7 +29,7 @@ namespace SecureWiki
         private Crypto _crypto;
         private TCPListener tcpListener;
         private static HttpClient httpClient = new();
-        public CacheManager cacheManager = new();
+        public CacheManager cacheManager;
 
         public RootKeyring rootKeyring;
         public Dictionary<string, string> RequestedRevision = new();
@@ -55,6 +57,7 @@ namespace SecureWiki
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
 
             _keyring.InitKeyring();
+            InitializeCacheManager();
 
             TCPListenerThread = new Thread(tcpListener.RunListener) {IsBackground = true};
             TCPListenerThread.Start();
@@ -139,7 +142,18 @@ namespace SecureWiki
 
         public string ReadFile(string filename)
         {
-            return wikiHandler.ReadFile(filename);
+            var dataFile = GetDataFile(filename, rootKeyring);
+
+            if (dataFile == null) return "This text is stored securely.";
+            
+            // var encryptedFilenameBytes = EncryptAesStringToBytes(filename, 
+            //     dataFile.symmKey, dataFile.iv);
+            // var encryptedFilenameString = Convert.ToBase64String(encryptedFilenameBytes);
+            //
+            // // URL does not allow + character, instead encode as hexadecimal
+            // var pageTitle = encryptedFilenameString.Replace("+", "%2B");
+            
+            return wikiHandler.ReadFile(dataFile);
         }
         
         public void LoginToMediaWiki(string username, string password)
@@ -187,6 +201,77 @@ namespace SecureWiki
         {
             Console.WriteLine("Manager:- ImportKeyring('{0}')", importPath);
             _keyring.ImportRootKeyring(importPath);
+        }
+
+        public string? AttemptReadFileFromCache(string pageTitle, string revid)
+        {
+            
+            string? cacheResult;
+
+            if (revid.Equals("-1"))
+            {
+                Console.WriteLine("AttemptReadFileFromCache:- revid==-1");
+                cacheResult = cacheManager.GetFilePath(pageTitle);
+            }
+            else
+            {
+                cacheResult = cacheManager.GetFilePath(pageTitle, revid);                
+            }
+
+            if (cacheResult == null || File.Exists(cacheResult) == false)
+            {
+                return null;
+            }
+
+            string fileString = File.ReadAllText(cacheResult);
+            return fileString;
+        }
+
+        public void AddEntryToCache(string pageTitle, Revision rev)
+        {
+            Console.WriteLine("AddEntryToCache:- cacheManager.AddEntry('{0}', '{1}')", pageTitle, rev);
+            cacheManager.AddEntry(pageTitle, rev);
+        }
+        
+        public void SerializeCacheManagerAndWriteToFile(string path)
+        {
+            var jsonData = JsonConvert.SerializeObject(cacheManager, Formatting.Indented);
+            File.WriteAllText(path, jsonData);
+        }
+        
+        public CacheManager? ReadFromFileAndDeserializeToCacheManager(string path)
+        {
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+            var jsonData = File.ReadAllText(path);
+            var output = JsonConvert.DeserializeObject<CacheManager>(jsonData);
+
+            return output;
+        }
+        
+        private string GetCacheManagerFilePath() {
+            var currentDir = Directory.GetCurrentDirectory();
+            var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+            var cacheManagerFileName = "CacheManager.json";
+            var cacheManagerFilePath = Path.Combine(path, cacheManagerFileName);
+
+            return cacheManagerFilePath;
+        }
+        
+        public void SaveCacheManagerToFile() 
+        {
+            string path = GetCacheManagerFilePath();
+            SerializeCacheManagerAndWriteToFile(path);
+        }
+
+        public void InitializeCacheManager()
+        {
+            string path = GetCacheManagerFilePath();
+            
+            var existingCacheManager = ReadFromFileAndDeserializeToCacheManager(path) ?? new CacheManager();
+            cacheManager = existingCacheManager;
         }
 
         // Delegated Crypto functions
