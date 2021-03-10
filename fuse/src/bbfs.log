@@ -1,0 +1,2384 @@
+
+bb_init()
+    conn:
+    proto_major = 7
+    proto_minor = 31
+    async_read = 1
+    max_write = 131072
+    max_readahead = 131072
+    capable = 00000ffb
+    want = 00000010
+    max_background = 0
+    congestion_threshold = 0
+    context:
+    fuse = a0963c50
+    uid = 0
+    gid = 0
+    pid = 0
+    private_data = a09622a0
+    logfile = a09636e0
+    rootdir = /home/smousten/Documents/fuse(copy)/directories/rootdir
+    umask = 00000
+
+bb_access(path="/", mask=04)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files"
+    lstat returned 0
+
+bb_opendir(path="/.Trash-1000/files", fi=0x3e912c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files"
+    opendir returned 0x0x7f2c380020e0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c380020e0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/files", buf=0x38002060, filler=0x3eb5bbc0, offset=0, fi=0x3e0efc30)
+    readdir returned 0x0x7f2c38002110
+calling filler with name droptest.2
+calling filler with name ABCD
+calling filler with name testDir
+calling filler with name ABCDF
+calling filler with name .
+calling filler with name bogus.2.txt
+calling filler with name AB
+calling filler with name M
+calling filler with name bogus.txt
+calling filler with name ..
+calling filler with name droptest
+calling filler with name A
+calling filler with name ABC
+calling filler with name ABCDE
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c380020e0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c380020e0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files/droptest.2", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files/droptest.2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files/ABCD", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files/ABCD"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files/testDir", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files/testDir"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files/ABCDF", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files/ABCDF"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files/bogus.2.txt", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files/bogus.2.txt"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files/AB", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files/AB"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files/M", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files/M"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files/bogus.txt", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files/bogus.txt"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files/droptest", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files/droptest"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files/A", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files/A"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files/ABC", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files/ABC"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/files/ABCDE", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/files/ABCDE"
+    lstat returned 0
+
+bb_releasedir(path="/.Trash-1000/files", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c380020e0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c380020e0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/A.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/A.trashinfo"
+    lstat returned 0
+
+bb_open(path"/.Trash-1000/info/A.trashinfo", fi=0x3e912cf0)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/A.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/A.trashinfo"
+    open returned 6
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_read(path="/.Trash-1000/info/A.trashinfo", buf=0x300016f0, size=4096, offset=0, fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 53
+
+bb_read(path="/.Trash-1000/info/A.trashinfo", buf=0x34000e20, size=4096, offset=53, fi=0x3d8cccf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 0
+
+bb_flush(path="/.Trash-1000/info/A.trashinfo", fi=0x3e912cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+
+bb_release(path="/.Trash-1000/info/A.trashinfo", fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+    close returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/AB.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/AB.trashinfo"
+    lstat returned 0
+
+bb_open(path"/.Trash-1000/info/AB.trashinfo", fi=0x3e912cf0)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/AB.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/AB.trashinfo"
+    open returned 6
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_read(path="/.Trash-1000/info/AB.trashinfo", buf=0x300016f0, size=4096, offset=0, fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 56
+
+bb_read(path="/.Trash-1000/info/AB.trashinfo", buf=0x34000f40, size=4096, offset=56, fi=0x3d8cccf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 0
+
+bb_flush(path="/.Trash-1000/info/AB.trashinfo", fi=0x3e912cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+
+bb_release(path="/.Trash-1000/info/AB.trashinfo", fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/ABC.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/ABC.trashinfo"
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+    close returned 0
+    lstat returned 0
+
+bb_open(path"/.Trash-1000/info/ABC.trashinfo", fi=0x3e912cf0)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/ABC.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/ABC.trashinfo"
+    open returned 6
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_read(path="/.Trash-1000/info/ABC.trashinfo", buf=0x300016f0, size=4096, offset=0, fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 55
+
+bb_read(path="/.Trash-1000/info/ABC.trashinfo", buf=0x34001060, size=4096, offset=55, fi=0x3d8cccf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 0
+
+bb_flush(path="/.Trash-1000/info/ABC.trashinfo", fi=0x3e912cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+
+bb_release(path="/.Trash-1000/info/ABC.trashinfo", fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/ABCD.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/ABCD.trashinfo"
+    close returned 0
+    lstat returned 0
+
+bb_open(path"/.Trash-1000/info/ABCD.trashinfo", fi=0x3e912cf0)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/ABCD.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/ABCD.trashinfo"
+    open returned 6
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_read(path="/.Trash-1000/info/ABCD.trashinfo", buf=0x300016f0, size=4096, offset=0, fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 56
+
+bb_read(path="/.Trash-1000/info/ABCD.trashinfo", buf=0x34001180, size=4096, offset=56, fi=0x3d8cccf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 0
+
+bb_flush(path="/.Trash-1000/info/ABCD.trashinfo", fi=0x3e912cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+
+bb_release(path="/.Trash-1000/info/ABCD.trashinfo", fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+    close returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/ABCDE.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/ABCDE.trashinfo"
+    lstat returned 0
+
+bb_open(path"/.Trash-1000/info/ABCDE.trashinfo", fi=0x3e912cf0)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/ABCDE.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/ABCDE.trashinfo"
+    open returned 6
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_read(path="/.Trash-1000/info/ABCDE.trashinfo", buf=0x300016f0, size=4096, offset=0, fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 57
+
+bb_read(path="/.Trash-1000/info/ABCDE.trashinfo", buf=0x34001180, size=4096, offset=57, fi=0x3d8cccf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 0
+
+bb_flush(path="/.Trash-1000/info/ABCDE.trashinfo", fi=0x3e912cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+
+bb_release(path="/.Trash-1000/info/ABCDE.trashinfo", fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+    close returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/ABCDF.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/ABCDF.trashinfo"
+    lstat returned 0
+
+bb_open(path"/.Trash-1000/info/ABCDF.trashinfo", fi=0x3e912cf0)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/ABCDF.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/ABCDF.trashinfo"
+    open returned 6
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_read(path="/.Trash-1000/info/ABCDF.trashinfo", buf=0x300016f0, size=4096, offset=0, fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 57
+
+bb_read(path="/.Trash-1000/info/ABCDF.trashinfo", buf=0x34001180, size=4096, offset=57, fi=0x3d8cccf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 0
+
+bb_flush(path="/.Trash-1000/info/ABCDF.trashinfo", fi=0x3e912cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+
+bb_release(path="/.Trash-1000/info/ABCDF.trashinfo", fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/M.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/M.trashinfo"
+    close returned 0
+    lstat returned 0
+
+bb_open(path"/.Trash-1000/info/M.trashinfo", fi=0x3e912cf0)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/M.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/M.trashinfo"
+    open returned 6
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_read(path="/.Trash-1000/info/M.trashinfo", buf=0x300016f0, size=4096, offset=0, fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 53
+
+bb_read(path="/.Trash-1000/info/M.trashinfo", buf=0x34001180, size=4096, offset=53, fi=0x3d8cccf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 0
+
+bb_flush(path="/.Trash-1000/info/M.trashinfo", fi=0x3e912cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+
+bb_release(path="/.Trash-1000/info/M.trashinfo", fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+    close returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/bogus.2.txt.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/bogus.2.txt.trashinfo"
+    lstat returned 0
+
+bb_open(path"/.Trash-1000/info/bogus.2.txt.trashinfo", fi=0x3e912cf0)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/bogus.2.txt.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/bogus.2.txt.trashinfo"
+    open returned 6
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_read(path="/.Trash-1000/info/bogus.2.txt.trashinfo", buf=0x300016f0, size=4096, offset=0, fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 61
+
+bb_read(path="/.Trash-1000/info/bogus.2.txt.trashinfo", buf=0x34001180, size=4096, offset=61, fi=0x3d8cccf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 0
+
+bb_flush(path="/.Trash-1000/info/bogus.2.txt.trashinfo", fi=0x3e912cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+
+bb_release(path="/.Trash-1000/info/bogus.2.txt.trashinfo", fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+    close returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/bogus.txt.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/bogus.txt.trashinfo"
+    lstat returned 0
+
+bb_open(path"/.Trash-1000/info/bogus.txt.trashinfo", fi=0x3e912cf0)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/bogus.txt.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/bogus.txt.trashinfo"
+    open returned 6
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_read(path="/.Trash-1000/info/bogus.txt.trashinfo", buf=0x300016f0, size=4096, offset=0, fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 61
+
+bb_read(path="/.Trash-1000/info/bogus.txt.trashinfo", buf=0x34001180, size=4096, offset=61, fi=0x3d8cccf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 0
+
+bb_flush(path="/.Trash-1000/info/bogus.txt.trashinfo", fi=0x3e912cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+
+bb_release(path="/.Trash-1000/info/bogus.txt.trashinfo", fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+    close returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/droptest.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/droptest.trashinfo"
+    lstat returned 0
+
+bb_open(path"/.Trash-1000/info/droptest.trashinfo", fi=0x3e912cf0)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/droptest.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/droptest.trashinfo"
+    open returned 6
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_read(path="/.Trash-1000/info/droptest.trashinfo", buf=0x300016f0, size=4096, offset=0, fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 60
+
+bb_read(path="/.Trash-1000/info/droptest.trashinfo", buf=0x34001180, size=4096, offset=60, fi=0x3d8cccf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 0
+
+bb_flush(path="/.Trash-1000/info/droptest.trashinfo", fi=0x3e912cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+
+bb_release(path="/.Trash-1000/info/droptest.trashinfo", fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/droptest.2.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/droptest.2.trashinfo"
+    close returned 0
+    lstat returned 0
+
+bb_open(path"/.Trash-1000/info/droptest.2.trashinfo", fi=0x3e912cf0)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/droptest.2.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/droptest.2.trashinfo"
+    open returned 6
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_read(path="/.Trash-1000/info/droptest.2.trashinfo", buf=0x300016f0, size=4096, offset=0, fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 60
+
+bb_read(path="/.Trash-1000/info/droptest.2.trashinfo", buf=0x34001180, size=4096, offset=60, fi=0x3d8cccf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 0
+
+bb_flush(path="/.Trash-1000/info/droptest.2.trashinfo", fi=0x3e912cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+
+bb_release(path="/.Trash-1000/info/droptest.2.trashinfo", fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+    close returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/testDir.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/testDir.trashinfo"
+    lstat returned 0
+
+bb_open(path"/.Trash-1000/info/testDir.trashinfo", fi=0x3e912cf0)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000/info/testDir.trashinfo", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000/info/testDir.trashinfo"
+    open returned 6
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+
+bb_read(path="/.Trash-1000/info/testDir.trashinfo", buf=0x34001180, size=4096, offset=0, fi=0x3d8cccf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 59
+
+bb_read(path="/.Trash-1000/info/testDir.trashinfo", buf=0x300016f0, size=4096, offset=59, fi=0x3e0efcf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+    pread returned 0
+
+bb_flush(path="/.Trash-1000/info/testDir.trashinfo", fi=0x3e912cf0)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0xce599047dd339c01
+
+bb_release(path="/.Trash-1000/info/testDir.trashinfo", fi=0x3d8cccf0)
+    fi:
+    flags = 0x00008000
+    fh_old = 0x00000006
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000006
+    lock_owner = 0x0000000000000000
+    close returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.xdg-volume-info", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.xdg-volume-info"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/autorun.inf", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/autorun.inf"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c34001200
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34001200
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001180, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c34001230
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c34001200
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34001200
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c34001200
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34001200
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c34001200
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34001200
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34009240, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c34001230
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c34001200
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34001200
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c34001200
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34001200
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c34001200
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34001200
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x340092c0, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c34001230
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c34001200
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34001200
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c34001200
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34001200
+    lock_owner = 0x0000000000000000
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34009340, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001200, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001280, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001300, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001380, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001300, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001380, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001300, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001380, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001300, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001380, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001300, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001380, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    opendir returned 0x0x7f2c34011400
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34011400
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001300, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c34011430
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c34011400
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34011400
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c34011400
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34011400
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001380, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    opendir returned 0x0x7f2c34011400
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34011400
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001300, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c34011430
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c34011400
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34011400
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c34011400
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c34011400
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001380, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001300, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001380, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001300, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001380, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001300, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x34001300, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/autorun.inf", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/autorun.inf"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_access(path="/", mask=04)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_access(path="/", mask=02)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_access(path="/", mask=01)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_opendir(path="/", fi=0x3e912c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c3800a2d0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c3800a2d0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/", buf=0x38002170, filler=0x3eb5bbc0, offset=0, fi=0x3d8ccc30)
+    readdir returned 0x0x7f2c3800a300
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c3800a2d0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c3800a2d0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000"
+    lstat returned 0
+
+bb_releasedir(path="/", fi=0x3e0efc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c3800a2d0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c3800a2d0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_access(path="/", mask=04)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_access(path="/", mask=02)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_access(path="/", mask=01)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c340093c0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/", buf=0x34001710, filler=0x3eb5bbc0, offset=0, fi=0x3e0efc30)
+    readdir returned 0x0x7f2c340093f0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000"
+    lstat returned 0
+
+bb_releasedir(path="/", fi=0x3e912c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c340093c0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c340093c0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_access(path="/", mask=04)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_access(path="/", mask=02)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_access(path="/", mask=01)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_opendir(path="/", fi=0x3e0efc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x0x7f2c30001770
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c30001770
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/", buf=0x300016f0, filler=0x3eb5bbc0, offset=0, fi=0x3e912c30)
+    readdir returned 0x0x7f2c300017a0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c30001770
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c30001770
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.Trash-1000"
+    lstat returned 0
+
+bb_releasedir(path="/", fi=0x3d8ccc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7f2c30001770
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007f2c30001770
+    lock_owner = 0x0000000000000000
+
+bb_statfs(path="/", statv=0x3e0efbf0)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    statvfs returned 0
+    sv:
+    f_bsize = 4096
+    f_frsize = 4096
+    f_blocks = 125797128
+    f_bfree = 118905094
+    f_bavail = 112497517
+    f_files = 32022528
+    f_ffree = 31701558
+    f_favail = 31701558
+    f_fsid = -810610981000959753
+    f_flag = 0x00001000
+    f_namemax = 255
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_access(path="/", mask=04)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_access(path="/", mask=02)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_access(path="/", mask=01)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned 0
+
+bb_access(path="/", mask=04)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_access(path="/", mask=02)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_access(path="/", mask=01)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+
+bb_opendir(path="/", fi=0x3e0efc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e912c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.git", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.git", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/", fi=0x3e912c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.git", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.git", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/", fi=0x3e912c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/.xdg-volume-info", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/.xdg-volume-info"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/autorun.inf", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/autorun.inf"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/", fi=0x3e0efc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e912c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e0efc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e912c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e0efc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e912c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e0efc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e912c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e0efc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e912c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e0efc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e912c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e0efc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e912c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e0efc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e912c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3e0efc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x3d8ccc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    opendir returned 0x(nil)
+    ERROR bb_opendir opendir: No such file or directory
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/autorun.inf", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/autorun.inf"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/fuse(copy)/directories/rootdir", path = "/", fpath = "/home/smousten/Documents/fuse(copy)/directories/rootdir/"
+    lstat returned -1
+    ERROR lstat: No such file or directory
