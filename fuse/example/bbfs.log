@@ -2321,7 +2321,7 @@ bb_releasedir(path="/Folder2", fi=0x0d981c40)
     fh = 0x00007fa40800a630
     lock_owner = 0x0000000000000000
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 264
 
@@ -2348,7 +2348,7 @@ bb_read(path="/Folder2/a342", buf=0xf80012e0, size=8192, offset=5, fi=0x0d15ecf0
     fh = 0x0000000000000009
     lock_owner = 0xfdb82e6b3e0254df
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 264
 
@@ -2488,7 +2488,7 @@ bb_releasedir(path="/Folder2", fi=0x0e1a4c40)
     fh = 0x00007fa40800a630
     lock_owner = 0x0000000000000000
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 288
 
@@ -2514,7 +2514,7 @@ bb_read(path="/Folder2/newFile", buf=0x040013e0, size=8192, offset=29, fi=0x0d98
     fh = 0x0000000000000009
     lock_owner = 0x1ffe51aa9217db81
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 288
 
@@ -2645,7 +2645,7 @@ bb_releasedir(path="/Folder2", fi=0x0c93bc40)
     fh = 0x00007fa3fc0015c0
     lock_owner = 0x0000000000000000
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 264
 
@@ -2672,7 +2672,7 @@ bb_read(path="/Folder2/abcd", buf=0xf80012e0, size=8192, offset=5, fi=0x0d15ecf0
     fh = 0x0000000000000009
     lock_owner = 0x5287df4065145ff3
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 264
 
@@ -2810,7 +2810,7 @@ bb_releasedir(path="/Folder2", fi=0x0e9c7c40)
     fh = 0x00007fa404009570
     lock_owner = 0x0000000000000000
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 278
 
@@ -2837,7 +2837,7 @@ bb_read(path="/Folder2/quick", buf=0xfc001610, size=8192, offset=19, fi=0x0c93bc
     fh = 0x0000000000000009
     lock_owner = 0xa5c258d88a5200cb
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 278
 
@@ -3045,7 +3045,7 @@ bb_read(path="/Folder2/quick", buf=0x040013e0, size=4096, offset=0, fi=0x0d981cf
     fh = 0x0000000000000009
     lock_owner = 0xa5c258d88a5200cb
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 278
 
@@ -3126,7 +3126,7 @@ bb_read(path="/Folder2/quick", buf=0xf80012e0, size=4096, offset=0, fi=0x0d15ecf
     fh = 0x0000000000000009
     lock_owner = 0x671c935a21bb4c0d
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 278
 
@@ -3274,7 +3274,7 @@ bb_read(path="/Folder2/abcd", buf=0x00001580, size=8192, offset=0, fi=0x0e1a4cf0
     fh = 0x0000000000000009
     lock_owner = 0xf68cda5c31d33ab8
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 285
 
@@ -3326,7 +3326,7 @@ bb_releasedir(path="/Folder2", fi=0x0d981c40)
     fh = 0x00007fa3fc0017a0
     lock_owner = 0x0000000000000000
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 264
 
@@ -3353,7 +3353,7 @@ bb_read(path="/Folder2/abcd", buf=0x08002880, size=8192, offset=5, fi=0x0e9c7cf0
     fh = 0x0000000000000009
     lock_owner = 0xf68cda5c31d33ab8
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 264
 
@@ -3499,7 +3499,7 @@ bb_read(path="/Folder2/a342", buf=0x08002880, size=8192, offset=0, fi=0x0e9c7cf0
     fh = 0x0000000000000009
     lock_owner = 0xe159edcb60452ee7
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 285
 
@@ -3551,7 +3551,7 @@ bb_releasedir(path="/Folder2", fi=0x0d15ec40)
     fh = 0x00007fa400009570
     lock_owner = 0x0000000000000000
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 264
 
@@ -3578,7 +3578,7 @@ bb_read(path="/Folder2/a342", buf=0xfc001720, size=8192, offset=5, fi=0x0c93bcf0
     fh = 0x0000000000000009
     lock_owner = 0xe159edcb60452ee7
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 264
 
@@ -16680,7 +16680,7 @@ bb_statfs(path="/", statv=0x0d981bf0)
     f_flag = 0x00001000
     f_namemax = 255
 
- msg received: û
+ msg received: ï¿½
 
  msg received length: 285
 
@@ -19732,3 +19732,3304 @@ bb_releasedir(path="/", fi=0x0d15ec40)
     lock_owner = 0x0000000000000000
     bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
     lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
+    opendir returned 0x0x7fa40800a630
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x08002880, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa40800a660
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name refactor1
+calling filler with name Folder2
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    opendir returned 0x0x7fa3fc009c70
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000", buf=0xfc002960, filler=0x0ec10bc0, offset=0, fi=0x0e1a4c30)
+    readdir returned 0x0x7fa3fc009ca0
+calling filler with name .
+calling filler with name info
+calling filler with name files
+calling filler with name expunged
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/info", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    opendir returned 0x0x7fa400009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/info", buf=0x00001b90, filler=0x0ec10bc0, offset=0, fi=0x0d981c30)
+    readdir returned 0x0x7fa4000095a0
+calling filler with name ABC.trashinfo
+calling filler with name testDir.trashinfo
+calling filler with name .
+calling filler with name bogus.txt.trashinfo
+calling filler with name ABCDE.trashinfo
+calling filler with name ABCDF.trashinfo
+calling filler with name A.trashinfo
+calling filler with name droptest.trashinfo
+calling filler with name test.trashinfo
+calling filler with name droptest.2.trashinfo
+calling filler with name bogus.2.txt.trashinfo
+calling filler with name ABCD.trashinfo
+calling filler with name ..
+calling filler with name AB.trashinfo
+calling filler with name M.trashinfo
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABC.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABC.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/.Trash-1000/info", fi=0x0c93bc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    lstat returned 0
+
+bb_opendir(path="/.Trash-1000/info", fi=0x0d981c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    opendir returned 0x0x7fa404009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/info", buf=0x040014e0, filler=0x0ec10bc0, offset=0, fi=0x0e9c7c30)
+    readdir returned 0x0x7fa4040095a0
+calling filler with name ABC.trashinfo
+calling filler with name testDir.trashinfo
+calling filler with name .
+calling filler with name bogus.txt.trashinfo
+calling filler with name ABCDE.trashinfo
+calling filler with name ABCDF.trashinfo
+calling filler with name A.trashinfo
+calling filler with name droptest.trashinfo
+calling filler with name test.trashinfo
+calling filler with name droptest.2.trashinfo
+calling filler with name bogus.2.txt.trashinfo
+calling filler with name ABCD.trashinfo
+calling filler with name ..
+calling filler with name AB.trashinfo
+calling filler with name M.trashinfo
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa404009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000/info", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa404009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000", fi=0x0c93bc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    lstat returned 0
+
+bb_opendir(path="/.Trash-1000", fi=0x0d981c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    opendir returned 0x0x7fa404009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000", buf=0x040014e0, filler=0x0ec10bc0, offset=0, fi=0x0e9c7c30)
+    readdir returned 0x0x7fa4040095a0
+calling filler with name .
+calling filler with name info
+calling filler with name files
+calling filler with name expunged
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa404009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/info", fi=0x0d981c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    opendir returned 0x0x7fa4040115b0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4040115b0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/info", buf=0x04001560, filler=0x0ec10bc0, offset=0, fi=0x0e9c7c30)
+    readdir returned 0x0x7fa4040115e0
+calling filler with name ABC.trashinfo
+calling filler with name testDir.trashinfo
+calling filler with name .
+calling filler with name bogus.txt.trashinfo
+calling filler with name ABCDE.trashinfo
+calling filler with name ABCDF.trashinfo
+calling filler with name A.trashinfo
+calling filler with name droptest.trashinfo
+calling filler with name test.trashinfo
+calling filler with name droptest.2.trashinfo
+calling filler with name bogus.2.txt.trashinfo
+calling filler with name ABCD.trashinfo
+calling filler with name ..
+calling filler with name AB.trashinfo
+calling filler with name M.trashinfo
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4040115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4040115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/.Trash-1000/info", fi=0x0c93bc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4040115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4040115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    lstat returned 0
+
+bb_opendir(path="/.Trash-1000/info", fi=0x0d981c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    opendir returned 0x0x7fa4040115b0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4040115b0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/info", buf=0x04001560, filler=0x0ec10bc0, offset=0, fi=0x0e9c7c30)
+    readdir returned 0x0x7fa4040115e0
+calling filler with name ABC.trashinfo
+calling filler with name testDir.trashinfo
+calling filler with name .
+calling filler with name bogus.txt.trashinfo
+calling filler with name ABCDE.trashinfo
+calling filler with name ABCDF.trashinfo
+calling filler with name A.trashinfo
+calling filler with name droptest.trashinfo
+calling filler with name test.trashinfo
+calling filler with name droptest.2.trashinfo
+calling filler with name bogus.2.txt.trashinfo
+calling filler with name ABCD.trashinfo
+calling filler with name ..
+calling filler with name AB.trashinfo
+calling filler with name M.trashinfo
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4040115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4040115b0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000/info", fi=0x0d15ec40)
+
+bb_releasedir(path="/", fi=0x0e1a4c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000", fi=0x0c93bc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa404009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4040115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4040115b0
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/", fi=0x0d981c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
+    opendir returned 0x0x7fa404009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
+    lstat returned 0
+
+bb_readdir(path="/", buf=0x040015e0, filler=0x0ec10bc0, offset=0, fi=0x0e1a4c30)
+    readdir returned 0x0x7fa4040095a0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name refactor1
+calling filler with name Folder2
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa404009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    opendir returned 0x0x7fa40800a630
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000", buf=0x08002880, filler=0x0ec10bc0, offset=0, fi=0x0e1a4c30)
+    readdir returned 0x0x7fa40800a660
+calling filler with name .
+calling filler with name info
+calling filler with name files
+calling filler with name expunged
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/info", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    opendir returned 0x0x7fa400009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/info", buf=0x00001b90, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa4000095a0
+calling filler with name ABC.trashinfo
+calling filler with name testDir.trashinfo
+calling filler with name .
+calling filler with name bogus.txt.trashinfo
+calling filler with name ABCDE.trashinfo
+calling filler with name ABCDF.trashinfo
+calling filler with name A.trashinfo
+calling filler with name droptest.trashinfo
+calling filler with name test.trashinfo
+calling filler with name droptest.2.trashinfo
+calling filler with name bogus.2.txt.trashinfo
+calling filler with name ABCD.trashinfo
+calling filler with name ..
+calling filler with name AB.trashinfo
+calling filler with name M.trashinfo
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/.Trash-1000/info", fi=0x0d981c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    lstat returned 0
+
+bb_opendir(path="/.Trash-1000/info", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    opendir returned 0x0x7fa400009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/info", buf=0x00001b90, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa4000095a0
+calling filler with name ABC.trashinfo
+calling filler with name testDir.trashinfo
+calling filler with name .
+calling filler with name bogus.txt.trashinfo
+calling filler with name ABCDE.trashinfo
+calling filler with name ABCDF.trashinfo
+calling filler with name A.trashinfo
+calling filler with name droptest.trashinfo
+calling filler with name test.trashinfo
+calling filler with name droptest.2.trashinfo
+calling filler with name bogus.2.txt.trashinfo
+calling filler with name ABCD.trashinfo
+calling filler with name ..
+calling filler with name AB.trashinfo
+calling filler with name M.trashinfo
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000/info", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000", fi=0x0d981c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    lstat returned 0
+
+bb_opendir(path="/.Trash-1000", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    opendir returned 0x0x7fa400009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000", buf=0x00001b90, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa4000095a0
+calling filler with name .
+calling filler with name info
+calling filler with name files
+calling filler with name expunged
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/info", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    opendir returned 0x0x7fa4000115b0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/info", buf=0x00001c10, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa4000115e0
+calling filler with name ABC.trashinfo
+calling filler with name testDir.trashinfo
+calling filler with name .
+calling filler with name bogus.txt.trashinfo
+calling filler with name ABCDE.trashinfo
+calling filler with name ABCDF.trashinfo
+calling filler with name A.trashinfo
+calling filler with name droptest.trashinfo
+calling filler with name test.trashinfo
+calling filler with name droptest.2.trashinfo
+calling filler with name bogus.2.txt.trashinfo
+calling filler with name ABCD.trashinfo
+calling filler with name ..
+calling filler with name AB.trashinfo
+calling filler with name M.trashinfo
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/.Trash-1000/info", fi=0x0d981c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    lock_owner = 0x0000000000000000
+    lstat returned 0
+
+bb_opendir(path="/.Trash-1000/info", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    opendir returned 0x0x7fa4000115b0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/info", buf=0x00001c10, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa4000115e0
+calling filler with name ABC.trashinfo
+calling filler with name testDir.trashinfo
+calling filler with name .
+calling filler with name bogus.txt.trashinfo
+calling filler with name ABCDE.trashinfo
+calling filler with name ABCDF.trashinfo
+calling filler with name A.trashinfo
+calling filler with name droptest.trashinfo
+calling filler with name test.trashinfo
+calling filler with name droptest.2.trashinfo
+calling filler with name bogus.2.txt.trashinfo
+calling filler with name ABCD.trashinfo
+calling filler with name ..
+calling filler with name AB.trashinfo
+calling filler with name M.trashinfo
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/testDir.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/testDir.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/bogus.txt.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/bogus.txt.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABCDE.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABCDE.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABCDF.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABCDF.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/A.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/A.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/droptest.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/droptest.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/test.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/test.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/droptest.2.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/droptest.2.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/bogus.2.txt.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/bogus.2.txt.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABCD.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABCD.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/AB.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/AB.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/M.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/M.trashinfo"
+    lstat returned 0
+
+bb_releasedir(path="/.Trash-1000/info", fi=0x0e1a4c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/files", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files"
+    opendir returned 0x0x7fa40800a630
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/files", buf=0x08002880, filler=0x0ec10bc0, offset=0, fi=0x0e1a4c30)
+    readdir returned 0x0x7fa40800a660
+calling filler with name droptest.2
+calling filler with name ABCD
+calling filler with name testDir
+calling filler with name ABCDF
+calling filler with name .
+calling filler with name bogus.2.txt
+calling filler with name AB
+calling filler with name M
+calling filler with name bogus.txt
+calling filler with name ..
+calling filler with name droptest
+calling filler with name A
+calling filler with name ABC
+calling filler with name ABCDE
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/droptest.2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/droptest.2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/.Trash-1000/files", fi=0x0d981c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files"
+    lstat returned 0
+
+bb_opendir(path="/.Trash-1000/files", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files"
+    opendir returned 0x0x7fa4000115b0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/files", buf=0x00001c10, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa4000115e0
+calling filler with name droptest.2
+calling filler with name ABCD
+calling filler with name testDir
+calling filler with name ABCDF
+calling filler with name .
+calling filler with name bogus.2.txt
+calling filler with name AB
+calling filler with name M
+calling filler with name bogus.txt
+calling filler with name ..
+calling filler with name droptest
+calling filler with name A
+calling filler with name ABC
+calling filler with name ABCDE
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABCD", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABCD"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/testDir", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/testDir"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/testDir/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/testDir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/testDir/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/testDir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/files/testDir", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/testDir", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/testDir"
+    opendir returned 0x0x7fa3fc009c70
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/files/testDir", buf=0xfc002960, filler=0x0ec10bc0, offset=0, fi=0x0d15ec30)
+    readdir returned 0x0x7fa3fc009ca0
+calling filler with name .
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000/files/testDir", fi=0x0e9c7c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABCDF", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABCDF"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/bogus.2.txt", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/bogus.2.txt"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/files/AB", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB"
+    opendir returned 0x0x7fa4000195f0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000195f0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/files/AB", buf=0x00002120, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa400019620
+calling filler with name Ffdsf
+calling filler with name .
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000195f0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000195f0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB/Ffdsf", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB/Ffdsf"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/.Trash-1000/files/AB", fi=0x0e9c7c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000195f0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000195f0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB"
+    lstat returned 0
+
+bb_opendir(path="/.Trash-1000/files/AB", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB"
+    opendir returned 0x0x7fa3fc009c70
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/files/AB", buf=0xfc001c30, filler=0x0ec10bc0, offset=0, fi=0x0d15ec30)
+    readdir returned 0x0x7fa3fc009ca0
+calling filler with name Ffdsf
+calling filler with name .
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000/files/AB", fi=0x0e9c7c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/M", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/M"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/bogus.txt", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/bogus.txt"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/droptest", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/droptest"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/A", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/A"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABC", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABC"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABCDE", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABCDE"
+    lstat returned 0
+
+bb_releasedir(path="/.Trash-1000/files", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/expunged", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/expunged"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/expunged/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/expunged/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/expunged/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/expunged/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/expunged", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/expunged", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/expunged"
+    opendir returned 0x0x7fa3fc009c70
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/expunged", buf=0xfc001c30, filler=0x0ec10bc0, offset=0, fi=0x0d15ec30)
+    readdir returned 0x0x7fa3fc009ca0
+calling filler with name .
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000/expunged", fi=0x0e9c7c40)
+    fi:
+    flags = 0x00000000
+
+bb_releasedir(path="/.Trash-1000", fi=0x0c93bc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/refactor1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/refactor1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2"
+    opendir returned 0x0x7fa40800a630
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2", buf=0x08002880, filler=0x0ec10bc0, offset=0, fi=0x0d15ec30)
+    readdir returned 0x0x7fa40800a660
+calling filler with name quick
+calling filler with name .
+calling filler with name Folder1
+calling filler with name abcd
+calling filler with name a342
+calling filler with name ..
+calling filler with name newFile
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/quick", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/quick"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/Folder2", fi=0x0c93bc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2"
+    lstat returned 0
+
+bb_opendir(path="/Folder2", fi=0x0d15ec30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2"
+    opendir returned 0x0x7fa3f8009dc0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8009dc0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2", buf=0xf80028b0, filler=0x0ec10bc0, offset=0, fi=0x0d981c30)
+    readdir returned 0x0x7fa3f8009df0
+calling filler with name quick
+calling filler with name .
+calling filler with name Folder1
+calling filler with name abcd
+calling filler with name a342
+calling filler with name ..
+calling filler with name newFile
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3f8009dc0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8009dc0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1", fi=0x0d15ec30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1"
+    opendir returned 0x0x7fa3f8011e00
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8011e00
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1", buf=0xf8002930, filler=0x0ec10bc0, offset=0, fi=0x0d981c30)
+    readdir returned 0x0x7fa3f8011e30
+calling filler with name .
+calling filler with name Folder2
+calling filler with name Folder11
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3f8011e00
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8011e00
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder2", fi=0x0d981c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    opendir returned 0x0x7fa4040115b0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4040115b0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder2", buf=0x040014e0, filler=0x0ec10bc0, offset=0, fi=0x0e1a4c30)
+    readdir returned 0x0x7fa4040115e0
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4040115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4040115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/File2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/File2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/Folder2/Folder1/Folder2", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4040115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4040115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    lstat returned 0
+
+bb_opendir(path="/Folder2/Folder1/Folder2", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    opendir returned 0x0x7fa400009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder2", buf=0x00001b90, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa4000095a0
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/Folder2/Folder1", fi=0x0d981c40)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1"
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3f8011e00
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8011e00
+    lock_owner = 0x0000000000000000
+    lstat returned 0
+
+bb_releasedir(path="/Folder2/Folder1/Folder2", fi=0x0e9c7c40)
+
+bb_opendir(path="/Folder2/Folder1", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1"
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    opendir returned 0x0x7fa4000115b0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1", buf=0x00001c10, filler=0x0ec10bc0, offset=0, fi=0x0e9c7c30)
+    readdir returned 0x0x7fa4000115e0
+calling filler with name .
+calling filler with name Folder2
+calling filler with name Folder11
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder2", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    opendir returned 0x0x7fa3fc009c70
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder2", buf=0xfc001c30, filler=0x0ec10bc0, offset=0, fi=0x0e9c7c30)
+    readdir returned 0x0x7fa3fc009ca0
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/Folder2/Folder1/Folder2", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    lstat returned 0
+
+bb_opendir(path="/Folder2/Folder1/Folder2", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    opendir returned 0x0x7fa3fc009c70
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder2", buf=0xfc001c30, filler=0x0ec10bc0, offset=0, fi=0x0e9c7c30)
+    readdir returned 0x0x7fa3fc009ca0
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/File1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/File1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/File3", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/File3"
+    lstat returned 0
+
+bb_releasedir(path="/Folder2/Folder1/Folder2", fi=0x0c93bc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder11", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11"
+    opendir returned 0x0x7fa400009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder11", buf=0x00001b90, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa4000095a0
+calling filler with name Folder111
+calling filler with name Folder112
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder11/Folder111", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    opendir returned 0x0x7fa3fc009c70
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder11/Folder111", buf=0xfc001c30, filler=0x0ec10bc0, offset=0, fi=0x0e9c7c30)
+    readdir returned 0x0x7fa3fc009ca0
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/File2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/File2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/Folder2/Folder1/Folder11/Folder111", fi=0x0e1a4c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    lstat returned 0
+
+bb_opendir(path="/Folder2/Folder1/Folder11/Folder111", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    opendir returned 0x0x7fa40800a630
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder11/Folder111", buf=0x08002880, filler=0x0ec10bc0, offset=0, fi=0x0d981c30)
+    readdir returned 0x0x7fa40800a660
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/Folder2/Folder1/Folder11/Folder111", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/Folder2/Folder1/Folder11", fi=0x0e1a4c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11"
+    lstat returned 0
+
+bb_opendir(path="/Folder2/Folder1/Folder11", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11"
+    opendir returned 0x0x7fa40800a630
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder11", buf=0x08002880, filler=0x0ec10bc0, offset=0, fi=0x0d981c30)
+    readdir returned 0x0x7fa40800a660
+calling filler with name Folder111
+calling filler with name Folder112
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder11/Folder111", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    opendir returned 0x0x7fa408012670
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa408012670
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder11/Folder111", buf=0x08003dd0, filler=0x0ec10bc0, offset=0, fi=0x0d981c30)
+    readdir returned 0x0x7fa4080126a0
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa408012670
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa408012670
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/Folder2/Folder1/Folder11/Folder111", fi=0x0e1a4c40)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    fi:
+    lstat returned 0
+    flags = 0x00000000
+    fh_old = 0x7fa408012670
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa408012670
+    lock_owner = 0x0000000000000000
+
+bb_opendir(path="/Folder2/Folder1/Folder11/Folder111", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    opendir returned 0x0x7fa408012670
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa408012670
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder11/Folder111", buf=0x08003e50, filler=0x0ec10bc0, offset=0, fi=0x0d981c30)
+    readdir returned 0x0x7fa4080126a0
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa408012670
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa408012670
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/File1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/File1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/File3", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/File3"
+    lstat returned 0
+
+bb_releasedir(path="/Folder2/Folder1/Folder11/Folder111", fi=0x0e9c7c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa408012670
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa408012670
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder112", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder112"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder112/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder112/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder112/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder112/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder11/Folder112", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder112", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder112"
+    opendir returned 0x0x7fa400009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder11/Folder112", buf=0x00001b90, filler=0x0ec10bc0, offset=0, fi=0x0e9c7c30)
+    readdir returned 0x0x7fa4000095a0
+calling filler with name .
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/Folder2/Folder1/Folder11/Folder112", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/File2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/File2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/File1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/File1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/File3", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/File3"
+    lstat returned 0
+
+bb_releasedir(path="/Folder2/Folder1/Folder11", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+
+bb_releasedir(path="/Folder2/Folder1", fi=0x0e1a4c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/abcd", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/abcd"
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/a342", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/a342"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/newFile", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/newFile"
+    lstat returned 0
+
+bb_releasedir(path="/Folder2", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3f8009dc0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8009dc0
+
+bb_releasedir(path="/", fi=0x0d981c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa404009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/", fi=0x0d981c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
+    opendir returned 0x0x7fa404009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/", buf=0x040015e0, filler=0x0ec10bc0, offset=0, fi=0x0d15ec30)
+    readdir returned 0x0x7fa4040095a0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name refactor1
+calling filler with name Folder2
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa404009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000", fi=0x0d15ec30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    opendir returned 0x0x7fa3f8009dc0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8009dc0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000", buf=0xf80028b0, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa3f8009df0
+calling filler with name .
+calling filler with name info
+calling filler with name files
+calling filler with name expunged
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3f8009dc0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8009dc0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/info", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    opendir returned 0x0x7fa3fc009c70
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/info", buf=0xfc001c30, filler=0x0ec10bc0, offset=0, fi=0x0e1a4c30)
+    readdir returned 0x0x7fa3fc009ca0
+calling filler with name ABC.trashinfo
+calling filler with name testDir.trashinfo
+calling filler with name .
+calling filler with name bogus.txt.trashinfo
+calling filler with name ABCDE.trashinfo
+calling filler with name ABCDF.trashinfo
+calling filler with name A.trashinfo
+calling filler with name droptest.trashinfo
+calling filler with name test.trashinfo
+calling filler with name droptest.2.trashinfo
+calling filler with name bogus.2.txt.trashinfo
+calling filler with name ABCD.trashinfo
+calling filler with name ..
+calling filler with name AB.trashinfo
+calling filler with name M.trashinfo
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/.Trash-1000/info", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/files", fi=0x0d981c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files"
+    opendir returned 0x0x7fa4040115b0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4040115b0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/files", buf=0x040014e0, filler=0x0ec10bc0, offset=0, fi=0x0d15ec30)
+    readdir returned 0x0x7fa4040115e0
+calling filler with name droptest.2
+calling filler with name ABCD
+calling filler with name testDir
+calling filler with name ABCDF
+calling filler with name .
+calling filler with name bogus.2.txt
+calling filler with name AB
+calling filler with name M
+calling filler with name bogus.txt
+calling filler with name ..
+calling filler with name droptest
+calling filler with name A
+calling filler with name ABC
+calling filler with name ABCDE
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4040115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4040115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/testDir", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/testDir"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/testDir/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/testDir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/testDir/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/testDir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/files/testDir", fi=0x0d15ec30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/testDir", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/testDir"
+    opendir returned 0x0x7fa3f8011e00
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8011e00
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/files/testDir", buf=0xf8002930, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa3f8011e30
+calling filler with name .
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3f8011e00
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8011e00
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000/files/testDir", fi=0x0e9c7c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3f8011e00
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8011e00
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/files/AB", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB"
+    opendir returned 0x0x7fa400009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/files/AB", buf=0x00001c10, filler=0x0ec10bc0, offset=0, fi=0x0e9c7c30)
+    readdir returned 0x0x7fa4000095a0
+calling filler with name Ffdsf
+calling filler with name .
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/.Trash-1000/files/AB", fi=0x0c93bc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000/files", fi=0x0e9c7c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4040115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4040115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/expunged", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/expunged"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/expunged/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/expunged/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/expunged/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/expunged/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/expunged", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/expunged", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/expunged"
+    opendir returned 0x0x7fa3fc009c70
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/expunged", buf=0xfc002550, filler=0x0ec10bc0, offset=0, fi=0x0e9c7c30)
+    readdir returned 0x0x7fa3fc009ca0
+calling filler with name .
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000/expunged", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000", fi=0x0c93bc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3f8009dc0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8009dc0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2"
+    opendir returned 0x0x7fa40800a630
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2", buf=0x08002880, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa40800a660
+calling filler with name quick
+calling filler with name .
+calling filler with name Folder1
+calling filler with name abcd
+calling filler with name a342
+calling filler with name ..
+calling filler with name newFile
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1"
+    opendir returned 0x0x7fa3fc009c70
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1", buf=0xfc002550, filler=0x0ec10bc0, offset=0, fi=0x0d15ec30)
+    readdir returned 0x0x7fa3fc009ca0
+calling filler with name .
+calling filler with name Folder2
+calling filler with name Folder11
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder2", fi=0x0d15ec30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    opendir returned 0x0x7fa3f8009dc0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8009dc0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder2", buf=0xf80028b0, filler=0x0ec10bc0, offset=0, fi=0x0d981c30)
+    readdir returned 0x0x7fa3f8009df0
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3f8009dc0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8009dc0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/Folder2/Folder1/Folder2", fi=0x0c93bc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3f8009dc0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3f8009dc0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder11", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11"
+    opendir returned 0x0x7fa408012670
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa408012670
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder11", buf=0x08003dd0, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa4080126a0
+calling filler with name Folder111
+calling filler with name Folder112
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa408012670
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa408012670
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder11/Folder111", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    opendir returned 0x0x7fa3fc011cb0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc011cb0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder11/Folder111", buf=0xfc0025d0, filler=0x0ec10bc0, offset=0, fi=0x0d15ec30)
+    readdir returned 0x0x7fa3fc011ce0
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc011cb0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc011cb0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/Folder2/Folder1/Folder11/Folder111", fi=0x0e9c7c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc011cb0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc011cb0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder112", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder112"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder112/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder112/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder112/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder112/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder11/Folder112", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder112", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder112"
+    opendir returned 0x0x7fa400009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder11/Folder112", buf=0x00001c10, filler=0x0ec10bc0, offset=0, fi=0x0e9c7c30)
+    readdir returned 0x0x7fa4000095a0
+calling filler with name .
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/Folder2/Folder1/Folder11/Folder112", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/Folder2/Folder1/Folder11", fi=0x0d981c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa408012670
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa408012670
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/Folder2/Folder1", fi=0x0c93bc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+
+bb_releasedir(path="/", fi=0x0e9c7c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa404009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/Folder2", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/refactor1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/refactor1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/a342", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/a342"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/abcd", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/abcd"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/quick", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/quick"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/newFile", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/newFile"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/A.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/A.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/M.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/M.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/AB.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/AB.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABC.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABC.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABCD.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABCD.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/test.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/test.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABCDE.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABCDE.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABCDF.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABCDF.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/testDir.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/testDir.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/droptest.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/droptest.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/bogus.txt.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/bogus.txt.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/droptest.2.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/droptest.2.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/bogus.2.txt.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/bogus.2.txt.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/A", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/A"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/M", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/M"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABC", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABC"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABCD", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABCD"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABCDE", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABCDE"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABCDF", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABCDF"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/droptest", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/droptest"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/bogus.txt", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/bogus.txt"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/droptest.2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/droptest.2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/bogus.2.txt", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/bogus.2.txt"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/File1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/File1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/File2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/File2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/File3", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/File3"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/File1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/File1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/File2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/File2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/File3", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/File3"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB/Ffdsf", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB/Ffdsf"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/File1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/File1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/File2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/File2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/File3", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/File3"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/refactor1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/refactor1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/a342", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/a342"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/abcd", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/abcd"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/quick", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/quick"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/newFile", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/newFile"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/A.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/A.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/M.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/M.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/AB.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/AB.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABC.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABC.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABCD.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABCD.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/test.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/test.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABCDE.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABCDE.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABCDF.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABCDF.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/testDir.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/testDir.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/droptest.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/droptest.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/bogus.txt.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/bogus.txt.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/droptest.2.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/droptest.2.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/bogus.2.txt.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/bogus.2.txt.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/A", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/A"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/M", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/M"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABC", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABC"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABCD", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABCD"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABCDE", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABCDE"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABCDF", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABCDF"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/droptest", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/droptest"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/bogus.txt", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/bogus.txt"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/droptest.2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/droptest.2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/bogus.2.txt", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/bogus.2.txt"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/File1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/File1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/File2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/File2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/File3", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/File3"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/File1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/File1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/File2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/File2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/File3", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/File3"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB/Ffdsf", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB/Ffdsf"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/File1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/File1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/File2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/File2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/File3", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/File3"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
+    opendir returned 0x0x7fa3fc009c70
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/", buf=0xfc002550, filler=0x0ec10bc0, offset=0, fi=0x0d15ec30)
+    readdir returned 0x0x7fa3fc009ca0
+calling filler with name .
+calling filler with name .Trash-1000
+calling filler with name refactor1
+calling filler with name Folder2
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    opendir returned 0x0x7fa3fc011cb0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc011cb0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000", buf=0xfc0025d0, filler=0x0ec10bc0, offset=0, fi=0x0d15ec30)
+    readdir returned 0x0x7fa3fc011ce0
+calling filler with name .
+calling filler with name info
+calling filler with name files
+calling filler with name expunged
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc011cb0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc011cb0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/info", fi=0x0c93bc30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    opendir returned 0x0x7fa3fc019cf0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc019cf0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/info", buf=0xfc002650, filler=0x0ec10bc0, offset=0, fi=0x0d15ec30)
+    readdir returned 0x0x7fa3fc019d20
+calling filler with name ABC.trashinfo
+calling filler with name testDir.trashinfo
+calling filler with name .
+calling filler with name bogus.txt.trashinfo
+calling filler with name ABCDE.trashinfo
+calling filler with name ABCDF.trashinfo
+calling filler with name A.trashinfo
+calling filler with name droptest.trashinfo
+calling filler with name test.trashinfo
+calling filler with name droptest.2.trashinfo
+calling filler with name bogus.2.txt.trashinfo
+calling filler with name ABCD.trashinfo
+calling filler with name ..
+calling filler with name AB.trashinfo
+calling filler with name M.trashinfo
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc019cf0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc019cf0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/.Trash-1000/info", fi=0x0e9c7c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc019cf0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc019cf0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/files", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files"
+    opendir returned 0x0x7fa400009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/files", buf=0x00001c10, filler=0x0ec10bc0, offset=0, fi=0x0d981c30)
+    readdir returned 0x0x7fa4000095a0
+calling filler with name droptest.2
+calling filler with name ABCD
+calling filler with name testDir
+calling filler with name ABCDF
+calling filler with name .
+calling filler with name bogus.2.txt
+calling filler with name AB
+calling filler with name M
+calling filler with name bogus.txt
+calling filler with name ..
+calling filler with name droptest
+calling filler with name A
+calling filler with name ABC
+calling filler with name ABCDE
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/testDir", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/testDir"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/testDir/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/testDir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/testDir/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/testDir/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/files/testDir", fi=0x0d981c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/testDir", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/testDir"
+    opendir returned 0x0x7fa404009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/files/testDir", buf=0x040015e0, filler=0x0ec10bc0, offset=0, fi=0x0e9c7c30)
+    readdir returned 0x0x7fa4040095a0
+calling filler with name .
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa404009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000/files/testDir", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa404009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa404009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/files/AB", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB"
+    opendir returned 0x0x7fa40800a630
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/files/AB", buf=0x08002880, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa40800a660
+calling filler with name Ffdsf
+calling filler with name .
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/.Trash-1000/files/AB", fi=0x0d981c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000/files", fi=0x0c93bc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/expunged", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/expunged"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/expunged/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/expunged/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/expunged/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/expunged/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/.Trash-1000/expunged", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/expunged", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/expunged"
+    opendir returned 0x0x7fa40800a630
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/.Trash-1000/expunged", buf=0x08002880, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa40800a660
+calling filler with name .
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000/expunged", fi=0x0e1a4c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/.Trash-1000", fi=0x0e9c7c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc011cb0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc011cb0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2"
+    opendir returned 0x0x7fa400009570
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2", buf=0x00001c10, filler=0x0ec10bc0, offset=0, fi=0x0d981c30)
+    readdir returned 0x0x7fa4000095a0
+calling filler with name quick
+calling filler with name .
+calling filler with name Folder1
+calling filler with name abcd
+calling filler with name a342
+calling filler with name ..
+calling filler with name newFile
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1"
+    opendir returned 0x0x7fa4000115b0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1", buf=0x00001b90, filler=0x0ec10bc0, offset=0, fi=0x0d981c30)
+    readdir returned 0x0x7fa4000115e0
+calling filler with name .
+calling filler with name Folder2
+calling filler with name Folder11
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder2", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    opendir returned 0x0x7fa4000195f0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000195f0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder2", buf=0x00001680, filler=0x0ec10bc0, offset=0, fi=0x0d981c30)
+    readdir returned 0x0x7fa400019620
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000195f0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000195f0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/Folder2/Folder1/Folder2", fi=0x0d15ec40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000195f0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000195f0
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder11", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11"
+    opendir returned 0x0x7fa40800a630
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder11", buf=0x08002880, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa40800a660
+calling filler with name Folder111
+calling filler with name Folder112
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder11/Folder111", fi=0x0e9c7c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    opendir returned 0x0x7fa408012670
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa408012670
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder11/Folder111", buf=0x08002370, filler=0x0ec10bc0, offset=0, fi=0x0c93bc30)
+    readdir returned 0x0x7fa4080126a0
+calling filler with name .
+calling filler with name File2
+calling filler with name ..
+calling filler with name File1
+calling filler with name File3
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa408012670
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa408012670
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/.gitignore", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/.gitignore"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_releasedir(path="/Folder2/Folder1/Folder11/Folder111", fi=0x0d981c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa408012670
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa408012670
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder112", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder112"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder112/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder112/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder112/.git", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder112/.git"
+    lstat returned -1
+    ERROR lstat: No such file or directory
+
+bb_opendir(path="/Folder2/Folder1/Folder11/Folder112", fi=0x0e1a4c30)
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder112", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder112"
+    opendir returned 0x0x7fa4000195f0
+    fi:
+    flags = 0x00018800
+    fh_old = 0x00000000
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000195f0
+    lock_owner = 0x0000000000000000
+
+bb_readdir(path="/Folder2/Folder1/Folder11/Folder112", buf=0x00001680, filler=0x0ec10bc0, offset=0, fi=0x0d981c30)
+    readdir returned 0x0x7fa400019620
+calling filler with name .
+calling filler with name ..
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000195f0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000195f0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/Folder2/Folder1/Folder11/Folder112", fi=0x0c93bc40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000195f0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000195f0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/Folder2/Folder1/Folder11", fi=0x0e1a4c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa40800a630
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa40800a630
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/Folder2/Folder1", fi=0x0e1a4c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa4000115b0
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa4000115b0
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/Folder2", fi=0x0e1a4c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa400009570
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa400009570
+    lock_owner = 0x0000000000000000
+
+bb_releasedir(path="/", fi=0x0e1a4c40)
+    fi:
+    flags = 0x00000000
+    fh_old = 0x7fa3fc009c70
+    writepage = 0
+    direct_io = 0
+    keep_cache = 0
+    fh = 0x00007fa3fc009c70
+    lock_owner = 0x0000000000000000
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/refactor1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/refactor1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/a342", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/a342"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/abcd", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/abcd"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/quick", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/quick"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/newFile", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/newFile"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/A.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/A.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/M.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/M.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/AB.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/AB.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABC.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABC.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABCD.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABCD.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/test.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/test.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABCDE.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABCDE.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/ABCDF.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/ABCDF.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/testDir.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/testDir.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/droptest.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/droptest.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/bogus.txt.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/bogus.txt.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/droptest.2.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/droptest.2.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/info/bogus.2.txt.trashinfo", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/info/bogus.2.txt.trashinfo"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/A", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/A"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/M", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/M"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABC", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABC"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABCD", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABCD"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABCDE", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABCDE"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/ABCDF", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/ABCDF"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/droptest", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/droptest"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/bogus.txt", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/bogus.txt"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/droptest.2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/droptest.2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/bogus.2.txt", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/bogus.2.txt"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/File1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/File1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/File2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/File2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder2/File3", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder2/File3"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/File1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/File1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/File2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/File2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/File3", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/File3"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/.Trash-1000/files/AB/Ffdsf", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/.Trash-1000/files/AB/Ffdsf"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/File1", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/File1"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/File2", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/File2"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/Folder2/Folder1/Folder11/Folder111/File3", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/Folder2/Folder1/Folder11/Folder111/File3"
+    lstat returned 0
+    bb_fullpath:  rootdir = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir", path = "/", fpath = "/home/smousten/Documents/SpecialeTests/fuse/example/rootdir/"
+    lstat returned 0
+
+bb_destroy(userdata=0xfacfe2a0)

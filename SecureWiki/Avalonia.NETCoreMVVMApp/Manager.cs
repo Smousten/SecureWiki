@@ -203,37 +203,37 @@ namespace SecureWiki
 
         public void SendEmail(string recipientEmail)
         {
-            // string mailto = string.Format("xdg-email mailto:{0}?subject={1}&body={2}", recipientEmail, "SecureWiki", "Hello");
-            // Console.WriteLine(mailto);
-            // Process.Start(mailto);
-            var smtpClient = new SmtpClient("smtp.gmail.com")
-            {
-                Port = 587,
-                Credentials = new NetworkCredential(_smtpClientEmail, _smtpClientPassword),
-                EnableSsl = true,
-            };
-            
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress(_smtpClientEmail),
-                Subject = "SecureWiki file sharing",
-                Body = "<h1>Hello</h1>" +
-                        "<br />You have received a new keyring" +
-                        "<p>Sincerely,<br />" +
-                        "<br />" +
-                        "<br />" +
-                        "Kevin Sanders<br />" +
-                        "<i>Vice President</i></p>",
-                IsBodyHtml = true,
-            };
-            // TODO: send selected keyring and not all
-            var keyringPath = _keyring.GetKeyringFilePath();
-            var attachment = new Attachment(keyringPath, MediaTypeNames.Application.Json);
-            mailMessage.Attachments.Add(attachment);
-            mailMessage.To.Add(recipientEmail);
-            
-            Console.WriteLine(recipientEmail);
-            smtpClient.Send(mailMessage);
+            string mailto = string.Format("xdg-email mailto:{0}?subject={1}&body={2}", recipientEmail, "SecureWiki", "Hello");
+            Console.WriteLine(mailto);
+            Process.Start(mailto);
+            // var smtpClient = new SmtpClient("smtp.gmail.com")
+            // {
+            //     Port = 587,
+            //     Credentials = new NetworkCredential(_smtpClientEmail, _smtpClientPassword),
+            //     EnableSsl = true,
+            // };
+            //
+            // var mailMessage = new MailMessage
+            // {
+            //     From = new MailAddress(_smtpClientEmail),
+            //     Subject = "SecureWiki file sharing",
+            //     Body = "<h1>Hello</h1>" +
+            //             "<br />You have received a new keyring" +
+            //             "<p>Sincerely,<br />" +
+            //             "<br />" +
+            //             "<br />" +
+            //             "Kevin Sanders<br />" +
+            //             "<i>Vice President</i></p>",
+            //     IsBodyHtml = true,
+            // };
+            // // TODO: send selected keyring and not all
+            // var keyringPath = _keyring.GetKeyringFilePath();
+            // var attachment = new Attachment(keyringPath, MediaTypeNames.Application.Json);
+            // mailMessage.Attachments.Add(attachment);
+            // mailMessage.To.Add(recipientEmail);
+            //
+            // Console.WriteLine(recipientEmail);
+            // smtpClient.Send(mailMessage);
         }
     }
 }

@@ -80,50 +80,22 @@ namespace SecureWiki.MediaWiki
             var encryptedFilenameBytes = _manager.EncryptAesStringToBytes(filename, dataFile.symmKey, dataFile.iv);
             var encryptedFilenameString = Convert.ToBase64String(encryptedFilenameBytes);
             
-            // URL does not allow + character, instead encode as hexadecimal
-            var encryptedFilenameStringEncoded = encryptedFilenameString.Replace("+", "%2B");
-            
             // Check if user has requested old page revision
             MediaWikiObjects.PageQuery.PageContent getPageContent;
             if (_manager.RequestedRevision.ContainsKey(dataFile.pagename))
             {
                 var revID = _manager.RequestedRevision[dataFile.pagename];
                 Console.WriteLine("Read manager has revId {0} for datafile {1}", revID, dataFile.filename);
-                getPageContent = new(MWO, encryptedFilenameStringEncoded, revID);
+                getPageContent = new(MWO, encryptedFilenameString, revID);
             }
             else
             {
-                getPageContent = new(MWO, encryptedFilenameStringEncoded, "-1");
+                getPageContent = new(MWO, encryptedFilenameString, "-1");
             }
             var pageContent = getPageContent.GetContent();
-            
-            // MediaWikiObjects.PageQuery.PageContent getPageContent = new(MWO, encryptedFilenameStringEncoded);
-            // var pageContent = getPageContent.GetContent();
-            
             if (pageContent.Equals("")) return "File does not exist on server";
             var pageContentBytes = Convert.FromBase64String(pageContent);
             
-            // string getData = "?action=query";
-            // getData += "&titles=" + encryptedFilenameStringEncoded;
-            // getData += "&prop=revisions";
-            // getData += "&rvslots=*";
-            // getData += "&rvprop=content";
-            // getData += "&format=json";
-            //
-            // HttpResponseMessage response = await _client.GetAsync(_url + getData);
-            // response.EnsureSuccessStatusCode();
-            // string responseBody = await response.Content.ReadAsStringAsync();
-            // JObject responseJson = JObject.Parse(responseBody);
-            // Console.WriteLine(responseJson);
-            //
-            // var pageContentPair = responseJson.SelectToken("query.pages.*.revisions[0].slots.main")?.Last?.ToString();
-            // var pageContent = pageContentPair?.Split(":", 2);
-            // if (pageContent == null) return "This text is stored securely.";
-            
-            // var trim = pageContent[1].Substring(2, pageContent[1].Length - 3);
-
-            // var pageContentBytes = Convert.FromBase64String(trim);
-                
             var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes, dataFile.symmKey, dataFile.iv);
             var textString = decryptedText.Substring(0, decryptedText.Length - 344);
             var hashString = decryptedText.Substring(decryptedText.Length - 344);

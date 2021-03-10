@@ -122,8 +122,11 @@ namespace SecureWiki.MediaWiki
 
                 public override string BuildQuery()
                 {
+                    // URL does not allow + character, instead encode as hexadecimal
+                    var updatedPageTitle = pageTitle.Replace("+", "%2B");
+                    
                     string queryBody = "?action=query";
-                    queryBody += "&titles=" + pageTitle;
+                    queryBody += "&titles=" + updatedPageTitle;
                     queryBody += "&prop=revisions";
                     queryBody += "&rvslots=*";
                     queryBody += "&rvlimit=max";
@@ -198,8 +201,11 @@ namespace SecureWiki.MediaWiki
 
                 public override string BuildQuery()
                 {
+                    // URL does not allow + character, instead encode as hexadecimal
+                    var updatedPageTitle = pageTitle.Replace("+", "%2B");
+                    
                     string queryBody = "?action=query";
-                    queryBody += "&titles=" + pageTitle;
+                    queryBody += "&titles=" + updatedPageTitle;
                     queryBody += "&prop=revisions";
                     queryBody += "&rvslots=*";
                     queryBody += "&rvlimit=1";

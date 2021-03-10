@@ -57,6 +57,12 @@
             </TextBox>
             <Button Name="ButtonLogin" Click="ButtonLogin_Click">Login</Button>
             
+            <!-- <TextBlock>Send keyring</TextBlock> -->
+            <!-- -->
+            <!-- <TextBox Name="TextBoxMail" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" Text="{Binding MailRecipient}" Watermark="Email recipient"> -->
+            <!-- </TextBox> -->
+            <!-- <Button Name="MailButton" Click="ButtonMail">Login</Button> -->
+            
 
         </StackPanel>
         
