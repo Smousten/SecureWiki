@@ -35,7 +35,7 @@ namespace SecureWiki.MediaWiki
         {
             var srcDir = GetRootDir(filepath);
             var plainText = File.ReadAllText(srcDir);
-            Console.WriteLine("Upload plain text: " + plainText);
+            // Console.WriteLine("Upload plain text: " + plainText);
 
             if (!plainText.Equals(""))
             {

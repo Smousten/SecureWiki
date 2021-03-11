@@ -555,12 +555,12 @@ namespace SecureWiki.Views
             // manager.GetAllRevisions("Www");
         }
 
-        private void CheckBox_OnKeyDown(object? sender, KeyEventArgs e)
+        private void TextBlockDataFile_OnKeyDown(object? sender, KeyEventArgs e)
         {
             if (e.Key != Key.R) return;
-            if (sender is CheckBox cb)
+            if (sender is TextBlock tb)
             {
-                DataFileEntry dataFile = cb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
+                DataFileEntry dataFile = tb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
                 _viewModel.selectedFile = dataFile;
                 _viewModel.revisions = manager.GetAllRevisions(dataFile.pagename).revisionList;
                 // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
@@ -584,6 +584,27 @@ namespace SecureWiki.Views
                     manager.RequestedRevision.Add(_viewModel.selectedFile.pagename, _viewModel.selectedRevision.revisionID);
                 }
             }
+        }   
+
+        private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            Console.WriteLine("InputElement_OnPointerPressed by" + sender.ToString());
+            
+            if (sender is TextBlock tb)
+            {
+                DataFileEntry dataFile = tb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
+                _viewModel.selectedFile = dataFile;
+                _viewModel.revisions = manager.GetAllRevisions(dataFile.pagename).revisionList;
+                // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
+                // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
+                Console.WriteLine(dataFile.filename);
+            }
+            
+        }
+
+        private void Button5_OnClick(object? sender, RoutedEventArgs e)
+        {
+            Console.WriteLine("Button4_OnClick by" + sender.ToString());
         }
     }
 }

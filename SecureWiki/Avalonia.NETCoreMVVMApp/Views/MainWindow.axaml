@@ -9,19 +9,9 @@
         Opened="MainWindow_Shown"
         Icon="/Assets/avalonia-logo.ico"
         Title="Please find a better name"
-        Padding="10"><!--Width="300" Height="400"-->
+        Padding="10">
 
-    <!--
-    <Design.DataContext>
-        <viewModels:MainWindowViewModel/>
-    </Design.DataContext>
-    -->
 
-    <!--<TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-    -->
-    <!--
-    <DockPanel Dock="Top" LastChildFill="True" x:Name="TopLevelDockPanel">
-    -->
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -29,6 +19,7 @@
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
+        <!--Left side panel-->
         <StackPanel Orientation="Vertical" VerticalAlignment="Top" Height="150" Width="300" x:Name="ButtonControlSp">
             <!--
             <TextBlock Name="NameLabel">What is your name?</TextBlock>
@@ -67,19 +58,20 @@
         </StackPanel>
         
 
-        
+        <!--TreeView-->
         <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <StackPanel Orientation="Vertical">
                 <TreeView Items="{Binding rootKeyringCollection, Mode=TwoWay}" Name="TreeView1">
                     <TreeView.DataTemplates>
                         <TreeDataTemplate DataType="Models:RootKeyring" ItemsSource="{Binding combinedList}">
                             <StackPanel Orientation="Horizontal">
+                                <!--IsChecked CheckBox-->
                                 <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
-                                    
                                 </CheckBox>
+                                <!--IsCheckedWrite CheckBox-->
                                 <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
-                                    
                                 </CheckBox>
+                                <!--Folder-->
                                 <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
                                     <TextBlock Foreground="Red" Text="{Binding Name, Mode=TwoWay}"></TextBlock>
                                 </Border>
@@ -87,40 +79,41 @@
                         </TreeDataTemplate>
                         <TreeDataTemplate DataType="Models:KeyringEntry" ItemsSource="{Binding combinedList}">
                             <StackPanel Orientation="Horizontal">
+                                <!--IsChecked CheckBox-->
                                 <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
-                                    
                                 </CheckBox>
+                                <!--IsCheckedWrite CheckBox-->
                                 <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
-                                    
                                 </CheckBox>
+                                <!--Folder-->
                                 <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
                                     <TextBlock Text="{Binding Name}"></TextBlock>
                                 </Border>
                             </StackPanel>
                         </TreeDataTemplate>
                         <DataTemplate DataType="Models:DataFileEntry" >
-                            <StackPanel Orientation="Horizontal">
-                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized" KeyDown="CheckBox_OnKeyDown">
-                                    
+                            <DockPanel LastChildFill="True" PointerPressed="InputElement_OnPointerPressed"> 
+                                <!--IsChecked CheckBox-->
+                                <CheckBox IsChecked="{Binding IsChecked}" DockPanel.Dock="Left" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
                                 </CheckBox>
-                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
-                                    
+                                <!--IsCheckedWrite CheckBox-->
+                                <CheckBox IsChecked="{Binding IsCheckedWrite}" DockPanel.Dock="Left" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
                                 </CheckBox>
-                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
-                                    <TextBlock Foreground="Blue" VerticalAlignment="Center" Text="{Binding filename}"></TextBlock>
-                                </Border>
-                            </StackPanel>
+                                <!--DataFile-->
+                                <TextBlock Foreground="Blue" VerticalAlignment="Center" PointerPressed="InputElement_OnPointerPressed" Text="{Binding filename}" ></TextBlock>
+                                <!-- This is stupid, but it works decently. -->
+                                <TextBlock Foreground="Blue" VerticalAlignment="Center" PointerPressed="InputElement_OnPointerPressed" 
+                                           Text="                                                                                     
+                                                                                                                         " >
+                                </TextBlock>
+                            </DockPanel>
                         </DataTemplate>
                     </TreeView.DataTemplates>
-                    <!--
-                    <Style Selector="TreeViewItem" >
-                        <Setter Property="IsExpanded" Value="True"></Setter>
-                    </Style>
-                    -->
                 </TreeView>
             </StackPanel>
-                
         </ScrollViewer>
+        
+        <!--Right side panel-->
         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <StackPanel>
                 <ContentControl Content="{Binding selectedFile, Mode=TwoWay}" Width="300">
@@ -154,8 +147,5 @@
             </StackPanel>
         </ScrollViewer>
     </Grid>
-    <!--
-    </DockPanel>
-    -->
     
 </Window>

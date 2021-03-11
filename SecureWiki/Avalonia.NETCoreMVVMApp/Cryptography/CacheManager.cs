@@ -67,9 +67,9 @@ namespace SecureWiki.Cryptography
                 PrintInfo();
                 return null;
             }
-
+            
             var output = _dict[pageTitle].GetFilePath(revid);
-            Console.WriteLine("CacheManager:- GetFilePath: output='{0}'", output);
+            // Console.WriteLine("CacheManager:- GetFilePath: output='{0}'", output);
 
             return output;
         }

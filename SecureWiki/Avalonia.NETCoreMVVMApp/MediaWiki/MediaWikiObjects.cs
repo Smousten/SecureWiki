@@ -234,7 +234,7 @@ namespace SecureWiki.MediaWiki
                     //Console.WriteLine("revCount: " + revCount);
                     //Console.WriteLine("number of entries in revisionList: " + revisionList.Count);
                     //Console.WriteLine("Size of first, last entry: {0}, {1}", revisionList[0].size, revisionList[revisionList.Count-1].size);
-                    Console.WriteLine("Loaded {0} entries into revisionList", revisionList.Count);
+                    // Console.WriteLine("Loaded {0} entries into revisionList", revisionList.Count);
                 }
             }
 
@@ -579,7 +579,7 @@ namespace SecureWiki.MediaWiki
             HttpResponseMessage response = httpClient.GetAsync(URL + query).Result;
 
             string responseBody = response.Content.ReadAsStringAsync().Result;
-            Console.WriteLine("getHttpResponse: " + responseBody);
+            // Console.WriteLine("getHttpResponse: " + responseBody);
 
             response.EnsureSuccessStatusCode();
 
@@ -595,7 +595,7 @@ namespace SecureWiki.MediaWiki
             HttpResponseMessage httpResponseMessage =
                 httpClient.PostAsync(URL + action.action, new FormUrlEncodedContent(action.values)).Result;
             string httpResponseMessageString = httpResponseMessage.Content.ReadAsStringAsync().Result;
-            Console.WriteLine("postHttpToServer: " + httpResponseMessageString);
+            // Console.WriteLine("postHttpToServer: " + httpResponseMessageString);
         }
 
         public void LoginMediaWiki(string username, string password)
