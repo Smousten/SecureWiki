@@ -4,12 +4,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:SecureWiki.ViewModels"
         xmlns:Models="clr-namespace:SecureWiki.Model"
+        xmlns:secureWiki="clr-namespace:SecureWiki"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="SecureWiki.Views.MainWindow"
         Opened="MainWindow_Shown"
         Icon="/Assets/avalonia-logo.ico"
         Title="Please find a better name"
         Padding="10">
+    <Window.Resources>
+        <Models:WidthConverterSingle x:Key="Valueconverter" ></Models:WidthConverterSingle>
+        <Models:FillerTextBlockWidthConverterMulti x:Key="WidthConverterMulti"></Models:FillerTextBlockWidthConverterMulti>
+    </Window.Resources>
 
 
     <Grid>
@@ -59,7 +64,7 @@
         
 
         <!--TreeView-->
-        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Name="ScrollViewerTreeView">
             <StackPanel Orientation="Vertical">
                 <TreeView Items="{Binding rootKeyringCollection, Mode=TwoWay}" Name="TreeView1">
                     <TreeView.DataTemplates>
@@ -92,7 +97,7 @@
                             </StackPanel>
                         </TreeDataTemplate>
                         <DataTemplate DataType="Models:DataFileEntry" >
-                            <DockPanel LastChildFill="True" PointerPressed="InputElement_OnPointerPressed"> 
+                            <DockPanel LastChildFill="False" Name="DockPanel_DataFileEntry" MaxWidth="{Binding Bounds.Width, ElementName=ScrollViewerTreeView}"> 
                                 <!--IsChecked CheckBox-->
                                 <CheckBox IsChecked="{Binding IsChecked}" DockPanel.Dock="Left" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
                                 </CheckBox>
@@ -100,11 +105,21 @@
                                 <CheckBox IsChecked="{Binding IsCheckedWrite}" DockPanel.Dock="Left" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
                                 </CheckBox>
                                 <!--DataFile-->
-                                <TextBlock Foreground="Blue" VerticalAlignment="Center" PointerPressed="InputElement_OnPointerPressed" Text="{Binding filename}" ></TextBlock>
+                                <TextBlock Foreground="Blue" Name="TextBlockDataFileEntry" VerticalAlignment="Center" PointerPressed="InputElement_OnPointerPressed" Text="{Binding filename}" ></TextBlock>
                                 <!-- This is stupid, but it works decently. -->
-                                <TextBlock Foreground="Blue" VerticalAlignment="Center" PointerPressed="InputElement_OnPointerPressed" 
+                                <TextBlock Foreground="Blue" Name="TextBlockFillDataFileEntry" VerticalAlignment="Center" PointerPressed="InputElement_OnPointerPressed" 
                                            Text="                                                                                     
                                                                                                                          " >
+                                    <TextBlock.Width>
+                                        <MultiBinding Converter="{StaticResource WidthConverterMulti}">
+                                            <Binding Path="Bounds.Width" ElementName="ScrollViewerTreeView" />
+                                            <Binding Path="Bounds.Width" ElementName="DockPanel_DataFileEntry" />
+                                            <Binding Path="Bounds.Width" ElementName="CheckBox" />
+                                            <Binding Path="Bounds.Width" ElementName="CheckBoxWrite" />
+                                            <Binding Path="Bounds.Width" ElementName="TextBlockDataFileEntry" />
+                                            <Binding Path="Bounds.Width" ElementName="TreeView1" />
+                                        </MultiBinding>
+                                    </TextBlock.Width>
                                 </TextBlock>
                             </DockPanel>
                         </DataTemplate>

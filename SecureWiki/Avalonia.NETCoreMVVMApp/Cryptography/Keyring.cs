@@ -348,7 +348,9 @@ namespace SecureWiki.Cryptography
             UpdateKeyringParentPropertyRecursively(rk);
 
             // Merge imported RootKeyring into current RootKeyring
+            Console.WriteLine("Merging existing RootKeyring and imported Keyring");
             rootKeyring.MergeAllEntriesFromOtherKeyring(rk);
+            Console.WriteLine("Updating mounted directory to reflect changes in RootKeyring");
             CreateFileStructureRecursion(rootKeyring, GetRootDirPath());
             
             // Write changes to Keyring.json

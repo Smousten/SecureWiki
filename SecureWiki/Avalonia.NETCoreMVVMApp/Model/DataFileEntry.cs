@@ -168,13 +168,23 @@ namespace SecureWiki.Model
             
             foreach (PropertyInfo prop in propertiesToBeCompared)
             {
-                var ownValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(this, null);
-                var refValue = typeof(DataFileEntry).GetProperty(prop.Name).GetValue(reference, null);
+                var ownValue = typeof(DataFileEntry).GetProperty(prop.Name)?.GetValue(this, null);
+                var refValue = typeof(DataFileEntry).GetProperty(prop.Name)?.GetValue(reference, null);
 
                 // Console.WriteLine("Testing property: '{0}'='{1}'", prop, ownValue);
                 
-                if (ownValue.GetType() == typeof(string))
+                if (ownValue == null || refValue == null)
                 {
+                    // Console.WriteLine("Atleast one is null");
+                    if (ownValue != null || refValue != null)
+                    {
+                        return false;
+                    }
+                }
+                else if (ownValue is string)
+                {
+                    // Console.WriteLine("is a string");
+
                     if (!(ownValue.Equals(refValue)))
                     {
                         // Console.WriteLine("string: '{0}'!='{1}'", ownValue, refValue);
@@ -183,9 +193,11 @@ namespace SecureWiki.Model
                 }
                 else if (ownValue.GetType() == typeof(byte[]))
                 {
+                    // Console.WriteLine("is a byte[]");
+
                     var byteArrayOwn = ownValue as byte[];
                     var byteArrayRef = refValue as byte[];
-                    if (!((byteArrayOwn ?? throw new InvalidOperationException()).SequenceEqual(byteArrayRef ?? throw new InvalidOperationException())))
+                    if (!(byteArrayOwn!).SequenceEqual(byteArrayRef!))
                     {
                         // Console.WriteLine("ByteArray: '{0}'!='{1}'", byteArrayOwn, byteArrayRef);
                         return false;
@@ -193,6 +205,8 @@ namespace SecureWiki.Model
                 }
                 else
                 {
+                    // Console.WriteLine("is neither");
+
                     // Console.WriteLine("'{0}'=='{1}'", ownValue, refValue);
                 }
             }
