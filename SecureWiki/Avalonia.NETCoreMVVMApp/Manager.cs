@@ -33,7 +33,7 @@ namespace SecureWiki
 
         public RootKeyring rootKeyring;
         public Dictionary<string, string> RequestedRevision = new();
-        
+
         private readonly string _smtpClientEmail = "SecureWikiMails@gmail.com";
         private readonly string _smtpClientPassword = "SecureWiki";
 
@@ -50,7 +50,7 @@ namespace SecureWiki
 
         public void Run()
         {
-            wikiHandler = new WikiHandler("new_mysql_user", 
+            wikiHandler = new WikiHandler("new_mysql_user",
                 "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
             _keyring = new Keyring(rootKeyring);
             _crypto = new Crypto();
@@ -71,7 +71,7 @@ namespace SecureWiki
 
         public void PrintTestMethod(string input)
         {
-            Console.WriteLine("ManagerThread printing: " + input + " from thread:" + 
+            Console.WriteLine("ManagerThread printing: " + input + " from thread:" +
                               Thread.CurrentThread.Name);
         }
 
@@ -92,10 +92,10 @@ namespace SecureWiki
         {
             MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.MWO, pageTitle, revID);
             string output = pc.GetContent();
-        
+
             return output;
         }
-        
+
         // public string GetPageContent(string pageTitle)
         // {
         //     MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.MWO, pageTitle);
@@ -107,24 +107,24 @@ namespace SecureWiki
 
         public void UndoRevisionsByID(string pageTitle, string startID, string endID)
         {
-            MediaWikiObjects.PageAction.UndoRevisions undoRevisions = 
+            MediaWikiObjects.PageAction.UndoRevisions undoRevisions =
                 new(wikiHandler.MWO, pageTitle);
             undoRevisions.UndoRevisionsByID(startID, endID);
         }
 
         public void DeleteRevisionsByID(string pageTitle, string IDs)
         {
-            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions = 
+            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions =
                 new(wikiHandler.MWO, pageTitle);
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
         public void UploadNewVersion(string filename, string filepath)
         {
-            DataFileEntry df = GetDataFile(filename, rootKeyring);
+            DataFileEntry? df = GetDataFile(filename, rootKeyring);
             if (df?.privateKey != null)
             {
-                wikiHandler.UploadNewVersion(df, filepath);                
+                wikiHandler.UploadNewVersion(df, filepath);
             }
             else
             {
@@ -132,11 +132,11 @@ namespace SecureWiki
                                   " a private key, upload cancelled", filepath);
             }
         }
-        
+
         public void SetMediaWikiServer(string url)
         {
             httpClient = new HttpClient();
-            wikiHandler = new WikiHandler("new_mysql_user", 
+            wikiHandler = new WikiHandler("new_mysql_user",
                 "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
         }
 
@@ -145,7 +145,7 @@ namespace SecureWiki
             var dataFile = GetDataFile(filename, rootKeyring);
 
             if (dataFile == null) return "This text is stored securely.";
-            
+
             // var encryptedFilenameBytes = EncryptAesStringToBytes(filename, 
             //     dataFile.symmKey, dataFile.iv);
             // var encryptedFilenameString = Convert.ToBase64String(encryptedFilenameBytes);
@@ -157,15 +157,15 @@ namespace SecureWiki
             {
                 return wikiHandler.ReadFile(dataFile, RequestedRevision[dataFile.pagename]);
             }
-            
+
             return wikiHandler.ReadFile(dataFile);
         }
-        
+
         public void LoginToMediaWiki(string username, string password)
         {
             throw new NotImplementedException();
         }
-        
+
         // Delegated Keyring functions
         public void AddNewFile(string filepath, string filename)
         {
@@ -186,12 +186,12 @@ namespace SecureWiki
         {
             return _keyring.ReadKeyRing();
         }
-        
+
         // public void RemoveFile(string filePath, string filename, string type)
         // {
         //     _keyring.RemoveFile(filePath, filename, type);
         // }
-        
+
         public void RemoveFile(string filePath, string filename)
         {
             _keyring.RemoveFile(filePath, filename);
@@ -210,7 +210,7 @@ namespace SecureWiki
 
         public string? AttemptReadFileFromCache(string pageTitle, string revid)
         {
-            
+
             string? cacheResult;
 
             if (revid.Equals("-1"))
@@ -220,7 +220,7 @@ namespace SecureWiki
             }
             else
             {
-                cacheResult = cacheManager.GetFilePath(pageTitle, revid);                
+                cacheResult = cacheManager.GetFilePath(pageTitle, revid);
             }
 
             if (cacheResult == null || File.Exists(cacheResult) == false)
@@ -237,26 +237,28 @@ namespace SecureWiki
             Console.WriteLine("AddEntryToCache:- cacheManager.AddEntry('{0}', '{1}')", pageTitle, rev);
             cacheManager.AddEntry(pageTitle, rev);
         }
-        
+
         public void SerializeCacheManagerAndWriteToFile(string path)
         {
             var jsonData = JsonConvert.SerializeObject(cacheManager, Formatting.Indented);
             File.WriteAllText(path, jsonData);
         }
-        
+
         public CacheManager? ReadFromFileAndDeserializeToCacheManager(string path)
         {
             if (!File.Exists(path))
             {
                 return null;
             }
+
             var jsonData = File.ReadAllText(path);
             var output = JsonConvert.DeserializeObject<CacheManager>(jsonData);
 
             return output;
         }
-        
-        private string GetCacheManagerFilePath() {
+
+        private string GetCacheManagerFilePath()
+        {
             var currentDir = Directory.GetCurrentDirectory();
             var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
             var cacheManagerFileName = "CacheManager.json";
@@ -264,8 +266,8 @@ namespace SecureWiki
 
             return cacheManagerFilePath;
         }
-        
-        public void SaveCacheManagerToFile() 
+
+        public void SaveCacheManagerToFile()
         {
             string path = GetCacheManagerFilePath();
             SerializeCacheManagerAndWriteToFile(path);
@@ -274,7 +276,7 @@ namespace SecureWiki
         public void InitializeCacheManager()
         {
             string path = GetCacheManagerFilePath();
-            
+
             var existingCacheManager = ReadFromFileAndDeserializeToCacheManager(path) ?? new CacheManager();
             cacheManager = existingCacheManager;
         }

@@ -120,14 +120,28 @@
                     <ContentControl.ContentTemplate>
                         <DataTemplate>
                             <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
-                                <TextBlock Grid.Row="0" Grid.Column="0">Filename: </TextBlock>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Filename:"></TextBlock>
                                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding filename}"/>
                             </Grid>
                         </DataTemplate>
                     </ContentControl.ContentTemplate>
                 </ContentControl>
-                <TextBlock Text="Download selected revision" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                <Button Name="SelectedRevisionButton" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}" Click="SelectedRevisionButton_OnClick">Click me!</Button>
+                
+                
+                <!-- <TextBlock Text="Revoke access to file" IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}"/> -->
+                <!-- <Button Name="RevokeAccessButton" IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}" Width="100" Height="30" Click="Show_Click">Show Popup</Button> -->
+                <!-- <Popup Name="MyPopup" PlacementTarget="RevokeAccessButton"> -->
+                <!--     <Grid> -->
+                <!--         <TextBlock Name="AccessRevocationText" Background="White" -->
+                <!--             Text="Are you that you want to revoke access to the file?&#x0a; This action cannot be undone."> -->
+                <!--         </TextBlock> -->
+                <!--         <Button Click="Hide_Click" Margin="80">Hide</Button> -->
+                <!--     </Grid> -->
+                <!-- </Popup> -->
+                
+                
+                <TextBlock Text="Select revision to open" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+                <Button Name="SelectedRevisionButton" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}" Click="SelectedRevisionButton_OnClick">Select</Button>
                 <ListBox Items="{Binding revisions, Mode=TwoWay}" SelectionMode="Single" SelectedItem="{Binding selectedRevision}" Width="300">
                     <ListBox.ItemTemplate>
                         <DataTemplate>

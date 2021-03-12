@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -606,5 +607,22 @@ namespace SecureWiki.Views
         {
             Console.WriteLine("Button4_OnClick by" + sender.ToString());
         }
+        //
+        // private void DisplayAccessRevocationPopup(object? sender, RoutedEventArgs e)
+        // {
+        //     
+        // }
+        //
+        // private void Show_Click(object? sender, RoutedEventArgs e)
+        // {
+        //     var MyPopup = this.FindControl<Popup>("MyPopup");
+        //     MyPopup.IsOpen = true;
+        // }
+        //
+        // private void Hide_Click(object? sender, RoutedEventArgs e)
+        // {
+        //     var MyPopup = this.FindControl<Popup>("MyPopup");
+        //     MyPopup.IsOpen = false;
+        // }
     }
 }

@@ -206,7 +206,23 @@ namespace SecureWiki.Cryptography
         public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)
         {
             var dataFile = keyring.dataFiles.FirstOrDefault(f => f.filename.Equals(filename));
-            return dataFile ?? keyring.keyrings.Select(childKeyRing => GetDataFile(filename, childKeyRing)).FirstOrDefault();
+            if (dataFile != null)
+            {
+                return dataFile;
+            }
+
+            foreach (var childKeyring in keyring.keyrings)
+            {
+                var result = GetDataFile(filename, childKeyring);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            return null;
+
+            // Linq one-line
+            // return dataFile ?? keyring.keyrings.Select(childKeyRing => GetDataFile(filename, childKeyRing)).FirstOrDefault(entry => entry != null);
         }
 
         // Rename or change location of datafile/keyring in root keyringEntry 

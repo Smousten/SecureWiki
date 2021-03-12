@@ -29,9 +29,9 @@ namespace SecureWiki.MediaWiki
 
     public class MediaWikiObjects
     {
-        private string URL = "http://localhost/mediawiki/api.php";
+        // private string URL = "http://localhost/mediawiki/api.php";
 
-        // private string URL;
+        private string URL;
         private string MWuserID;
         private string MWuserPassword;
 
@@ -46,7 +46,7 @@ namespace SecureWiki.MediaWiki
 
         public MediaWikiObjects(MediaWikiObjects source)
         {
-            // URL = source.URL;
+            URL = source.URL;
             MWuserID = source.MWuserID;
             MWuserPassword = source.MWuserPassword;
             httpClient = source.httpClient;

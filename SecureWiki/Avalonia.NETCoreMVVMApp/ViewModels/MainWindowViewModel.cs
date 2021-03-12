@@ -70,8 +70,7 @@ namespace SecureWiki.ViewModels
             get => _selectedRevision;
             set => this.RaiseAndSetIfChanged(ref _selectedRevision, value);
         }
-
-
+        
         public MainWindowViewModel(RootKeyring rk)
         {
             rootKeyring = rk;
