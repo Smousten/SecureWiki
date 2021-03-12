@@ -58,9 +58,9 @@ namespace SecureWiki.ViewModels
         }
 
         private List<Revision> _revisions;
-        public List<Revision> revisions
+        public List<Revision>? revisions
         {
-            get => _revisions;
+            get => _revisions.Count > 0 ? _revisions : null;
             set => this.RaiseAndSetIfChanged(ref _revisions, value);
         }
 
@@ -70,7 +70,7 @@ namespace SecureWiki.ViewModels
             get => _selectedRevision;
             set => this.RaiseAndSetIfChanged(ref _selectedRevision, value);
         }
-        
+
         public MainWindowViewModel(RootKeyring rk)
         {
             rootKeyring = rk;

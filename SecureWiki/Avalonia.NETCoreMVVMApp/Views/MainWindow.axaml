@@ -118,15 +118,14 @@
             <StackPanel>
                 <ContentControl Content="{Binding selectedFile, Mode=TwoWay}" Width="300">
                     <ContentControl.ContentTemplate>
-                        <DataTemplate>
-                            <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Filename:"></TextBlock>
+                        <DataTemplate DataType="Models:DataFileEntry">
+                            <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto">
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Filename: "></TextBlock>
                                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding filename}"/>
                             </Grid>
                         </DataTemplate>
                     </ContentControl.ContentTemplate>
                 </ContentControl>
-                
                 
                 <!-- <TextBlock Text="Revoke access to file" IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}"/> -->
                 <!-- <Button Name="RevokeAccessButton" IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}" Width="100" Height="30" Click="Show_Click">Show Popup</Button> -->
@@ -139,7 +138,21 @@
                 <!--     </Grid> -->
                 <!-- </Popup> -->
                 
+                <!-- <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto"> -->
+                <!--     <TextBlock Grid.Row="0" Grid.Column="0" Text="Selected RevisionID: "></TextBlock> -->
+                <!--     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding filename}"/> -->
+                <!-- </Grid> -->
                 
+                <TextBlock Width="300" TextWrapping="Wrap" Text="The MediaWiki server does not contain any revisions for the selected file">
+                    <TextBlock.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                            <Binding Path="selectedFile"
+                                     Converter="{x:Static ObjectConverters.IsNull}"/>
+                            <Binding Path="revisions"
+                                     Converter="{x:Static ObjectConverters.IsNull}"/>
+                        </MultiBinding>
+                    </TextBlock.IsVisible>
+                </TextBlock>
                 <TextBlock Text="Select revision to open" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}"/>
                 <Button Name="SelectedRevisionButton" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}" Click="SelectedRevisionButton_OnClick">Select</Button>
                 <ListBox Items="{Binding revisions, Mode=TwoWay}" SelectionMode="Single" SelectedItem="{Binding selectedRevision}" Width="300">
