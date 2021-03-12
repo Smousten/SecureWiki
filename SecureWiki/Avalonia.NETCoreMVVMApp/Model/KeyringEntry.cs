@@ -363,6 +363,9 @@ namespace SecureWiki.Model
             
             foreach (DataFileEntry item in ke.dataFiles)
             {
+                Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Checking", 
+                    item.filename, IsChecked, Parent?.Name ?? "null");
+
                 bool nameAlreadyInUse = false;
                 bool fileAlreadyExists = false;
                 foreach (DataFileEntry ownDF in dataFiles)
@@ -370,7 +373,9 @@ namespace SecureWiki.Model
                     
                     if (item.filename.Equals(ownDF.filename))
                     {
-                        if (item.IsEqual(ownDF))
+                        Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Filename match", 
+                            item.filename, IsChecked, Parent?.Name ?? "null");
+                        if (ownDF.IsEqual(item))
                         {
                             Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Exact copy already exists", 
                                 item.filename, IsChecked, Parent?.Name ?? "null");

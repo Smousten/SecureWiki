@@ -574,8 +574,8 @@ namespace SecureWiki.MediaWiki
                 throw new NotLoggedInException("getHttpResponse");
             }
 
-            Console.WriteLine("Requesting from server:");
-            Console.WriteLine(query);
+            // Console.WriteLine("Requesting from server:");
+            // Console.WriteLine(query);
             HttpResponseMessage response = httpClient.GetAsync(URL + query).Result;
 
             string responseBody = response.Content.ReadAsStringAsync().Result;

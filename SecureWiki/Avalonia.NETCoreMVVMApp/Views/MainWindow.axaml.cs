@@ -184,231 +184,29 @@ namespace SecureWiki.Views
 
         private async Task<string> OpenFileDialogAndGetJsonPath()
         {
-            Console.WriteLine("OpenFileDialogAndGetJsonPath entered");
+            // Console.WriteLine("OpenFileDialogAndGetJsonPath entered");
             OpenFileDialog dialog = new();
             dialog.Filters.Add(new FileDialogFilter() { Extensions =  { "json" } });
-            Console.WriteLine("Dialog created");
+            // Console.WriteLine("Dialog created");
             var output = await dialog.ShowAsync(this);
-            Console.WriteLine("Dialog shown");
+            // Console.WriteLine("Dialog shown");
             if (output == null)
             {
                 Console.WriteLine("Output is null");
                 var res = await dialog.ShowAsync(this);
             }
             
-            Console.WriteLine("Returning OpenFileDialog output='{0}'", output[0]);
-            var textBox = this.FindControl<TextBox>("TextBox1");
-            textBox.Text = output[0];
+            // Console.WriteLine("Returning OpenFileDialog output='{0}'", output[0]);
+            // var textBox = this.FindControl<TextBox>("TextBox1");
+            // textBox.Text = output[0];
 
             manager.ImportKeyring(output[0]);
 
             return output[0];
         }
 
-        // TODO: finish this
-        // private void AddToKeyringRecursively(KeyringEntry parentKeyringEntry, TreeViewItem parentTreeViewItem)
-        // {
-        //     Console.WriteLine("Entered AddToKeyringRecursively");
-        //     CheckBox parentcb = (CheckBox) parentTreeViewItem.GetLogicalChildren().First(c => c.GetType() == typeof(CheckBox));
-        //     Console.WriteLine("got parentcb");
-        //     bool checkedStatus = parentcb.IsChecked == true;
-        //     Console.WriteLine("parentTreeViewItem.DataContext: " + parentTreeViewItem.DataContext);
-        //     Console.WriteLine("parentTreeViewItem.GetLogicalChildren().Count(): " + parentTreeViewItem.GetLogicalChildren().Count());
-        //     int cnt = 0;
-        //     
-        //     foreach (TreeViewItem child in parentTreeViewItem.GetLogicalChildren()
-        //         .Where(c => c.GetType() == typeof(TreeViewItem)))
-        //     {
-        //         Console.WriteLine("Loop iteration: " + cnt);
-        //         CheckBox cb = (CheckBox) child.GetLogicalChildren()
-        //             .First(c => c.GetType() == typeof(CheckBox));
-        //         if (cb.IsChecked == true && child.DataContext == typeof(RootKeyring))
-        //         {
-        //             Console.WriteLine("Going recursively");
-        //             AddToKeyringRecursively(parentKeyringEntry, child);
-        //         }
-        //
-        //         cnt++;
-        //     }
-        //
-        //     Console.WriteLine("Passed loop");
-        // }
-
-        // private void CheckBox_CheckedChangedRootKeyring(object? sender, RoutedEventArgs e)
-        // {
-        //     Control item = sender as Control;
-        //     
-        //     TreeViewItem TVI = GetTreeViewItemParent(item);
-        //     
-        //     UpdateChildrenTVICheckBoxes(TVI);
-        // }
-        
-        // private void CheckBox_CheckedChangedKeyring(object? sender, RoutedEventArgs e)
-        // {
-        //     Control item = sender as Control;
-        //     
-        //     TreeViewItem TVI = GetTreeViewItemParent(item);
-        //     
-        //     UpdateChildrenTVICheckBoxes(TVI);
-        //     CheckBox_CheckedChanged(sender, e);
-        // }
-
-        // private void CheckBox_CheckedChangedDataFile(object? sender, RoutedEventArgs e)
-        // {
-        //     Control item = sender as Control;
-        //     
-        //     TreeViewItem TVI = GetTreeViewItemParent(item);
-        //     
-        //     UpdateTVIAncestors(TVI);
-        // }
-
+      
         /*
-        private void CheckBox_CheckedChangedUpdateParent(object? sender, RoutedEventArgs e)
-        {
-            // Console.WriteLine("CheckBox_CheckedChangedUpdateParent entered");
-            CheckBox cb = sender as CheckBox;
-
-            if (cb == null)
-            {
-                Console.WriteLine("Error, sender is not a checkbox");
-                throw new Exception();
-            }
-            
-            TreeViewItem TVI = GetTreeViewItemParent(cb);
-            UpdateTVIAncestors(TVI);
-        }
-        
-        private void CheckBox_CheckedChangedUpdateChildren(object? sender, RoutedEventArgs e)
-        {
-            // Console.WriteLine("CheckBox_CheckedChangedUpdateChildren entered");
-            CheckBox cb = sender as CheckBox;
-
-            if (cb == null)
-            {
-                Console.WriteLine("Error, sender is not a checkbox");
-                throw new Exception();
-            }
-            
-            TreeViewItem TVI = GetTreeViewItemParent(cb);
-            UpdateTVIChildren(TVI);
-        }
-        
-        private void UpdateTVIChildren(TreeViewItem TVI)
-        {
-            UpdateChildrenTVICheckBoxes(TVI);
-        }
-
-        private void UpdateTVIAncestors(TreeViewItem TVI)
-        {
-            bool anyChecked = false;
-            bool atleastTwoChecked = false;
-            bool anyUnchecked = false;
-            bool ancestorChecked = false;
-            
-            TreeViewItem TVIParent = GetTreeViewItemParent(TVI);
-    
-            foreach (var subitem in TVIParent.GetLogicalChildren().Where(c => c.GetType() == typeof(TreeViewItem)))
-            {
-                CheckBox cb = (CheckBox) subitem.GetLogicalChildren().First(c => c.GetType() == typeof(CheckBox));
-                if (cb.IsChecked == true)
-                {
-                    if (anyChecked)
-                    {
-                        atleastTwoChecked = true;
-                    }
-                    anyChecked = true;
-                }
-                else
-                {
-                    anyUnchecked = true;
-                    
-                }
-            }
-            
-            CheckBox parentcb = (CheckBox) TVIParent.GetLogicalChildren().First(c => c.GetType() == typeof(CheckBox));
-
-            TreeViewItem ancestor = TVIParent;
-            List<CheckBox> cbList = new();
-            
-            while (!(ancestor.DataContext?.GetType() == typeof(RootKeyring)) && ancestorChecked == false)
-            {
-                CheckBox ancestorcb = (CheckBox) ancestor.GetLogicalChildren().First(c => c.GetType() == typeof(CheckBox));
-                cbList.Add(ancestorcb);
-
-                if (ancestorcb.IsChecked == true)
-                {
-                    ancestorChecked = true;
-
-                    foreach (CheckBox cb in cbList)
-                    {
-                        // Ancestors can only be DataContext type of Keyring (or RootKeyring)
-                        UpdateCheckBoxWithoutTriggeringEventHandler(cb, true, CheckBox_CheckedChangedUpdateChildren);
-                    }
-                    
-                    break;
-                }
-                
-                ancestor = GetTreeViewItemParent(ancestor);
-            }
-
-            // // Update CheckBox of parent
-            // if (anyChecked && anyUnchecked)
-            // {
-            //     // Change here to interact with IsThreeState properly
-            //     // parentcb.IsChecked = false;
-            // }
-            if (anyUnchecked == false || atleastTwoChecked || (ancestorChecked && anyChecked))
-            {
-                UpdateCheckBoxWithoutTriggeringEventHandler(parentcb, true, CheckBox_CheckedChangedUpdateChildren);
-            }
-            else if (anyChecked == false)
-            {
-                UpdateCheckBoxWithoutTriggeringEventHandler(parentcb, false, CheckBox_CheckedChangedUpdateChildren);
-            }
-        }
-
-        private void UpdateChildrenTVICheckBoxes(TreeViewItem TVI)
-        {
-            CheckBox cb = (CheckBox) TVI.GetLogicalChildren().First(c => c.GetType() == typeof(CheckBox));
-            bool checkedStatus = cb.IsChecked == true;
-
-            foreach (var TVIChild in TVI.GetLogicalChildren().Where(c => c.GetType() == typeof(TreeViewItem)))
-            {
-                CheckBox childcb = (CheckBox) TVIChild.GetLogicalChildren()
-                    .First(c => c.GetType() == typeof(CheckBox));
-                
-                // Only update downwards and prevent feedback loops
-                UpdateCheckBoxWithoutTriggeringEventHandler(childcb, checkedStatus, CheckBox_CheckedChangedUpdateParent);
-            }
-        }
-
-        // TODO: Accept multiple event handlers?
-        private void UpdateCheckBoxWithoutTriggeringEventHandler(CheckBox cb, bool? checkedStatus, EventHandler<RoutedEventArgs> eh)
-        {
-            // Prevent feedback loops by temporarily removing the specified event handler 
-            cb.Checked -= eh;
-            cb.Unchecked -= eh;
-            
-            // Update child
-            cb.IsChecked = checkedStatus;
-                
-            // Restore event handler
-            cb.Checked += eh;
-            cb.Unchecked += eh;
-        }
-
-        private void RemoveAllCheckedUncheckedEventHandlers(CheckBox cb)
-        {
-            // Remove any existing handlers
-            // Attempting to remove handlers not subscribed to shouldn't do any harm
-
-            foreach (EventHandler<RoutedEventArgs> eh in CheckBoxEventHandlers)
-            {
-                cb.Checked -= eh;
-                cb.Unchecked -= eh;
-            }
-        }
-
         private void InitCheckBoxHandlers(TreeViewItem root)
         {
             foreach (TreeViewItem TVI in root.GetLogicalChildren().Where(c => c.GetType() == typeof(TreeViewItem)))
@@ -423,32 +221,6 @@ namespace SecureWiki.Views
                 {
                     InitCheckBoxHandlers(TVI);
                 }
-            }
-        }
-
-        private void SetCheckBoxCheckedUncheckedEventHandlers(TreeViewItem parent, CheckBox cb)
-        {
-            RemoveAllCheckedUncheckedEventHandlers(cb);
-                
-            if (parent.DataContext.GetType() == typeof(KeyringEntry))
-            {
-                // Console.WriteLine("KeyringEntry found");
-                cb.Checked += CheckBox_CheckedChangedUpdateChildren;
-                cb.Unchecked += CheckBox_CheckedChangedUpdateChildren;
-                cb.Checked += CheckBox_CheckedChangedUpdateParent;
-                cb.Unchecked += CheckBox_CheckedChangedUpdateParent;
-            }
-            else if (parent.DataContext.GetType() == typeof(DataFileEntry))
-            {
-                // Console.WriteLine("DataFileEntry found");
-                cb.Checked += CheckBox_CheckedChangedUpdateParent;
-                cb.Unchecked += CheckBox_CheckedChangedUpdateParent;
-            }
-            else if (parent.DataContext.GetType() == typeof(RootKeyring))
-            {
-                // Console.WriteLine("RootKeyring found");
-                cb.Checked += CheckBox_CheckedChangedUpdateChildren;
-                cb.Unchecked += CheckBox_CheckedChangedUpdateChildren;
             }
         }
         */
@@ -576,6 +348,20 @@ namespace SecureWiki.Views
             if (_viewModel.selectedRevision.revisionID != null)
             {
                 Console.WriteLine(_viewModel.selectedRevision.revisionID);
+
+                bool newestSelected = true;
+                int selectedRevID = Int32.Parse(_viewModel.selectedRevision.revisionID);
+                foreach (Revision item in _viewModel.revisions)
+                {
+                    int itemID = Int32.Parse(item.revisionID);
+                    if (itemID > selectedRevID)
+                    {
+                        newestSelected = false;
+                    }
+                }
+                
+                _viewModel.selectedFile.newestRevisionSelected = newestSelected;
+                
                 if (manager.RequestedRevision.ContainsKey(_viewModel.selectedFile.pagename))
                 {
                     manager.RequestedRevision[_viewModel.selectedFile.pagename] = _viewModel.selectedRevision.revisionID;
@@ -589,7 +375,7 @@ namespace SecureWiki.Views
 
         private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
         {
-            Console.WriteLine("InputElement_OnPointerPressed by" + sender.ToString());
+            // Console.WriteLine("InputElement_OnPointerPressed by" + sender);
             
             if (sender is TextBlock tb)
             {
@@ -603,26 +389,5 @@ namespace SecureWiki.Views
             
         }
 
-        private void Button5_OnClick(object? sender, RoutedEventArgs e)
-        {
-            Console.WriteLine("Button4_OnClick by" + sender.ToString());
-        }
-        //
-        // private void DisplayAccessRevocationPopup(object? sender, RoutedEventArgs e)
-        // {
-        //     
-        // }
-        //
-        // private void Show_Click(object? sender, RoutedEventArgs e)
-        // {
-        //     var MyPopup = this.FindControl<Popup>("MyPopup");
-        //     MyPopup.IsOpen = true;
-        // }
-        //
-        // private void Hide_Click(object? sender, RoutedEventArgs e)
-        // {
-        //     var MyPopup = this.FindControl<Popup>("MyPopup");
-        //     MyPopup.IsOpen = false;
-        // }
     }
 }
