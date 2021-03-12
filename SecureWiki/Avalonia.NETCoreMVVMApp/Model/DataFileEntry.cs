@@ -81,6 +81,22 @@ namespace SecureWiki.Model
                 return IsChecked ?? false;
             }
         }
+
+        private bool _newestRevisionSelected = true;
+        public bool newestRevisionSelected        
+        {
+            get
+            {
+                // Console.WriteLine("getting newestRevisionSelected='{0}'", _newestRevisionSelected);
+                return _newestRevisionSelected;
+            }
+            set
+            {
+                // Console.WriteLine("_newestRevisionSelected set to '{0}'", value);
+                _newestRevisionSelected = value;
+                OnPropertyChanged(nameof(newestRevisionSelected));
+            }
+        }
         
         public DataFileEntry()
         {

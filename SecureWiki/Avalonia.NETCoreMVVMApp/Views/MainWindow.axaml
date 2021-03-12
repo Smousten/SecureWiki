@@ -14,6 +14,7 @@
     <Window.Resources>
         <Models:WidthConverterSingle x:Key="Valueconverter" ></Models:WidthConverterSingle>
         <Models:FillerTextBlockWidthConverterMulti x:Key="WidthConverterMulti"></Models:FillerTextBlockWidthConverterMulti>
+        <Models:TreeViewItemColourConverter x:Key="TreeViewItemColourConverter"></Models:TreeViewItemColourConverter>
     </Window.Resources>
 
 
@@ -78,7 +79,7 @@
                                 </CheckBox>
                                 <!--Folder-->
                                 <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
-                                    <TextBlock Foreground="Red" Text="{Binding Name, Mode=TwoWay}"></TextBlock>
+                                    <TextBlock Foreground="Red" VerticalAlignment="Center" Text="{Binding Name, Mode=TwoWay}"></TextBlock>
                                 </Border>
                             </StackPanel>
                         </TreeDataTemplate>
@@ -92,35 +93,37 @@
                                 </CheckBox>
                                 <!--Folder-->
                                 <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
-                                    <TextBlock Text="{Binding Name}"></TextBlock>
+                                    <TextBlock VerticalAlignment="Center" Text="{Binding Name}"></TextBlock>
                                 </Border>
                             </StackPanel>
                         </TreeDataTemplate>
                         <DataTemplate DataType="Models:DataFileEntry" >
-                            <DockPanel LastChildFill="False" Name="DockPanel_DataFileEntry" MaxWidth="{Binding Bounds.Width, ElementName=ScrollViewerTreeView}"> 
+                            <DockPanel LastChildFill="False" Name="DockPanel_DataFileEntry" MaxWidth="{Binding Bounds.Width, ElementName=ScrollViewerTreeView}" > 
                                 <!--IsChecked CheckBox-->
                                 <CheckBox IsChecked="{Binding IsChecked}" DockPanel.Dock="Left" MinWidth="20" Name="CheckBox" Initialized="CheckBox_OnInitialized">
                                 </CheckBox>
                                 <!--IsCheckedWrite CheckBox-->
                                 <CheckBox IsChecked="{Binding IsCheckedWrite}" DockPanel.Dock="Left" MinWidth="20" Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}">
                                 </CheckBox>
-                                <!--DataFile-->
-                                <TextBlock Foreground="Blue" Name="TextBlockDataFileEntry" VerticalAlignment="Center" PointerPressed="InputElement_OnPointerPressed" Text="{Binding filename}" ></TextBlock>
-                                <!-- This is stupid, but it works decently. -->
-                                <TextBlock Foreground="Blue" Name="TextBlockFillDataFileEntry" VerticalAlignment="Center" PointerPressed="InputElement_OnPointerPressed" 
-                                           Text="                                                                                     
-                                                                                                                         " >
-                                    <TextBlock.Width>
-                                        <MultiBinding Converter="{StaticResource WidthConverterMulti}">
-                                            <Binding Path="Bounds.Width" ElementName="ScrollViewerTreeView" />
-                                            <Binding Path="Bounds.Width" ElementName="DockPanel_DataFileEntry" />
-                                            <Binding Path="Bounds.Width" ElementName="CheckBox" />
-                                            <Binding Path="Bounds.Width" ElementName="CheckBoxWrite" />
-                                            <Binding Path="Bounds.Width" ElementName="TextBlockDataFileEntry" />
-                                            <Binding Path="Bounds.Width" ElementName="TreeView1" />
-                                        </MultiBinding>
-                                    </TextBlock.Width>
-                                </TextBlock>
+                                <DockPanel DockPanel.Dock="Left" Background="{Binding newestRevisionSelected, Converter={StaticResource TreeViewItemColourConverter}}">
+                                    <!--DataFile -->
+                                    <TextBlock Foreground="Blue" Name="TextBlockDataFileEntry" VerticalAlignment="Center" PointerPressed="InputElement_OnPointerPressed" Text="{Binding filename}" ></TextBlock>
+                                    <!-- This is stupid, but it works decently. -->
+                                    <TextBlock Foreground="Blue" Name="TextBlockFillDataFileEntry" VerticalAlignment="Center" PointerPressed="InputElement_OnPointerPressed" 
+                                               Text="                                                                                     
+                                                                                                                             " >
+                                        <TextBlock.Width>
+                                            <MultiBinding Converter="{StaticResource WidthConverterMulti}">
+                                                <Binding Path="Bounds.Width" ElementName="ScrollViewerTreeView" />
+                                                <Binding Path="Bounds.Width" ElementName="DockPanel_DataFileEntry" />
+                                                <Binding Path="Bounds.Width" ElementName="CheckBox" />
+                                                <Binding Path="Bounds.Width" ElementName="CheckBoxWrite" />
+                                                <Binding Path="Bounds.Width" ElementName="TextBlockDataFileEntry" />
+                                                <Binding Path="Bounds.Width" ElementName="TreeView1" />
+                                            </MultiBinding>
+                                        </TextBlock.Width>
+                                    </TextBlock>
+                                </DockPanel>
                             </DockPanel>
                         </DataTemplate>
                     </TreeView.DataTemplates>
@@ -129,38 +132,40 @@
         </ScrollViewer>
         
         <!--Right side panel-->
-        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <StackPanel>
-                <ContentControl Content="{Binding selectedFile, Mode=TwoWay}" Width="300">
-                    <ContentControl.ContentTemplate>
-                        <DataTemplate>
-                            <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
-                                <TextBlock Grid.Row="0" Grid.Column="0">Filename: </TextBlock>
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding filename}"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
-                <TextBlock Text="Download selected revision" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-                <Button Name="SelectedRevisionButton" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}" Click="SelectedRevisionButton_OnClick">Click me!</Button>
-                <ListBox Items="{Binding revisions, Mode=TwoWay}" SelectionMode="Single" SelectedItem="{Binding selectedRevision}" Width="300">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto, Auto, Auto">
-                                <TextBlock Grid.Row="0" Grid.Column="0">revisionID: </TextBlock>
-                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding revisionID}"/>
-                                <TextBlock Grid.Row="1" Grid.Column="0">owner: </TextBlock>
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding user}"/>
-                                <TextBlock Grid.Row="2" Grid.Column="0">time: </TextBlock>
-                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding timestamp}"/>
-                                <TextBlock Grid.Row="3" Grid.Column="0">size: </TextBlock>
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding size}"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </StackPanel>
-        </ScrollViewer>
+        <DockPanel Grid.Column="2">
+            <ContentControl Content="{Binding selectedFile, Mode=TwoWay}" Width="300" DockPanel.Dock="Top" >
+                <ContentControl.ContentTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0">Filename: </TextBlock>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding filename}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ContentControl.ContentTemplate>
+            </ContentControl>
+            <TextBlock Text="Download selected revision" DockPanel.Dock="Top" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+            <Button Name="SelectedRevisionButton" DockPanel.Dock="Top" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}" Click="SelectedRevisionButton_OnClick">Click me!</Button>
+            <ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <ListBox Items="{Binding revisions, Mode=TwoWay}" SelectionMode="Single" SelectedItem="{Binding selectedRevision}" Width="300">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto, Auto, Auto">
+                                    <TextBlock Grid.Row="0" Grid.Column="0">revisionID: </TextBlock>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding revisionID}"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0">owner: </TextBlock>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding user}"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="0">time: </TextBlock>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding timestamp}"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="0">size: </TextBlock>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding size}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
     </Grid>
     
 </Window>

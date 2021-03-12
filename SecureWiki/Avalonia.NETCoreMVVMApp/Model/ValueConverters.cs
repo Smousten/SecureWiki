@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Avalonia.Data.Converters;
+using Avalonia.Media;
+using Brushes = System.Drawing.Brushes;
 
 namespace SecureWiki.Model
 {
@@ -20,6 +22,36 @@ namespace SecureWiki.Model
             }
 
             return tmp;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    
+    public class TreeViewItemColourConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            // Console.WriteLine("Entering TreeViewItemColourConverter");
+            bool newestRevisionSelected = (bool) value;
+
+            // Console.WriteLine("bool is '{0}'", newestRevisionSelected);
+
+            var output = new SolidColorBrush();
+            if (newestRevisionSelected)
+            {
+                output = new SolidColorBrush(Colors.Transparent);
+            }
+            else
+            {
+                output = new SolidColorBrush(Colors.Chocolate);
+                output.Opacity = 0.2;
+            }
+
+            return output;
+
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -347,6 +347,20 @@ namespace SecureWiki.Views
             if (_viewModel.selectedRevision.revisionID != null)
             {
                 Console.WriteLine(_viewModel.selectedRevision.revisionID);
+
+                bool newestSelected = true;
+                int selectedRevID = Int32.Parse(_viewModel.selectedRevision.revisionID);
+                foreach (Revision item in _viewModel.revisions)
+                {
+                    int itemID = Int32.Parse(item.revisionID);
+                    if (itemID > selectedRevID)
+                    {
+                        newestSelected = false;
+                    }
+                }
+                
+                _viewModel.selectedFile.newestRevisionSelected = newestSelected;
+                
                 if (manager.RequestedRevision.ContainsKey(_viewModel.selectedFile.pagename))
                 {
                     manager.RequestedRevision[_viewModel.selectedFile.pagename] = _viewModel.selectedRevision.revisionID;
