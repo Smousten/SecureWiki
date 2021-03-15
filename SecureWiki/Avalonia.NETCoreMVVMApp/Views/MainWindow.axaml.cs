@@ -344,5 +344,10 @@ namespace SecureWiki.Views
             popup.IsOpen = true;
             _viewModel.IsAccessRevocationPopupOpen = true;
         }
+
+        private void Revoke_Click(object? sender, RoutedEventArgs e)
+        {
+            
+        }
     }
 }
