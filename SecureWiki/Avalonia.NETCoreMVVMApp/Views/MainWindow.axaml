@@ -133,7 +133,7 @@
         
         <!--Right side panel-->
         <DockPanel Grid.Column="2">
-            <ContentControl Content="{Binding selectedFile, Mode=TwoWay}" Width="300" DockPanel.Dock="Top" >
+            <ContentControl Content="{Binding selectedFile, Mode=TwoWay}" Width="300" DockPanel.Dock="Top" IsVisible="{Binding revisions, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <ContentControl.ContentTemplate>
                     <DataTemplate DataType="Models:DataFileEntry">
                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto">
@@ -144,36 +144,38 @@
                 </ContentControl.ContentTemplate>
             </ContentControl>
             
-            <!-- <TextBlock Text="Revoke access to file" IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}"/> -->
-            <!-- <Button Name="RevokeAccessButton" IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}" Width="100" Height="30" Click="Show_Click">Show Popup</Button> -->
-            <!-- <Popup Name="MyPopup" PlacementTarget="RevokeAccessButton"> -->
-            <!--     <Grid> -->
-            <!--         <TextBlock Name="AccessRevocationText" Background="White" -->
-            <!--             Text="Are you that you want to revoke access to the file?&#x0a; This action cannot be undone."> -->
-            <!--         </TextBlock> -->
-            <!--         <Button Click="Hide_Click" Margin="80">Hide</Button> -->
-            <!--     </Grid> -->
-            <!-- </Popup> -->
+            <TextBlock Text="Revoke access to file" DockPanel.Dock="Top" IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}"/>
+            <Button Name="RevokeAccessButton" DockPanel.Dock="Top" IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}" Width="100" Height="30" Click="Show_Click">Revoke</Button>
+            <Border IsVisible="{Binding IsAccessRevocationPopupOpen}" Background="#40000000">
+                <Popup Name="RevokeAccessPopup" PlacementTarget="RevokeAccessButton">
+                    <Grid>
+                        <TextBlock Name="AccessRevocationText" Background="White"
+                            Text="Are you that you want to revoke access to the file?&#x0a; This action cannot be undone.">
+                        </TextBlock>
+                        <Button Click="Hide_Click" Margin="80">Hide</Button>
+                    </Grid>
+                </Popup>
+            </Border>
                 
             <!-- <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto"> -->
             <!--     <TextBlock Grid.Row="0" Grid.Column="0" Text="Selected RevisionID: "></TextBlock> -->
             <!--     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding filename}"/> -->
             <!-- </Grid> -->
                 
-            <TextBlock Width="300" TextWrapping="Wrap" Text="The MediaWiki server does not contain any revisions for the selected file">
-                <TextBlock.IsVisible>
-                    <MultiBinding Converter="{x:Static BoolConverters.And}">
-                        <Binding Path="selectedFile"
-                                 Converter="{x:Static ObjectConverters.IsNull}"/>
-                        <Binding Path="revisions"
-                                 Converter="{x:Static ObjectConverters.IsNull}"/>
-                    </MultiBinding>
-                </TextBlock.IsVisible>
-            </TextBlock>
+            <!-- <TextBlock Width="300" TextWrapping="Wrap" Text="The MediaWiki server does not contain any revisions for the selected file"> -->
+            <!--     <TextBlock.IsVisible> -->
+            <!--         <MultiBinding Converter="{x:Static BoolConverters.And}"> -->
+            <!--             <Binding Path="selectedFile" -->
+            <!--                      Converter="{x:Static ObjectConverters.IsNotNull}"/> -->
+            <!--             <Binding Path="revisions" -->
+            <!--                      Converter="{x:Static ObjectConverters.IsNull}"/> -->
+            <!--         </MultiBinding> -->
+            <!--     </TextBlock.IsVisible> -->
+            <!-- </TextBlock> -->
             
             <TextBlock Text="Select revision to open" DockPanel.Dock="Top" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}"/>
             <Button Name="SelectedRevisionButton" DockPanel.Dock="Top" IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}" Click="SelectedRevisionButton_OnClick">Select</Button>
-            <ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                 <StackPanel>
                     <ListBox Items="{Binding revisions, Mode=TwoWay}" SelectionMode="Single" SelectedItem="{Binding selectedRevision}" Width="300">
                         <ListBox.ItemTemplate>

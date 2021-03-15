@@ -284,65 +284,7 @@ namespace SecureWiki.Views
             var recipientEmail = textBoxMail.Text;
             manager.SendEmail(recipientEmail);
         }
-
-
-        private void CheckBox_OnClick(object? sender, RoutedEventArgs e)
-        {
-            if (sender is CheckBox cb)
-            {
-                DataFileEntry dataFile = cb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
-                _viewModel.selectedFile = dataFile;
-                _viewModel.revisions = manager.GetAllRevisions(dataFile.pagename).revisionList;
-                // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
-                // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
-                Console.WriteLine(dataFile.filename);
-            }
-            // manager.GetAllRevisions("Www");
-        }
-
-        private void CheckBox_OnDoubleTapped(object? sender, RoutedEventArgs e)
-        {
-            if (sender is CheckBox cb)
-            {
-                DataFileEntry dataFile = cb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
-                _viewModel.selectedFile = dataFile;
-                _viewModel.revisions = manager.GetAllRevisions(dataFile.pagename).revisionList;
-                // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
-                // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
-                Console.WriteLine(dataFile.filename);
-            }
-            // manager.GetAllRevisions("Www");
-        }
-
-        private void InputElement_OnDoubleTapped(object? sender, RoutedEventArgs e)
-        {
-            if (sender is CheckBox cb)
-            {
-                DataFileEntry dataFile = cb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
-                _viewModel.selectedFile = dataFile;
-                _viewModel.revisions = manager.GetAllRevisions(dataFile.pagename).revisionList;
-                // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
-                // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
-                Console.WriteLine(dataFile.filename);
-            }
-            // manager.GetAllRevisions("Www");
-        }
-
-        private void TextBlockDataFile_OnKeyDown(object? sender, KeyEventArgs e)
-        {
-            if (e.Key != Key.R) return;
-            if (sender is TextBlock tb)
-            {
-                DataFileEntry dataFile = tb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
-                _viewModel.selectedFile = dataFile;
-                _viewModel.revisions = manager.GetAllRevisions(dataFile.pagename).revisionList;
-                // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
-                // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
-                Console.WriteLine(dataFile.filename);
-            }
-            // manager.GetAllRevisions("Www");
-        }
-
+        
         private void SelectedRevisionButton_OnClick(object? sender, RoutedEventArgs e)
         {
             if (_viewModel.selectedRevision.revisionID != null)
@@ -389,5 +331,18 @@ namespace SecureWiki.Views
             
         }
 
+        private void Hide_Click(object? sender, RoutedEventArgs e)
+        {
+            var popup = this.FindControl<Popup>("RevokeAccessPopup");
+            popup.IsOpen = false;
+            _viewModel.IsAccessRevocationPopupOpen = false;
+        }
+
+        private void Show_Click(object? sender, RoutedEventArgs e)
+        {
+            var popup = this.FindControl<Popup>("RevokeAccessPopup");
+            popup.IsOpen = true;
+            _viewModel.IsAccessRevocationPopupOpen = true;
+        }
     }
 }

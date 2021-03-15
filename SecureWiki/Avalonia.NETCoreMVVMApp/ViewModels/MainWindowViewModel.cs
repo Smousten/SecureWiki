@@ -58,9 +58,9 @@ namespace SecureWiki.ViewModels
         }
 
         private List<Revision> _revisions;
-        public List<Revision>? revisions
+        public List<Revision> revisions
         {
-            get => _revisions.Count > 0 ? _revisions : null;
+            get => _revisions;
             set => this.RaiseAndSetIfChanged(ref _revisions, value);
         }
 
@@ -70,6 +70,8 @@ namespace SecureWiki.ViewModels
             get => _selectedRevision;
             set => this.RaiseAndSetIfChanged(ref _selectedRevision, value);
         }
+
+        public bool IsAccessRevocationPopupOpen = false;
 
         public MainWindowViewModel(RootKeyring rk)
         {
