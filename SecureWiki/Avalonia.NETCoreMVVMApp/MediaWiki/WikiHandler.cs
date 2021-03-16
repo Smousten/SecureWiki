@@ -94,7 +94,6 @@ namespace SecureWiki.MediaWiki
             MediaWikiObjects.PageQuery.PageContent getPageContent = new(MWO, dataFile.pagename, revid);
             var pageContent = getPageContent.GetContent();
 
-
             if (pageContent.Equals(""))
             {
                 return "File does not exist on server";
@@ -112,23 +111,7 @@ namespace SecureWiki.MediaWiki
             {
                 Console.WriteLine("Verifying failed...");
                 var revisions = _manager.GetAllRevisions(dataFile.pagename).revisionList;
-
-                // If revid is -1 then current revision is the newest else find current revision in list of revisions
-                Revision currentRevision;
-                if (revid.Equals("-1"))
-                {
-                    currentRevision = revisions[0];
-                }
-                else
-                {
-                    currentRevision = revisions.Find(entry => entry.revisionID != null && entry.revisionID.Equals(revid)) ?? revisions[0];
-                }
-
-                // Try to read next revision
-                var currentIndex = revisions.IndexOf(currentRevision);
-                if (currentIndex >= revisions.Count-1) return "The server does not contain any valid revisions...";
-                var revisionID = revisions[currentIndex + 1].revisionID;
-                if (revisionID != null) return ReadFile(dataFile, revisionID);
+                return GetLatestValidRevision(dataFile, revid, revisions);
             }
 
             if (textString.Equals(""))
@@ -141,6 +124,28 @@ namespace SecureWiki.MediaWiki
             _manager.AddEntryToCache(dataFile.pagename, getPageContent.revision);
             
             return textString;
+        }
+
+        private string GetLatestValidRevision(DataFileEntry datafile, string revid, List<Revision> revisions)
+        {
+            for (var i = 0; i < revisions.Count; i++)
+            {
+                MediaWikiObjects.PageQuery.PageContent getPageContent = new(MWO, datafile.pagename, revid);
+                var pageContent = getPageContent.GetContent();
+                var pageContentBytes = Convert.FromBase64String(pageContent);
+           
+                var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes, 
+                    datafile.symmKey, datafile.iv);
+                var textString = decryptedText.Substring(0, decryptedText.Length - 344);
+                var hashString = decryptedText.Substring(decryptedText.Length - 344);
+                var hashBytes = Convert.FromBase64String(hashString);
+                if (_manager.VerifyData(datafile.publicKey, textString, hashBytes))
+                {
+                    return textString;
+                }
+            }
+
+            return "Server does not contain any valid revisions...";
         }
         
         
