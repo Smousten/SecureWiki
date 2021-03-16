@@ -373,5 +373,40 @@ namespace SecureWiki.Cryptography
             // var keyringFilePath = GetKeyringFilePath();
             // SerializeAndWriteFile(keyringFilePath, rootKeyring);
         }
+
+        private string GetDataFileFilePath(DataFileEntry datafile)
+        {
+            var filepath = datafile.filename;
+            return datafile.Parent != null ? GetDataFilePathLoop(datafile.Parent, filepath) : filepath;
+        }
+
+        private string GetDataFilePathLoop(KeyringEntry keyring, string filepath)
+        {
+            while (true)
+            {
+                filepath = keyring.Name + "/" + filepath;
+                if (keyring.Parent == null) return filepath;
+                keyring = keyring.Parent;
+            }
+        }
+
+        public void RevokeAccess(DataFileEntry datafile)
+        {
+            // var filepath = GetDataFileFilePath(datafile);
+            // var filepathSplit = filepath.Split("/", 2);
+            // var filepath
+            //
+            // Console.WriteLine("Revoke access for datafile with path: " + filepath);
+            //
+            // var completeFilepath = Path.Combine(GetRootDirPath(), @filepath);
+            // var fileContent = File.ReadAllText(completeFilepath);
+            // Console.WriteLine("Revoke access for file with content: " + fileContent);
+            //
+            // var copyFilename = datafile.filename;
+            // copyFilename += "_fork";
+            //
+            // File.WriteAllText(completeFilepath + "_fork", fileContent);
+            // AddNewFile(filepath,copyFilename);
+        }
     }
 }

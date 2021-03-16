@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -110,7 +111,24 @@ namespace SecureWiki.MediaWiki
             if (!_manager.VerifyData(dataFile.publicKey, textString, hashBytes))
             {
                 Console.WriteLine("Verifying failed...");
-                return "Verifying failed...";
+                var revisions = _manager.GetAllRevisions(dataFile.pagename).revisionList;
+
+                // If revid is -1 then current revision is the newest else find current revision in list of revisions
+                Revision currentRevision;
+                if (revid.Equals("-1"))
+                {
+                    currentRevision = revisions[0];
+                }
+                else
+                {
+                    currentRevision = revisions.Find(entry => entry.revisionID != null && entry.revisionID.Equals(revid)) ?? revisions[0];
+                }
+
+                // Try to read next revision
+                var currentIndex = revisions.IndexOf(currentRevision);
+                if (currentIndex >= revisions.Count-1) return "The server does not contain any valid revisions...";
+                var revisionID = revisions[currentIndex + 1].revisionID;
+                if (revisionID != null) return ReadFile(dataFile, revisionID);
             }
 
             if (textString.Equals(""))
@@ -124,5 +142,8 @@ namespace SecureWiki.MediaWiki
             
             return textString;
         }
+        
+        
+        
     }
 }

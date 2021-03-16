@@ -344,5 +344,10 @@ namespace SecureWiki
             Console.WriteLine(recipientEmail);
             smtpClient.Send(mailMessage);
         }
+
+        public void RevokeAccess(DataFileEntry datafile)
+        {
+            _keyring.RevokeAccess(datafile);
+        }
     }
 }

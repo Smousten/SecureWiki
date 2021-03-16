@@ -347,7 +347,12 @@ namespace SecureWiki.Views
 
         private void Revoke_Click(object? sender, RoutedEventArgs e)
         {
+            var datafile = _viewModel.selectedFile;
+            manager.RevokeAccess(datafile);
             
+            var popup = this.FindControl<Popup>("RevokeAccessPopup");
+            popup.IsOpen = false;
+            _viewModel.IsAccessRevocationPopupOpen = false;
         }
     }
 }
