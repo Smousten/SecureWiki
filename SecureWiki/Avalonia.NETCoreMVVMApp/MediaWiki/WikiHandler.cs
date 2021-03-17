@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using SecureWiki.Model;
 
 namespace SecureWiki.MediaWiki
@@ -57,13 +55,39 @@ namespace SecureWiki.MediaWiki
                 uploadNewRevision.UploadContent(encryptedText);
             }
         }
+        
+        public void UploadNewVersionBytes(DataFileEntry dataFile, string filepath)
+        {
+            var srcDir = GetRootDir(filepath);
+            var plainText = File.ReadAllBytes(srcDir);
+            // Console.WriteLine("Upload plain text: " + plainText);
+
+            if (plainText.Length > 0)
+            {
+                // Sign plaintext
+                var hash = _manager.SignBytes(dataFile.privateKey, plainText);
+                
+                byte[] rv = new byte[plainText.Length + hash.Length];
+                Buffer.BlockCopy(plainText, 0, rv, 0, plainText.Length);
+                Buffer.BlockCopy(hash, 0, rv, plainText.Length, hash.Length);
+                
+                var encryptedBytes = _manager.EncryptAesBytesToBytes(
+                    rv, dataFile.symmKey, dataFile.iv);
+
+                var encryptedText = Convert.ToBase64String(encryptedBytes);
+
+                MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(MWO, 
+                    dataFile.pagename);
+                uploadNewRevision.UploadContent(encryptedText);
+            }
+        }
 
         private static string GetRootDir(string relativeFilepath)
         {
             var filepath = "fuse/directories/rootdir/" + relativeFilepath;
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-            var srcDir = Path.Combine(projectDir, @filepath);
+            var srcDir = Path.Combine(projectDir, filepath);
             return srcDir;
         }
 
@@ -147,8 +171,60 @@ namespace SecureWiki.MediaWiki
 
             return "Server does not contain any valid revisions...";
         }
-        
-        
-        
+
+        public byte[]? ReadFileBytes(DataFileEntry datafile)
+        {
+            MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(MWO, datafile.pagename);
+            latestRevision.GetLatestRevision();
+            
+            return ReadFileBytes(datafile, latestRevision.revision.revisionID ?? "-1");
+        }
+
+        private byte[]? ReadFileBytes(DataFileEntry datafile, string revid)
+        {
+            // Check if revision already exists in cache and return output if so
+            // var cacheResult = _manager.AttemptReadFileFromCache(dataFile.pagename, revid);
+            // if (cacheResult != null)
+            // {
+            //     Console.WriteLine("WikiHandler:- ReadFile: Returning extracted content " +
+            //                       "from cache: pageTitle='{0}', revid='{1}'", dataFile.pagename, revid);
+            //     return cacheResult;
+            // }
+
+            MediaWikiObjects.PageQuery.PageContent getPageContent = new(MWO, datafile.pagename, revid);
+            var pageContent = getPageContent.GetContent();
+
+            if (pageContent.Equals(""))
+            {
+                return null;
+            }
+            
+            var pageContentBytes = Convert.FromBase64String(pageContent);
+            var decryptedTextBytes = _manager.DecryptAesBytesToBytes(pageContentBytes, 
+                datafile.symmKey, datafile.iv);
+
+            // todo: what is byte size of text and hash resp.
+            var textBytes = decryptedTextBytes.Take(5).ToArray();
+            var hashBytes = decryptedTextBytes.Skip(5).ToArray();
+
+            if (!_manager.VerifyBytes(datafile.publicKey, textBytes, hashBytes))
+            {
+                Console.WriteLine("Verifying failed...");
+                return null;
+                // var revisions = _manager.GetAllRevisions(dataFile.pagename).revisionList;
+                // return GetLatestValidRevision(dataFile, revid, revisions);
+            }
+
+            if (!(textBytes.Length > 0))
+            {
+                return null;
+            }
+
+            getPageContent.revision.content = Convert.ToBase64String(textBytes);
+
+            // _manager.AddEntryToCache(dataFile.pagename, getPageContent.revision);
+            
+            return textBytes;
+        }
     }
 }

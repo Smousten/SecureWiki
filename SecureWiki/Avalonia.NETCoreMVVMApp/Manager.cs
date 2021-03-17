@@ -291,20 +291,40 @@ namespace SecureWiki
         {
             return _crypto.EncryptAESStringToBytes(plainText, symmKey, iv);
         }
+        
+        public byte[] EncryptAesBytesToBytes(byte[] plainText, byte[] symmKey, byte[] iv)
+        {
+            return _crypto.EncryptAesBytesToBytes(plainText, symmKey, iv);
+        }
 
         public string DecryptAesBytesToString(byte[] pageContentBytes, byte[] symmKey, byte[] iv)
         {
             return _crypto.DecryptAESBytesToString(pageContentBytes, symmKey, iv);
+        }
+        
+        public byte[] DecryptAesBytesToBytes(byte[] pageContentBytes, byte[] symmKey, byte[] iv)
+        {
+            return _crypto.DecryptAesBytesToBytes(pageContentBytes, symmKey, iv);
         }
 
         public byte[] SignData(byte[] privateKey, string plainText)
         {
             return _crypto.SignData(privateKey, plainText);
         }
+        
+        public byte[] SignBytes(byte[]? privateKey, byte[] plainText)
+        {
+            return _crypto.SignBytes(privateKey, plainText);
+        }
 
         public bool VerifyData(byte[] publicKey, string plainText, byte[] signedData)
         {
             return _crypto.VerifyData(publicKey, plainText, signedData);
+        }
+
+        public bool VerifyBytes(byte[] publicKey, byte[] plainText, byte[] signedData)
+        {
+            return _crypto.VerifyBytes(publicKey, plainText, signedData);
         }
 
 
@@ -349,5 +369,6 @@ namespace SecureWiki
         {
             _keyring.RevokeAccess(datafile);
         }
+
     }
 }
