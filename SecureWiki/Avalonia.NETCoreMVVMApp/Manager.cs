@@ -281,6 +281,11 @@ namespace SecureWiki
             cacheManager = existingCacheManager;
         }
 
+        public void CleanCache()
+        {
+            cacheManager.CleanCacheDirectory();
+        }
+
         // Delegated Crypto functions
         public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)
         {

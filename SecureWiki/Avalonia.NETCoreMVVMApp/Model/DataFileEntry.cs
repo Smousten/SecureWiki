@@ -68,9 +68,9 @@ namespace SecureWiki.Model
             set
             {
                 _isCheckedWrite = value;
-                Console.WriteLine("Datafile '{0}': IsCheckedWrite set to '{1}'", filename, value);
+                // Console.WriteLine("Datafile '{0}': IsCheckedWrite set to '{1}'", filename, value);
                 OnPropertyChanged(nameof(IsCheckedWrite));
-                Console.WriteLine("Datafile '{0}': IsCheckedWrite finished setting", filename);
+                // Console.WriteLine("Datafile '{0}': IsCheckedWrite finished setting", filename);
             }
         }
         
@@ -147,7 +147,7 @@ namespace SecureWiki.Model
 
         public void CheckedChangedUpdateParent(object? sender, EventArgs e)
         {
-            Console.WriteLine("CheckedChangedUpdateParent entered in datafile.filename='{0}'", filename);
+            // Console.WriteLine("CheckedChangedUpdateParent entered in datafile.filename='{0}'", filename);
             Parent.UpdateIsCheckedBasedOnChildren();
         }
 

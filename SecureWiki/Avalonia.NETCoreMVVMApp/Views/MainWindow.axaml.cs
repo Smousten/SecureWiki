@@ -80,6 +80,7 @@ namespace SecureWiki.Views
             Console.WriteLine("Window is closing");
             
             manager.SaveCacheManagerToFile();
+            manager.CleanCache();
             
             var currentDir = Directory.GetCurrentDirectory();
             var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));

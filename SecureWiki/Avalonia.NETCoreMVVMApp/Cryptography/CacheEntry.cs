@@ -25,6 +25,7 @@ namespace SecureWiki.Cryptography
 
         public void AddEntry(string revid, string content)
         {
+            Console.WriteLine("adding entry: pageTitle='{0}', revid='{1}'", pageTitle, revid);
             if (DictContainsKey(revid))
             {
                 return;
@@ -34,6 +35,7 @@ namespace SecureWiki.Cryptography
             var path = Path.Combine(_dirPath, hash);
 
             File.WriteAllText(path, content);
+            Console.WriteLine("adding entry: writing content to path='{0}'", path);
                     
             _dict.Add(revid, hash);
         }
@@ -60,12 +62,23 @@ namespace SecureWiki.Cryptography
             {
                 return null;
             }
-            
-            return Path.Combine(_dirPath, _dict[revid]);
+
+            string path = Path.Combine(_dirPath, _dict[revid]);
+
+            if (File.Exists(path))
+            {
+                return path;
+            }
+            else
+            {
+                RemoveEntry(revid);
+                return null;
+            }
         }
 
         public string? GetLatestRevID()
         {
+            Console.WriteLine("GetLatestRevID:- pageTitle='{0}'", pageTitle);
             int highestIDint = -1;
 
             foreach (var item in _dict)
