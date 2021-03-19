@@ -132,6 +132,20 @@ namespace SecureWiki
                                   " a private key, upload cancelled", filepath);
             }
         }
+        
+        public void UploadNewVersionBytes(string filename, string filepath)
+        {
+            DataFileEntry? df = GetDataFile(filename, rootKeyring);
+            if (df?.privateKey != null)
+            {
+                wikiHandler.UploadNewVersionBytes(df, filepath);
+            }
+            else
+            {
+                Console.WriteLine("{0}: the corresponding DataFileEntry does not contain" +
+                                  " a private key, upload cancelled", filepath);
+            }
+        }
 
         public void SetMediaWikiServer(string url)
         {
@@ -159,6 +173,27 @@ namespace SecureWiki
             }
 
             return wikiHandler.ReadFile(dataFile);
+        }
+        
+        public byte[]? ReadFileBytes(string filename)
+        {
+            var dataFile = GetDataFile(filename, rootKeyring);
+
+            if (dataFile == null) return null;
+
+            // var encryptedFilenameBytes = EncryptAesStringToBytes(filename, 
+            //     dataFile.symmKey, dataFile.iv);
+            // var encryptedFilenameString = Convert.ToBase64String(encryptedFilenameBytes);
+            //
+            // // URL does not allow + character, instead encode as hexadecimal
+            // var pageTitle = encryptedFilenameString.Replace("+", "%2B");
+
+            if (RequestedRevision.ContainsKey(dataFile.pagename))
+            {
+                return wikiHandler.ReadFileBytes(dataFile, RequestedRevision[dataFile.pagename]);
+            }
+
+            return wikiHandler.ReadFileBytes(dataFile);
         }
 
         public void LoginToMediaWiki(string username, string password)
@@ -369,6 +404,5 @@ namespace SecureWiki
         {
             _keyring.RevokeAccess(datafile);
         }
-
     }
 }

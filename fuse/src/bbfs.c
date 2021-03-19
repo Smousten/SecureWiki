@@ -533,34 +533,30 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
             size = 0;
         log_msg("\n bb_read return: %d\n", size);
         return size;
-        // int recv_len = recv(sockfd, msg, sizeof(msg), MSG_WAITALL);
-        // int recv_len = recvall(sockfd, msg, sizeof(msg));
-
-        // memcpy(buf, msg+4, recv_len-4);
-        // memcpy(buf, msg, recv_len);
-        // log_msg("\n size after memcpy: %d\n", size);
-        // log_msg("\n offset after  memcpy: %d\n", offset);
-        // sync();
-        // return recv_len;
-
-        // Can load from MediaWiki but content is shared between files?
-        if (offset < recv_len)
-        {
-            if (offset + size > recv_len) {
-                size = recv_len - offset;
-            }
-            memcpy(buf, msg + offset, size);
-            bzero(msg, sizeof(msg));
-        }
-        else
-            size = 0;
-        log_msg("\n bb_read return: %d\n", size);
-        return size;
-        // memcpy(buf, msg, size);
-        // bzero(msg, sizeof(msg));
     }
 
+    //     recv_len = recv(sockfd, msg, sizeof(msg), 0);
+    //     pthread_mutex_unlock(&lock);
+    //     log_msg("\n msg received: %s\n", msg);
 
+    //     if (recv_len < 0)
+    //     {
+    //         return (-errno);
+    //     }
+
+    //     if (offset < recv_len)
+    //     {
+    //         if (offset + size > recv_len) {
+    //             size = recv_len - offset;
+    //         }
+    //         memcpy(buf, msg + offset, size);
+    //         bzero(msg, sizeof(msg));
+    //     }
+    //     else
+    //         size = 0;
+    //     log_msg("\n bb_read return: %d\n", size);
+    //     return size;
+    // }
 
     return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
 }

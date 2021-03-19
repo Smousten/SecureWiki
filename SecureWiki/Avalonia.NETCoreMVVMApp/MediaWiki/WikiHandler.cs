@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using SecureWiki.Model;
 
 namespace SecureWiki.MediaWiki
@@ -59,17 +60,26 @@ namespace SecureWiki.MediaWiki
         public void UploadNewVersionBytes(DataFileEntry dataFile, string filepath)
         {
             var srcDir = GetRootDir(filepath);
+            if (!File.Exists(srcDir)) return;
             var plainText = File.ReadAllBytes(srcDir);
-            // Console.WriteLine("Upload plain text: " + plainText);
+
+                // Console.WriteLine("Upload plain text: " + plainText);
 
             if (plainText.Length > 0)
             {
                 // Sign plaintext
                 var hash = _manager.SignBytes(dataFile.privateKey, plainText);
+
+                Console.WriteLine("Uploading bytes of new file version");
+                Console.WriteLine("Size of plaintext in bytes: " + plainText.Length);
+                Console.WriteLine("Size of hash in bytes: " + hash.Length);
                 
                 byte[] rv = new byte[plainText.Length + hash.Length];
                 Buffer.BlockCopy(plainText, 0, rv, 0, plainText.Length);
                 Buffer.BlockCopy(hash, 0, rv, plainText.Length, hash.Length);
+                
+                Console.WriteLine("Upload text bytes to file: " + Encoding.ASCII.GetString(plainText));
+                Console.WriteLine("Upload hash bytes to file: " + Encoding.ASCII.GetString(hash));
                 
                 var encryptedBytes = _manager.EncryptAesBytesToBytes(
                     rv, dataFile.symmKey, dataFile.iv);
@@ -180,7 +190,7 @@ namespace SecureWiki.MediaWiki
             return ReadFileBytes(datafile, latestRevision.revision.revisionID ?? "-1");
         }
 
-        private byte[]? ReadFileBytes(DataFileEntry datafile, string revid)
+        public byte[]? ReadFileBytes(DataFileEntry datafile, string revid)
         {
             // Check if revision already exists in cache and return output if so
             // var cacheResult = _manager.AttemptReadFileFromCache(dataFile.pagename, revid);
@@ -203,9 +213,11 @@ namespace SecureWiki.MediaWiki
             var decryptedTextBytes = _manager.DecryptAesBytesToBytes(pageContentBytes, 
                 datafile.symmKey, datafile.iv);
 
-            // todo: what is byte size of text and hash resp.
-            var textBytes = decryptedTextBytes.Take(5).ToArray();
-            var hashBytes = decryptedTextBytes.Skip(5).ToArray();
+            var textBytes = decryptedTextBytes.Take(decryptedTextBytes.Length-256).ToArray();
+            var hashBytes = decryptedTextBytes.Skip(decryptedTextBytes.Length-256).ToArray();
+
+            Console.WriteLine("Read text bytes from file: " + Encoding.ASCII.GetString(textBytes));
+            Console.WriteLine("Read hash bytes from file: " + Encoding.ASCII.GetString(hashBytes));
 
             if (!_manager.VerifyBytes(datafile.publicKey, textBytes, hashBytes))
             {
