@@ -63,6 +63,10 @@ namespace SecureWiki.Model
         {
             get
             {
+                if (privateKey == null)
+                {
+                    return false;
+                }
                 return (_isCheckedWrite ?? false);
             }
             set
@@ -78,6 +82,10 @@ namespace SecureWiki.Model
         {
             get
             {
+                if (privateKey == null)
+                {
+                    return false;
+                }
                 return IsChecked ?? false;
             }
         }
