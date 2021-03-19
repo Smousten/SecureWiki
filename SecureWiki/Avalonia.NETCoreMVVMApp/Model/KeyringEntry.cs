@@ -236,7 +236,7 @@ namespace SecureWiki.Model
 
         public virtual void UpdateIsCheckedBasedOnChildren()
         {
-            Console.WriteLine("UpdateIsCheckedBasedOnChildren in keyring.Name='{0}'", Name);
+            // Console.WriteLine("UpdateIsCheckedBasedOnChildren in keyring.Name='{0}'", Name);
             // Prevent feedback loop
             this.CheckedChanged -= this.CheckedChangedUpdateChildren;
             

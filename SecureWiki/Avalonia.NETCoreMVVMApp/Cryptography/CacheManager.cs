@@ -74,6 +74,66 @@ namespace SecureWiki.Cryptography
             return output;
         }
 
+        public void CleanCacheDirectory()
+        {
+            Console.WriteLine("CleanCacheDirectory entered");
+            List<string> exeptionList = new();
+
+            string? revid;
+            string? entryName;
+            
+            foreach (var item in _dict)
+            {
+                item.Value.RemoveAllButLatestEntry();
+                revid = item.Value.GetLatestRevID();
+
+                if (revid != null)
+                {
+                    entryName = item.Value.GetFilePath(revid);
+
+                    if (entryName != null)
+                    {
+                        string filename = Path.GetFileName(entryName);
+                        exeptionList.Add(filename);
+                        // Console.WriteLine("adding '{0}' to execptionList", filename);
+                    }
+                    else
+                    {
+                        Console.WriteLine("entry name was null");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("revid was null");
+                }
+            }
+
+            string[] pathArray = Directory.GetFiles(_dirpath);
+
+            foreach (string filepath in pathArray)
+            {
+                var filename = new FileInfo(filepath).Name;
+
+                bool shouldBeKept = false;
+                
+                foreach (string exception in exeptionList)
+                {
+                    if (filename.Equals(exception))
+                    {
+                        shouldBeKept = true;
+                        // Console.WriteLine("File '{0}' should be kept", filename);
+                        break;
+                    }
+                }
+
+                if (!shouldBeKept)
+                {
+                    File.Delete(filepath);
+                    // Console.WriteLine("File '{0}' should not be kept", filename);
+                }
+            }
+        }
+
         public void PrintInfo()
         {
             Console.WriteLine("CacheManager:- PrintInfo():");
