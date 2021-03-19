@@ -56,6 +56,21 @@ namespace SecureWiki.Cryptography
             _dict.Remove(revid);
         }
 
+        public void RemoveAllButLatestEntry()
+        {
+            string latestRev = GetLatestRevID();
+
+            foreach (var item in _dict)
+            {
+                if (item.Key.Equals(latestRev))
+                {
+                    continue;
+                }
+                
+                RemoveEntry(item.Key);
+            }
+        }
+
         public string? GetFilePath(string revid)
         {
             if (DictContainsKey(revid) == false)
@@ -71,6 +86,7 @@ namespace SecureWiki.Cryptography
             }
             else
             {
+                Console.WriteLine("File did not exist, removing cache entry");
                 RemoveEntry(revid);
                 return null;
             }
@@ -78,12 +94,12 @@ namespace SecureWiki.Cryptography
 
         public string? GetLatestRevID()
         {
-            Console.WriteLine("GetLatestRevID:- pageTitle='{0}'", pageTitle);
+            // Console.WriteLine("GetLatestRevID:- pageTitle='{0}'", pageTitle);
             int highestIDint = -1;
 
             foreach (var item in _dict)
             {
-                Console.WriteLine("GetLatestRevID:- Checking item.Key='{0}'", item.Key);
+                // Console.WriteLine("GetLatestRevID:- Checking item.Key='{0}'", item.Key);
                 try
                 {
                     int itemKey = Int32.Parse(item.Key);

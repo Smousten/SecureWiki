@@ -84,6 +84,7 @@ namespace SecureWiki.Cryptography
             
             foreach (var item in _dict)
             {
+                item.Value.RemoveAllButLatestEntry();
                 revid = item.Value.GetLatestRevID();
 
                 if (revid != null)
@@ -92,8 +93,9 @@ namespace SecureWiki.Cryptography
 
                     if (entryName != null)
                     {
-                        exeptionList.Add(entryName);
-                        Console.WriteLine("adding '{0}' to execptionList", entryName);
+                        string filename = Path.GetFileName(entryName);
+                        exeptionList.Add(filename);
+                        // Console.WriteLine("adding '{0}' to execptionList", filename);
                     }
                     else
                     {
@@ -119,7 +121,7 @@ namespace SecureWiki.Cryptography
                     if (filename.Equals(exception))
                     {
                         shouldBeKept = true;
-                        Console.WriteLine("File '{0}' should be kept", filename);
+                        // Console.WriteLine("File '{0}' should be kept", filename);
                         break;
                     }
                 }
@@ -127,7 +129,7 @@ namespace SecureWiki.Cryptography
                 if (!shouldBeKept)
                 {
                     File.Delete(filepath);
-                    Console.WriteLine("File '{0}' should not be kept", filename);
+                    // Console.WriteLine("File '{0}' should not be kept", filename);
                 }
             }
         }
