@@ -35,10 +35,27 @@ namespace SecureWiki.MediaWiki
         {
             var srcDir = GetRootDir(filepath);
             var plainText = File.ReadAllText(srcDir);
+            string pageTitle = dataFile.pagename;
             // Console.WriteLine("Upload plain text: " + plainText);
 
             if (!plainText.Equals(""))
             {
+
+                string latestRevID = _manager.cacheManager.GetLatestRevisionID(pageTitle);
+
+                
+                MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(MWO, pageTitle);
+                Revision rev = latestRevision.GetLatestRevision();
+
+                if (rev.revisionID != null && !rev.revisionID.Equals(latestRevID))
+                {
+                    // TODO: MessageBox
+
+                    Console.WriteLine("This is not the newest revision available, " +
+                                      "sure you wanna do this, mate?");
+                }
+                
+                
                 // Sign plaintext
                 var hash = _manager.SignData(dataFile.privateKey, plainText);
                 var hashString = Convert.ToBase64String(hash);

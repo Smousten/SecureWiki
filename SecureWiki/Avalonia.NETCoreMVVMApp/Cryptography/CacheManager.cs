@@ -42,14 +42,7 @@ namespace SecureWiki.Cryptography
 
         public string? GetFilePath(string pageTitle)
         {
-            if (_dict.ContainsKey(pageTitle) == false)
-            {
-                Console.WriteLine("GetFilePath:- Dict does not contain key '{0}'", pageTitle);
-                PrintInfo();
-                return null;
-            }
-            
-            var latestRevId = _dict[pageTitle]?.GetLatestRevID();
+            string? latestRevId = GetLatestRevisionID(pageTitle);
 
             if (latestRevId == null)
             {
@@ -132,6 +125,20 @@ namespace SecureWiki.Cryptography
                     // Console.WriteLine("File '{0}' should not be kept", filename);
                 }
             }
+        }
+
+        public string? GetLatestRevisionID(string pageTitle)
+        {
+            if (_dict.ContainsKey(pageTitle) == false)
+            {
+                Console.WriteLine("GetFilePath:- Dict does not contain key '{0}'", pageTitle);
+                PrintInfo();
+                return null;
+            }
+            
+            var latestRevId = _dict[pageTitle]?.GetLatestRevID();
+
+            return latestRevId;
         }
 
         public void PrintInfo()
