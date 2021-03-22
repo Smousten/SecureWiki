@@ -15,20 +15,24 @@ namespace SecureWiki.Model
     {
         [JsonProperty]
         public string filename { get; set; }
-        [JsonProperty]
-        public byte[] symmKey { get; set; }
-        [JsonProperty]
-        public byte[] iv { get; set; }
-        [JsonProperty]
-        public byte[]? privateKey { get; set; }
-        [JsonProperty]
-        public byte[] publicKey { get; set; }
-        [JsonProperty]
-        public string revisionNr { get; set; }
+        // [JsonProperty]
+        // public byte[] symmKey { get; set; }
+        // [JsonProperty]
+        // public byte[] iv { get; set; }
+        // [JsonProperty]
+        // public byte[]? privateKey { get; set; }
+        // [JsonProperty]
+        // public byte[] publicKey { get; set; }
+        // [JsonProperty]
+        // public string revisionNr { get; set; }
         [JsonProperty]
         public string serverLink { get; set; }
         [JsonProperty]
         public string pagename { get; set; }
+        
+        // Tuple of (Start revision id, public key, private key, end revision end
+        [JsonProperty]
+        public List<DataFileKey> keyList { get; set; }
 
         private KeyringEntry? _parent;
         public KeyringEntry? Parent
@@ -63,7 +67,8 @@ namespace SecureWiki.Model
         {
             get
             {
-                if (privateKey == null)
+                // if (privateKey == null)
+                if (keyList.TrueForAll(e => e.privateKey == null))
                 {
                     return false;
                 }
@@ -82,7 +87,8 @@ namespace SecureWiki.Model
         {
             get
             {
-                if (privateKey == null)
+                // if (privateKey == null)
+                if (keyList.TrueForAll(e => e.privateKey == null))
                 {
                     return false;
                 }
@@ -169,8 +175,8 @@ namespace SecureWiki.Model
             // Construct ignore list and populate with non-static properties
             List<PropertyInfo> ignoreList = new();
             ignoreList.Add(typeof(DataFileEntry).GetProperty(nameof(filename)));
-            ignoreList.Add(typeof(DataFileEntry).GetProperty(nameof(revisionNr)));
-
+            // ignoreList.Add(typeof(DataFileEntry).GetProperty(nameof(revisionNr)));
+            
             return CompareProperties(reference, ignoreList);
         }
 

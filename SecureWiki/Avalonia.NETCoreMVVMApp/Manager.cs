@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mail;
@@ -122,7 +123,8 @@ namespace SecureWiki
         public void UploadNewVersion(string filename, string filepath)
         {
             DataFileEntry? df = GetDataFile(filename, rootKeyring);
-            if (df?.privateKey != null)
+            var keyList = df?.keyList.First();
+            if (keyList.privateKey != null)
             {
                 wikiHandler.UploadNewVersion(df, filepath);
             }
@@ -136,7 +138,8 @@ namespace SecureWiki
         public void UploadNewVersionBytes(string filename, string filepath)
         {
             DataFileEntry? df = GetDataFile(filename, rootKeyring);
-            if (df?.privateKey != null)
+            var keyList = df?.keyList.First();
+            if (keyList.privateKey != null)
             {
                 wikiHandler.UploadNewVersionBytes(df, filepath);
             }
@@ -404,10 +407,20 @@ namespace SecureWiki
             Console.WriteLine(recipientEmail);
             smtpClient.Send(mailMessage);
         }
-
+        
         public void RevokeAccess(DataFileEntry datafile)
         {
-            _keyring.RevokeAccess(datafile);
+            Revision latestRevision = wikiHandler.getLatestRevision(datafile);
+            if (latestRevision.revisionID != null) datafile.keyList.Last().revisionEnd = latestRevision.revisionID;
+            
+            DataFileKey newDataFileKey = new();
+            datafile.keyList.Add(newDataFileKey);
+
+            Console.WriteLine("Revoking access for file :" + datafile.filename);
+            foreach (var key in datafile.keyList)
+            {
+                Console.WriteLine("Key start rev: " + key.revisionStart + " key end rev: " + key.revisionEnd + " symmetric key: " + Convert.ToBase64String(key.symmKey));
+            }
         }
     }
 }

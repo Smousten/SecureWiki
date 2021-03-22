@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -152,20 +153,30 @@ namespace SecureWiki.Cryptography
             var (key, iv) = _crypto.GenerateAESParams();
             var (privateKey, publicKey) = _crypto.GenerateRSAParams();
             
-            var filenameBytes = _crypto.EncryptAESStringToBytes(filename, key, iv);
-            // var encryptedFilename = BitConverter.ToString(filenameBytes);
+            // var filenameBytes = _crypto.EncryptAESStringToBytes(filename, key, iv);
+            // var encryptedFilename = Convert.ToBase64String(filenameBytes);
 
-            var encryptedFilename = Convert.ToBase64String(filenameBytes);
+            var pagename = GenerateRandomAlphanumericString();
+            
+            // DataFileEntry dataFileEntry = new()
+            // {
+            //     filename = filename,
+            //     symmKey = key,
+            //     iv = iv,
+            //     privateKey = privateKey,
+            //     publicKey = publicKey,
+            //     revisionNr = "-1",
+            //     serverLink = "http://localhost/mediawiki/api.php",
+            //     pagename = pagename
+            // };
+
+            DataFileKey dataFileKey = new();
             DataFileEntry dataFileEntry = new()
             {
                 filename = filename,
-                symmKey = key,
-                iv = iv,
-                privateKey = privateKey,
-                publicKey = publicKey,
-                revisionNr = "-1",
+                keyList = new List<DataFileKey> {dataFileKey},
                 serverLink = "http://localhost/mediawiki/api.php",
-                pagename = encryptedFilename
+                pagename = pagename
             };
 
             // Find the keyring where the new datafile is inserted
@@ -408,5 +419,28 @@ namespace SecureWiki.Cryptography
             // File.WriteAllText(completeFilepath + "_fork", fileContent);
             // AddNewFile(filepath,copyFilename);
         }
+
+        private static string GenerateRandomAlphanumericString(int length = 20)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+ 
+            var random = new Random();
+            var randomString = new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+            return randomString;
+        }
+
+        // public void SetStartRevision(DataFileEntry dataFile, string? revisionRevisionID)
+        // {
+        //     var keyringFilePath = GetKeyringFilePath();
+        //     var existingKeyRing = GetRootKeyring(keyringFilePath);
+        //
+        //     var datafilePath = GetDataFileFilePath(dataFile);
+        //     // Find the keyring where the data file is located
+        //     var foundKeyring = FindKeyringPath(existingKeyRing, datafilePath);
+        //     
+        //     
+        //
+        // }
     }
 }
