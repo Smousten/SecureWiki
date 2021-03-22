@@ -76,11 +76,11 @@ namespace SecureWiki.MediaWiki
                     dataFile.pagename);
                 uploadNewRevision.UploadContent(encryptedText);
 
-                MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(MWO, dataFile.pagename);
-                latestRevision.GetLatestRevision();
-                if (keyList.revisionStart.Equals("-1") && latestRevision.revision.revisionID != null)
+                // Get revision ID of the revision that was just uploaded
+                rev = latestRevision.GetLatestRevision();
+                if (keyList.revisionStart.Equals("-1") && rev.revisionID != null)
                 {
-                    dataFile.keyList.Last().revisionStart = latestRevision.revision.revisionID;
+                    dataFile.keyList.Last().revisionStart = rev.revisionID;
                 }
 
                 Console.WriteLine("Uploading new version of {0}, current startRevID: {1}, current endRevID: {2}", dataFile.filename, dataFile.keyList.Last().revisionStart, dataFile.keyList.Last().revisionEnd);
