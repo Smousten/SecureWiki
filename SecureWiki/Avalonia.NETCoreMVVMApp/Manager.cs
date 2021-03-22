@@ -128,7 +128,7 @@ namespace SecureWiki
         {
             DataFileEntry? df = GetDataFile(filename, rootKeyring);
             var keyList = df?.keyList.Last();
-            if (keyList.privateKey != null)
+            if (keyList?.privateKey != null)
             {
                 wikiHandler.UploadNewVersion(df, filepath);
             }
@@ -161,21 +161,6 @@ namespace SecureWiki
         }
         
 
-        public void UploadNewVersionBytes(string filename, string filepath)
-        {
-            DataFileEntry? df = GetDataFile(filename, rootKeyring);
-            var keyList = df?.keyList.First();
-            if (keyList.privateKey != null)
-            {
-                wikiHandler.UploadNewVersionBytes(df, filepath);
-            }
-            else
-            {
-                Console.WriteLine("{0}: the corresponding DataFileEntry does not contain" +
-                                  " a private key, upload cancelled", filepath);
-            }
-        }
-
         public void SetMediaWikiServer(string url)
         {
             httpClient = new HttpClient();
@@ -183,28 +168,7 @@ namespace SecureWiki
                 "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
         }
 
-        public string ReadFile(string filename)
-        {
-            var dataFile = GetDataFile(filename, rootKeyring);
-
-            if (dataFile == null) return "This text is stored securely.";
-
-            // var encryptedFilenameBytes = EncryptAesStringToBytes(filename, 
-            //     dataFile.symmKey, dataFile.iv);
-            // var encryptedFilenameString = Convert.ToBase64String(encryptedFilenameBytes);
-            //
-            // // URL does not allow + character, instead encode as hexadecimal
-            // var pageTitle = encryptedFilenameString.Replace("+", "%2B");
-
-            if (RequestedRevision.ContainsKey(dataFile.pagename))
-            {
-                return wikiHandler.ReadFile(dataFile, RequestedRevision[dataFile.pagename]);
-            }
-
-            return wikiHandler.ReadFile(dataFile);
-        }
-
-        public byte[]? ReadFileBytes(string filename)
+        public byte[]? ReadFile(string filename)
         {
             var dataFile = GetDataFile(filename, rootKeyring);
 
@@ -219,10 +183,10 @@ namespace SecureWiki
 
             if (RequestedRevision.ContainsKey(dataFile.pagename))
             {
-                return wikiHandler.ReadFileBytes(dataFile, RequestedRevision[dataFile.pagename]);
+                return wikiHandler.ReadFile(dataFile, RequestedRevision[dataFile.pagename]);
             }
 
-            return wikiHandler.ReadFileBytes(dataFile);
+            return wikiHandler.ReadFile(dataFile);
         }
 
         public void LoginToMediaWiki(string username, string password)
@@ -271,7 +235,7 @@ namespace SecureWiki
             Console.WriteLine("Manager:- ImportKeyring('{0}')", importPath);
             _keyring.ImportRootKeyring(importPath);
         }
-
+        
         public string? AttemptReadFileFromCache(string pageTitle, string revid)
         {
             string? cacheResult;
@@ -291,8 +255,7 @@ namespace SecureWiki
                 return null;
             }
 
-            string fileString = File.ReadAllText(cacheResult);
-            return fileString;
+            return File.ReadAllText(cacheResult);
         }
 
         public void AddEntryToCache(string pageTitle, Revision rev)
@@ -354,48 +317,27 @@ namespace SecureWiki
         {
             return _keyring.GetDataFile(filename, keyring);
         }
-
-        public byte[] EncryptAesStringToBytes(string plainText, byte[] symmKey, byte[] iv)
+        
+        public byte[] Encrypt(byte[] plainText, byte[] symmKey, byte[] iv)
         {
-            return _crypto.EncryptAESStringToBytes(plainText, symmKey, iv);
+            return _crypto.Encrypt(plainText, symmKey, iv);
         }
 
-        public byte[] EncryptAesBytesToBytes(byte[] plainText, byte[] symmKey, byte[] iv)
+        public byte[] Decrypt(byte[] pageContentBytes, byte[] symmKey, byte[] iv)
         {
-            return _crypto.EncryptAesBytesToBytes(plainText, symmKey, iv);
+            return _crypto.Decrypt(pageContentBytes, symmKey, iv);
         }
 
-        public string DecryptAesBytesToString(byte[] pageContentBytes, byte[] symmKey, byte[] iv)
-        {
-            return _crypto.DecryptAESBytesToString(pageContentBytes, symmKey, iv);
-        }
-
-        public byte[] DecryptAesBytesToBytes(byte[] pageContentBytes, byte[] symmKey, byte[] iv)
-        {
-            return _crypto.DecryptAesBytesToBytes(pageContentBytes, symmKey, iv);
-        }
-
-        public byte[] SignData(byte[] privateKey, string plainText)
+        public byte[] SignData(byte[] privateKey, byte[] plainText)
         {
             return _crypto.SignData(privateKey, plainText);
         }
 
-        public byte[] SignBytes(byte[]? privateKey, byte[] plainText)
-        {
-            return _crypto.SignBytes(privateKey, plainText);
-        }
-
-        public bool VerifyData(byte[] publicKey, string plainText, byte[] signedData)
+        public bool VerifyData(byte[] publicKey, byte[] plainText, byte[] signedData)
         {
             return _crypto.VerifyData(publicKey, plainText, signedData);
         }
-
-        public bool VerifyBytes(byte[] publicKey, byte[] plainText, byte[] signedData)
-        {
-            return _crypto.VerifyBytes(publicKey, plainText, signedData);
-        }
-
-
+        
         public void SendEmail(string recipientEmail)
         {
             // string mailto = string.Format("xdg-email mailto:{0}?subject={1}&body={2}",

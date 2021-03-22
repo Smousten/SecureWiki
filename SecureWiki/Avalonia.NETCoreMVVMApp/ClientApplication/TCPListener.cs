@@ -92,7 +92,6 @@ namespace SecureWiki.ClientApplication
                     if (RealFileName(filename))
                     {
                         _manager.UploadNewVersion(filename, filePath);
-                        // _manager.UploadNewVersionBytes(filename, filePath);
                     }
                     break;
                 case "create":
@@ -125,8 +124,8 @@ namespace SecureWiki.ClientApplication
                 case "read":
                     if (RealFileName(filename))
                     {
-                        var decryptedText = _manager.ReadFile(filename);
-                        byte[] byData = Encoding.ASCII.GetBytes(decryptedText);
+                        var decryptedText = _manager.ReadFile(filename) ?? Encoding.ASCII.GetBytes("File error");
+                        byte[] byData = decryptedText;
                         byte[] byDataLen = BitConverter.GetBytes(byData.Length);
                         byte[] msgPath = Encoding.ASCII.GetBytes(op[1]);
                         byte[] msgPathLen = BitConverter.GetBytes(msgPath.Length);
@@ -139,38 +138,8 @@ namespace SecureWiki.ClientApplication
                         _stream?.Write(rv);
                         Console.WriteLine(rv.Length);
                         Console.WriteLine("sending to server socket: {0} {1} {2} {3}", BitConverter.ToInt32(msgPathLen), BitConverter.ToInt32(byDataLen), Encoding.ASCII.GetString(msgPath), Encoding.ASCII.GetString(byData));
-                        //
-                        // var decryptedText = _manager.ReadFileBytes(filename) ?? Encoding.ASCII.GetBytes("File error");
-                        // byte[] byData = decryptedText;
-                        // byte[] byDataLen = BitConverter.GetBytes(byData.Length);
-                        // byte[] msgPath = Encoding.ASCII.GetBytes(op[1]);
-                        // byte[] msgPathLen = BitConverter.GetBytes(msgPath.Length);
-                        //
-                        // byte[] rv = new byte[msgPathLen.Length + byDataLen.Length + msgPath.Length + byData.Length];
-                        // Buffer.BlockCopy(msgPathLen, 0, rv, 0, msgPathLen.Length);
-                        // Buffer.BlockCopy(byDataLen, 0, rv, msgPathLen.Length, byDataLen.Length);
-                        // Buffer.BlockCopy(msgPath, 0, rv, msgPathLen.Length + byDataLen.Length, msgPath.Length);
-                        // Buffer.BlockCopy(byData, 0, rv, msgPathLen.Length + byDataLen.Length + msgPath.Length, byData.Length);
-                        // _stream?.Write(rv);
-                        // Console.WriteLine(rv.Length);
-                        // Console.WriteLine("sending to server socket: {0} {1} {2} {3}", BitConverter.ToInt32(msgPathLen), BitConverter.ToInt32(byDataLen), Encoding.ASCII.GetString(msgPath), Encoding.ASCII.GetString(byData));
                     }
                     break;
-
-                //
-                // case "rmfile":
-                //     if (RealFileName(filename))
-                //     {
-                //         _manager.RemoveFile(filePath, filename, "file");
-                //     }
-                //     break;
-                // case "rmdir":
-                //     if (RealFileName(filename))
-                //     {
-                //         _manager.RemoveFile(filePath, filename, "keyring");
-                //     }
-                //
-                //     break;
             }
         }
         
