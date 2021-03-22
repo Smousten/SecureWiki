@@ -157,7 +157,6 @@ namespace SecureWiki.MediaWiki
             var cacheResult = _manager.AttemptReadFileFromCache(dataFile.pagename, revid);
             if (cacheResult != null)
             {
-                
                 return Convert.FromBase64String(cacheResult);
             }
 

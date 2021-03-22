@@ -88,7 +88,7 @@ namespace SecureWiki.ClientApplication
             var filename = filePathSplit[^1];
             switch (op[0])
             {
-                case "release":
+                case "write":
                     if (RealFileName(filename))
                     {
                         _manager.UploadNewVersion(filename, filePath);
@@ -107,6 +107,7 @@ namespace SecureWiki.ClientApplication
                     var renamePathSplit = op[1].Split("%", 2);
                     var oldPath = renamePathSplit[0].Substring(1);
                     var newPath = renamePathSplit[1].Substring(1);
+                    newPath = newPath.Trim('\0');
                     
                     // Remove if file is moved to trash folder
                     if (newPath.Contains(".Trash"))
@@ -114,6 +115,13 @@ namespace SecureWiki.ClientApplication
                         var oldFilePathSplit = oldPath.Split("/");
                         var oldFilename = oldFilePathSplit[^1];
                         _manager.RemoveFile(oldPath, oldFilename);
+                    }
+                    // Else if the file is renamed from goutputstream then upload new version
+                    else if (oldPath.Contains(".goutputstream"))
+                    {
+                        var newFilePathSplit = newPath.Split("/");
+                        var newFilename = newFilePathSplit[^1];
+                        _manager.UploadNewVersion(newFilename, newPath);
                     }
                     // Else if the new filename is not goutputstream or .trash then rename
                     else if (RealFileName(filename))

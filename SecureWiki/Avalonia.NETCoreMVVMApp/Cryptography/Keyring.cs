@@ -217,9 +217,15 @@ namespace SecureWiki.Cryptography
         // Find the datafile with the given name -- better performance if whole filepath is given
         public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)
         {
+            foreach (var file in keyring.dataFiles)
+            {
+                Console.WriteLine("Looking for " + filename);
+                Console.WriteLine("Got filename: " + file.filename);
+            }
             var dataFile = keyring.dataFiles.FirstOrDefault(f => f.filename.Equals(filename));
             if (dataFile != null)
             {
+                Console.WriteLine("Found datafile: " + dataFile.filename);
                 return dataFile;
             }
 
