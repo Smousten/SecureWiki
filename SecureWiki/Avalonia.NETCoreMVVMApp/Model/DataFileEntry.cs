@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using ReactiveUI;
+using SecureWiki.Cryptography;
 
 namespace SecureWiki.Model
 {
@@ -15,55 +16,42 @@ namespace SecureWiki.Model
     {
         [JsonProperty]
         public string filename { get; set; }
-        // [JsonProperty]
-        // public byte[] symmKey { get; set; }
-        // [JsonProperty]
-        // public byte[] iv { get; set; }
-        // [JsonProperty]
-        // public byte[]? privateKey { get; set; }
-        // [JsonProperty]
-        // public byte[] publicKey { get; set; }
-        // [JsonProperty]
-        // public string revisionNr { get; set; }
         [JsonProperty]
         public string serverLink { get; set; }
         [JsonProperty]
-        public string pagename { get; set; }
+        public string pageName { get; set; }
         
         // Tuple of (Start revision id, public key, private key, end revision end
         [JsonProperty]
         public List<DataFileKey> keyList { get; set; }
 
         private KeyringEntry? _parent;
-        public KeyringEntry? Parent
+        public KeyringEntry? parent
         {
             get => _parent;
             set
             {
                 _parent = value; 
-                RaisePropertyChanged(nameof(Parent));
+                RaisePropertyChanged(nameof(parent));
             }
         }
         private bool? _isChecked = false;
-        public bool? IsChecked
+        public bool? isChecked
         {
-            get
-            {
-                return (_isChecked ?? false);
-            }
+            get => (_isChecked ?? false);
             set
             {
                 _isChecked = value;
                 // Console.WriteLine("DataFile '{0}' set to '{1}'", filename, value);
-                OnPropertyChanged(nameof(IsChecked));
-                OnPropertyChanged(nameof(IsCheckedWriteEnabled));
+                OnPropertyChanged(nameof(isChecked));
+                OnPropertyChanged(nameof(isCheckedWriteEnabled));
                 OnCheckedChanged(EventArgs.Empty);
                 // Console.WriteLine("DataFile '{0}' finished setting");
             }
         }
         
         private bool? _isCheckedWrite = false;
-        public bool? IsCheckedWrite
+        public bool? isCheckedWrite
         {
             get
             {
@@ -78,12 +66,12 @@ namespace SecureWiki.Model
             {
                 _isCheckedWrite = value;
                 // Console.WriteLine("Datafile '{0}': IsCheckedWrite set to '{1}'", filename, value);
-                OnPropertyChanged(nameof(IsCheckedWrite));
+                OnPropertyChanged(nameof(isCheckedWrite));
                 // Console.WriteLine("Datafile '{0}': IsCheckedWrite finished setting", filename);
             }
         }
         
-        public bool IsCheckedWriteEnabled
+        public bool isCheckedWriteEnabled
         {
             get
             {
@@ -92,18 +80,14 @@ namespace SecureWiki.Model
                 {
                     return false;
                 }
-                return IsChecked ?? false;
+                return isChecked ?? false;
             }
         }
 
         private bool _newestRevisionSelected = true;
         public bool newestRevisionSelected        
         {
-            get
-            {
-                // Console.WriteLine("getting newestRevisionSelected='{0}'", _newestRevisionSelected);
-                return _newestRevisionSelected;
-            }
+            get => _newestRevisionSelected;
             set
             {
                 // Console.WriteLine("_newestRevisionSelected set to '{0}'", value);
@@ -112,8 +96,13 @@ namespace SecureWiki.Model
             }
         }
         
-        public DataFileEntry()
+        public DataFileEntry(string serverLink, string filename = "unnamed")
         {
+            this.filename = filename;
+            this.serverLink = serverLink;
+            pageName = RandomString.GenerateRandomAlphanumericString();
+            keyList = new List<DataFileKey> {new()};
+            
             // IsChecked = false;
             CheckedChanged -= CheckedChangedUpdateParent;
             CheckedChanged += CheckedChangedUpdateParent;
@@ -134,15 +123,12 @@ namespace SecureWiki.Model
         
         public void RaisePropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChangedEventHandler? handler = PropertyChanged;
+            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         
         [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null!)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             // Console.WriteLine("OnPropertyChanged in DatFileEntry, property: " + propertyName);
@@ -151,18 +137,15 @@ namespace SecureWiki.Model
         protected virtual void OnCheckedChanged(EventArgs e)
         {
             EventHandler handler = CheckedChanged;
-            if (handler != null)
-            {
-                handler(this, e);                
-            }
+            handler(this, e);
         }
 
-        public event EventHandler CheckedChanged;
+        public event EventHandler CheckedChanged = null!;
 
         public void CheckedChangedUpdateParent(object? sender, EventArgs e)
         {
             // Console.WriteLine("CheckedChangedUpdateParent entered in datafile.filename='{0}'", filename);
-            Parent.UpdateIsCheckedBasedOnChildren();
+            parent?.UpdateIsCheckedBasedOnChildren();
         }
 
         public bool IsEqual(DataFileEntry reference)
@@ -174,7 +157,13 @@ namespace SecureWiki.Model
         {
             // Construct ignore list and populate with non-static properties
             List<PropertyInfo> ignoreList = new();
-            ignoreList.Add(typeof(DataFileEntry).GetProperty(nameof(filename)));
+
+            var filenameProperty = typeof(DataFileEntry).GetProperty(nameof(filename));
+
+            if (filenameProperty != null)
+            {
+                ignoreList.Add(filenameProperty);
+            }
             // ignoreList.Add(typeof(DataFileEntry).GetProperty(nameof(revisionNr)));
             
             return CompareProperties(reference, ignoreList);
@@ -205,7 +194,7 @@ namespace SecureWiki.Model
                 
                 if (ownValue == null || refValue == null)
                 {
-                    // Console.WriteLine("Atleast one is null");
+                    // Console.WriteLine("AtLeast one is null");
                     if (ownValue != null || refValue != null)
                     {
                         return false;
@@ -247,7 +236,7 @@ namespace SecureWiki.Model
         public void PrintInfo()
         {
             Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}'", 
-                filename, IsChecked, Parent?.Name ?? "null");
+                filename, isChecked, parent?.name ?? "null");
         }
     }
 }

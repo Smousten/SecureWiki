@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -21,6 +23,16 @@ namespace SecureWiki.Cryptography
                 }  
                 return sb.ToString();  
             }  
+        }
+        
+        public static string GenerateRandomAlphanumericString(int length = 20)
+        {
+            const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+            var random = new Random();
+            var randomString = new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
+            return randomString;
         }
     }
 }

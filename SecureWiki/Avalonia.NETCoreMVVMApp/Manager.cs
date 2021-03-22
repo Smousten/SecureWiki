@@ -181,9 +181,9 @@ namespace SecureWiki
             // // URL does not allow + character, instead encode as hexadecimal
             // var pageTitle = encryptedFilenameString.Replace("+", "%2B");
 
-            if (RequestedRevision.ContainsKey(dataFile.pagename))
+            if (RequestedRevision.ContainsKey(dataFile.pageName))
             {
-                return wikiHandler.ReadFile(dataFile, RequestedRevision[dataFile.pagename]);
+                return wikiHandler.ReadFile(dataFile, RequestedRevision[dataFile.pageName]);
             }
 
             return wikiHandler.ReadFile(dataFile);

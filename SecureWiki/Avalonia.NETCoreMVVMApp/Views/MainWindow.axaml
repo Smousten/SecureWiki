@@ -74,29 +74,29 @@
                         <TreeDataTemplate DataType="Models:RootKeyring" ItemsSource="{Binding combinedList}">
                             <StackPanel Orientation="Horizontal">
                                 <!--IsChecked CheckBox-->
-                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox"
+                                <CheckBox IsChecked="{Binding isChecked}" MinWidth="20" Name="CheckBox"
                                           Initialized="CheckBox_OnInitialized" />
                                 <!--IsCheckedWrite CheckBox-->
-                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite"
-                                          IsEnabled="{Binding IsCheckedWriteEnabled}" />
+                                <CheckBox IsChecked="{Binding isCheckedWrite}" MinWidth="20" Name="CheckBoxWrite"
+                                          IsEnabled="{Binding isCheckedWriteEnabled}" />
                                 <!--Folder-->
                                 <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
                                     <TextBlock Foreground="Red" VerticalAlignment="Center"
-                                               Text="{Binding Name, Mode=TwoWay}" />
+                                               Text="{Binding name, Mode=TwoWay}" />
                                 </Border>
                             </StackPanel>
                         </TreeDataTemplate>
                         <TreeDataTemplate DataType="Models:KeyringEntry" ItemsSource="{Binding combinedList}">
                             <StackPanel Orientation="Horizontal">
                                 <!--IsChecked CheckBox-->
-                                <CheckBox IsChecked="{Binding IsChecked}" MinWidth="20" Name="CheckBox"
+                                <CheckBox IsChecked="{Binding isChecked}" MinWidth="20" Name="CheckBox"
                                           Initialized="CheckBox_OnInitialized" />
                                 <!--IsCheckedWrite CheckBox-->
-                                <CheckBox IsChecked="{Binding IsCheckedWrite}" MinWidth="20" Name="CheckBoxWrite"
-                                          IsEnabled="{Binding IsCheckedWriteEnabled}" />
+                                <CheckBox IsChecked="{Binding isCheckedWrite}" MinWidth="20" Name="CheckBoxWrite"
+                                          IsEnabled="{Binding isCheckedWriteEnabled}" />
                                 <!--Folder-->
                                 <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
-                                    <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
+                                    <TextBlock VerticalAlignment="Center" Text="{Binding name}" />
                                 </Border>
                             </StackPanel>
                         </TreeDataTemplate>
@@ -104,11 +104,11 @@
                             <DockPanel LastChildFill="False" Name="DockPanel_DataFileEntry"
                                        MaxWidth="{Binding Bounds.Width, ElementName=ScrollViewerTreeView}">
                                 <!--IsChecked CheckBox-->
-                                <CheckBox IsChecked="{Binding IsChecked}" DockPanel.Dock="Left" MinWidth="20"
+                                <CheckBox IsChecked="{Binding isChecked}" DockPanel.Dock="Left" MinWidth="20"
                                           Name="CheckBox" Initialized="CheckBox_OnInitialized" />
                                 <!--IsCheckedWrite CheckBox-->
-                                <CheckBox IsChecked="{Binding IsCheckedWrite}" DockPanel.Dock="Left" MinWidth="20"
-                                          Name="CheckBoxWrite" IsEnabled="{Binding IsCheckedWriteEnabled}" />
+                                <CheckBox IsChecked="{Binding isCheckedWrite}" DockPanel.Dock="Left" MinWidth="20"
+                                          Name="CheckBoxWrite" IsEnabled="{Binding isCheckedWriteEnabled}" />
                                 <DockPanel DockPanel.Dock="Left"
                                            Background="{Binding newestRevisionSelected, Converter={StaticResource TreeViewItemColourConverter}}">
                                     <!--DataFile -->

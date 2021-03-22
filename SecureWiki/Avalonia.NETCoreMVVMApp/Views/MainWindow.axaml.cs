@@ -148,7 +148,7 @@ namespace SecureWiki.Views
                     Console.WriteLine("subchild name, type: {0} {1}", subChild.ToString(), subChild.GetType() );
                 }
                 
-                KeyringEntry kr = new();
+                // KeyringEntry kr = new();
                 // AddToKeyringRecursively(kr, (TreeViewItem) child);
             }         
         }
@@ -307,13 +307,13 @@ namespace SecureWiki.Views
                 
                 _viewModel.selectedFile.newestRevisionSelected = newestSelected;
                 
-                if (manager.RequestedRevision.ContainsKey(_viewModel.selectedFile.pagename))
+                if (manager.RequestedRevision.ContainsKey(_viewModel.selectedFile.pageName))
                 {
-                    manager.RequestedRevision[_viewModel.selectedFile.pagename] = _viewModel.selectedRevision.revisionID;
+                    manager.RequestedRevision[_viewModel.selectedFile.pageName] = _viewModel.selectedRevision.revisionID;
                 }
                 else
                 {
-                    manager.RequestedRevision.Add(_viewModel.selectedFile.pagename, _viewModel.selectedRevision.revisionID);
+                    manager.RequestedRevision.Add(_viewModel.selectedFile.pageName, _viewModel.selectedRevision.revisionID);
                 }
             }
         }   
@@ -326,7 +326,7 @@ namespace SecureWiki.Views
             {
                 DataFileEntry dataFile = tb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
                 _viewModel.selectedFile = dataFile;
-                _viewModel.revisions = manager.GetAllRevisions(dataFile.pagename).revisionList;
+                _viewModel.revisions = manager.GetAllRevisions(dataFile.pageName).revisionList;
                 // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
                 // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
                 Console.WriteLine(dataFile.filename);
