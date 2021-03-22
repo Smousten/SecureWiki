@@ -14,18 +14,13 @@ namespace SecureWiki.MediaWiki
 {
     public class WikiHandler
     {
-        private readonly string _url;
-
-        private readonly HttpClient _client;
         private readonly Manager _manager;
         public readonly MediaWikiObjects MWO;
 
         public WikiHandler(string username, string password, HttpClient inputClient, Manager manager,
             string ip = "localhost")
         {
-            _url = "http://" + ip + "/mediawiki/api.php";
             MWO = new MediaWikiObjects(inputClient, username, password, ip);
-            _client = inputClient;
             _manager = manager;
         }
 
@@ -198,41 +193,51 @@ namespace SecureWiki.MediaWiki
                 }
             }
 
-            if (keyList == null) return "Tried to access revision without access";
-            Console.WriteLine("Reading file: {0}, current startRevID: {1}, current endRevID: {2}", dataFile.filename,
-                keyList.revisionStart, keyList.revisionEnd);
+            if (keyList == null)
+            {
+                var revisions = _manager.GetAllRevisions(dataFile.pagename).revisionList;
+                return GetLatestValidRevision(dataFile, revisions);
+            }
+
 
             if (pageContent.Equals(""))
             {
                 return "File does not exist on server";
             }
 
-            var pageContentBytes = Convert.FromBase64String(pageContent);
-
-            var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes,
-                keyList.symmKey, keyList.iv);
-            var textString = decryptedText.Substring(0, decryptedText.Length - 344);
-            var hashString = decryptedText.Substring(decryptedText.Length - 344);
-            var hashBytes = Convert.FromBase64String(hashString);
-
-            if (!_manager.VerifyData(keyList.publicKey, textString, hashBytes))
+            try
             {
-                Console.WriteLine("Verifying failed...");
-                var revisions = _manager.GetAllRevisions(dataFile.pagename).revisionList;
-                return GetLatestValidRevision(dataFile, revisions);
-                // return "Access denied...";
-            }
+                var pageContentBytes = Convert.FromBase64String(pageContent);
 
-            if (textString.Equals(""))
+                var decryptedText = _manager.DecryptAesBytesToString(pageContentBytes,
+                    keyList.symmKey, keyList.iv);
+                var textString = decryptedText.Substring(0, decryptedText.Length - 344);
+                var hashString = decryptedText.Substring(decryptedText.Length - 344);
+                var hashBytes = Convert.FromBase64String(hashString);
+
+                if (!_manager.VerifyData(keyList.publicKey, textString, hashBytes))
+                {
+                    Console.WriteLine("Verifying failed...");
+                    var revisions = _manager.GetAllRevisions(dataFile.pagename).revisionList;
+                    return GetLatestValidRevision(dataFile, revisions);
+                }
+
+                if (textString.Equals(""))
+                {
+                    return "This text is stored securely.";
+                }
+
+                getPageContent.revision.content = textString;
+
+                _manager.AddEntryToCache(dataFile.pagename, getPageContent.revision);
+
+                return textString;
+            }
+            catch (FormatException e)
             {
-                return "This text is stored securely.";
+                Console.WriteLine(e.Message);
+                return "Formatting exception when converting base64 string to bytes";
             }
-
-            getPageContent.revision.content = textString;
-
-            _manager.AddEntryToCache(dataFile.pagename, getPageContent.revision);
-
-            return textString;
         }
 
         private static bool IsValidRevid(DataFileEntry dataFile, string revid, int i)
@@ -249,24 +254,14 @@ namespace SecureWiki.MediaWiki
         {
             // Initialise iterator to index of last DataFileKey entry
             var iterator = datafile.keyList.Count - 1;
-
-            // 205, 204, 203, 203, 158, 146, 143
-            //
-            // 144,146;
-            // 146,158;
-            // 158,203
-            // 203,-1;
-
-
             for (var i = 0; i < revisions.Count; i++)
             {
                 for (var j = iterator; j >= 0; j--)
                 {
                     Console.WriteLine(
                         "Try getting lastestvalid revision with revisionID {0} and key startRevID {1} and endRevID {2}",
-                        revisions[i].revisionID, datafile.keyList[j].revisionStart, datafile.keyList[j].revisionStart);
-
-
+                        revisions[i].revisionID, datafile.keyList[j].revisionStart, datafile.keyList[j].revisionEnd);
+                    
                     if (!IsValidRevid(datafile, revisions[i].revisionID, j))
                     {
                         iterator = j;
