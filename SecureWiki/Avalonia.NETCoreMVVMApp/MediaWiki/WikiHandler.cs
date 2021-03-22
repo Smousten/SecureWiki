@@ -4,7 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using SecureWiki.Model;
+using SecureWiki.Views;
 
 namespace SecureWiki.MediaWiki
 {
@@ -56,10 +60,24 @@ namespace SecureWiki.MediaWiki
 
                 if (rev.revisionID != null && !rev.revisionID.Equals(latestRevID))
                 {
-                    // TODO: MessageBox
+                    // TODO: MessageBox content
 
-                    Console.WriteLine("This is not the newest revision available, " +
-                                      "sure you wanna do this, mate?");
+                    string warningString = "This is not the newest revision available, " +
+                                           "sure you wanna do this, mate?" + 
+                                           "\nUploaded: " + rev.timestamp + 
+                                           "\nBy user: " + rev.user +
+                                           "\nContent size: " + rev.size;
+                    
+                    var msgBoxOutput = _manager.ShowMessageBox("Warning!", warningString);
+
+                    Console.WriteLine("msgboxoutput = " + msgBoxOutput);
+
+                    if (msgBoxOutput == MessageBox.MessageBoxResult.Cancel)
+                    {
+                        Console.WriteLine("Upload cancelled");
+                        return;
+                    }
+
                 }
                 
                 

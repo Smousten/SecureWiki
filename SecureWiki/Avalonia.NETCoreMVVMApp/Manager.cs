@@ -10,11 +10,15 @@ using System.Net.Mime;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
 using Newtonsoft.Json;
 using SecureWiki.ClientApplication;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
 using SecureWiki.Model;
+using SecureWiki.Views;
 
 namespace SecureWiki
 {
@@ -133,6 +137,27 @@ namespace SecureWiki
                 Console.WriteLine("{0}: the corresponding DataFileEntry does not contain" +
                                   " a private key, upload cancelled", filepath);
             }
+        }
+
+        public MessageBox.MessageBoxResult ShowMessageBox(string title, string content,
+            MessageBox.MessageBoxButtons buttons = MessageBox.MessageBoxButtons.OkCancel)
+        {
+            // Invoke UI thread with highest priority
+            var output = Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                Console.WriteLine("This runs on the UI thread.");
+                MessageBox.MessageBoxResult result = MessageBox.MessageBoxResult.No;
+                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime
+                    desktop)
+                {
+                    result = await MessageBox.Show(desktop.MainWindow, content, title,
+                        buttons);
+                }
+
+                return result;
+            }, DispatcherPriority.MaxValue).Result;
+
+            return output;
         }
         
         public void UploadNewVersionBytes(string filename, string filepath)

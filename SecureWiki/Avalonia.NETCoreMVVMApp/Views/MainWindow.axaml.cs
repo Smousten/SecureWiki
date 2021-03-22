@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Templates;
 using Avalonia.Input;
@@ -356,5 +357,6 @@ namespace SecureWiki.Views
             popup.IsOpen = false;
             _viewModel.IsAccessRevocationPopupOpen = false;
         }
+
     }
 }
