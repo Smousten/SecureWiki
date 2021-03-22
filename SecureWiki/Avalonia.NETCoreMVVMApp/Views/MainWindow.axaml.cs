@@ -357,6 +357,5 @@ namespace SecureWiki.Views
             popup.IsOpen = false;
             _viewModel.IsAccessRevocationPopupOpen = false;
         }
-
     }
 }

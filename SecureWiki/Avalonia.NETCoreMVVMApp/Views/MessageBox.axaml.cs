@@ -30,6 +30,11 @@ namespace SecureWiki.Views
         public MessageBox()
         {
             AvaloniaXamlLoader.Load(this);
+            Topmost = true;
+            Activate();
+            Focus();
+            WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            // Topmost = false;
         }
 
         public static Task<MessageBoxResult> Show(Window parent, string text, string title, MessageBoxButtons buttons)
