@@ -26,11 +26,11 @@ namespace SecureWiki.Cryptography
             {
                 CreateNewKeyRing(filepath);
             }
-           
+
             // Read Keyring.json into rootKeyring
             ReadIntoKeyring(rootKeyring);
             UpdateKeyringParentPropertyRecursively(rootKeyring);
-            
+
             CreateFileStructureRecursion(rootKeyring, GetRootDirPath());
         }
 
@@ -66,7 +66,7 @@ namespace SecureWiki.Cryptography
             // var existingKeyRing = JsonSerializer.Deserialize<KeyringEntry>(jsonData)
             //                       ?? new KeyringEntry();
             var existingKeyRing = JsonConvert.DeserializeObject<RootKeyring>(jsonData)
-                ?? new RootKeyring();
+                                  ?? new RootKeyring();
             Console.WriteLine("Deserialize passed");
             return existingKeyRing;
         }
@@ -132,6 +132,7 @@ namespace SecureWiki.Cryptography
             {
                 return FindKeyringPath(childKeyring, newPath);
             }
+
             KeyringEntry intermediateKeyring = new()
             {
                 Name = filePathSplit[0],
@@ -148,16 +149,16 @@ namespace SecureWiki.Cryptography
             var keyringFilePath = GetKeyringFilePath();
 
             // var existingKeyRing = GetRootKeyring(keyringFilePath);
-        
-            
+
+
             var (key, iv) = _crypto.GenerateAESParams();
             var (privateKey, publicKey) = _crypto.GenerateRSAParams();
-            
+
             // var filenameBytes = _crypto.EncryptAESStringToBytes(filename, key, iv);
             // var encryptedFilename = Convert.ToBase64String(filenameBytes);
 
             var pagename = GenerateRandomAlphanumericString();
-            
+
             // DataFileEntry dataFileEntry = new()
             // {
             //     filename = filename,
@@ -202,17 +203,17 @@ namespace SecureWiki.Cryptography
                 dataFiles = new ObservableCollection<DataFileEntry>(),
                 keyrings = new ObservableCollection<KeyringEntry>()
             };
-            
+
             // Find the keyring where the new keyring is inserted
             var foundKeyring = FindKeyringPath(rootKeyring, filepath);
             foundKeyring.AddKeyring(newKeyringEntry);
-            
+
             // JsonSerializerOptions options = new() {WriteIndented = true};
 
             // var jsonData = JsonSerializer.Serialize(existingKeyRing, options);
             SerializeAndWriteFile(keyringFilePath, rootKeyring);
         }
-        
+
         // Find the datafile with the given name -- better performance if whole filepath is given
         public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)
         {
@@ -230,6 +231,7 @@ namespace SecureWiki.Cryptography
                     return result;
                 }
             }
+
             return null;
 
             // Linq one-line
@@ -240,7 +242,7 @@ namespace SecureWiki.Cryptography
         public void Rename(string oldPath, string newPath)
         {
             var keyringFilePath = GetKeyringFilePath();
-            
+
             // var rootKeyring = GetRootKeyring(keyringFilePath);
             var oldKeyring = FindKeyringPath(rootKeyring, oldPath);
             var newKeyring = FindKeyringPath(rootKeyring, newPath);
@@ -262,7 +264,7 @@ namespace SecureWiki.Cryptography
                 dataFile.filename = newName;
                 newKeyring.AddDataFile(dataFile);
             }
-            
+
             // Find keyring in oldkeyring
             var keyring = oldKeyring.keyrings.FirstOrDefault(f => f.Name.Equals(oldName));
             if (keyring != null)
@@ -277,7 +279,7 @@ namespace SecureWiki.Cryptography
             // var jsonData = JsonSerializer.Serialize(rootKeyring, options);
             SerializeAndWriteFile(keyringFilePath, this.rootKeyring);
         }
-        
+
         // public void RemoveFile(string filePath, string filename, string type)
         // {
         //     var keyringFilePath = GetKeyringFilePath();
@@ -303,7 +305,7 @@ namespace SecureWiki.Cryptography
         //     File.WriteAllText(keyringFilePath, jsonData);
         // }
 
-        
+
         public void RemoveFile(string filePath, string filename)
         {
             var keyringFilePath = GetKeyringFilePath();
@@ -354,17 +356,17 @@ namespace SecureWiki.Cryptography
         public void ExportRootKeyringBasedOnIsChecked()
         {
             RootKeyring rk = CreateRootKeyringBasedOnIsChecked();
-           
+
             rk.RemoveEmptyDescendantsRecursively();
             rk.PrepareForExportRecursively();
-            
+
             var currentDir = Directory.GetCurrentDirectory();
             var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
             var keyringFileName = "KeyringExport.json";
             var keyringFilePath = Path.Combine(path, keyringFileName);
 
             var filepath = keyringFilePath;
-            
+
             SerializeAndWriteFile(filepath, rk);
         }
 
@@ -379,7 +381,7 @@ namespace SecureWiki.Cryptography
             rootKeyring.MergeAllEntriesFromOtherKeyring(rk);
             Console.WriteLine("Updating mounted directory to reflect changes in RootKeyring");
             CreateFileStructureRecursion(rootKeyring, GetRootDirPath());
-            
+
             // Write changes to Keyring.json
             // var keyringFilePath = GetKeyringFilePath();
             // SerializeAndWriteFile(keyringFilePath, rootKeyring);
@@ -388,7 +390,11 @@ namespace SecureWiki.Cryptography
         private string GetDataFileFilePath(DataFileEntry datafile)
         {
             var filepath = datafile.filename;
-            return datafile.Parent != null ? GetDataFilePathLoop(datafile.Parent, filepath) : filepath;
+            var datafilePath = datafile.Parent != null ? GetDataFilePathLoop(datafile.Parent, filepath) : filepath;
+
+            // Remove Root/ from string
+            var datafilePathSplit = datafilePath.Split("Root/", 2);
+            return datafilePathSplit[^1];
         }
 
         private string GetDataFilePathLoop(KeyringEntry keyring, string filepath)
@@ -401,46 +407,46 @@ namespace SecureWiki.Cryptography
             }
         }
 
-        public void RevokeAccess(DataFileEntry datafile)
+        public void RevokeAccess(DataFileEntry datafile, string latestRevisionID)
         {
-            // var filepath = GetDataFileFilePath(datafile);
-            // var filepathSplit = filepath.Split("/", 2);
-            // var filepath
-            //
-            // Console.WriteLine("Revoke access for datafile with path: " + filepath);
-            //
-            // var completeFilepath = Path.Combine(GetRootDirPath(), @filepath);
-            // var fileContent = File.ReadAllText(completeFilepath);
-            // Console.WriteLine("Revoke access for file with content: " + fileContent);
-            //
-            // var copyFilename = datafile.filename;
-            // copyFilename += "_fork";
-            //
-            // File.WriteAllText(completeFilepath + "_fork", fileContent);
-            // AddNewFile(filepath,copyFilename);
+            var keyringFilePath = GetKeyringFilePath();
+            var existingKeyRing = GetRootKeyring(keyringFilePath);
+            var datafilePath = GetDataFileFilePath(datafile);
+
+            // Find the keyring where the data file is located
+            var foundKeyring = FindKeyringPath(existingKeyRing, datafilePath);
+
+            var dataFileEntry = foundKeyring.dataFiles.First(e => e.pagename.Equals(datafile.pagename));
+            dataFileEntry.keyList.Last().revisionStart = datafile.keyList.Last().revisionStart;
+            dataFileEntry.keyList.Last().revisionEnd = latestRevisionID;
+
+            DataFileKey newDataFileKey = new();
+            dataFileEntry.keyList.Add(newDataFileKey);
+
+            SerializeAndWriteFile(keyringFilePath, existingKeyRing);
         }
 
         private static string GenerateRandomAlphanumericString(int length = 20)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
- 
+
             var random = new Random();
             var randomString = new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
             return randomString;
         }
 
-        // public void SetStartRevision(DataFileEntry dataFile, string? revisionRevisionID)
+        // public void SetKeyStartRevision(DataFileEntry datafile, string revisionID)
         // {
         //     var keyringFilePath = GetKeyringFilePath();
         //     var existingKeyRing = GetRootKeyring(keyringFilePath);
-        //
-        //     var datafilePath = GetDataFileFilePath(dataFile);
+        //     var datafilePath = GetDataFileFilePath(datafile);
         //     // Find the keyring where the data file is located
         //     var foundKeyring = FindKeyringPath(existingKeyRing, datafilePath);
-        //     
-        //     
         //
+        //     var dataFileEntry = foundKeyring.dataFiles.First(e => e.pagename.Equals(datafile.pagename));
+        //     dataFileEntry.keyList.Last().revisionStart = revisionID;
+        //     SerializeAndWriteFile(keyringFilePath, existingKeyRing);
         // }
     }
 }

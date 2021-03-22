@@ -123,7 +123,7 @@ namespace SecureWiki
         public void UploadNewVersion(string filename, string filepath)
         {
             DataFileEntry? df = GetDataFile(filename, rootKeyring);
-            var keyList = df?.keyList.First();
+            var keyList = df?.keyList.Last();
             if (keyList.privateKey != null)
             {
                 wikiHandler.UploadNewVersion(df, filepath);
@@ -134,7 +134,7 @@ namespace SecureWiki
                                   " a private key, upload cancelled", filepath);
             }
         }
-        
+
         public void UploadNewVersionBytes(string filename, string filepath)
         {
             DataFileEntry? df = GetDataFile(filename, rootKeyring);
@@ -177,7 +177,7 @@ namespace SecureWiki
 
             return wikiHandler.ReadFile(dataFile);
         }
-        
+
         public byte[]? ReadFileBytes(string filename)
         {
             var dataFile = GetDataFile(filename, rootKeyring);
@@ -248,7 +248,6 @@ namespace SecureWiki
 
         public string? AttemptReadFileFromCache(string pageTitle, string revid)
         {
-
             string? cacheResult;
 
             if (revid.Equals("-1"))
@@ -334,7 +333,7 @@ namespace SecureWiki
         {
             return _crypto.EncryptAESStringToBytes(plainText, symmKey, iv);
         }
-        
+
         public byte[] EncryptAesBytesToBytes(byte[] plainText, byte[] symmKey, byte[] iv)
         {
             return _crypto.EncryptAesBytesToBytes(plainText, symmKey, iv);
@@ -344,7 +343,7 @@ namespace SecureWiki
         {
             return _crypto.DecryptAESBytesToString(pageContentBytes, symmKey, iv);
         }
-        
+
         public byte[] DecryptAesBytesToBytes(byte[] pageContentBytes, byte[] symmKey, byte[] iv)
         {
             return _crypto.DecryptAesBytesToBytes(pageContentBytes, symmKey, iv);
@@ -354,7 +353,7 @@ namespace SecureWiki
         {
             return _crypto.SignData(privateKey, plainText);
         }
-        
+
         public byte[] SignBytes(byte[]? privateKey, byte[] plainText)
         {
             return _crypto.SignBytes(privateKey, plainText);
@@ -383,44 +382,35 @@ namespace SecureWiki
                 Credentials = new NetworkCredential(_smtpClientEmail, _smtpClientPassword),
                 EnableSsl = true,
             };
-            
+
             var mailMessage = new MailMessage
             {
                 From = new MailAddress(_smtpClientEmail),
                 Subject = "SecureWiki file sharing",
                 Body = "<h1>Hello</h1>" +
-                        "<br />You have received a new keyring" +
-                        "<p>Sincerely,<br />" +
-                        "<br />" +
-                        "<br />" +
-                        "Kevin Sanders<br />" +
-                        "<i>Vice President</i></p>",
+                       "<br />You have received a new keyring" +
+                       "<p>Sincerely,<br />" +
+                       "<br />" +
+                       "<br />" +
+                       "Kevin Sanders<br />" +
+                       "<i>Vice President</i></p>",
                 IsBodyHtml = true,
             };
             // TODO: send selected keyring and not all
             var keyringPath = _keyring.GetKeyringFilePath();
-            var attachment = new Attachment(keyringPath, 
+            var attachment = new Attachment(keyringPath,
                 MediaTypeNames.Application.Json);
             mailMessage.Attachments.Add(attachment);
             mailMessage.To.Add(recipientEmail);
-            
+
             Console.WriteLine(recipientEmail);
             smtpClient.Send(mailMessage);
         }
-        
+
         public void RevokeAccess(DataFileEntry datafile)
         {
-            Revision latestRevision = wikiHandler.getLatestRevision(datafile);
-            if (latestRevision.revisionID != null) datafile.keyList.Last().revisionEnd = latestRevision.revisionID;
-            
-            DataFileKey newDataFileKey = new();
-            datafile.keyList.Add(newDataFileKey);
-
-            Console.WriteLine("Revoking access for file :" + datafile.filename);
-            foreach (var key in datafile.keyList)
-            {
-                Console.WriteLine("Key start rev: " + key.revisionStart + " key end rev: " + key.revisionEnd + " symmetric key: " + Convert.ToBase64String(key.symmKey));
-            }
+            Revision latestRevision = wikiHandler.GetLatestRevision(datafile);
+            _keyring.RevokeAccess(datafile, latestRevision.revisionID);
         }
     }
 }
