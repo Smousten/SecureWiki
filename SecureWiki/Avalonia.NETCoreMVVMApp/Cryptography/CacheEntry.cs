@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
-using SecureWiki.MediaWiki;
 
 namespace SecureWiki.Cryptography
 {
@@ -15,27 +14,25 @@ namespace SecureWiki.Cryptography
         [JsonProperty]
         private string _dirPath;
         [JsonProperty]
-        private string pageTitle;
+        private string _pageTitle;
 
         public CacheEntry(string dirPath, string pageTitle)
         {
             _dirPath = dirPath;
-            this.pageTitle = pageTitle;
+            this._pageTitle = pageTitle;
         }
 
         public void AddEntry(string revid, string content)
         {
-            Console.WriteLine("adding entry: pageTitle='{0}', revid='{1}'", pageTitle, revid);
             if (DictContainsKey(revid))
             {
                 return;
             }
             
-            var hash = new RandomString().ComputeHash(pageTitle + revid);
+            var hash = new RandomString().ComputeHash(_pageTitle + revid);
             var path = Path.Combine(_dirPath, hash);
 
             File.WriteAllText(path, content);
-            Console.WriteLine("adding entry: writing content to path='{0}'", path);
                     
             _dict.Add(revid, hash);
         }
@@ -58,9 +55,17 @@ namespace SecureWiki.Cryptography
 
         public void RemoveAllButLatestEntry()
         {
-            string latestRev = GetLatestRevID();
+            string? latestRev = GetLatestRevID();
 
-            foreach (var item in _dict)
+            // Create copy of dictionary for local use
+            var dict = new Dictionary<string, string>();
+            foreach (var entry in _dict)
+            {
+                dict.Add(entry.Key, entry.Value);
+            }
+
+            // Iterate through copy and remove all but latest revision
+            foreach (var item in dict)
             {
                 if (item.Key.Equals(latestRev))
                 {
@@ -71,6 +76,7 @@ namespace SecureWiki.Cryptography
             }
         }
 
+        // Return file path corresponding to specific revision id
         public string? GetFilePath(string revid)
         {
             if (DictContainsKey(revid) == false)
@@ -94,12 +100,10 @@ namespace SecureWiki.Cryptography
 
         public string? GetLatestRevID()
         {
-            // Console.WriteLine("GetLatestRevID:- pageTitle='{0}'", pageTitle);
             int highestIDint = -1;
 
             foreach (var item in _dict)
             {
-                // Console.WriteLine("GetLatestRevID:- Checking item.Key='{0}'", item.Key);
                 try
                 {
                     int itemKey = Int32.Parse(item.Key);
@@ -121,7 +125,6 @@ namespace SecureWiki.Cryptography
                 return null;
             }
 
-            Console.WriteLine("Returning '{0}'", highestIDint.ToString());
             return highestIDint.ToString();
         }
 

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Newtonsoft.Json;
 using SecureWiki.MediaWiki;
 
@@ -17,7 +16,7 @@ namespace SecureWiki.Cryptography
 
         public CacheManager()
         {
-            var cachePath = "RevisionCache";
+            const string cachePath = "RevisionCache";
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
             _dirpath = Path.Combine(projectDir, cachePath);
@@ -26,6 +25,7 @@ namespace SecureWiki.Cryptography
 
         public void AddEntry(string pageTitle, Revision rev)
         {
+            // Get correct CacheEntry, or create a new if one isn't found
             CacheEntry ce;
             if (!_dict.ContainsKey(pageTitle))
             {
@@ -36,10 +36,19 @@ namespace SecureWiki.Cryptography
             {
                 ce = _dict[pageTitle];
             }
+
+            // Verify properties relevant to new CacheEntry
+            if (rev.revisionID == null || rev.content == null)
+            {
+                Console.WriteLine("CacheManager:- AddEntry: input revision has null properties, " +
+                                  "revisionID='{0}', content='{1}'", rev.revisionID, rev.content);
+                return;
+            }
             
             ce.AddEntry(rev.revisionID, rev.content);
         }
 
+        // Return path to the latest entry in the cache (for that page title)
         public string? GetFilePath(string pageTitle)
         {
             string? latestRevId = GetLatestRevisionID(pageTitle);
@@ -52,43 +61,39 @@ namespace SecureWiki.Cryptography
             return GetFilePath(pageTitle, latestRevId);
         }
         
+        // Return path to the specified entry in the cache, if it exists
         public string? GetFilePath(string pageTitle, string revid)
         {
             if (_dict.ContainsKey(pageTitle) == false)
             {
-                Console.WriteLine("GetFilePath:- Dict does not contain key '{0}'", pageTitle);
+                Console.WriteLine("GetFilePath:- Dict does not contain key '{0}', printing info", pageTitle);
                 PrintInfo();
                 return null;
             }
             
             var output = _dict[pageTitle].GetFilePath(revid);
-            // Console.WriteLine("CacheManager:- GetFilePath: output='{0}'", output);
 
             return output;
         }
 
+        // Remove all entries in the cache that is not the latest entry for a page title
         public void CleanCacheDirectory()
         {
-            Console.WriteLine("CleanCacheDirectory entered");
-            List<string> exeptionList = new();
-
-            string? revid;
-            string? entryName;
-            
+            // Find all latest entries
+            List<string> exemptionList = new();
             foreach (var item in _dict)
             {
                 item.Value.RemoveAllButLatestEntry();
-                revid = item.Value.GetLatestRevID();
+                var revid = item.Value.GetLatestRevID();
 
                 if (revid != null)
                 {
-                    entryName = item.Value.GetFilePath(revid);
+                    var entryName = item.Value.GetFilePath(revid);
 
                     if (entryName != null)
                     {
                         string filename = Path.GetFileName(entryName);
-                        exeptionList.Add(filename);
-                        // Console.WriteLine("adding '{0}' to execptionList", filename);
+                        exemptionList.Add(filename);
                     }
                     else
                     {
@@ -101,20 +106,21 @@ namespace SecureWiki.Cryptography
                 }
             }
 
+            // Get all files in cache directory
             string[] pathArray = Directory.GetFiles(_dirpath);
 
+            // Check if file is in exemption list, delete otherwise
             foreach (string filepath in pathArray)
             {
                 var filename = new FileInfo(filepath).Name;
 
                 bool shouldBeKept = false;
                 
-                foreach (string exception in exeptionList)
+                foreach (string exception in exemptionList)
                 {
                     if (filename.Equals(exception))
                     {
                         shouldBeKept = true;
-                        // Console.WriteLine("File '{0}' should be kept", filename);
                         break;
                     }
                 }
@@ -122,7 +128,6 @@ namespace SecureWiki.Cryptography
                 if (!shouldBeKept)
                 {
                     File.Delete(filepath);
-                    // Console.WriteLine("File '{0}' should not be kept", filename);
                 }
             }
         }

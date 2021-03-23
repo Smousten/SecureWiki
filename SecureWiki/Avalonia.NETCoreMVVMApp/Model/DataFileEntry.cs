@@ -42,11 +42,9 @@ namespace SecureWiki.Model
             set
             {
                 _isChecked = value;
-                // Console.WriteLine("DataFile '{0}' set to '{1}'", filename, value);
                 OnPropertyChanged(nameof(isChecked));
                 OnPropertyChanged(nameof(isCheckedWriteEnabled));
                 OnCheckedChanged(EventArgs.Empty);
-                // Console.WriteLine("DataFile '{0}' finished setting");
             }
         }
         
@@ -65,9 +63,7 @@ namespace SecureWiki.Model
             set
             {
                 _isCheckedWrite = value;
-                // Console.WriteLine("Datafile '{0}': IsCheckedWrite set to '{1}'", filename, value);
                 OnPropertyChanged(nameof(isCheckedWrite));
-                // Console.WriteLine("Datafile '{0}': IsCheckedWrite finished setting", filename);
             }
         }
         
@@ -90,7 +86,6 @@ namespace SecureWiki.Model
             get => _newestRevisionSelected;
             set
             {
-                // Console.WriteLine("_newestRevisionSelected set to '{0}'", value);
                 _newestRevisionSelected = value;
                 OnPropertyChanged(nameof(newestRevisionSelected));
             }
@@ -103,10 +98,8 @@ namespace SecureWiki.Model
             pageName = RandomString.GenerateRandomAlphanumericString();
             keyList = new List<DataFileKey> {new()};
             
-            // IsChecked = false;
             CheckedChanged -= CheckedChangedUpdateParent;
             CheckedChanged += CheckedChangedUpdateParent;
-            // Console.WriteLine("DataFile '{0}' initialised", filename);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -131,7 +124,6 @@ namespace SecureWiki.Model
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null!)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            // Console.WriteLine("OnPropertyChanged in DatFileEntry, property: " + propertyName);
         }
         
         protected virtual void OnCheckedChanged(EventArgs e)
@@ -144,7 +136,6 @@ namespace SecureWiki.Model
 
         public void CheckedChangedUpdateParent(object? sender, EventArgs e)
         {
-            // Console.WriteLine("CheckedChangedUpdateParent entered in datafile.filename='{0}'", filename);
             parent?.UpdateIsCheckedBasedOnChildren();
         }
 
