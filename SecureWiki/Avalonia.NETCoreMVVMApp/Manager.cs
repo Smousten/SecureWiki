@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mail;
 using System.Net.Mime;
-using System.Security.Cryptography;
 using System.Threading;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
@@ -67,7 +64,7 @@ namespace SecureWiki
             TCPListenerThread = new Thread(tcpListener.RunListener) {IsBackground = true};
             TCPListenerThread.Start();
 
-            Thread.Sleep(1000);
+            // Thread.Sleep(1000);
 
             Thread fuseThread = new(Program.RunFuse);
             fuseThread.IsBackground = true;
@@ -85,12 +82,9 @@ namespace SecureWiki
             MediaWikiObjects.PageQuery.AllRevisions allRevisions = new(wikiHandler.MWO, pageTitle);
 
             allRevisions.GetAllRevisions();
-            Console.WriteLine("Printing all revisions from manager:");
             allRevisions.PrintAllRevisions();
 
-            MediaWikiObjects.PageQuery.AllRevisions output = allRevisions;
-
-            return output;
+            return allRevisions;
         }
 
         public string GetPageContent(string pageTitle, string revID)
@@ -100,15 +94,6 @@ namespace SecureWiki
 
             return output;
         }
-
-        // public string GetPageContent(string pageTitle)
-        // {
-        //     MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.MWO, pageTitle);
-        //     string output = pc.GetContent();
-        //
-        //     return output;
-        // }
-
 
         public void UndoRevisionsByID(string pageTitle, string startID, string endID)
         {
@@ -130,7 +115,7 @@ namespace SecureWiki
             var keyList = df?.keyList.Last();
             if (keyList?.privateKey != null)
             {
-                wikiHandler.UploadNewVersion(df, filepath);
+                wikiHandler.UploadNewVersion(df!, filepath);
             }
             else
             {
@@ -159,9 +144,8 @@ namespace SecureWiki
 
             return output;
         }
-        
 
-        public void SetMediaWikiServer(string url)
+        public void SetNewMediaWikiServer(string url)
         {
             httpClient = new HttpClient();
             wikiHandler = new WikiHandler("new_mysql_user",
@@ -214,11 +198,6 @@ namespace SecureWiki
         {
             return _keyring.ReadKeyRing();
         }
-
-        // public void RemoveFile(string filePath, string filename, string type)
-        // {
-        //     _keyring.RemoveFile(filePath, filename, type);
-        // }
 
         public void RemoveFile(string filePath, string filename)
         {
@@ -378,7 +357,11 @@ namespace SecureWiki
         public void RevokeAccess(DataFileEntry datafile)
         {
             Revision latestRevision = wikiHandler.GetLatestRevision(datafile);
-            _keyring.RevokeAccess(datafile, latestRevision.revisionID);
+
+            if (latestRevision.revisionID != null)
+            {
+                _keyring.RevokeAccess(datafile, latestRevision.revisionID);                
+            }
         }
     }
 }

@@ -113,27 +113,6 @@ namespace SecureWiki.Views
 
         public void Button1_Click(object sender, RoutedEventArgs e)
         {
-            /*
-            //Getting Controls references
-            var nameControl = this.FindControl<TextBox>("NameTextBox");
-            var messageControl = this.FindControl<TextBlock>("MessageLabel");
-
-            //Setting the value
-            messageControl.Text = $"Hello {nameControl.Text} !!!";
-            */
-            // var textBox1 = this.FindControl<TextBox>("TextBox1");
-            //
-            // textBox1.Text = sender.ToString();
-            //
-            // MediaWikiObjects.PageQuery.AllRevisions allRev = manager.GetAllRevisions("Www");
-            //
-            // string startID = allRev.revisionList[0].revisionID;
-            // string endID = allRev.revisionList[1].revisionID;
-            //
-            // Console.WriteLine("startID: " + startID);
-            //
-            // //manager.UndoRevisionsByID("Www",startID, "9");
-            // manager.DeleteRevisionsByID("Www", startID + "|" + endID);
             
             TreeView TV = this.FindControl<TreeView>("TreeView1");
             Console.WriteLine("TV.name: " + TV.Name);
@@ -155,57 +134,46 @@ namespace SecureWiki.Views
 
         private void Button2_Click(object? sender, RoutedEventArgs e)
         {
-            // Button1_Click(this, e);
-
-            // manager.GetAllRevisions("Www");
-            //MediaWikiObjects.PageQuery.AllRevisions allRev = new("Www");
-            //allRev.GetAllRevisions();    
-            
             _rootKeyring.PrintInfoRecursively();
-            
         }
 
-        private void Button3_Click(object? sender, RoutedEventArgs e)
+        private void ButtonExport_Click(object? sender, RoutedEventArgs e)
         {
-            //
-            // string content = manager.GetPageContent("Www");
-            //
-            // var textBox1 = this.FindControl<TextBox>("TextBox1");
-            //
-            // textBox1.Text = content;
-            
             manager.ExportKeyring();
-            
         }
 
-        private void Button4_Click(object? sender, RoutedEventArgs e)
+        private void ButtonImport_Click(object? sender, RoutedEventArgs e)
         {
-            string importPath = OpenFileDialogAndGetJsonPath().ToString();
-            var textBox = this.FindControl<TextBox>("TextBox1");
-            textBox.Text = importPath;
+            ImportKeyring();
         }
 
-        private async Task<string> OpenFileDialogAndGetJsonPath()
+        private async void ImportKeyring()
         {
-            // Console.WriteLine("OpenFileDialogAndGetJsonPath entered");
+            var path = await OpenFileDialogAndGetFilePath();
+
+            if (path != null)
+            {
+                manager.ImportKeyring(path);
+            }
+            else
+            {
+                Console.WriteLine("No path given from FileDialog");
+            }
+        }
+
+        private async Task<string?> OpenFileDialogAndGetFilePath()
+        {
             OpenFileDialog dialog = new();
             dialog.Filters.Add(new FileDialogFilter() { Extensions =  { "json" } });
-            // Console.WriteLine("Dialog created");
+
             var output = await dialog.ShowAsync(this);
-            // Console.WriteLine("Dialog shown");
-            if (output == null)
+
+            // Return first file chosen, if any exist
+            if (output != null && output.Length > 0)
             {
-                Console.WriteLine("Output is null");
-                var res = await dialog.ShowAsync(this);
+                return output[0];                
             }
-            
-            // Console.WriteLine("Returning OpenFileDialog output='{0}'", output[0]);
-            // var textBox = this.FindControl<TextBox>("TextBox1");
-            // textBox.Text = output[0];
-
-            manager.ImportKeyring(output[0]);
-
-            return output[0];
+            return null;
         }
 
       
@@ -230,20 +198,7 @@ namespace SecureWiki.Views
         
         private void CheckBox_OnInitialized(object? sender, EventArgs e)
         {
-            // CheckBox cb = sender as CheckBox;
-            //
-            // TreeViewItem TVI = GetTreeViewItemParent(cb);
-            //
-            // SetCheckBoxCheckedUncheckedEventHandlers(TVI, cb);
-            //
-            // // Let Keyrings and DataFiles inherit IsChecked value from parent (root)Keyring
-            // if (TVI.DataContext.GetType() != typeof(RootKeyring))
-            // {
-            //     TreeViewItem TVIParent = GetTreeViewItemParent(TVI);
-            //     CheckBox parentcb = (CheckBox) TVIParent.GetLogicalChildren()
-            //         .First(c => c.GetType() == typeof(CheckBox));
-            //     cb.IsChecked = parentcb.IsChecked;
-            // }
+
         }
 
         private TreeViewItem GetTreeViewItemParent(Control item)
@@ -267,7 +222,7 @@ namespace SecureWiki.Views
         {
             var textBox = this.FindControl<TextBox>("TextBoxIp");
             var ip = textBox.Text;
-            manager.SetMediaWikiServer(ip);
+            manager.SetNewMediaWikiServer(ip);
         }
 
         private void ButtonLogin_Click(object? sender, RoutedEventArgs e)
