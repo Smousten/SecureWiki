@@ -247,7 +247,7 @@ namespace SecureWiki.Cryptography
             var oldKeyring = FindKeyringPath(rootKeyring, oldPath);
             var newKeyring = FindKeyringPath(rootKeyring, newPath);
 
-            var oldNameSplit = newPath.Split("/", 2);
+            var oldNameSplit = oldPath.Split("/", 2);
             var oldName = oldNameSplit[^1];
             oldName = oldName.TrimEnd('\0');
 
