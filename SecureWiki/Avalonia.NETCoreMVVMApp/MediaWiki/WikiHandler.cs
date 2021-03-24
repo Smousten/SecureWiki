@@ -51,8 +51,6 @@ namespace SecureWiki.MediaWiki
                     
                     var msgBoxOutput = _manager.ShowMessageBox("Warning!", warningString);
 
-                    Console.WriteLine("msgboxoutput = " + msgBoxOutput);
-
                     if (msgBoxOutput == MessageBox.MessageBoxResult.Cancel)
                     {
                         Console.WriteLine("Upload cancelled");
@@ -62,7 +60,7 @@ namespace SecureWiki.MediaWiki
                 // Sign plaintext
                 var keyList = dataFile.keyList.Last();
 
-                var hash = _manager.SignData(keyList.privateKey, plainText);
+                var hash = _manager.SignData(keyList.privateKey!, plainText);
 
                 byte[] rv = new byte[plainText.Length + hash.Length];
                 Buffer.BlockCopy(plainText, 0, rv, 0, plainText.Length);
@@ -76,7 +74,8 @@ namespace SecureWiki.MediaWiki
                     dataFile.pageName);
                 uploadNewRevision.UploadContent(encryptedText);
 
-                // Get revision ID of the revision that was just uploaded
+                // Get revision ID of the revision that was just uploaded and update DataFileEntry revision start
+                // information for key if not set  
                 rev = GetLatestRevision(dataFile);
                 if (keyList.revisionStart.Equals("-1") && rev.revisionID != null)
                 {
