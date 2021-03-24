@@ -1,56 +1,31 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Windows;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Net.Sockets;
 using System.Threading;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media;
-using Avalonia.VisualTree;
-using DynamicData;
-using SecureWiki.ClientApplication;
-using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
 using SecureWiki.Model;
 using SecureWiki.ViewModels;
-using Brushes = Avalonia.Media.Brushes;
 
 namespace SecureWiki.Views
 {
     public class MainWindow : Window
     {
-        
-        private WikiHandler wikiHandler;
-        private Keyring _keyring;
         private RootKeyring _rootKeyring = new();
-        private readonly object rootKeyringLock = new();
-        private TCPListener tcpListener;
         private Manager manager;
         public MainWindowViewModel _viewModel;
-        public List<EventHandler<RoutedEventArgs>> CheckBoxEventHandlers = new();
-        
-        
         
         public MainWindow()
         {
-            // Populate global list of CheckBox event handlers
-            // CheckBoxEventHandlers.Add(CheckBox_CheckedChangedUpdateParent);
-            // CheckBoxEventHandlers.Add(CheckBox_CheckedChangedUpdateChildren);
-            
             _viewModel = new(_rootKeyring);
             DataContext = _viewModel;
             InitializeComponent();
@@ -61,8 +36,6 @@ namespace SecureWiki.Views
             ManagerThread.Name = "ManagerThread";
             ManagerThread.Start();
 
-            
-            //Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
             
 #if DEBUG
             this.AttachDevTools();
@@ -79,7 +52,8 @@ namespace SecureWiki.Views
             base.OnClosing(e);
             Console.WriteLine();
             Console.WriteLine("Window is closing");
-            
+
+            Console.WriteLine("Cleaning cache and saving to file");
             manager.CleanCache();
             manager.SaveCacheManagerToFile();
             
@@ -101,9 +75,6 @@ namespace SecureWiki.Views
         private void MainWindow_Shown(object sender, EventArgs e)
         {
             Console.WriteLine("MainWindow_Shown");
-            
-            
-            
 
             // Expand root node in TreeView
             TreeView TV = this.FindControl<TreeView>("TreeView1");
@@ -113,23 +84,7 @@ namespace SecureWiki.Views
 
         public void Button1_Click(object sender, RoutedEventArgs e)
         {
-            
-            TreeView TV = this.FindControl<TreeView>("TreeView1");
-            Console.WriteLine("TV.name: " + TV.Name);
-            Console.WriteLine("Tv.itemcount: " + TV.ItemCount);
-
-            foreach (var child in TV.GetLogicalChildren())
-            {
-                Console.WriteLine("child name, type: {0} {1}", child.ToString(), child.GetType() );
-                
-                foreach (var subChild in child.GetLogicalChildren())
-                {
-                    Console.WriteLine("subchild name, type: {0} {1}", subChild.ToString(), subChild.GetType() );
-                }
-                
-                // KeyringEntry kr = new();
-                // AddToKeyringRecursively(kr, (TreeViewItem) child);
-            }         
+            Console.WriteLine("nothing happened"); 
         }
 
         private void Button2_Click(object? sender, RoutedEventArgs e)
@@ -253,10 +208,17 @@ namespace SecureWiki.Views
                 int selectedRevID = Int32.Parse(_viewModel.selectedRevision.revisionID);
                 foreach (Revision item in _viewModel.revisions)
                 {
-                    int itemID = Int32.Parse(item.revisionID);
-                    if (itemID > selectedRevID)
+                    if (item.revisionID != null)
                     {
-                        newestSelected = false;
+                        int itemID = Int32.Parse(item.revisionID);
+                        if (itemID > selectedRevID)
+                        {
+                            newestSelected = false;
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("SelectedRevisionButton_OnClick: item.revisionID == null");
                     }
                 }
                 
