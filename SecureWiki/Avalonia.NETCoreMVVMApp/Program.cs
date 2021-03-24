@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using Avalonia;
 using Avalonia.ReactiveUI;
-using SecureWiki.Cryptography;
-using SecureWiki.MediaWiki;
 
 namespace SecureWiki
 {
@@ -22,21 +19,8 @@ namespace SecureWiki
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.
         public static void Main(string[] args) {
-            
-            /*
-            wikiHandler = new WikiHandler("new_mysql_user", "THISpasswordSHOULDbeCHANGED");
-            keyRing = new KeyRing();
-            tcpListener = new TCPListener(11111, "127.0.1.1", wikiHandler, keyRing);
-            Thread instanceCaller = new(tcpListener.RunListener);
-            instanceCaller.Start();
-            Thread fuseThread = new(RunFuse);
-            fuseThread.Start();
-            //Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
-            */
-            
             BuildAvaloniaApp() 
                 .StartWithClassicDesktopLifetime(args);
-            Console.WriteLine("Passed avalonia startup");
         }
         
         public static void RunFuse()
@@ -52,7 +36,7 @@ namespace SecureWiki
             
             var cDir = Path.Combine(baseDir, @"fuse/src/");
             var cExe = Path.Combine(cDir, @"bbfs");
-            ProcessStartInfo start = new ProcessStartInfo();
+            ProcessStartInfo start = new();
             // start.FileName = @"/usr/bin/python3";
             start.FileName = cExe;
             // start.Arguments = string.Format("{0} {1} {2}", pythonScipt, Path.Combine(pythonDir, @"srcTest/"), Path.Combine(pythonDir, @"mntTest/"));
@@ -62,13 +46,12 @@ namespace SecureWiki
             Console.WriteLine(rootdir + "\n" + mountdir);
 
             start.Arguments = string.Format("{0} {1} {2}", "-o direct_io", rootdir, mountdir);
-            // start.Arguments = string.Format("{0} {1}", rootdir, mountdir);
 
             start.UseShellExecute = false;
             start.RedirectStandardOutput = true;
-            Process process = Process.Start(start);
-            process?.WaitForExit();
-            process?.Close();
+            Process process = Process.Start(start)!;
+            process.WaitForExit();
+            process.Close();
         }
         
         // Avalonia configuration, don't remove; also used by visual designer.

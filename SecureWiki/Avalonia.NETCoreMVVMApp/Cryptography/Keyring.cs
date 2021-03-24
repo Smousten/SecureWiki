@@ -147,41 +147,14 @@ namespace SecureWiki.Cryptography
         {
             var keyringFilePath = GetKeyringFilePath();
 
-            // var existingKeyRing = GetRootKeyring(keyringFilePath);
-
-
-            var (key, iv) = _crypto.GenerateAESParams();
-            var (privateKey, publicKey) = _crypto.GenerateRSAParams();
-
-            // var filenameBytes = _crypto.EncryptAESStringToBytes(filename, key, iv);
-            // var encryptedFilename = Convert.ToBase64String(filenameBytes);
-
-            // var pagename = GenerateRandomAlphanumericString();
-
-            // DataFileEntry dataFileEntry = new()
-            // {
-            //     filename = filename,
-            //     symmKey = key,
-            //     iv = iv,
-            //     privateKey = privateKey,
-            //     publicKey = publicKey,
-            //     revisionNr = "-1",
-            //     serverLink = "http://localhost/mediawiki/api.php",
-            //     pagename = pagename
-            // };
-
             var serverLink = "http://localhost/mediawiki/api.php";
             DataFileEntry dataFileEntry = new(serverLink, filename);
-
 
             // Find the keyring where the new datafile is inserted
             var foundKeyring = FindKeyringPath(rootKeyring, filepath);
             foundKeyring.AddDataFile(dataFileEntry);
 
-            // JsonSerializerOptions options = new() {WriteIndented = true};
-
             var jsonData = JsonConvert.SerializeObject(rootKeyring, Formatting.Indented);
-            // var jsonData = JsonSerializer.Serialize(existingKeyRing, options);
             File.WriteAllText(keyringFilePath, jsonData);
         }
 

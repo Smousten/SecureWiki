@@ -74,18 +74,23 @@ namespace SecureWiki.FuseCommunication
 
         private void Operations(String inputData)
         {
-            var op = inputData.Split(new[] {':'}, 2);
             // Input must contain operation and arguments
+            var op = inputData.Split(new[] {':'}, 2);
             if (op.Length < 2) return;
+
             Console.WriteLine("Received: {0}", inputData);
+            
+            // Extract and parse filepath
             var filepath = op[1].Substring(1);
             char[] arr = filepath.Where(c => (char.IsLetterOrDigit(c) ||
                                               char.IsWhiteSpace(c) ||
                                               c == '.' || c == '/')).ToArray();
-
             filepath = new string(arr);
+            
+            // Get filename
             var filepathSplit = filepath.Split("/");
             var filename = filepathSplit[^1];
+            
             switch (op[0])
             {
                 case "create":

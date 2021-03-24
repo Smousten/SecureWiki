@@ -15,6 +15,7 @@ using SecureWiki.Cryptography;
 using SecureWiki.FuseCommunication;
 using SecureWiki.MediaWiki;
 using SecureWiki.Model;
+using SecureWiki.Utilities;
 using SecureWiki.Views;
 
 namespace SecureWiki
@@ -32,6 +33,7 @@ namespace SecureWiki
         private IFuseInteraction tcpListener;
         private static HttpClient httpClient = new();
         public CacheManager cacheManager;
+        public ConfigManager configManager;
 
         public RootKeyring rootKeyring;
         public Dictionary<string, string> RequestedRevision = new();
@@ -52,6 +54,8 @@ namespace SecureWiki
 
         public void Run()
         {
+            InitializeConfigManager();
+            
             wikiHandler = new WikiHandler("new_mysql_user",
                 "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
             _keyring = new Keyring(rootKeyring);
@@ -75,6 +79,38 @@ namespace SecureWiki
         {
             Console.WriteLine("ManagerThread printing: " + input + " from thread:" +
                               Thread.CurrentThread.Name);
+        }
+
+        public string GetConfigManagerFilePath()
+        {
+            const string filename = "Config.json";
+            var currentDir = Directory.GetCurrentDirectory();
+            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+            var path = Path.Combine(projectDir, filename);
+
+            return path;
+        }
+
+        public void InitializeConfigManager()
+        {
+
+            var path = GetConfigManagerFilePath();
+            
+            if (File.Exists(path))
+            {
+                configManager = (ConfigManager) JSONSerialization.ReadFileAndDeserialize(path, typeof(ConfigManager));
+            }
+            else
+            {
+                configManager = new ConfigManager();
+            }
+        }
+
+        public void SaveConfigManagerToFile()
+        {
+            var path = GetConfigManagerFilePath();
+            
+            JSONSerialization.SerializeAndWriteFile(path, configManager);
         }
 
         public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
@@ -288,7 +324,7 @@ namespace SecureWiki
 
         public void CleanCache()
         {
-            cacheManager.CleanCacheDirectory();
+            cacheManager.CleanCacheDirectory(configManager.cachePreferences ?? new CachePreferences());
         }
 
         // Delegated Crypto functions

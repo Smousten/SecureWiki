@@ -3,51 +3,24 @@ using System.Collections.Generic;
 using System.Globalization;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
-using Brushes = System.Drawing.Brushes;
 
 namespace SecureWiki.Model
 {
-    public class WidthConverterSingle : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-
-            Console.WriteLine("attempting to cast value to double");
-            var tmp = (double) value;
-            Console.WriteLine("tmp = " + tmp);
-
-            if (tmp > 100)
-            {
-                tmp -= 58;
-            }
-
-            return tmp;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    
     public class TreeViewItemColourConverter : IValueConverter
     {
+        // Return transparent or slightly opaque brush based input boolean value
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // Console.WriteLine("Entering TreeViewItemColourConverter");
             bool newestRevisionSelected = (bool) value;
 
-            // Console.WriteLine("bool is '{0}'", newestRevisionSelected);
-
-            var output = new SolidColorBrush();
+            SolidColorBrush output;
             if (newestRevisionSelected)
             {
                 output = new SolidColorBrush(Colors.Transparent);
             }
             else
             {
-                output = new SolidColorBrush(Colors.Chocolate);
-                output.Opacity = 0.2;
+                output = new SolidColorBrush(Colors.Chocolate) {Opacity = 0.2};
             }
 
             return output;
@@ -62,16 +35,9 @@ namespace SecureWiki.Model
 
     public class FillerTextBlockWidthConverterMulti : IMultiValueConverter
     {
-        // Calculate the width of the 'filler' textblock in the datatemplate for DataFileEntry
+        // Calculate the width of the 'filler' TextBlock in the data template for DataFileEntry
         public object Convert(IList<object> values, Type targetType, object parameter, CultureInfo culture)
         {
-
-            // Console.WriteLine("Entered multiconverter");
-            // foreach (var item in values)
-            // {
-            //     Console.WriteLine("item='{0}'", item);
-            // }
-            
             var scrollViewerWidth = (double)values[0];
             var insideWidth = (double)values[1];
             var cb1 = (double)values[2];

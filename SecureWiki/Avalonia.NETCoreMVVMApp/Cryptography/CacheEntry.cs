@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
+using SecureWiki.Utilities;
 
 namespace SecureWiki.Cryptography
 {
@@ -51,6 +53,22 @@ namespace SecureWiki.Cryptography
         {
             DeleteCacheFile(_dict[revid]);
             _dict.Remove(revid);
+        }
+
+        public void RemoveAllEntries()
+        {
+            // Create copy of dictionary for local use
+            var dict = new Dictionary<string, string>();
+            foreach (var entry in _dict)
+            {
+                dict.Add(entry.Key, entry.Value);
+            }
+
+            // Iterate through copy and remove all
+            foreach (var item in dict)
+            {
+                RemoveEntry(item.Key);
+            }
         }
 
         public void RemoveAllButLatestEntry()
@@ -132,6 +150,34 @@ namespace SecureWiki.Cryptography
         {
             var path = Path.Combine(_dirPath, filename);
             File.Delete(path);
+        }
+        
+        public List<string> CleanCacheEntry(CachePreferences.CacheSetting setting)
+        {
+            List<string> exemptionList = new();
+
+            switch (setting)
+            {
+                case CachePreferences.CacheSetting.KeepAll:
+                    exemptionList.AddRange(_dict.Select(item => item.Value));
+                    break;
+                case CachePreferences.CacheSetting.KeepNewest:
+                    var latestRev = GetLatestRevID();
+                    if (latestRev != null)
+                    {
+                        exemptionList.Add(_dict[latestRev]);                        
+                    }
+                    RemoveAllButLatestEntry();
+                    break;
+                case CachePreferences.CacheSetting.KeepNone:
+                    RemoveAllEntries();
+                    break;
+                default:
+                    Console.WriteLine("CacheManager:- CleanCacheDirectory: CacheSetting not recognized");
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return exemptionList;
         }
 
         public void PrintInfo()

@@ -31,10 +31,8 @@ namespace SecureWiki.Views
             InitializeComponent();
             
             manager = new(Thread.CurrentThread, _rootKeyring);
-            Thread ManagerThread = new(manager.Run);
-            ManagerThread.IsBackground = true;
-            ManagerThread.Name = "ManagerThread";
-            ManagerThread.Start();
+            Thread managerThread = new(manager.Run) {IsBackground = true, Name = "ManagerThread"};
+            managerThread.Start();
 
             
 #if DEBUG
@@ -56,6 +54,7 @@ namespace SecureWiki.Views
             Console.WriteLine("Cleaning cache and saving to file");
             manager.CleanCache();
             manager.SaveCacheManagerToFile();
+            manager.SaveConfigManagerToFile();
             
             
             var currentDir = Directory.GetCurrentDirectory();

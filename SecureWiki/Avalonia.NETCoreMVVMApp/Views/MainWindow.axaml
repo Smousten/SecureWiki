@@ -12,7 +12,6 @@
         Title="Please find a better name"
         Padding="10">
     <Window.Resources>
-        <Models:WidthConverterSingle x:Key="Valueconverter" />
         <Models:FillerTextBlockWidthConverterMulti x:Key="WidthConverterMulti" />
         <Models:TreeViewItemColourConverter x:Key="TreeViewItemColourConverter" />
     </Window.Resources>
