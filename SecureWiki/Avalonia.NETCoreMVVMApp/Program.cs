@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading;
 using Avalonia;
 using Avalonia.ReactiveUI;
-using SecureWiki.ClientApplication;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
 

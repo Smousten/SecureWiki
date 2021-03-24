@@ -143,7 +143,7 @@ namespace SecureWiki.Cryptography
         }
 
         // Add new data file to existing keyring json file
-        public void AddNewFile(string filepath, string filename)
+        public void AddNewFile(string filename, string filepath)
         {
             var keyringFilePath = GetKeyringFilePath();
 
@@ -186,14 +186,14 @@ namespace SecureWiki.Cryptography
         }
 
         // Add new data file to existing keyring json file
-        public void AddNewKeyRing(string filepath, string keyringName)
+        public void AddNewKeyRing(string filename, string filepath)
         {
             var keyringFilePath = GetKeyringFilePath();
             // var existingKeyRing = GetRootKeyring(keyringFilePath);
 
             KeyringEntry newKeyringEntry = new()
             {
-                name = keyringName,
+                name = filename,
                 dataFiles = new ObservableCollection<DataFileEntry>(),
                 keyrings = new ObservableCollection<KeyringEntry>()
             };

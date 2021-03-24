@@ -11,8 +11,8 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using Newtonsoft.Json;
-using SecureWiki.ClientApplication;
 using SecureWiki.Cryptography;
+using SecureWiki.FuseCommunication;
 using SecureWiki.MediaWiki;
 using SecureWiki.Model;
 using SecureWiki.Views;
@@ -179,14 +179,14 @@ namespace SecureWiki
         }
 
         // Delegated Keyring functions
-        public void AddNewFile(string filepath, string filename)
+        public void AddNewFile(string filename, string filepath)
         {
-            _keyring.AddNewFile(filepath, filename);
+            _keyring.AddNewFile(filename, filepath);
         }
 
-        public void AddNewKeyRing(string filepath, string keyname)
+        public void AddNewKeyRing(string filename, string filepath)
         {
-            _keyring.AddNewKeyRing(filepath, keyname);
+            _keyring.AddNewKeyRing(filename, filepath);
         }
 
         public void RenameFile(string oldPath, string newPath)
