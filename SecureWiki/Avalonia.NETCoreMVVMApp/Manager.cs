@@ -29,7 +29,7 @@ namespace SecureWiki
         private WikiHandler wikiHandler;
         private Keyring _keyring;
         private Crypto _crypto;
-        private TCPListener tcpListener;
+        private IFuseInteraction tcpListener;
         private static HttpClient httpClient = new();
         public CacheManager cacheManager;
 
@@ -65,7 +65,7 @@ namespace SecureWiki
             TCPListenerThread.Start();
 
             // Thread.Sleep(1000);
-
+            //
             Thread fuseThread = new(Program.RunFuse);
             fuseThread.IsBackground = true;
             fuseThread.Start();

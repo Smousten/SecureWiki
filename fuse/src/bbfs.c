@@ -452,7 +452,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
     fd = log_syscall("open", open(fpath, fi->flags), 0);
     if (fd < 0)
         retstat = log_error("open");
-
+    fi->direct_io = 1;
     fi->fh = fd;
 
     log_fi(fi);
@@ -506,65 +506,36 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
 
         int recv_len;
         bzero(msg, sizeof(msg));
-        // recv_len = recv(sockfd, msg, sizeof(msg), 0);
 
-        while (1)
-        {
-            recv_len = recv(sockfd, msg, sizeof(msg), 0);
-            pthread_mutex_unlock(&lock);
-            log_msg("\n msg received: %s\n", msg);
-            log_msg("\n msg received length: %d\n", recv_len);
-            memcpy(&path_len, msg, 4);
-            memcpy(&text_len, msg+4, 4);
-            memcpy(path_msg, msg+8, path_len);
-            memcpy(text_msg, msg+8+path_len, text_len);
+        recv_len = recv(sockfd, msg, sizeof(msg), 0);
 
-            log_msg("\n msgPath received: %s", path_msg);
-            log_msg("\n msgPathLen received: %d", path_len);
-            log_msg("\n msgText received: %s", text_msg);
-            log_msg("\n msgTextLen received: %d", text_len);
-            log_msg("\n expected path: %s, received path: %s", path, path_msg);
 
-            if (strcmp(path, path_msg) == 0) {
-                log_msg("\n Received correct msg for: %s", path);
-                break;
-            }
-        }
+        log_msg("\n msg received: %s\n", msg);
+        log_msg("\n msg received length: %d\n", recv_len);
+        memcpy(&path_len, msg, 4);
+        memcpy(&text_len, msg+4, 4);
+        memcpy(path_msg, msg+8, path_len);
+        memcpy(text_msg, msg+8+path_len, text_len);
 
+        log_msg("\n msgPath received: %s", path_msg);
+        log_msg("\n msgPathLen received: %d", path_len);
+        log_msg("\n msgText received: %s", text_msg);
+        log_msg("\n msgTextLen received: %d", text_len);
+        log_msg("\n expected path: %s, received path: %s", path, path_msg);
+    
         if (recv_len < 0)
         {
             return (-errno);
         }
+        pthread_mutex_unlock(&lock);
 
-        if (offset < text_len)
-        {
-            if (offset + size > text_len) {
-                size = text_len - offset;
-            }
-            memcpy(buf, text_msg + offset, size);
-            bzero(msg, sizeof(msg));
-        }
-        else
-            size = 0;
-        log_msg("\n bb_read return: %d\n", size);
-        return size;
-    }
-
-    //     recv_len = recv(sockfd, msg, sizeof(msg), 0);
-    //     pthread_mutex_unlock(&lock);
-    //     log_msg("\n msg received: %s\n", msg);
-
-    //     if (recv_len < 0)
+    // Works for files under 8000bytes?
+    //     if (offset < text_len)
     //     {
-    //         return (-errno);
-    //     }
-
-    //     if (offset < recv_len)
-    //     {
-    //         if (offset + size > recv_len) {
-    //             size = recv_len - offset;
+    //         if (offset + size > text_len) {
+    //             size = text_len - offset;
     //         }
-    //         memcpy(buf, msg + offset, size);
+    //         memcpy(buf, text_msg + offset, size);
     //         bzero(msg, sizeof(msg));
     //     }
     //     else
@@ -572,6 +543,29 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
     //     log_msg("\n bb_read return: %d\n", size);
     //     return size;
     // }
+    // // }
+
+    // return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
+
+    // Works for files above 8k? but socket fails
+        log_msg("\nBefore if: offset = %d\n", offset);
+        log_msg("\nBefore if: size = %d\n", size);
+
+        log_msg("\noffset < text_len\n");
+        if (offset + size > text_len) {
+            log_msg("\noffset + size > text_len\n");
+            size = text_len - offset;
+        }
+        log_msg("\n size = %d\n", size);
+        memcpy(buf, text_msg + offset, size);
+        bzero(msg, sizeof(msg));
+
+            
+        log_msg("\noffset >= text_len\n");
+            
+        log_msg("\n bb_read return: %d\n", size);
+        return size;
+    }
 
     return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
 }
