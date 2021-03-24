@@ -224,6 +224,50 @@ namespace SecureWiki.Model
             return true;
         }
 
+        // Check if revision ID is in range specified for that key pair
+        public bool IsValidRevisionID(string revid, int i)
+        {
+            // If KeyList index doesn't exist
+            if (i >= keyList.Count)
+            {
+                return false;
+            }
+    
+            // Parse revisions IDs to int 
+            int rev = int.Parse(revid);
+            int revStart = int.Parse(keyList[i].revisionStart);
+            int revEnd = int.Parse(keyList[i].revisionEnd);
+            
+            bool revEndNotSet = keyList[i].revisionEnd.Equals("-1");
+            
+            return revStart <= rev && (revEnd >= rev || revEndNotSet);
+        }
+
+        public DataFileKey? GetDataFileKeyByRevisionID(string revid)
+        {
+            int rev = int.Parse(revid);
+
+            // Find first key where revid is in range
+            foreach (DataFileKey dataFileKey in keyList)
+            {
+                int revStart = int.Parse(dataFileKey.revisionStart);
+                int revEnd = int.Parse(dataFileKey.revisionEnd);
+
+                if (revStart > rev)
+                {
+                    continue;
+                }
+
+                if (revEnd > rev || revEnd == -1)
+                {
+                    return dataFileKey;
+                }
+            }
+
+            // If no valid DataFileKey is found
+            return null;
+        }
+
         public void PrintInfo()
         {
             Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}'", 

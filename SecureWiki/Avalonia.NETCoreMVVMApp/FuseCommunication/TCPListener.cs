@@ -131,10 +131,11 @@ namespace SecureWiki.FuseCommunication
                 Buffer.BlockCopy(msgPath, 0, rv, msgPathLen.Length + byDataLen.Length, msgPath.Length);
                 Buffer.BlockCopy(byData, 0, rv, msgPathLen.Length + byDataLen.Length + msgPath.Length, byData.Length);
                 _stream?.Write(rv);
-                Console.WriteLine(rv.Length);
-                Console.WriteLine("sending to server socket: {0} {1} {2} {3}", BitConverter.ToInt32(msgPathLen),
-                    BitConverter.ToInt32(byDataLen), Encoding.ASCII.GetString(msgPath),
-                    Encoding.ASCII.GetString(byData));
+                // Print relevant information
+                // Console.WriteLine(rv.Length);
+                // Console.WriteLine("sending to server socket: {0} {1} {2} {3}", BitConverter.ToInt32(msgPathLen),
+                //     BitConverter.ToInt32(byDataLen), Encoding.ASCII.GetString(msgPath),
+                //     Encoding.ASCII.GetString(byData));
             }
         }
 

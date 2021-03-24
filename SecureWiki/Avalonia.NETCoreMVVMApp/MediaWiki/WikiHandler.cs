@@ -57,6 +57,7 @@ namespace SecureWiki.MediaWiki
                         return;
                     }
                 }
+                
                 // Sign plaintext
                 var keyList = dataFile.keyList.Last();
 
@@ -70,6 +71,7 @@ namespace SecureWiki.MediaWiki
                     rv, keyList.symmKey, keyList.iv);
                 var encryptedText = Convert.ToBase64String(encryptedBytes);
 
+                // Upload encrypted content
                 MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(MWO,
                     dataFile.pageName);
                 uploadNewRevision.UploadContent(encryptedText);
@@ -84,6 +86,7 @@ namespace SecureWiki.MediaWiki
             }
         }
 
+        // Return absolute path to fuse root directory
         private static string GetRootDir(string relativeFilepath)
         {
             var filepath = "fuse/directories/rootdir/" + relativeFilepath;
@@ -91,13 +94,6 @@ namespace SecureWiki.MediaWiki
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var srcDir = Path.Combine(projectDir, filepath);
             return srcDir;
-        }
-
-        private static bool IsValidRevid(DataFileEntry dataFile, string revid, int i)
-        {
-            return int.Parse(dataFile.keyList[i].revisionStart) <= int.Parse(revid) &&
-                   (int.Parse(dataFile.keyList[i].revisionEnd) >= int.Parse(revid) ||
-                    (dataFile.keyList[i].revisionEnd.Equals("-1")));
         }
 
         // Get latest valid revision of wiki page
@@ -109,35 +105,33 @@ namespace SecureWiki.MediaWiki
             var iterator = dataFile.keyList.Count - 1;
             for (var i = 0; i < revisions.Count; i++)
             {
-                for (var j = iterator; j >= 0; j--)
+                // If revision ID is not set, continue
+                var revid = revisions[i].revisionID;
+                if (revid == null)
                 {
-                    Console.WriteLine(
-                        "Try getting lastestvalid revision with revisionID {0} and key startRevID {1} and endRevID {2}",
-                        revisions[i].revisionID, dataFile.keyList[j].revisionStart, dataFile.keyList[j].revisionEnd);
-                    
-                    if (!IsValidRevid(dataFile, revisions[i].revisionID, j))
-                    {
-                        iterator = j;
-                        continue;
-                    }
+                    continue;
+                }
 
-                    DataFileKey key = dataFile.keyList[j];
+                // If no valid key is found, continue
+                var key = dataFile.GetDataFileKeyByRevisionID(revid);
+                if (key == null)
+                {
+                    continue;
+                }
 
-                    MediaWikiObjects.PageQuery.PageContent getPageContent =
-                        new(MWO, dataFile.pageName, revisions[i].revisionID);
-                    var pageContentBytes = Convert.FromBase64String(getPageContent.GetContent());
-                    var decryptedTextBytes = _manager.Decrypt(pageContentBytes,
-                        key.symmKey, key.iv);
+                // TODO: refactor
+                MediaWikiObjects.PageQuery.PageContent getPageContent =
+                    new(MWO, dataFile.pageName, revid);
+                var pageContentBytes = Convert.FromBase64String(getPageContent.GetContent());
+                var decryptedTextBytes = _manager.Decrypt(pageContentBytes,
+                    key.symmKey, key.iv);
 
-                    var textBytes = decryptedTextBytes.Take(decryptedTextBytes.Length - 256).ToArray();
-                    var hashBytes = decryptedTextBytes.Skip(decryptedTextBytes.Length - 256).ToArray();
+                var textBytes = decryptedTextBytes.Take(decryptedTextBytes.Length - 256).ToArray();
+                var hashBytes = decryptedTextBytes.Skip(decryptedTextBytes.Length - 256).ToArray();
 
-                    if (_manager.VerifyData(key.publicKey, textBytes, hashBytes))
-                    {
-                        return textBytes;
-                    }
-
-                    break;
+                if (_manager.VerifyData(key.publicKey, textBytes, hashBytes))
+                {
+                    return textBytes;
                 }
             }
 
@@ -167,7 +161,7 @@ namespace SecureWiki.MediaWiki
             DataFileKey? keyList = null;
             for (var i = 0; i < dataFile.keyList.Count; i++)
             {
-                if (IsValidRevid(dataFile, revid, i))
+                if (dataFile.IsValidRevisionID(revid, i))
                 {
                     keyList = dataFile.keyList[i];
                     break;
