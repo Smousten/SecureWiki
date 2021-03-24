@@ -327,9 +327,29 @@ int bb_rename(const char *path, const char *newpath)
     char fnewpath[PATH_MAX];
 
     char *trashFile = ".Trash";
-    char *goutput = "goutputstream";
 
-    if (strstr(path, trashFile) == NULL && strstr(path, goutput) == NULL)
+    // 1
+    // if (strstr(path, trashFile) == NULL)
+    // {
+    //     char buff[1024];
+    //     bzero(buff, sizeof(buff));
+    //     strcpy(buff, "rename:");
+    //     strcat(buff, path);
+    //     strcat(buff, "%");
+    //     strcat(buff, newpath);
+    //     write(sockfd, buff, sizeof(buff));
+    // }
+
+    log_msg("\nbb_rename(fpath=\"%s\", newpath=\"%s\")\n",
+            path, newpath);
+    bb_fullpath(fpath, path);
+    bb_fullpath(fnewpath, newpath);
+
+    // 1
+    // return log_syscall("rename", rename(fpath, fnewpath), 0);
+    int retstat = log_syscall("rename", rename(fpath, fnewpath), 0);
+
+    if (strstr(path, trashFile) == NULL)
     {
         char buff[1024];
         bzero(buff, sizeof(buff));
@@ -340,12 +360,7 @@ int bb_rename(const char *path, const char *newpath)
         write(sockfd, buff, sizeof(buff));
     }
 
-    log_msg("\nbb_rename(fpath=\"%s\", newpath=\"%s\")\n",
-            path, newpath);
-    bb_fullpath(fpath, path);
-    bb_fullpath(fnewpath, newpath);
-
-    return log_syscall("rename", rename(fpath, fnewpath), 0);
+    return retstat;
 }
 
 /** Create a hard link to a file */
@@ -673,18 +688,18 @@ int bb_release(const char *path, struct fuse_file_info *fi)
             path, fi);
     log_fi(fi);
 
-    char *trashFile = ".Trash";
-    char *goutput = "goutputstream";
+    // char *trashFile = ".Trash";
+    // char *goutput = "goutputstream";
 
-    if (strstr(path, trashFile) == NULL && strstr(path, goutput) == NULL)
-    {
-        char buff[1024];
-        bzero(buff, sizeof(buff));
-        strcpy(buff, "release:");
-        strcat(buff, path);
-        write(sockfd, buff, sizeof(buff));
+    // if (strstr(path, trashFile) == NULL && strstr(path, goutput) == NULL)
+    // {
+    //     char buff[1024];
+    //     bzero(buff, sizeof(buff));
+    //     strcpy(buff, "release:");
+    //     strcat(buff, path);
+    //     write(sockfd, buff, sizeof(buff));
 
-    }
+    // }
     // We need to close the file.  Had we allocated any resources
     // (buffers etc) we'd need to free them here as well.
     return log_syscall("close", close(fi->fh), 0);
