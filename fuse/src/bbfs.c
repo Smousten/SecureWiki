@@ -496,37 +496,87 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
         strcat(buff, path);
         pthread_mutex_lock(&lock);
         write(sockfd, buff, sizeof(buff));
-
         char msg[1048576];
+        char *p = msg;
 
         char text_msg[1048576];
         char path_msg[1024];
         int path_len;
         int text_len;
+        int text_len_received = 0;
 
         int recv_len;
+        int total_recv_len = 0;
         bzero(msg, sizeof(msg));
 
-        recv_len = recv(sockfd, msg, sizeof(msg), 0);
+        recv_len = recv(sockfd, p, sizeof(msg), 0);
+        total_recv_len += recv_len;
+        p += recv_len;
 
-
-        log_msg("\n msg received: %s\n", msg);
+        // log_msg("\n msg received: %s\n", msg);
         log_msg("\n msg received length: %d\n", recv_len);
         memcpy(&path_len, msg, 4);
         memcpy(&text_len, msg+4, 4);
         memcpy(path_msg, msg+8, path_len);
         memcpy(text_msg, msg+8+path_len, text_len);
 
+        text_len_received += recv_len - path_len - 8;
+
         log_msg("\n msgPath received: %s", path_msg);
         log_msg("\n msgPathLen received: %d", path_len);
-        log_msg("\n msgText received: %s", text_msg);
+        // log_msg("\n msgText received: %s", text_msg);
         log_msg("\n msgTextLen received: %d", text_len);
         log_msg("\n expected path: %s, received path: %s", path, path_msg);
     
-        if (recv_len < 0)
-        {
-            return (-errno);
+        while (total_recv_len < text_len + path_len + 8) {
+            recv_len = recv(sockfd, p, sizeof(msg), 0);
+            // log_msg("\n msg received: %s\n", msg);
+            log_msg("\n msg received length: %d\n", recv_len);
+            // total_recv_len += recv_len;
+            log_msg("\n total message length received length: %d\n", total_recv_len);
+            p += recv_len;
+
+            log_msg("\n copying to text_msg with offset %d, from buffer msg with offset: %d\n", text_len_received, total_recv_len);
+            // memcpy(text_msg + text_len_received, msg + total_recv_len - path_len - 8, recv_len);
+            memcpy(text_msg + text_len_received, msg + total_recv_len, recv_len);
+            total_recv_len += recv_len;
+            text_len_received += recv_len;
         }
+
+        // log_msg("\n msgText received: %s", text_msg);
+        log_msg("\n msgTextLen received: %d", text_len);
+        log_msg("\n Actual text len received: %d", text_len_received);
+
+        // char msg[1048576];
+
+        // char text_msg[1048576];
+        // char path_msg[1024];
+        // int path_len;
+        // int text_len;
+
+        // int recv_len;
+        // bzero(msg, sizeof(msg));
+
+        // recv_len = recv(sockfd, msg, sizeof(msg), 0);
+
+
+        // log_msg("\n msg received: %s\n", msg);
+        // log_msg("\n msg received length: %d\n", recv_len);
+        // memcpy(&path_len, msg, 4);
+        // memcpy(&text_len, msg+4, 4);
+        // memcpy(path_msg, msg+8, path_len);
+        // memcpy(text_msg, msg+8+path_len, text_len);
+
+        // log_msg("\n msgPath received: %s", path_msg);
+        // log_msg("\n msgPathLen received: %d", path_len);
+        // log_msg("\n msgText received: %s", text_msg);
+        // log_msg("\n msgTextLen received: %d", text_len);
+        // log_msg("\n expected path: %s, received path: %s", path, path_msg);
+    
+        // if (recv_len < 0)
+        // {
+        //     return (-errno);
+        // }
         pthread_mutex_unlock(&lock);
 
     // Works for files under 8000bytes?
