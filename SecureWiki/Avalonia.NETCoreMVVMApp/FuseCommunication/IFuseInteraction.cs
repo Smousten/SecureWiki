@@ -2,7 +2,6 @@ namespace SecureWiki.FuseCommunication
 {
     public interface IFuseInteraction
     {
-
         // Received create operation from FUSE
         // Should add new file to keyring json file
         void Create(string filename, string filepath);

@@ -8,7 +8,7 @@ using SecureWiki.Views;
 
 namespace SecureWiki.MediaWiki
 {
-    public class WikiHandler
+    public class WikiHandler : IServerInteraction
     {
         private readonly Manager _manager;
         public readonly MediaWikiObjects MWO;
@@ -27,7 +27,7 @@ namespace SecureWiki.MediaWiki
             return latestRevision.revision;
         }
 
-        public void UploadNewVersion(DataFileEntry dataFile, string filepath)
+        public void Upload(DataFileEntry dataFile, string filepath)
         {
             var srcDir = GetRootDir(filepath);
             var plainText = File.ReadAllBytes(srcDir);
@@ -103,28 +103,28 @@ namespace SecureWiki.MediaWiki
         // Get latest valid revision of wiki page
         // Do not loop though all datafile keys because the list is ordered.
         // Therefore, if X is a newer revision than Y, then Y cannot appear in a later datafile key than X.
-        private byte[]? GetLatestValidRevision(DataFileEntry datafile, List<Revision> revisions)
+        public byte[]? GetLatestValidRevision(DataFileEntry dataFile, List<Revision> revisions)
         {
             // Initialise iterator to index of last DataFileKey entry
-            var iterator = datafile.keyList.Count - 1;
+            var iterator = dataFile.keyList.Count - 1;
             for (var i = 0; i < revisions.Count; i++)
             {
                 for (var j = iterator; j >= 0; j--)
                 {
                     Console.WriteLine(
                         "Try getting lastestvalid revision with revisionID {0} and key startRevID {1} and endRevID {2}",
-                        revisions[i].revisionID, datafile.keyList[j].revisionStart, datafile.keyList[j].revisionEnd);
+                        revisions[i].revisionID, dataFile.keyList[j].revisionStart, dataFile.keyList[j].revisionEnd);
                     
-                    if (!IsValidRevid(datafile, revisions[i].revisionID, j))
+                    if (!IsValidRevid(dataFile, revisions[i].revisionID, j))
                     {
                         iterator = j;
                         continue;
                     }
 
-                    DataFileKey key = datafile.keyList[j];
+                    DataFileKey key = dataFile.keyList[j];
 
                     MediaWikiObjects.PageQuery.PageContent getPageContent =
-                        new(MWO, datafile.pageName, revisions[i].revisionID);
+                        new(MWO, dataFile.pageName, revisions[i].revisionID);
                     var pageContentBytes = Convert.FromBase64String(getPageContent.GetContent());
                     var decryptedTextBytes = _manager.Decrypt(pageContentBytes,
                         key.symmKey, key.iv);
@@ -144,15 +144,15 @@ namespace SecureWiki.MediaWiki
             return null;
         }
 
-        public byte[]? ReadFile(DataFileEntry datafile)
+        public byte[]? Download(DataFileEntry datafile)
         {
             MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(MWO, datafile.pageName);
             latestRevision.GetLatestRevision();
 
-            return ReadFile(datafile, latestRevision.revision.revisionID ?? "-1");
+            return Download(datafile, latestRevision.revision.revisionID ?? "-1");
         }
 
-        public byte[]? ReadFile(DataFileEntry dataFile, string revid)
+        public byte[]? Download(DataFileEntry dataFile, string revid)
         {
             // Check if revision already exists in cache and return output if so
             var cacheResult = _manager.AttemptReadFileFromCache(dataFile.pageName, revid);

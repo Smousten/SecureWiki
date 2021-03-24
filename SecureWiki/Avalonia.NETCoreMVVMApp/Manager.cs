@@ -115,7 +115,7 @@ namespace SecureWiki
             var keyList = df?.keyList.Last();
             if (keyList?.privateKey != null)
             {
-                wikiHandler.UploadNewVersion(df!, filepath);
+                wikiHandler.Upload(df!, filepath);
             }
             else
             {
@@ -167,10 +167,10 @@ namespace SecureWiki
 
             if (RequestedRevision.ContainsKey(dataFile.pageName))
             {
-                return wikiHandler.ReadFile(dataFile, RequestedRevision[dataFile.pageName]);
+                return wikiHandler.Download(dataFile, RequestedRevision[dataFile.pageName]);
             }
 
-            return wikiHandler.ReadFile(dataFile);
+            return wikiHandler.Download(dataFile);
         }
 
         public void LoginToMediaWiki(string username, string password)

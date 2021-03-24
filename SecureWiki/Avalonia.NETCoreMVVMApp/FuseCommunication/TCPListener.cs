@@ -78,38 +78,33 @@ namespace SecureWiki.FuseCommunication
             // Input must contain operation and arguments
             if (op.Length < 2) return;
             Console.WriteLine("Received: {0}", inputData);
-            var filePath = op[1].Substring(1);
-            char[] arr = filePath.Where(c => (char.IsLetterOrDigit(c) ||
+            var filepath = op[1].Substring(1);
+            char[] arr = filepath.Where(c => (char.IsLetterOrDigit(c) ||
                                               char.IsWhiteSpace(c) ||
                                               c == '.' || c == '/')).ToArray();
 
-            filePath = new string(arr);
-            var filePathSplit = filePath.Split("/");
-            var filename = filePathSplit[^1];
+            filepath = new string(arr);
+            var filepathSplit = filepath.Split("/");
+            var filename = filepathSplit[^1];
             switch (op[0])
             {
                 case "create":
-                    Create(filename, filePath);
+                    Create(filename, filepath);
                     break;
                 case "read":
                     Read(filename, op[1]);
                     break;
                 case "write":
-                    Write(filename, filePath);
+                    Write(filename, filepath);
                     break;
                 case "rename":
                     var renamePathSplit = op[1].Split("%", 2);
                     Rename(filename, renamePathSplit);
                     break;
                 case "mkdir":
-                    Mkdir(filename, filePath);
+                    Mkdir(filename, filepath);
                     break;
             }
-        }
-
-        private bool RealFileName(string filepath)
-        {
-            return !(filepath.Contains(".goutputstream") || filepath.Contains(".Trash"));
         }
 
         public void Create(string filename, string filepath)
@@ -181,6 +176,11 @@ namespace SecureWiki.FuseCommunication
         public void Mkdir(string filename, string filepath)
         {
             _manager.AddNewKeyRing(filename, filepath);
+        }
+        
+        private bool RealFileName(string filepath)
+        {
+            return !(filepath.Contains(".goutputstream") || filepath.Contains(".Trash"));
         }
     }
 }
