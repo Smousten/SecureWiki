@@ -22,7 +22,7 @@ namespace SecureWiki.MediaWiki
 
         public Revision GetLatestRevision(DataFileEntry dataFile)
         {
-            MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(MWO, dataFile.pagename);
+            MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(MWO, dataFile.pageName);
             latestRevision.GetLatestRevision();
             return latestRevision.revision;
         }
@@ -30,9 +30,9 @@ namespace SecureWiki.MediaWiki
         public void UploadNewVersion(DataFileEntry dataFile, string filepath)
         {
             var srcDir = GetRootDir(filepath);
-            if (!File.Exists(srcDir)) return;
             var plainText = File.ReadAllBytes(srcDir);
-            string pageTitle = dataFile.pagename;
+            string pageTitle = dataFile.pageName;
+            // Console.WriteLine("Upload plain text: " + plainText);
 
             if (plainText.Length > 0)
             {
@@ -41,6 +41,8 @@ namespace SecureWiki.MediaWiki
 
                 if (rev.revisionID != null && !rev.revisionID.Equals(latestRevID))
                 {
+                    // TODO: MessageBox content
+                    
                     string warningString = "This is not the newest revision available, " +
                                            "sure you wanna do this, mate?" + 
                                            "\nUploaded: " + rev.timestamp + 
@@ -71,7 +73,7 @@ namespace SecureWiki.MediaWiki
                 var encryptedText = Convert.ToBase64String(encryptedBytes);
 
                 MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(MWO,
-                    dataFile.pagename);
+                    dataFile.pageName);
                 uploadNewRevision.UploadContent(encryptedText);
 
                 // Get revision ID of the revision that was just uploaded
@@ -123,7 +125,7 @@ namespace SecureWiki.MediaWiki
                     DataFileKey key = datafile.keyList[j];
 
                     MediaWikiObjects.PageQuery.PageContent getPageContent =
-                        new(MWO, datafile.pagename, revisions[i].revisionID);
+                        new(MWO, datafile.pageName, revisions[i].revisionID);
                     var pageContentBytes = Convert.FromBase64String(getPageContent.GetContent());
                     var decryptedTextBytes = _manager.Decrypt(pageContentBytes,
                         key.symmKey, key.iv);
@@ -145,7 +147,7 @@ namespace SecureWiki.MediaWiki
 
         public byte[]? ReadFile(DataFileEntry datafile)
         {
-            MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(MWO, datafile.pagename);
+            MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(MWO, datafile.pageName);
             latestRevision.GetLatestRevision();
 
             return ReadFile(datafile, latestRevision.revision.revisionID ?? "-1");
@@ -154,13 +156,13 @@ namespace SecureWiki.MediaWiki
         public byte[]? ReadFile(DataFileEntry dataFile, string revid)
         {
             // Check if revision already exists in cache and return output if so
-            var cacheResult = _manager.AttemptReadFileFromCache(dataFile.pagename, revid);
+            var cacheResult = _manager.AttemptReadFileFromCache(dataFile.pageName, revid);
             if (cacheResult != null)
             {
                 return Convert.FromBase64String(cacheResult);
             }
 
-            MediaWikiObjects.PageQuery.PageContent getPageContent = new(MWO, dataFile.pagename, revid);
+            MediaWikiObjects.PageQuery.PageContent getPageContent = new(MWO, dataFile.pageName, revid);
             var pageContent = getPageContent.GetContent();
 
             DataFileKey? keyList = null;
@@ -175,7 +177,7 @@ namespace SecureWiki.MediaWiki
 
             if (keyList == null)
             {
-                var revisions = _manager.GetAllRevisions(dataFile.pagename).revisionList;
+                var revisions = _manager.GetAllRevisions(dataFile.pageName).revisionList;
                 return GetLatestValidRevision(dataFile, revisions);
             }
 
@@ -196,7 +198,7 @@ namespace SecureWiki.MediaWiki
                 if (!_manager.VerifyData(keyList.publicKey, textBytes, hashBytes))
                 {
                     Console.WriteLine("Verifying failed...");
-                    var revisions = _manager.GetAllRevisions(dataFile.pagename).revisionList;
+                    var revisions = _manager.GetAllRevisions(dataFile.pageName).revisionList;
                     return GetLatestValidRevision(dataFile, revisions);
                 }
 
@@ -206,7 +208,7 @@ namespace SecureWiki.MediaWiki
                 }
 
                 getPageContent.revision.content = Convert.ToBase64String(textBytes);
-                _manager.AddEntryToCache(dataFile.pagename, getPageContent.revision);
+                _manager.AddEntryToCache(dataFile.pageName, getPageContent.revision);
 
                 return textBytes;
             }

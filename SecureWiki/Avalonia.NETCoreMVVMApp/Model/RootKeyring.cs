@@ -12,8 +12,8 @@ namespace SecureWiki.Model
     {
         public RootKeyring()
         {
-            Name = "Root";
-            IsChecked = false;
+            name = "Root";
+            isChecked = false;
         }
     }
 }
