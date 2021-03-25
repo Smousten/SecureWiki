@@ -149,7 +149,7 @@ namespace SecureWiki.Cryptography
 
             var serverLink = "http://localhost/mediawiki/api.php";
             DataFileEntry dataFileEntry = new(serverLink, filename);
-
+            
             // Find the keyring where the new datafile is inserted
             var foundKeyring = FindKeyringPath(rootKeyring, filepath);
             foundKeyring.AddDataFile(dataFileEntry);

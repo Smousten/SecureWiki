@@ -27,7 +27,7 @@ namespace SecureWiki
         private Thread CryptoThread;
         private Thread GUIThread;
 
-        private WikiHandler wikiHandler;
+        private IServerInteraction wikiHandler;
         private Keyring _keyring;
         private Crypto _crypto;
         private IFuseInteraction tcpListener;
@@ -115,34 +115,22 @@ namespace SecureWiki
 
         public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
         {
-            MediaWikiObjects.PageQuery.AllRevisions allRevisions = new(wikiHandler.MWO, pageTitle);
-
-            allRevisions.GetAllRevisions();
-            allRevisions.PrintAllRevisions();
-
-            return allRevisions;
+            return wikiHandler.GetAllRevisions(pageTitle);
         }
 
         public string GetPageContent(string pageTitle, string revID)
         {
-            MediaWikiObjects.PageQuery.PageContent pc = new(wikiHandler.MWO, pageTitle, revID);
-            string output = pc.GetContent();
-
-            return output;
+            return wikiHandler.GetPageContent(pageTitle, revID);
         }
 
         public void UndoRevisionsByID(string pageTitle, string startID, string endID)
         {
-            MediaWikiObjects.PageAction.UndoRevisions undoRevisions =
-                new(wikiHandler.MWO, pageTitle);
-            undoRevisions.UndoRevisionsByID(startID, endID);
+            wikiHandler.UndoRevisionsByID(pageTitle, startID, endID);
         }
 
         public void DeleteRevisionsByID(string pageTitle, string IDs)
         {
-            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions =
-                new(wikiHandler.MWO, pageTitle);
-            deleteRevisions.DeleteRevisionsByIDString(IDs);
+            wikiHandler.DeleteRevisionsByID(pageTitle, IDs);
         }
 
         public void UploadNewVersion(string filename, string filepath)
@@ -188,18 +176,11 @@ namespace SecureWiki
                 "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
         }
 
-        public byte[]? ReadFile(string filename)
+        public byte[]? Download(string filename)
         {
             var dataFile = GetDataFile(filename, rootKeyring);
 
             if (dataFile == null) return null;
-
-            // var encryptedFilenameBytes = EncryptAesStringToBytes(filename, 
-            //     dataFile.symmKey, dataFile.iv);
-            // var encryptedFilenameString = Convert.ToBase64String(encryptedFilenameBytes);
-            //
-            // // URL does not allow + character, instead encode as hexadecimal
-            // var pageTitle = encryptedFilenameString.Replace("+", "%2B");
 
             if (RequestedRevision.ContainsKey(dataFile.pageName))
             {

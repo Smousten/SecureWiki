@@ -84,7 +84,7 @@ namespace SecureWiki.FuseCommunication
             var filepath = op[1].Substring(1);
             char[] arr = filepath.Where(c => (char.IsLetterOrDigit(c) ||
                                               char.IsWhiteSpace(c) ||
-                                              c == '.' || c == '/')).ToArray();
+                                              c == '.' || c == '/' || c == '_')).ToArray();
             filepath = new string(arr);
             
             // Get filename
@@ -124,7 +124,7 @@ namespace SecureWiki.FuseCommunication
         {
             if (RealFileName(filename))
             {
-                var decryptedText = _manager.ReadFile(filename) ?? Encoding.ASCII.GetBytes("File error");
+                var decryptedText = _manager.Download(filename) ?? Encoding.ASCII.GetBytes("File error");
                 byte[] byData = decryptedText;
                 byte[] byDataLen = BitConverter.GetBytes(byData.Length);
                 byte[] msgPath = Encoding.ASCII.GetBytes(filepath);
