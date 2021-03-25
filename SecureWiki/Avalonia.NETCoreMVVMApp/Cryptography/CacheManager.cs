@@ -82,13 +82,8 @@ namespace SecureWiki.Cryptography
         // Default is to remove all entries in the cache that is not the latest entry for a page title
         public void CleanCacheDirectory(CachePreferences preferences)
         {
-            // Find all latest entries
-
-            List<string> exemptionList = new(); // Files that should be kept
-            List<string> exceptionList = new(); // Page titles that have their own overriding preferences
-
-            Dictionary<string, CacheEntry> defaultDictionary = new();
-            Dictionary<string, CacheEntry> exceptionDictionary = new();
+            // Files that should be kept
+            List<string> exemptionList = new(); 
             
             foreach (var item in _dict)
             {
@@ -101,70 +96,37 @@ namespace SecureWiki.Cryptography
             }
 
             // Get all files in cache directory
-            string[] pathArray = Directory.GetFiles(_dirpath);
+            var dirFileArray = Directory.GetFiles(_dirpath);
+            List<string> dirFileList = new(); 
+            foreach (var item in dirFileArray)
+            {
+                dirFileList.Add(Path.GetFileName(item));
+            }
+
+            // Keep the files in the exemption list
+            var toBeDeleted = dirFileList.Except(exemptionList).ToList();
+
+
+            // foreach (var item in exemptionList)
+            // {
+            //     Console.WriteLine("exemptionList: " + item);
+            // }
+            //
+            // foreach (var item in dirFileList)
+            // {
+            //     Console.WriteLine("dirFileList: " + item);
+            // }
+            //
+            // foreach (var item in toBeDeleted)
+            // {
+            //     Console.WriteLine("toBeDeleted: " + item);
+            // }
             
-            
-
-            // Check if file is in exemption list, delete otherwise
-            foreach (string filepath in pathArray)
+            // Delete the rest
+            foreach (var file in toBeDeleted)
             {
-                var filename = new FileInfo(filepath).Name;
-
-                bool shouldBeKept = exemptionList.Any(exception => filename.Equals(exception));
-
-                if (!shouldBeKept)
-                {
-                    File.Delete(filepath);
-                }
+                File.Delete(file);
             }
-        }
-        
-
-
-        private List<string> KeepAllLatestRevisions(Dictionary<string, CacheEntry> dict)
-        {
-            List<string> exemptionList = new();
-            foreach (var item in dict)
-            {
-                item.Value.RemoveAllButLatestEntry();
-                var tmp = FindLatestRevision(item.Value);
-
-                if (tmp != null)
-                {
-                    exemptionList.Add(tmp);
-                }
-
-            }
-
-            return exemptionList;
-        }
-
-        private string? FindLatestRevision(CacheEntry cacheEntry)
-        {
-            string? output = null;
-            
-            var revid = cacheEntry.GetLatestRevID();
-
-            if (revid != null)
-            {
-                var entryName = cacheEntry.GetFilePath(revid);
-
-                if (entryName != null)
-                {
-                    string filename = Path.GetFileName(entryName);
-                    output = filename;
-                }
-                else
-                {
-                    Console.WriteLine("entry name was null");
-                }
-            }
-            else
-            {
-                Console.WriteLine("revid was null");
-            }
-
-            return output;
         }
 
         public string? GetLatestRevisionID(string pageTitle)

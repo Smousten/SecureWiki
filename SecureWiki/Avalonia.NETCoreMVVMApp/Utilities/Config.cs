@@ -10,9 +10,9 @@ namespace SecureWiki.Utilities
         public Dictionary<string, ConfigEntry> ConfigDictionary;
 
         [JsonProperty]
-        public CachePreferences? cachePreferences;
+        public CachePreferences cachePreferences;
         
-        public ConfigManager(CachePreferences.CacheSetting cacheSetting = CachePreferences.CacheSetting.KeepNewest)
+        public ConfigManager(CachePreferences.CacheSetting cacheSetting = CachePreferences.CacheSetting.KeepLatest)
         {
             ConfigDictionary = new Dictionary<string, ConfigEntry>();
             cachePreferences = new CachePreferences(cacheSetting);
@@ -36,7 +36,7 @@ namespace SecureWiki.Utilities
 
         public CachePreferences.CacheSetting? GetSetting(string pageTitle)
         {
-            return cachePreferences?.GetSetting(pageTitle);
+            return cachePreferences.GetSettingOrDefault(pageTitle);
         }
     }
 
@@ -63,33 +63,44 @@ namespace SecureWiki.Utilities
         public enum CacheSetting
         {
             KeepAll,
-            KeepNewest,
+            KeepLatest,
             KeepNone
         }
 
         [JsonProperty] public CacheSetting GeneralSetting;
         [JsonProperty] public Dictionary<string, CacheSetting> ExceptionDictionary;
 
-        public CachePreferences(CacheSetting setting = CacheSetting.KeepNewest)
+        public CachePreferences(CacheSetting setting = CacheSetting.KeepLatest)
         {
             GeneralSetting = setting;
             ExceptionDictionary = new Dictionary<string, CacheSetting>();
         }
 
-        public CacheSetting GetSetting(string pageTitle)
+        public CacheSetting GetSettingOrDefault(string pageTitle)
         {
             return ExceptionDictionary.ContainsKey(pageTitle) ? ExceptionDictionary[pageTitle] : GeneralSetting;
         }
-
-        public void SetPreference(string pageTitle, CacheSetting setting)
+        
+        public CacheSetting? GetSetting(string pageTitle)
         {
+            return ExceptionDictionary.ContainsKey(pageTitle) ? ExceptionDictionary[pageTitle] : null;
+        }
+
+        public void SetPreference(string pageTitle, CacheSetting? setting)
+        {
+            if (setting == null)
+            {
+                ExceptionDictionary.Remove(pageTitle);
+                return;
+            }
+            
             if (ExceptionDictionary.ContainsKey(pageTitle))
             {
-                ExceptionDictionary[pageTitle] = setting;
+                ExceptionDictionary[pageTitle] = (CacheSetting) setting;
             }
             else
             {
-                ExceptionDictionary.Add(pageTitle, setting);
+                ExceptionDictionary.Add(pageTitle, (CacheSetting) setting);
             }
         }
         

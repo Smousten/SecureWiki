@@ -12,8 +12,10 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using SecureWiki.MediaWiki;
 using SecureWiki.Model;
+using SecureWiki.Utilities;
 using SecureWiki.ViewModels;
 
 namespace SecureWiki.Views
@@ -245,21 +247,23 @@ namespace SecureWiki.Views
                 _viewModel.revisions = manager.GetAllRevisions(dataFile.pageName).revisionList;
                 // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
                 // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
-                Console.WriteLine(dataFile.filename);
+                // Console.WriteLine(dataFile.filename);
             }
             
         }
 
-        private void Hide_Click(object? sender, RoutedEventArgs e)
+        private void HideButtonPopup_Click(object? sender, RoutedEventArgs e)
         {
-            var popup = this.FindControl<Popup>("RevokeAccessPopup");
+            var tag = (string)((Button) sender!).Tag;
+            var popup = this.FindControl<Popup>(tag);
             popup.IsOpen = false;
             _viewModel.IsAccessRevocationPopupOpen = false;
         }
 
-        private void Show_Click(object? sender, RoutedEventArgs e)
+        private void ShowButtonPopup_Click(object? sender, RoutedEventArgs e)
         {
-            var popup = this.FindControl<Popup>("RevokeAccessPopup");
+            var tag = (string)((Button) sender!).Tag;
+            var popup = this.FindControl<Popup>(tag);
             popup.IsOpen = true;
             _viewModel.IsAccessRevocationPopupOpen = true;
         }
@@ -272,6 +276,59 @@ namespace SecureWiki.Views
             var popup = this.FindControl<Popup>("RevokeAccessPopup");
             popup.IsOpen = false;
             _viewModel.IsAccessRevocationPopupOpen = false;
+        }
+        
+        private void CacheSettingButton_Click(object? sender, RoutedEventArgs e)
+        {
+            var button = (Button) sender!;
+            var tag = (string) button.Tag;
+            var name = button.Name;
+            var content = name?.Substring("CacheSettingPopup".Length);
+            
+            var popup = this.FindControl<Popup>(tag);
+            popup.IsOpen = false;
+
+            // If setting is null, the entry is removed from the exception list
+            CachePreferences.CacheSetting? setting;
+            if (name != null && name.Equals("CacheSettingPopupDefault"))
+            {
+                setting = null;
+            }
+            else
+            {
+                // Get setting chosen
+                setting = (CachePreferences.CacheSetting) Enum.Parse(typeof(CachePreferences.CacheSetting), content);    
+            }
+
+            manager.SetCacheSettingSingleFile(_viewModel.selectedFile.pageName, setting);
+        }
+
+        private void CacheSettingPopup_OnOpened(object? sender, EventArgs e)
+        {
+            var popup = (Popup) sender!;
+
+            // Reset color of the other buttons
+            var gridChildren = popup.FindLogicalDescendantOfType<Grid>().
+                FindLogicalDescendantOfType<Grid>().GetLogicalChildren();
+            foreach (var item in gridChildren)
+            {
+                if (item.GetType() == typeof(Button) && ((Button)item).Name != null)
+                {
+                    ((Button)item).Background = Brushes.LightBlue;
+                }
+            }
+            
+            var setting = manager.GetCacheSettingSingleFile(_viewModel.selectedFile.pageName);
+
+            const string buttonNameCommon = "CacheSettingPopup";
+            string buttonName = setting != null ? buttonNameCommon + setting : buttonNameCommon + "Default";
+
+            Button button = popup.FindControl<Button>(buttonName);
+            
+            if (button != null)
+            {
+                button.Background = Brushes.LightSteelBlue;
+            }
         }
     }
 }

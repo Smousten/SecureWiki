@@ -161,7 +161,7 @@ namespace SecureWiki.Cryptography
                 case CachePreferences.CacheSetting.KeepAll:
                     exemptionList.AddRange(_dict.Select(item => item.Value));
                     break;
-                case CachePreferences.CacheSetting.KeepNewest:
+                case CachePreferences.CacheSetting.KeepLatest:
                     var latestRev = GetLatestRevID();
                     if (latestRev != null)
                     {

@@ -113,6 +113,26 @@ namespace SecureWiki
             JSONSerialization.SerializeAndWriteFile(path, configManager);
         }
 
+        public void SetCacheSettingGeneral(CachePreferences.CacheSetting setting)
+        {
+            configManager!.cachePreferences.GeneralSetting = setting;
+        }
+        
+        public void SetCacheSettingSingleFile(string pageTitle, CachePreferences.CacheSetting? setting)
+        {
+            configManager!.cachePreferences.SetPreference(pageTitle, setting);
+        }
+        
+        public CachePreferences.CacheSetting GetCacheSettingGeneral()
+        {
+            return configManager!.cachePreferences.GeneralSetting;
+        }
+        
+        public CachePreferences.CacheSetting? GetCacheSettingSingleFile(string pageTitle)
+        {
+            return configManager!.cachePreferences.GetSetting(pageTitle);
+        }
+
         public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
         {
             return wikiHandler.GetAllRevisions(pageTitle);

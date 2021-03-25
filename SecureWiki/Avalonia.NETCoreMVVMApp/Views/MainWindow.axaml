@@ -157,10 +157,16 @@
                        IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <Button Name="RevokeAccessButton" DockPanel.Dock="Top"
                     IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}" Width="100"
-                    Height="30" Click="Show_Click">
+                    Height="30" Click="ShowButtonPopup_Click" Tag="RevokeAccessPopup">
                 Revoke
             </Button>
+            <Button Name="CacheSettingButton" DockPanel.Dock="Top"
+                    IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}" Width="100"
+                    Height="30" Click="ShowButtonPopup_Click" Tag="CacheSettingPopup">
+                Cache setting
+            </Button>
 
+            <!--Revoke access popup-->
             <Popup Name="RevokeAccessPopup" PlacementTarget="RevokeAccessButton">
                 <Border IsVisible="{Binding IsAccessRevocationPopupOpen}" BorderBrush="Black" BorderThickness="1,1,1,1">
                     <Grid>
@@ -168,8 +174,26 @@
                                    Text="Are you that you want to revoke access to the file?&#x0a; This action cannot be undone."
                                    TextAlignment="Center" />
                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto">
-                            <Button Grid.Column="0" Click="Hide_Click" Margin="30,80,10,10">Cancel</Button>
-                            <Button Grid.Column="1" Click="Revoke_Click" Margin="150,80,30,10" Background="LightBlue">Confirm</Button>
+                            <Button Grid.Column="0" Click="HideButtonPopup_Click" Tag="RevokeAccessPopup" Margin="30,80,10,10">Cancel</Button>
+                            <Button Grid.Column="1" Click="Revoke_Click" Tag="RevokeAccessPopup" Margin="150,80,30,10" Background="LightBlue">Confirm</Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Popup>
+            
+            <!--Cache setting popup-->
+            <Popup Name="CacheSettingPopup" PlacementTarget="CacheSettingButton" Opened="CacheSettingPopup_OnOpened">
+                <Border IsVisible="{Binding IsCacheSettingPopupOpen}" BorderBrush="Black" BorderThickness="1,1,1,1">
+                    <Grid>
+                        <TextBlock Name="CacheSettingPopupTextBlock" Background="White"
+                                   Text="Cache setting&#x0a; Which revisions should be kept in cache between sessions?"
+                                   TextAlignment="Center" />
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto" RowDefinitions="Auto">
+                            <Button Grid.Column="0" Click="HideButtonPopup_Click" Tag="CacheSettingPopup" Margin="10,80,30,10">Cancel</Button>
+                            <Button Grid.Column="1" Name="CacheSettingPopupDefault" Content="Default" Click="CacheSettingButton_Click" Tag="CacheSettingPopup" Margin="5,80,5,10" Background="LightBlue"/>
+                            <Button Grid.Column="2" Name="CacheSettingPopupKeepAll" Content="KeepAll" Click="CacheSettingButton_Click" Tag="CacheSettingPopup" Margin="5,80,5,10" Background="LightBlue"/>
+                            <Button Grid.Column="3" Name="CacheSettingPopupKeepLatest" Content="KeepLatest" Click="CacheSettingButton_Click" Tag="CacheSettingPopup" Margin="5,80,5,10" Background="LightBlue"/>
+                            <Button Grid.Column="4" Name="CacheSettingPopupKeepNone" Content="KeepNone" Click="CacheSettingButton_Click" Tag="CacheSettingPopup" Margin="5,80,10,10" Background="LightBlue"/>
                         </Grid>
                     </Grid>
                 </Border>
