@@ -1,5 +1,4 @@
 using System;
-using System.Formats.Asn1;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -131,23 +130,28 @@ namespace SecureWiki.FuseCommunication
                 byte[] msgPath = Encoding.ASCII.GetBytes(filepath);
                 
                 filepath = filepath.Trim('\0');
-                var absolutefilePath = "fuse/directories/rootdir" + filepath;
+                var relativeFilePath = "fuse/directories/rootdir" + filepath;
                 var currentDir = Directory.GetCurrentDirectory();
                 var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-                var srcDir = Path.Combine(projectDir, absolutefilePath);
-                Console.WriteLine("writing to " + srcDir);
-                // if (File.Exists(srcDir))
-                // {
-                //     var comparisonBytes = File.ReadAllBytes(srcDir);
-                //     if (comparisonBytes.SequenceEqual(rv))
-                //     {
-                //         Console.WriteLine("bytes not changed");
-                //         _stream?.Write(rv);
-                //         return;
-                //     }
-                // }
+                var srcDir = Path.Combine(projectDir, relativeFilePath);
+
+                // Do not write bytes to file if last write time was within 10 seconds
+                if (File.Exists(srcDir))
+                {
+                    var lastWriteTime = File.GetLastWriteTime(srcDir);
+                    var currentTime = DateTime.Now;
+                    var span = currentTime - lastWriteTime;
+                    if (span.Seconds < 10)
+                    {
+                        _stream?.Write(msgPath);
+                        return;
+                    }
+                }
+
+                Console.WriteLine("writing to file " + srcDir);
                 File.WriteAllBytes(srcDir, byData);
                 _stream?.Write(msgPath);
+                decryptedText = null;
             }
         }
 

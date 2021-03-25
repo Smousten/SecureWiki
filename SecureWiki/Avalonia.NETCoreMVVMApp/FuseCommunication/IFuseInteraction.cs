@@ -23,6 +23,7 @@ namespace SecureWiki.FuseCommunication
         // Should make new keyring object in keyring json file
         void Mkdir(string filename, string filepath);
         
+        // Run Thread
         void RunListener();
     }
 }

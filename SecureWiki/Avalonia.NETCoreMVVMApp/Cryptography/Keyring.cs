@@ -9,7 +9,6 @@ namespace SecureWiki.Cryptography
 {
     public class Keyring
     {
-        private readonly Crypto _crypto = new();
         public RootKeyring rootKeyring;
 
         public Keyring(RootKeyring rk)
