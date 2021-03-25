@@ -1,4 +1,6 @@
 using System;
+using System.Formats.Asn1;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -126,21 +128,26 @@ namespace SecureWiki.FuseCommunication
             {
                 var decryptedText = _manager.Download(filename) ?? Encoding.ASCII.GetBytes("File error");
                 byte[] byData = decryptedText;
-                byte[] byDataLen = BitConverter.GetBytes(byData.Length);
                 byte[] msgPath = Encoding.ASCII.GetBytes(filepath);
-                byte[] msgPathLen = BitConverter.GetBytes(msgPath.Length);
-
-                byte[] rv = new byte[msgPathLen.Length + byDataLen.Length + msgPath.Length + byData.Length];
-                Buffer.BlockCopy(msgPathLen, 0, rv, 0, msgPathLen.Length);
-                Buffer.BlockCopy(byDataLen, 0, rv, msgPathLen.Length, byDataLen.Length);
-                Buffer.BlockCopy(msgPath, 0, rv, msgPathLen.Length + byDataLen.Length, msgPath.Length);
-                Buffer.BlockCopy(byData, 0, rv, msgPathLen.Length + byDataLen.Length + msgPath.Length, byData.Length);
-                _stream?.Write(rv);
-                // Print relevant information
-                // Console.WriteLine(rv.Length);
-                // Console.WriteLine("sending to server socket: {0} {1} {2} {3}", BitConverter.ToInt32(msgPathLen),
-                //     BitConverter.ToInt32(byDataLen), Encoding.ASCII.GetString(msgPath),
-                //     Encoding.ASCII.GetString(byData));
+                
+                filepath = filepath.Trim('\0');
+                var absolutefilePath = "fuse/directories/rootdir" + filepath;
+                var currentDir = Directory.GetCurrentDirectory();
+                var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
+                var srcDir = Path.Combine(projectDir, absolutefilePath);
+                Console.WriteLine("writing to " + srcDir);
+                // if (File.Exists(srcDir))
+                // {
+                //     var comparisonBytes = File.ReadAllBytes(srcDir);
+                //     if (comparisonBytes.SequenceEqual(rv))
+                //     {
+                //         Console.WriteLine("bytes not changed");
+                //         _stream?.Write(rv);
+                //         return;
+                //     }
+                // }
+                File.WriteAllBytes(srcDir, byData);
+                _stream?.Write(msgPath);
             }
         }
 
