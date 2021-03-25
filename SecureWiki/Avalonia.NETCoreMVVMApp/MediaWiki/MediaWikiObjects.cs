@@ -65,9 +65,10 @@ namespace SecureWiki.MediaWiki
             LoginMediaWiki(username, password);
         }
 
-        public MediaWikiObjects(HttpClient client, string username, string password, string ip)
+        public MediaWikiObjects(HttpClient client, string username, string password, string url)
         {
-            URL = "http://" + ip + "/mediawiki/api.php";
+            // URL = "http://" + ip + "/mediawiki/api.php";
+            URL = url;
             httpClient = client;
             LoginMediaWiki(username, password);
         }

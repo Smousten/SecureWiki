@@ -34,6 +34,18 @@ namespace SecureWiki.Utilities
             }
         }
 
+        public ConfigEntry? GetServerCredentials(string serverLink)
+        {
+            if (ConfigDictionary.ContainsKey(serverLink))
+            {
+                return ConfigDictionary[serverLink];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public CachePreferences.CacheSetting? GetSetting(string pageTitle)
         {
             return cachePreferences.GetSettingOrDefault(pageTitle);
