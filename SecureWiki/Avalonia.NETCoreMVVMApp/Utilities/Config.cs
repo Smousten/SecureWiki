@@ -6,16 +6,17 @@ namespace SecureWiki.Utilities
     [JsonObject(MemberSerialization.OptIn)]
     public class ConfigManager
     {
-        [JsonProperty] 
-        public Dictionary<string, ConfigEntry> ConfigDictionary;
+        [JsonProperty] public Dictionary<string, ConfigEntry> ConfigDictionary;
 
-        [JsonProperty]
-        public CachePreferences cachePreferences;
+        [JsonProperty] public CachePreferences cachePreferences;
+
+        [JsonProperty] public string DefaultServerLink;
         
-        public ConfigManager(CachePreferences.CacheSetting cacheSetting = CachePreferences.CacheSetting.KeepLatest)
+        public ConfigManager(CachePreferences.CacheSetting cacheSetting = CachePreferences.CacheSetting.KeepLatest, string defaultServerLink = "http://localhost/mediawiki/api.php")
         {
             ConfigDictionary = new Dictionary<string, ConfigEntry>();
             cachePreferences = new CachePreferences(cacheSetting);
+            DefaultServerLink = defaultServerLink;
         }
 
         // Add entry if it does not already exist, overwrite if new version contains username
@@ -31,6 +32,18 @@ namespace SecureWiki.Utilities
                 {
                     ConfigDictionary[serverLink] = new ConfigEntry(username, password);
                 }    
+            }
+        }
+
+        public ConfigEntry? GetServerCredentials(string serverLink)
+        {
+            if (ConfigDictionary.ContainsKey(serverLink))
+            {
+                return ConfigDictionary[serverLink];
+            }
+            else
+            {
+                return null;
             }
         }
 

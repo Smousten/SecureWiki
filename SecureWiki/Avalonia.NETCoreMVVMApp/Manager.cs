@@ -27,7 +27,8 @@ namespace SecureWiki
         private Thread CryptoThread;
         private Thread GUIThread;
 
-        private IServerInteraction wikiHandler;
+        private Dictionary<string, IServerInteraction> wikiHandlers;
+        private IServerInteraction localhostWikiHandler;
         private Keyring _keyring;
         private Crypto _crypto;
         private IFuseInteraction tcpListener;
@@ -55,9 +56,12 @@ namespace SecureWiki
         public void Run()
         {
             InitializeConfigManager();
+            InitializeWikiHandlers();
             
-            wikiHandler = new WikiHandler("new_mysql_user",
-                "THISpasswordSHOULDbeCHANGED", httpClient, this, "127.0.0.1");
+            localhostWikiHandler = new WikiHandler("new_mysql_user",
+                "THISpasswordSHOULDbeCHANGED", httpClient, this, "http://localhost/mediawiki/api.php");
+            wikiHandlers.Add("http://localhost/mediawiki/api.php", localhostWikiHandler);
+            
             _keyring = new Keyring(rootKeyring);
             _crypto = new Crypto();
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
@@ -133,24 +137,71 @@ namespace SecureWiki
             return configManager!.cachePreferences.GetSetting(pageTitle);
         }
 
-        public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
+        private void InitializeWikiHandlers()
         {
-            return wikiHandler.GetAllRevisions(pageTitle);
+            wikiHandlers = new();
+            
+            // TODO: read from config file
+        }
+        
+        private IServerInteraction? GetWikiHandler(string url)
+        {
+            if (wikiHandlers.ContainsKey(url))
+            {
+                return wikiHandlers[url];
+            }
+            else
+            {
+                var newWikiHandler = CreateNewWikiHandler(url);
+
+                if (newWikiHandler != null)
+                {
+                    wikiHandlers.Add(url, newWikiHandler);
+                    return newWikiHandler;
+                }
+            }
+
+            return null;
         }
 
-        public string GetPageContent(string pageTitle, string revID)
+        private IServerInteraction? CreateNewWikiHandler(string url)
         {
-            return wikiHandler.GetPageContent(pageTitle, revID);
+            var serverCredentials = configManager.GetServerCredentials(url);
+
+            if (serverCredentials?.Username != null && serverCredentials.Password != null)
+            {
+                return new WikiHandler(serverCredentials.Username, serverCredentials.Password, 
+                    new HttpClient(), this, url);
+            }
+            
+            // TODO: promt user
+
+            return null;
         }
 
-        public void UndoRevisionsByID(string pageTitle, string startID, string endID)
+        public MediaWikiObjects.PageQuery.AllRevisions? GetAllRevisions(string pageTitle, string url)
         {
-            wikiHandler.UndoRevisionsByID(pageTitle, startID, endID);
+            var wikiHandler = GetWikiHandler(url);
+            return wikiHandler?.GetAllRevisions(pageTitle);
         }
 
-        public void DeleteRevisionsByID(string pageTitle, string IDs)
+        public string? GetPageContent(string pageTitle, string revID, string url)
         {
-            wikiHandler.DeleteRevisionsByID(pageTitle, IDs);
+            var wikiHandler = GetWikiHandler(url);
+            return wikiHandler?.GetPageContent(pageTitle, revID);
+        }
+
+        public bool UndoRevisionsByID(string pageTitle, string startID, string endID, string url)
+        {
+            var wikiHandler = GetWikiHandler(url);
+            wikiHandler?.UndoRevisionsByID(pageTitle, startID, endID);
+            return true;
+        }
+
+        public void DeleteRevisionsByID(string pageTitle, string IDs, string url)
+        {
+            var wikiHandler = GetWikiHandler(url);
+            wikiHandler?.DeleteRevisionsByID(pageTitle, IDs);
         }
 
         public void UploadNewVersion(string filename, string filepath)
@@ -159,7 +210,8 @@ namespace SecureWiki
             var keyList = df?.keyList.Last();
             if (keyList?.privateKey != null)
             {
-                wikiHandler.Upload(df!, filepath);
+                var wikiHandler = GetWikiHandler(df!.serverLink);
+                wikiHandler?.Upload(df!, filepath);
             }
             else
             {
@@ -189,25 +241,24 @@ namespace SecureWiki
             return output;
         }
 
-        public void SetNewMediaWikiServer(string url)
-        {
-            httpClient = new HttpClient();
-            wikiHandler = new WikiHandler("new_mysql_user",
-                "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
-        }
+        // public void SetNewMediaWikiServer(string url)
+        // {
+        //     httpClient = new HttpClient();
+        //     wikiHandler = new WikiHandler("new_mysql_user",
+        //         "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
+        // }
 
         public byte[]? Download(string filename)
         {
             var dataFile = GetDataFile(filename, rootKeyring);
 
             if (dataFile == null) return null;
+            
+            var wikiHandler = GetWikiHandler(dataFile.serverLink);
 
-            if (RequestedRevision.ContainsKey(dataFile.pageName))
-            {
-                return wikiHandler.Download(dataFile, RequestedRevision[dataFile.pageName]);
-            }
-
-            return wikiHandler.Download(dataFile);
+            return RequestedRevision.ContainsKey(dataFile.pageName) ? 
+                wikiHandler?.Download(dataFile, RequestedRevision[dataFile.pageName]) : 
+                wikiHandler?.Download(dataFile);
         }
 
         public void LoginToMediaWiki(string username, string password)
@@ -218,7 +269,7 @@ namespace SecureWiki
         // Delegated Keyring functions
         public void AddNewFile(string filename, string filepath)
         {
-            _keyring.AddNewFile(filename, filepath);
+            _keyring.AddNewFile(filename, filepath, configManager.DefaultServerLink);
         }
 
         public void AddNewKeyRing(string filename, string filepath)
@@ -393,9 +444,10 @@ namespace SecureWiki
 
         public void RevokeAccess(DataFileEntry datafile)
         {
-            Revision latestRevision = wikiHandler.GetLatestRevision(datafile);
+            var wikiHandler = GetWikiHandler(datafile.serverLink);
+            var latestRevision = wikiHandler?.GetLatestRevision(datafile);
 
-            if (latestRevision.revisionID != null)
+            if (latestRevision?.revisionID != null)
             {
                 _keyring.RevokeAccess(datafile, latestRevision.revisionID);                
             }

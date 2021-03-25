@@ -178,7 +178,7 @@ namespace SecureWiki.Views
         {
             var textBox = this.FindControl<TextBox>("TextBoxIp");
             var ip = textBox.Text;
-            manager.SetNewMediaWikiServer(ip);
+            // manager.SetNewMediaWikiServer(ip);
         }
 
         private void ButtonLogin_Click(object? sender, RoutedEventArgs e)
@@ -244,7 +244,7 @@ namespace SecureWiki.Views
             {
                 DataFileEntry dataFile = tb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
                 _viewModel.selectedFile = dataFile;
-                _viewModel.revisions = manager.GetAllRevisions(dataFile.pageName).revisionList;
+                _viewModel.revisions = manager.GetAllRevisions(dataFile.pageName, dataFile.serverLink).revisionList;
                 // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
                 // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
                 // Console.WriteLine(dataFile.filename);

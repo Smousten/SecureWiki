@@ -14,9 +14,9 @@ namespace SecureWiki.MediaWiki
         private readonly MediaWikiObjects _mwo;
 
         public WikiHandler(string username, string password, HttpClient inputClient, Manager manager,
-            string ip = "localhost")
+            string url = "http://localhost/mediawiki/api.php")
         {
-            _mwo = new MediaWikiObjects(inputClient, username, password, ip);
+            _mwo = new MediaWikiObjects(inputClient, username, password, url);
             _manager = manager;
         }
 
@@ -188,7 +188,7 @@ namespace SecureWiki.MediaWiki
 
             if (keyList == null)
             {
-                var revisions = _manager.GetAllRevisions(dataFile.pageName).revisionList;
+                var revisions = GetAllRevisions(dataFile.pageName).revisionList;
                 return GetLatestValidRevision(dataFile, revisions);
             }
 
@@ -207,7 +207,7 @@ namespace SecureWiki.MediaWiki
                 if (!_manager.VerifyData(keyList.publicKey, textBytes, hashBytes))
                 {
                     Console.WriteLine("Verifying failed...");
-                    var revisions = _manager.GetAllRevisions(dataFile.pageName).revisionList;
+                    var revisions = GetAllRevisions(dataFile.pageName).revisionList;
                     return GetLatestValidRevision(dataFile, revisions);
                 }
 
