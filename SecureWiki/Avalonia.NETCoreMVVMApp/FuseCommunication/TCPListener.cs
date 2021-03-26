@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -122,32 +121,47 @@ namespace SecureWiki.FuseCommunication
         {
             if (RealFileName(filename))
             {
+                // Method 1) write to file in rootdir
+                // var decryptedText = _manager.Download(filename) ?? Encoding.ASCII.GetBytes("File error");
+                // byte[] byData = decryptedText;
+                // byte[] msgPath = Encoding.ASCII.GetBytes(filepath);
+                //
+                // filepath = filepath.Trim('\0');
+                // var relativeFilePath = "fuse/directories/rootdir" + filepath;
+                // var currentDir = Directory.GetCurrentDirectory();
+                // var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
+                // var srcDir = Path.Combine(projectDir, relativeFilePath);
+                //
+                // // Do not write bytes to file if last write time was within 10 seconds
+                // if (File.Exists(srcDir))
+                // {
+                //     var lastWriteTime = File.GetLastWriteTime(srcDir);
+                //     var currentTime = DateTime.Now;
+                //     var span = currentTime - lastWriteTime;
+                //     if (span.Seconds < 10)
+                //     {
+                //         _stream?.Write(msgPath);
+                //         return;
+                //     }
+                // }
+                //
+                // Console.WriteLine("writing to file " + srcDir);
+                // File.WriteAllBytes(srcDir, byData);
+                // _stream?.Write(msgPath);
+                
+                // Method 2) use socket to send bytes
                 var decryptedText = _manager.Download(filename) ?? Encoding.ASCII.GetBytes("File error");
                 byte[] byData = decryptedText;
+                byte[] byDataLen = BitConverter.GetBytes(byData.Length);
                 byte[] msgPath = Encoding.ASCII.GetBytes(filepath);
-                
-                filepath = filepath.Trim('\0');
-                var relativeFilePath = "fuse/directories/rootdir" + filepath;
-                var currentDir = Directory.GetCurrentDirectory();
-                var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-                var srcDir = Path.Combine(projectDir, relativeFilePath);
+                byte[] msgPathLen = BitConverter.GetBytes(msgPath.Length);
 
-                // Do not write bytes to file if last write time was within 10 seconds
-                if (File.Exists(srcDir))
-                {
-                    var lastWriteTime = File.GetLastWriteTime(srcDir);
-                    var currentTime = DateTime.Now;
-                    var span = currentTime - lastWriteTime;
-                    if (span.Seconds < 10)
-                    {
-                        _stream?.Write(msgPath);
-                        return;
-                    }
-                }
-
-                Console.WriteLine("writing to file " + srcDir);
-                File.WriteAllBytes(srcDir, byData);
-                _stream?.Write(msgPath);
+                byte[] rv = new byte[msgPathLen.Length + byDataLen.Length + msgPath.Length + byData.Length];
+                Buffer.BlockCopy(msgPathLen, 0, rv, 0, msgPathLen.Length);
+                Buffer.BlockCopy(byDataLen, 0, rv, msgPathLen.Length, byDataLen.Length);
+                Buffer.BlockCopy(msgPath, 0, rv, msgPathLen.Length + byDataLen.Length, msgPath.Length);
+                Buffer.BlockCopy(byData, 0, rv, msgPathLen.Length + byDataLen.Length + msgPath.Length, byData.Length);
+                _stream?.Write(rv);
             }
         }
 

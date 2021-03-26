@@ -476,6 +476,41 @@ int bb_open(const char *path, struct fuse_file_info *fi)
 // can return with anything up to the amount of data requested. nor
 // with the fusexmp code which returns the amount of data also
 // returned by read.
+
+// Method 1) write/read using rootdir file
+// int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
+// {
+//     int retstat = 0;
+
+//     char *trashFile = ".Trash";
+//     char *goutput = "goutputstream";
+
+//     log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
+//             path, buf, size, offset, fi);
+//     // no need to get fpath on this one, since I work from fi->fh not the path
+//     log_fi(fi);
+
+//     if (strstr(path, trashFile) == NULL && strstr(path, goutput) == NULL)
+//     {
+//         char buff[1024];
+//         bzero(buff, sizeof(buff));
+//         strcpy(buff, "read:");
+//         strcat(buff, path);
+//         pthread_mutex_lock(&lock);
+//         write(sockfd, buff, sizeof(buff));
+//         char recv_msg[1024];
+//         int recv_len = recv(sockfd, recv_msg, sizeof(recv_msg), 0);
+//         if (recv_len <= 0) {
+//             log_msg("\n Error \n");
+//         }
+//         bzero(recv_msg, sizeof(recv_msg));
+//         pthread_mutex_unlock(&lock);
+//     }
+
+//     return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
+// }
+
+// Method 2) read/write using socket
 int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
     int retstat = 0;
@@ -496,13 +531,67 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
         strcat(buff, path);
         pthread_mutex_lock(&lock);
         write(sockfd, buff, sizeof(buff));
-        char recv_msg[1024];
-        int recv_len = recv(sockfd, recv_msg, sizeof(recv_msg), 0);
-        if (recv_len <= 0) {
-            log_msg("\n Error \n");
+        char msg[1048576];
+        char *p = msg;
+
+        char text_msg[1048576];
+        char path_msg[1024];
+        int path_len;
+        int text_len;
+        int text_len_received = 0;
+
+        int recv_len;
+        int total_recv_len = 0;
+        bzero(msg, sizeof(msg));
+
+        recv_len = recv(sockfd, p, sizeof(msg), 0);
+        total_recv_len += recv_len;
+        p += recv_len;
+
+        // log_msg("\n msg received: %s\n", msg);
+        log_msg("\n msg received length: %d\n", recv_len);
+        memcpy(&path_len, msg, 4);
+        memcpy(&text_len, msg+4, 4);
+        memcpy(path_msg, msg+8, path_len);
+        memcpy(text_msg, msg+8+path_len, text_len);
+
+        text_len_received += recv_len - path_len - 8;
+
+        log_msg("\n msgPath received: %s", path_msg);
+        log_msg("\n msgPathLen received: %d", path_len);
+        // log_msg("\n msgText received: %s", text_msg);
+        log_msg("\n msgTextLen received: %d", text_len);
+        log_msg("\n expected path: %s, received path: %s", path, path_msg);
+    
+        while (total_recv_len < text_len + path_len + 8) {
+            recv_len = recv(sockfd, p, sizeof(msg), 0);
+            log_msg("\n msg received length: %d\n", recv_len);
+            log_msg("\n total message length received length: %d\n", total_recv_len);
+            p += recv_len;
+
+            log_msg("\n copying to text_msg with offset %d, from buffer msg with offset: %d\n", text_len_received, total_recv_len);
+            memcpy(text_msg + text_len_received, msg + total_recv_len, recv_len);
+            total_recv_len += recv_len;
+            text_len_received += recv_len;
         }
-        bzero(recv_msg, sizeof(recv_msg));
+        log_msg("\n msgTextLen received: %d", text_len);
+        log_msg("\n Actual text len received: %d", text_len_received);
+
         pthread_mutex_unlock(&lock);
+
+        log_msg("\nBefore if: offset = %d\n", offset);
+        log_msg("\nBefore if: size = %d\n", size);
+
+        if (offset + size > text_len) {
+            log_msg("\noffset + size > text_len\n");
+            size = text_len - offset;
+        }
+        log_msg("\n size = %d\n", size);
+        memcpy(buf, text_msg + offset, size);
+        bzero(msg, sizeof(msg));
+
+        log_msg("\n bb_read return: %d\n", size);
+        return size;
     }
 
     return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
