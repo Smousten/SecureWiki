@@ -40,9 +40,11 @@ namespace SecureWiki.Cryptography
             using var aes = Aes.Create();
             aes.Key = key;
             aes.IV = iv;
+            
             // Build encryptor for transforming the ciphertext to plaintext
             using ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
             aes.Padding = PaddingMode.PKCS7;
+            
             return PerformCryptography(cipherText, decryptor);
         }
 
@@ -55,17 +57,17 @@ namespace SecureWiki.Cryptography
 
             return ms.ToArray();
         }
-        
+
+        // Generate asymmetric key pair
         public (byte[] privateKey, byte[] publicKey) GenerateRSAParams()
         {
-            // Generate a key pair.  
             RSA rsa = RSA.Create();
-            // Export the RSA keys and return them  
             var privateKey = rsa.ExportRSAPrivateKey();
             var publicKey = rsa.ExportRSAPublicKey();
             return (privateKey, publicKey);
         }
 
+        // Generate symmetric key and IV
         public (byte[] Key, byte[] IV) GenerateAESParams()
         {
             Aes aes = Aes.Create();

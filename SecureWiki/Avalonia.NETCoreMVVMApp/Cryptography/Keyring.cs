@@ -35,9 +35,6 @@ namespace SecureWiki.Cryptography
         // Returns absolute file path to fuse rootdir as string
         private static string GetRootDirPath()
         {
-            // Python fuse
-            // var filepath = "Pyfuse_mediaWiki/srcTest/";
-            // C fuse
             const string? filePath = "fuse/directories/rootdir/";
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
@@ -48,9 +45,9 @@ namespace SecureWiki.Cryptography
         // Returns absolute file path to keyring jsonfile as string
         public string GetKeyringFilePath()
         {
+            const string? keyringFileName = "Keyring.json";
             var currentDir = Directory.GetCurrentDirectory();
             var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
-            var keyringFileName = "Keyring.json";
             var keyringFilePath = Path.Combine(path, keyringFileName);
             return keyringFilePath;
         }
@@ -349,8 +346,8 @@ namespace SecureWiki.Cryptography
             CreateFileStructureRecursion(rootKeyring, GetRootDirPath());
 
             // Write changes to Keyring.json
-            // var keyringFilePath = GetKeyringFilePath();
-            // SerializeAndWriteFile(keyringFilePath, rootKeyring);
+            var keyringFilePath = GetKeyringFilePath();
+            SerializeAndWriteFile(keyringFilePath, rootKeyring);
         }
 
         private string GetDataFileFilePath(DataFileEntry datafile)

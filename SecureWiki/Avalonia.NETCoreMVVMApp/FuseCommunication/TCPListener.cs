@@ -58,9 +58,6 @@ namespace SecureWiki.FuseCommunication
                 Console.WriteLine("Connected at port:" + _port);
 
                 _stream = client.GetStream();
-
-                // Reset data for each iteration
-
                 int input;
                 while ((input = _stream.Read(bytes, 0, bytes.Length)) != 0)
                 {
@@ -151,7 +148,6 @@ namespace SecureWiki.FuseCommunication
                 Console.WriteLine("writing to file " + srcDir);
                 File.WriteAllBytes(srcDir, byData);
                 _stream?.Write(msgPath);
-                decryptedText = null;
             }
         }
 

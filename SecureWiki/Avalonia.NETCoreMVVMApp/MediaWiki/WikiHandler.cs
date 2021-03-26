@@ -61,6 +61,15 @@ namespace SecureWiki.MediaWiki
         public void Upload(DataFileEntry dataFile, string filepath)
         {
             var srcDir = GetRootDir(filepath);
+            // var lastAccessTime = File.GetLastAccessTime(srcDir);
+            // var currentTime = DateTime.Now;
+            // var span = currentTime - lastAccessTime;
+            // if (span.Seconds < 2)
+            // {
+            //     Console.WriteLine("Tried to upload within 2 seconds of last access");
+            //     return;
+            // }
+            
             var plainText = File.ReadAllBytes(srcDir);
             string pageTitle = dataFile.pageName;
             // Console.WriteLine("Upload plain text: " + plainText);
