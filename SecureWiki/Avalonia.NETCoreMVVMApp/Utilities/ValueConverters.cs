@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 
@@ -67,6 +68,25 @@ namespace SecureWiki.Model
 
             // Console.WriteLine("returning output='{0}'", output);
 
+            return output;
+        }
+    }
+    
+    public class AllStringsAreNotEmptyMultiConverter : IMultiValueConverter
+    {
+        // Check whether all input string are non-empty 
+        public object Convert(IList<object> values, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool output = true;
+
+            foreach (var item in values)
+            {
+                if (item == null || ((string) item).Length < 1)
+                {
+                    output = false;
+                }
+            }
+            
             return output;
         }
     }

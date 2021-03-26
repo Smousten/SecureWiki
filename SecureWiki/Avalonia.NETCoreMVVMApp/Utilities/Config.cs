@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
@@ -32,6 +33,15 @@ namespace SecureWiki.Utilities
                 {
                     ConfigDictionary[serverLink] = new ConfigEntry(username, password);
                 }    
+            }
+        }
+
+        public void RemoveEntry(string serverLink)
+        {
+            if (ConfigDictionary.ContainsKey(serverLink))
+            {
+                Console.WriteLine("removing: " + serverLink);
+                ConfigDictionary.Remove(serverLink);
             }
         }
 

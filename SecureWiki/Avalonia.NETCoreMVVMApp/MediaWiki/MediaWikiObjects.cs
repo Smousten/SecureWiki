@@ -599,7 +599,7 @@ namespace SecureWiki.MediaWiki
             // Console.WriteLine("postHttpToServer: " + httpResponseMessageString);
         }
 
-        public void LoginMediaWiki(string username, string password)
+        public bool LoginMediaWiki(string username, string password)
         {
             // Build request
             string query = "?action=query";
@@ -617,7 +617,7 @@ namespace SecureWiki.MediaWiki
             Console.WriteLine("LoginHttpClient:- LoginToken: " + loginToken);
 
             string action = "?action=clientlogin";
-            if (loginToken == null) return;
+            if (loginToken == null) return false;
             var values = new List<KeyValuePair<string, string>>
             {
                 new("format", "json"),
@@ -633,6 +633,8 @@ namespace SecureWiki.MediaWiki
             MWuserID = username;
             MWuserPassword = password;
             loggedIn = true;
+
+            return true;
         }
 
         public class NotLoggedInException : Exception

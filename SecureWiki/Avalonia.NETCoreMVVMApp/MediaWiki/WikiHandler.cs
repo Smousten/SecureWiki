@@ -12,19 +12,21 @@ namespace SecureWiki.MediaWiki
     {
         private readonly Manager _manager;
         private readonly MediaWikiObjects _mwo;
+        public bool LoggedIn = false;
 
         public WikiHandler(string username, string password, HttpClient inputClient, Manager manager,
             string url = "http://localhost/mediawiki/api.php")
         {
             _mwo = new MediaWikiObjects(inputClient, username, password, url);
             _manager = manager;
+            LoggedIn = _mwo.loggedIn;
         }
 
         public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
         {
             MediaWikiObjects.PageQuery.AllRevisions allRevisions = new(_mwo, pageTitle);
             allRevisions.GetAllRevisions();
-            allRevisions.PrintAllRevisions();
+            // allRevisions.PrintAllRevisions();
             return allRevisions;
         }
 

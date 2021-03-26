@@ -58,9 +58,9 @@ namespace SecureWiki
             InitializeConfigManager();
             InitializeWikiHandlers();
             
-            localhostWikiHandler = new WikiHandler("new_mysql_user",
-                "THISpasswordSHOULDbeCHANGED", httpClient, this, "http://localhost/mediawiki/api.php");
-            wikiHandlers.Add("http://localhost/mediawiki/api.php", localhostWikiHandler);
+            // localhostWikiHandler = new WikiHandler("new_mysql_user",
+            //     "THISpasswordSHOULDbeCHANGED", httpClient, this, "http://localhost/mediawiki/api.php");
+            // wikiHandlers.Add("http://localhost/mediawiki/api.php", localhostWikiHandler);
             
             _keyring = new Keyring(rootKeyring);
             _crypto = new Crypto();
@@ -68,14 +68,13 @@ namespace SecureWiki
 
             _keyring.InitKeyring();
             InitializeCacheManager();
-
+            
             TCPListenerThread = new Thread(tcpListener.RunListener) {IsBackground = true};
             TCPListenerThread.Start();
 
-            // Thread.Sleep(1000);
-            //
-            Thread fuseThread = new(Program.RunFuse);
-            fuseThread.IsBackground = true;
+            Thread.Sleep(1000);
+
+            Thread fuseThread = new(Program.RunFuse) {IsBackground = true};
             fuseThread.Start();
         }
 
@@ -168,15 +167,54 @@ namespace SecureWiki
         {
             var serverCredentials = configManager.GetServerCredentials(url);
 
-            if (serverCredentials?.Username != null && serverCredentials.Password != null)
+            string? savedUsername = null;
+            
+            if (serverCredentials?.Username != null)
             {
-                return new WikiHandler(serverCredentials.Username, serverCredentials.Password, 
-                    new HttpClient(), this, url);
+                if (serverCredentials.Password != null)
+                {
+                    return new WikiHandler(serverCredentials.Username, serverCredentials.Password, 
+                        new HttpClient(), this, url);
+                }
+
+                savedUsername = serverCredentials.Username;
+            }
+
+            const string title = "MediaWiki server login";
+            string content = "Enter credentials for server: " + url;
+            
+            CredentialsPopup.CredentialsResult credentialsResult = 
+                ShowPopupEnterCredentials(title, content, savedUsername);
+
+            if (credentialsResult.ButtonResult == CredentialsPopup.PopupButtonResult.Cancel || 
+                credentialsResult.Username.Equals("") || credentialsResult.Password.Equals(""))
+            {
+                return null;
             }
             
-            // TODO: promt user
+            // Create new wiki handler from input credentials and attempt login to server
+            var wikiHandler = new WikiHandler(credentialsResult.Username, credentialsResult.Password, new HttpClient(),
+                this, url);
 
-            return null;
+            // Return wikihandler if login was successful
+
+            if (!wikiHandler.LoggedIn)
+            {
+                return null;
+            }
+
+            if (credentialsResult.SaveUsername)
+            {
+                configManager.AddEntry(url, credentialsResult.Username, 
+                    credentialsResult.SavePassword ? credentialsResult.Password : null);
+            }
+            else
+            {
+                Console.WriteLine("removing entry");
+                configManager.RemoveEntry(url);
+            }
+
+            return wikiHandler;
         }
 
         public MediaWikiObjects.PageQuery.AllRevisions? GetAllRevisions(string pageTitle, string url)
@@ -226,7 +264,6 @@ namespace SecureWiki
             // Invoke UI thread with highest priority
             var output = Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                Console.WriteLine("This runs on the UI thread.");
                 MessageBox.MessageBoxResult result = MessageBox.MessageBoxResult.No;
                 if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime
                     desktop)
@@ -240,6 +277,30 @@ namespace SecureWiki
 
             return output;
         }
+        
+        public CredentialsPopup.CredentialsResult ShowPopupEnterCredentials(string title, string content, string? savedUsername)
+        {
+            // Invoke UI thread with highest priority
+            var output = Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                CredentialsPopup credentialsPopup = new();
+                CredentialsPopup.CredentialsResult result = new();
+                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime
+                    desktop)
+                {
+                    result = await credentialsPopup.Show(desktop.MainWindow, content, title, savedUsername);
+                }
+
+                return result;
+            }, DispatcherPriority.MaxValue).Result;
+
+            // Console.WriteLine("output: username='{0}', password='{1}', usernameBool='{2}', passwordBool='{3}'", 
+            //     output.Username, output.Password, output.SaveUsername, output.SavePassword);
+
+            return output;
+        }
+        
+        
 
         // public void SetNewMediaWikiServer(string url)
         // {
