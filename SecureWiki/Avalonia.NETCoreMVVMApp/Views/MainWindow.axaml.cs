@@ -56,7 +56,10 @@ namespace SecureWiki.Views
             Console.WriteLine("Cleaning cache and saving to file");
             manager.CleanCache();
             manager.SaveCacheManagerToFile();
+            Console.WriteLine("Saving config manager to file");
             manager.SaveConfigManagerToFile();
+            Console.WriteLine("Saving keyring to file");
+            manager.SaveKeyringToFile();
             
             
             var currentDir = Directory.GetCurrentDirectory();

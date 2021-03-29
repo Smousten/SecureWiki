@@ -378,6 +378,11 @@ namespace SecureWiki
             Console.WriteLine("Manager:- ImportKeyring('{0}')", importPath);
             _keyring.ImportRootKeyring(importPath);
         }
+
+        public void SaveKeyringToFile()
+        {
+            _keyring.SaveRootKeyring();
+        }
         
         public string? AttemptReadFileFromCache(string pageTitle, string revid)
         {
