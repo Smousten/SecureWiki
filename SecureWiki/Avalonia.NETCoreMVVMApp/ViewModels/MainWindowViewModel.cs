@@ -57,11 +57,19 @@ namespace SecureWiki.ViewModels
             set => this.RaiseAndSetIfChanged(ref _selectedFile, value);
         }
 
-        private List<Revision> _revisions;
-        public List<Revision> revisions
+        private ObservableCollection<Revision> _revisions = new();
+        public ObservableCollection<Revision> revisions
         {
             get => _revisions;
-            set => this.RaiseAndSetIfChanged(ref _revisions, value);
+            // set => this.RaiseAndSetIfChanged(ref _revisions, value);
+            set
+            {
+                // Console.WriteLine("setting revisions");
+                _revisions = value;
+                // Console.WriteLine("revisions set");
+                this.RaisePropertyChanged(nameof(revisions));
+                // Console.WriteLine("property raised");
+            }
         }
 
         private Revision _selectedRevision;
@@ -78,6 +86,8 @@ namespace SecureWiki.ViewModels
             rootKeyring = rk;
             rootKeyringCollection = new ObservableCollection<RootKeyring>();
             rootKeyringCollection.Add(rootKeyring);
+
+            revisions = new ObservableCollection<Revision>();
         }
     }
 }

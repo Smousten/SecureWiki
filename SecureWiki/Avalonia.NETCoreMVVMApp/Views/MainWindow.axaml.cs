@@ -85,7 +85,11 @@ namespace SecureWiki.Views
 
         public void Button1_Click(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("nothing happened"); 
+            Console.WriteLine("nothing happened");
+            foreach (var item in _viewModel.revisions)
+            {
+                Console.WriteLine(item.revisionID);
+            }
         }
 
         private void Button2_Click(object? sender, RoutedEventArgs e)
@@ -242,9 +246,19 @@ namespace SecureWiki.Views
             
             if (sender is TextBlock tb)
             {
+                
+
+                
                 DataFileEntry dataFile = tb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
                 _viewModel.selectedFile = dataFile;
-                _viewModel.revisions = manager.GetAllRevisions(dataFile.pageName, dataFile.serverLink).revisionList;
+
+                Thread localThread = new Thread(() =>
+                    manager.UpdateAllRevisionsAsync(dataFile.pageName, dataFile.serverLink, _viewModel.revisions));
+                localThread.Start();
+                
+                // _viewModel.revisions = manager.GetAllRevisions(dataFile.pageName, dataFile.serverLink).revisionList;
+                // manager.UpdateAllRevisionsAsync(dataFile.pageName, dataFile.serverLink, _viewModel.revisions);
+                Console.WriteLine("InputElement_OnPointerPressed: call passed");
                 // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
                 // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
                 // Console.WriteLine(dataFile.filename);

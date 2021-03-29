@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,6 +11,7 @@ using System.Threading;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
+using DynamicData;
 using Newtonsoft.Json;
 using SecureWiki.Cryptography;
 using SecureWiki.FuseCommunication;
@@ -221,6 +223,19 @@ namespace SecureWiki
         {
             var wikiHandler = GetWikiHandler(url);
             return wikiHandler?.GetAllRevisions(pageTitle);
+        }
+        
+        public async void UpdateAllRevisionsAsync(string pageTitle, string url, ObservableCollection<Revision> revisions)
+        {
+            var wikiHandler = GetWikiHandler(url);
+            var allRev =  wikiHandler?.GetAllRevisions(pageTitle);
+
+            revisions.Clear();
+            
+            if (allRev?.revisionList != null)
+            {
+                revisions.AddRange(allRev.revisionList);
+            }
         }
 
         public string? GetPageContent(string pageTitle, string revID, string url)

@@ -129,7 +129,10 @@ namespace SecureWiki.Model
         protected virtual void OnCheckedChanged(EventArgs e)
         {
             EventHandler handler = CheckedChanged;
-            handler(this, e);
+            
+            // Rider incorrectly thinks handler can never be null
+            // ReSharper disable once ConstantConditionalAccessQualifier
+            handler?.Invoke(this, e);
         }
 
         public event EventHandler CheckedChanged = null!;
