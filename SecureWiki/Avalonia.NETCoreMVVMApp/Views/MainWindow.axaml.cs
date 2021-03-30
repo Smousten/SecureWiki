@@ -56,7 +56,10 @@ namespace SecureWiki.Views
             Console.WriteLine("Cleaning cache and saving to file");
             manager.CleanCache();
             manager.SaveCacheManagerToFile();
+            Console.WriteLine("Saving config manager to file");
             manager.SaveConfigManagerToFile();
+            Console.WriteLine("Saving keyring to file");
+            manager.SaveKeyringToFile();
             
             
             var currentDir = Directory.GetCurrentDirectory();
@@ -285,7 +288,11 @@ namespace SecureWiki.Views
         private void Revoke_Click(object? sender, RoutedEventArgs e)
         {
             var datafile = _viewModel.selectedFile;
-            manager.RevokeAccess(datafile);
+            
+            
+            Thread localThread = new Thread(() =>
+                manager.RevokeAccess(datafile));
+            localThread.Start();
             
             var popup = this.FindControl<Popup>("RevokeAccessPopup");
             popup.IsOpen = false;

@@ -68,8 +68,8 @@ namespace SecureWiki.Cryptography
         {
             if (_dict.ContainsKey(pageTitle) == false)
             {
-                Console.WriteLine("GetFilePath:- Dict does not contain key '{0}', printing info", pageTitle);
-                PrintInfo();
+                // Console.WriteLine("GetFilePath:- Dict does not contain key '{0}', printing info", pageTitle);
+                // PrintInfo();
                 return null;
             }
             
@@ -125,7 +125,7 @@ namespace SecureWiki.Cryptography
             // Delete the rest
             foreach (var file in toBeDeleted)
             {
-                File.Delete(file);
+                File.Delete(Path.Combine(_dirpath, file));
             }
         }
 
@@ -134,7 +134,7 @@ namespace SecureWiki.Cryptography
             if (_dict.ContainsKey(pageTitle) == false)
             {
                 Console.WriteLine("GetFilePath:- Dict does not contain key '{0}'", pageTitle);
-                PrintInfo();
+                // PrintInfo();
                 return null;
             }
             

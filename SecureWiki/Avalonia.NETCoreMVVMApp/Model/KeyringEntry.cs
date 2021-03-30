@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using DynamicData;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using ReactiveUI;
@@ -102,6 +103,13 @@ namespace SecureWiki.Model
             RaisePropertyChanged(nameof(keyrings));
             RaisePropertyChanged(nameof(combinedList));
         }
+
+        public void AddRangeKeyring(List<KeyringEntry> keyringEntries)
+        {
+            keyrings.AddRange(keyringEntries);
+            RaisePropertyChanged(nameof(keyrings));
+            RaisePropertyChanged(nameof(combinedList));
+        }
         
         public void RemoveKeyring(KeyringEntry keyringEntry)
         {
@@ -117,6 +125,13 @@ namespace SecureWiki.Model
             RaisePropertyChanged(nameof(combinedList));
         }
         
+        public void AddRangeDataFile(List<DataFileEntry> dataFileEntries)
+        {
+            dataFiles.AddRange(dataFileEntries);
+            RaisePropertyChanged(nameof(dataFileEntries));
+            RaisePropertyChanged(nameof(combinedList));
+        }
+        
         public void RemoveDataFile(DataFileEntry dataFile)
         {
             dataFiles.Remove(dataFile);
@@ -124,6 +139,19 @@ namespace SecureWiki.Model
             RaisePropertyChanged(nameof(combinedList));
         }
 
+        public void ClearKeyrings()
+        {
+            keyrings.Clear();
+            RaisePropertyChanged(nameof(keyrings));
+            RaisePropertyChanged(nameof(combinedList));
+        }
+
+        public void ClearDataFiles() {
+            dataFiles.Clear();
+            RaisePropertyChanged(nameof(dataFiles));
+            RaisePropertyChanged(nameof(combinedList));
+        }
+        
         public event PropertyChangedEventHandler? PropertyChanged;
         public event PropertyChangingEventHandler? PropertyChanging;
         
@@ -470,6 +498,31 @@ namespace SecureWiki.Model
             {
                 RemoveKeyring(ke);
             }
+        }
+
+        public void SortAllRecursively()
+        {
+            SortKeyrings();
+            SortDataFiles();
+
+            foreach (var item in keyrings)
+            {
+                item.SortAllRecursively();
+            }
+        }
+
+        public void SortKeyrings()
+        {
+            var sortedList = keyrings.OrderBy(entry => entry.name).ToList();
+            ClearKeyrings();
+            AddRangeKeyring(sortedList);
+        }
+        
+        public void SortDataFiles()
+        {
+            var sortedList = dataFiles.OrderBy(entry => entry.filename).ToList();
+            ClearDataFiles();
+            AddRangeDataFile(sortedList);
         }
 
         public void PrintInfoRecursively()
