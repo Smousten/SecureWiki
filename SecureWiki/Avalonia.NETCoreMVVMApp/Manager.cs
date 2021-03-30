@@ -38,6 +38,7 @@ namespace SecureWiki
         public CacheManager cacheManager;
         public ConfigManager configManager;
 
+        public Logger logger;
         public RootKeyring rootKeyring;
         public Dictionary<string, string> RequestedRevision = new();
 
@@ -48,11 +49,12 @@ namespace SecureWiki
 
         public PrintTest printTest;
 
-        public Manager(Thread createrThread, RootKeyring rk)
+        public Manager(Thread createrThread, RootKeyring rk, Logger logger)
         {
             GUIThread = createrThread;
             printTest = PrintTestMethod;
             rootKeyring = rk;
+            this.logger = logger;
         }
 
         public void Run()
@@ -240,6 +242,7 @@ namespace SecureWiki
 
         public string? GetPageContent(string pageTitle, string revID, string url)
         {
+            logger.Add(pageTitle, revID);
             var wikiHandler = GetWikiHandler(url);
             return wikiHandler?.GetPageContent(pageTitle, revID);
         }

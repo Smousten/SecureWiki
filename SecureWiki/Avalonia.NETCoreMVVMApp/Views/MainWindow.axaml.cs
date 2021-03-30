@@ -25,14 +25,17 @@ namespace SecureWiki.Views
         private RootKeyring _rootKeyring = new();
         private Manager manager;
         public MainWindowViewModel _viewModel;
+        public Logger logger = new Logger();
+        private bool autoscrollLogger = true;
         
         public MainWindow()
         {
-            _viewModel = new(_rootKeyring);
+            _viewModel = new(_rootKeyring, logger);
             DataContext = _viewModel;
             InitializeComponent();
+
             
-            manager = new(Thread.CurrentThread, _rootKeyring);
+            manager = new(Thread.CurrentThread, _rootKeyring, logger);
             Thread managerThread = new(manager.Run) {IsBackground = true, Name = "ManagerThread"};
             managerThread.Start();
 
@@ -82,17 +85,18 @@ namespace SecureWiki.Views
 
             // Expand root node in TreeView
             TreeView TV = this.FindControl<TreeView>("TreeView1");
-            TreeViewItem root = (TreeViewItem) TV.GetLogicalChildren().First(c => c.GetType() == typeof(TreeViewItem));
-            root.IsExpanded = true;
+            if (TV.GetLogicalChildren().Any())
+            {
+                var first = TV.GetLogicalChildren().First(c => c.GetType() == typeof(TreeViewItem));
+                TreeViewItem root = (TreeViewItem) first;
+                root.IsExpanded = true;    
+            }
         }
 
         public void Button1_Click(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("nothing happened");
-            foreach (var item in _viewModel.revisions)
-            {
-                Console.WriteLine(item.revisionID);
-            }
+            logger.Add("loka", "connetent");
         }
 
         private void Button2_Click(object? sender, RoutedEventArgs e)
@@ -274,7 +278,7 @@ namespace SecureWiki.Views
             var tag = (string)((Button) sender!).Tag;
             var popup = this.FindControl<Popup>(tag);
             popup.IsOpen = false;
-            _viewModel.IsAccessRevocationPopupOpen = false;
+            _viewModel.isAccessRevocationPopupOpen = false;
         }
 
         private void ShowButtonPopup_Click(object? sender, RoutedEventArgs e)
@@ -282,7 +286,7 @@ namespace SecureWiki.Views
             var tag = (string)((Button) sender!).Tag;
             var popup = this.FindControl<Popup>(tag);
             popup.IsOpen = true;
-            _viewModel.IsAccessRevocationPopupOpen = true;
+            _viewModel.isAccessRevocationPopupOpen = true;
         }
 
         private void Revoke_Click(object? sender, RoutedEventArgs e)
@@ -296,7 +300,7 @@ namespace SecureWiki.Views
             
             var popup = this.FindControl<Popup>("RevokeAccessPopup");
             popup.IsOpen = false;
-            _viewModel.IsAccessRevocationPopupOpen = false;
+            _viewModel.isAccessRevocationPopupOpen = false;
         }
         
         private void CacheSettingButton_Click(object? sender, RoutedEventArgs e)
@@ -349,6 +353,23 @@ namespace SecureWiki.Views
             if (button != null)
             {
                 button.Background = Brushes.LightSteelBlue;
+            }
+        }
+
+        private void ScrollViewerItemsRepeaterLog_OnScrollChanged(object? sender, ScrollChangedEventArgs e)
+        {
+            var scrollViewer = (ScrollViewer) sender!;
+
+            // If entries have not been updated
+            if (e.ExtentDelta.Y == 0)
+            {
+                autoscrollLogger = Math.Abs(scrollViewer.Extent.Height - scrollViewer.Bounds.Height - scrollViewer.Offset.Y) < 5;
+            }
+            
+            // If autoscroll is on and entries have been updated
+            if (autoscrollLogger && e.ExtentDelta.Y != 0)
+            {   
+                scrollViewer.ScrollToEnd();
             }
         }
     }

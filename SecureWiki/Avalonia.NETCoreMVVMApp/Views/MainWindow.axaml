@@ -2,8 +2,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewModels="clr-namespace:SecureWiki.ViewModels"
+        xmlns:ViewModels="clr-namespace:SecureWiki.ViewModels"
         xmlns:Models="clr-namespace:SecureWiki.Model"
+        xmlns:Utilities="clr-namespace:SecureWiki.Utilities"
         xmlns:secureWiki="clr-namespace:SecureWiki"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="SecureWiki.Views.MainWindow"
@@ -11,10 +12,36 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="Please find a better name"
         Padding="10">
+    <!--
+    <Window.DataContext>
+        <ViewModels:MainWindowViewModel/>
+    </Window.DataContext>
+    -->
     <Window.Resources>
         <Models:FillerTextBlockWidthConverterMulti x:Key="WidthConverterMulti" />
         <Models:TreeViewItemColourConverter x:Key="TreeViewItemColourConverter" />
+        <DataTemplate x:Key="LoggerEntryTemplate" DataType="Utilities:LoggerEntry">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Path=timestamp}" Margin="5,0,0,0">
+                    
+                </TextBlock>
+                <!--
+                <TextBlock Grid.Column="1" Text="{Binding Path=location}" Margin="10,0,0,0">
+                </TextBlock>
+                -->
+                <TextBlock Grid.Column="2" Text="{Binding Path=content}" Margin="10,0,5, 0" TextWrapping="Wrap">
+                    
+                </TextBlock>
+            </Grid>
+        </DataTemplate>
     </Window.Resources>
+    
+
 
 
     <Grid>
@@ -63,9 +90,15 @@
 
         </StackPanel>
 
-
-        <!--TreeView-->
-        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+        <!--Middle panel-->
+        <Grid Grid.Column="1" Name="GridMiddlePanel">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            
+            <!--TreeView-->
+            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                       Name="ScrollViewerTreeView">
             <StackPanel Orientation="Vertical">
                 <TreeView Items="{Binding rootKeyringCollection, Mode=TwoWay}" Name="TreeView1">
@@ -139,6 +172,20 @@
             </StackPanel>
         </ScrollViewer>
 
+            <Border Grid.Row="1" BorderThickness="3" BorderBrush="Black" Name="BorderLogger">
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" ScrollChanged="ScrollViewerItemsRepeaterLog_OnScrollChanged"
+                              Name="ScrollViewerItemsRepeaterLog" Width="{Binding Bounds.Width, ElementName=BorderLogger}">
+                    <ItemsRepeater Grid.Row="1" Name="ItemsRepeaterLog" DataContext="{Binding logger}" Items="{Binding Entries}" ItemTemplate="{StaticResource LoggerEntryTemplate}">
+
+                    </ItemsRepeater>                    
+                </ScrollViewer>
+            </Border>
+            
+            
+        </Grid>
+        
+        
+        
         <!--Right side panel-->
         <DockPanel Grid.Column="2">
             <ContentControl Content="{Binding selectedFile, Mode=TwoWay}" Width="300" DockPanel.Dock="Top"
@@ -168,7 +215,7 @@
 
             <!--Revoke access popup-->
             <Popup Name="RevokeAccessPopup" PlacementTarget="RevokeAccessButton">
-                <Border IsVisible="{Binding IsAccessRevocationPopupOpen}" BorderBrush="Black" BorderThickness="1,1,1,1">
+                <Border IsVisible="{Binding isAccessRevocationPopupOpen}" BorderBrush="Black" BorderThickness="1,1,1,1">
                     <Grid>
                         <TextBlock Name="AccessRevocationText" Background="White"
                                    Text="Are you that you want to revoke access to the file?&#x0a; This action cannot be undone."

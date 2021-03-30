@@ -2,8 +2,8 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
 using SecureWiki.Model;
+using SecureWiki.Utilities;
 
 namespace SecureWiki.Cryptography
 {
@@ -21,20 +21,17 @@ namespace SecureWiki.Cryptography
         public void InitKeyring()
         {
             var filepath = GetKeyringFilePath();
-            // Check if file does not exist
-            if (!File.Exists(filepath))
-            {
-                CreateNewKeyRing();
-            }
-            else
+            
+            // Check if Keyring.json exists
+            if (File.Exists(filepath))
             {
                 // Read Keyring.json into rootKeyring
                 ReadIntoKeyring(rootKeyring);
                 rootKeyring.SortAllRecursively();
                 UpdateKeyringParentPropertyRecursively(rootKeyring);
-
-                CreateFileStructureRecursion(rootKeyring, GetRootDirPath());
             }
+
+            CreateFileStructureRecursion(rootKeyring, GetRootDirPath());
         }
 
         // Returns absolute file path to fuse rootdir as string
@@ -60,14 +57,8 @@ namespace SecureWiki.Cryptography
         // Returns root keyring as deserialized json object
         private RootKeyring GetRootKeyring(string keyringFilePath)
         {
-            var jsonData = File.ReadAllText(keyringFilePath);
-            Console.WriteLine("GetRootKeyring:- File.ReadAllText('{0}')", keyringFilePath);
-            // Console.WriteLine(jsonData);
-            // var existingKeyRing = JsonSerializer.Deserialize<KeyringEntry>(jsonData)
-            //                       ?? new KeyringEntry();
-            var existingKeyRing = JsonConvert.DeserializeObject<RootKeyring>(jsonData)
-                                  ?? new RootKeyring();
-            Console.WriteLine("Deserialize passed");
+            RootKeyring existingKeyRing = (RootKeyring) JSONSerialization.ReadFileAndDeserialize(
+                keyringFilePath, typeof(RootKeyring));
             return existingKeyRing;
         }
 
@@ -97,12 +88,6 @@ namespace SecureWiki.Cryptography
                 Directory.CreateDirectory(Path.Combine(path, childKeyRing.name));
                 CreateFileStructureRecursion(childKeyRing, Path.Combine(path, childKeyRing.name));
             }
-        }
-
-        // Create new keyring.json file with keyring object
-        private void CreateNewKeyRing()
-        {
-            SerializeAndWriteFile(GetKeyringFilePath(), rootKeyring);
         }
 
         // Returns the keyringEntry where the new keyring/datafile should be inserted

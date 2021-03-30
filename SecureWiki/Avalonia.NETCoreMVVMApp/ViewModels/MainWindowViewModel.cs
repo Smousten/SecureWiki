@@ -4,10 +4,13 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using Avalonia.Collections;
+using JetBrains.Annotations;
 using ReactiveUI;
 using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
 using SecureWiki.Model;
+using SecureWiki.Utilities;
 using SecureWiki.Views;
 
 namespace SecureWiki.ViewModels
@@ -29,6 +32,25 @@ namespace SecureWiki.ViewModels
             }
                 
         }
+        
+        private ObservableCollection<Logger> _loggerCollection;
+        public ObservableCollection<Logger> loggerCollection 
+        {
+            get
+            {
+                return _loggerCollection;  
+            }
+            set
+            {
+                _loggerCollection = value;
+                this.RaisePropertyChanged(nameof(loggerCollection));
+                Console.WriteLine("loggerCollection set");
+            }
+        }
+        
+        
+        
+        
         public string IP { get; set; } = "127.0.0.1";
 
         private string _Username;
@@ -49,7 +71,16 @@ namespace SecureWiki.ViewModels
         public object MailRecipient { get; set; }
 
         public RootKeyring rootKeyring;
+        private Logger _logger;
         
+        public Logger logger
+        {
+            get => _logger;
+            set => this.RaiseAndSetIfChanged(ref _logger, value);
+        }
+
+        public ObservableCollection<LoggerEntry> LoggerEntries;
+
         private DataFileEntry _selectedFile;
         public DataFileEntry selectedFile
         {
@@ -79,15 +110,26 @@ namespace SecureWiki.ViewModels
             set => this.RaiseAndSetIfChanged(ref _selectedRevision, value);
         }
 
-        public bool IsAccessRevocationPopupOpen = false;
+        public bool isAccessRevocationPopupOpen { get; set; } = false;
 
-        public MainWindowViewModel(RootKeyring rk)
+        public MainWindowViewModel(RootKeyring rk, Logger logger)
         {
             rootKeyring = rk;
             rootKeyringCollection = new ObservableCollection<RootKeyring>();
             rootKeyringCollection.Add(rootKeyring);
 
+            this.logger = logger;
+            loggerCollection = new ObservableCollection<Logger>();
+            loggerCollection.Add(this.logger);
+
             revisions = new ObservableCollection<Revision>();
+        }
+
+        public MainWindowViewModel()
+        {
+            rootKeyringCollection = new ObservableCollection<RootKeyring>();
+            revisions = new ObservableCollection<Revision>();
+
         }
     }
 }
