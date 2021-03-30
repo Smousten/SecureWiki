@@ -466,12 +466,12 @@ namespace SecureWiki
             return _keyring.GetDataFile(filename, keyring);
         }
         
-        public byte[] Encrypt(byte[] plainText, byte[] symmKey, byte[] iv)
+        public byte[]? Encrypt(byte[] plainText, byte[] symmKey, byte[] iv)
         {
             return _crypto.Encrypt(plainText, symmKey, iv);
         }
 
-        public byte[] Decrypt(byte[] pageContentBytes, byte[] symmKey, byte[] iv)
+        public byte[]? Decrypt(byte[] pageContentBytes, byte[] symmKey, byte[] iv)
         {
             return _crypto.Decrypt(pageContentBytes, symmKey, iv);
         }

@@ -12,7 +12,7 @@ namespace SecureWiki.MediaWiki
     {
         private readonly Manager _manager;
         private readonly MediaWikiObjects _mwo;
-        public bool LoggedIn = false;
+        public bool LoggedIn;
 
         public WikiHandler(string username, string password, HttpClient inputClient, Manager manager,
             string url = "http://localhost/mediawiki/api.php")
@@ -109,6 +109,12 @@ namespace SecureWiki.MediaWiki
 
                 var encryptedBytes = _manager.Encrypt(
                     rv, keyList.symmKey, keyList.iv);
+                if (encryptedBytes == null)
+                {
+                    Console.WriteLine("Failed encryption");
+                    return;
+                }
+                
                 var encryptedText = Convert.ToBase64String(encryptedBytes);
 
                 // Upload encrypted content
@@ -159,8 +165,15 @@ namespace SecureWiki.MediaWiki
                     new(_mwo, dataFile.pageName, revid);
                 var pageContent = getPageContent.GetContent();
 
-                var (textBytes, hashBytes) = DecryptPageContent(pageContent, key);
+                var decryptedBytes = DecryptPageContent(pageContent, key);
+                if (decryptedBytes == null)
+                {
+                    continue;
+                }
 
+                var textBytes = decryptedBytes.Value.textBytes;
+                var hashBytes = decryptedBytes.Value.hashBytes;
+                
                 if (_manager.VerifyData(key.publicKey, textBytes, hashBytes))
                 {
                     return textBytes;
@@ -213,8 +226,15 @@ namespace SecureWiki.MediaWiki
 
             try
             {
-                var (textBytes, hashBytes) = DecryptPageContent(pageContent, keyList);
+                var decryptedBytes= DecryptPageContent(pageContent, keyList);
+                if (decryptedBytes == null)
+                {
+                    var revisions = GetAllRevisions(dataFile.pageName).revisionList;
+                    return GetLatestValidRevision(dataFile, revisions);
+                }
 
+                var textBytes = decryptedBytes.Value.textBytes;
+                var hashBytes = decryptedBytes.Value.hashBytes;
                 if (!_manager.VerifyData(keyList.publicKey, textBytes, hashBytes))
                 {
                     Console.WriteLine("Verifying failed...");
@@ -239,14 +259,20 @@ namespace SecureWiki.MediaWiki
             }
         }
 
-        private (byte[] textBytes, byte[] hashBytes) DecryptPageContent(string pageContent, DataFileKey keyList)
+        private (byte[] textBytes, byte[] hashBytes)? DecryptPageContent(string pageContent, DataFileKey keyList)
         {
             var pageContentBytes = Convert.FromBase64String(pageContent);
-            var decryptedTextBytes = _manager.Decrypt(pageContentBytes,
+            var decryptedBytes = _manager.Decrypt(pageContentBytes,
                 keyList.symmKey, keyList.iv);
 
-            var textBytes = decryptedTextBytes.Take(decryptedTextBytes.Length - 256).ToArray();
-            var hashBytes = decryptedTextBytes.Skip(decryptedTextBytes.Length - 256).ToArray();
+            if (decryptedBytes == null)
+            {
+                Console.WriteLine("Decryption failed");
+                return null;
+            }
+
+            var textBytes = decryptedBytes.Take(decryptedBytes.Length - 256).ToArray();
+            var hashBytes = decryptedBytes.Skip(decryptedBytes.Length - 256).ToArray();
             return (textBytes, hashBytes);
         }
     }

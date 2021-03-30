@@ -2,7 +2,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using SecureWiki.Model;
 
@@ -151,9 +150,6 @@ namespace SecureWiki.Cryptography
         // Add new data file to existing keyring json file
         public void AddNewKeyRing(string filename, string filepath)
         {
-            var keyringFilePath = GetKeyringFilePath();
-            // var existingKeyRing = GetRootKeyring(keyringFilePath);
-
             KeyringEntry newKeyringEntry = new()
             {
                 name = filename,
@@ -198,9 +194,6 @@ namespace SecureWiki.Cryptography
         // Rename or change location of datafile/keyring in root keyringEntry 
         public void Rename(string oldPath, string newPath)
         {
-            var keyringFilePath = GetKeyringFilePath();
-
-            // var rootKeyring = GetRootKeyring(keyringFilePath);
             var oldKeyring = FindKeyringPath(rootKeyring, oldPath);
             var newKeyring = FindKeyringPath(rootKeyring, newPath);
 
@@ -265,9 +258,6 @@ namespace SecureWiki.Cryptography
 
         public void RemoveFile(string filePath, string filename)
         {
-            var keyringFilePath = GetKeyringFilePath();
-            // var existingKeyRing = GetRootKeyring(keyringFilePath);
-
             // Find the keyring where the data file is located
             var foundKeyring = FindKeyringPath(rootKeyring, filePath);
 

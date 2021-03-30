@@ -6,7 +6,7 @@ namespace SecureWiki.Cryptography
 {
     public class Crypto
     {
-        public byte[] Encrypt(byte[] plainText, byte[] key, byte[] iv)
+        public byte[]? Encrypt(byte[] plainText, byte[] key, byte[] iv)
         {
             // Ensure argument validity
             if (plainText == null || plainText.Length <= 0)
@@ -27,7 +27,7 @@ namespace SecureWiki.Cryptography
             return PerformCryptography(plainText, encryptor);
         }
 
-        public byte[] Decrypt(byte[] cipherText, byte[] key, byte[] iv)
+        public byte[]? Decrypt(byte[] cipherText, byte[] key, byte[] iv)
         {
             // Ensure argument validity
             if (cipherText == null || cipherText.Length <= 0)
@@ -48,13 +48,19 @@ namespace SecureWiki.Cryptography
             return PerformCryptography(cipherText, decryptor);
         }
 
-        private byte[] PerformCryptography(byte[] data, ICryptoTransform cryptoTransform)
+        private byte[]? PerformCryptography(byte[] data, ICryptoTransform cryptoTransform)
         {
             using var ms = new MemoryStream();
             using var cryptoStream = new CryptoStream(ms, cryptoTransform, CryptoStreamMode.Write);
-            cryptoStream.Write(data, 0, data.Length);
-            cryptoStream.FlushFinalBlock();
-
+            try
+            {
+                cryptoStream.Write(data, 0, data.Length);
+                cryptoStream.FlushFinalBlock();
+            } catch (CryptographicException e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
+            }
             return ms.ToArray();
         }
 
