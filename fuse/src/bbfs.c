@@ -533,24 +533,24 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
         write(sockfd, buff, sizeof(buff));
 
         // Allocate memory for msg response from C# 
-        // char *msg = (char*) malloc(209715200);
-        char msg[1048576];
+        char *msg = (char*) malloc(209715200);
+        // char msg[1048576];
 
         // Pointer to head of buffer
         char *p = msg;
 
         // Allocate memory to store fields - [path_len, path, text_len, text]
-        // char *text_msg = (char*) malloc(209715200);
-        char text_msg[1048576];
+        char *text_msg = (char*) malloc(209715200);
+        // char text_msg[1048576];
         char path_msg[1024];
         int path_len;
         int text_len;
 
-        bzero(msg, sizeof(msg));
-        bzero(text_msg, sizeof(text_msg));
+        // bzero(msg, sizeof(msg));
+        // bzero(text_msg, sizeof(text_msg));
 
-        // int recv_len = recv(sockfd, p, 2^16, 0);
-        int recv_len = recv(sockfd, p, sizeof(msg), 0);
+        int recv_len = recv(sockfd, p, 65535, 0);
+        // int recv_len = recv(sockfd, p, sizeof(msg), 0);
         int total_recv_len = recv_len;
         p += recv_len;
         
@@ -572,8 +572,8 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
     
         // Check if whole message was received in one packet, otherwise continue to receive
         while (total_recv_len < text_len + path_len + 8) {
-            // recv_len = recv(sockfd, p, 2^16, 0);
-            recv_len = recv(sockfd, p, sizeof(msg), 0);
+            recv_len = recv(sockfd, p, 65535, 0);
+            // recv_len = recv(sockfd, p, sizeof(msg), 0);
 
             log_msg("\n msg received length: %d\n", recv_len);
             log_msg("\n total message length received length: %d\n", total_recv_len);
@@ -591,21 +591,21 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
             text_len_received += recv_len;
         }
 
-        log_msg("\n msgTextLen received: %d", text_len);
-        log_msg("\n Actual text len received: %d", text_len_received);
+        // log_msg("\n msgTextLen received: %d", text_len);
+        // log_msg("\n Actual text len received: %d", text_len_received);
         
         pthread_mutex_unlock(&lock);
 
         if (offset + size > text_len) {
             size = text_len - offset;
         }
-        memcpy(buf, text_msg + offset, size);
 
-        bzero(msg, sizeof(msg));
-        bzero(text_msg, sizeof(text_msg));
+        memcpy(buf, text_msg + offset, size);
+        // bzero(msg, sizeof(msg));
+        // bzero(text_msg, sizeof(text_msg));
         // free(p);
-        // free(text_msg);
-        // free(msg);
+        free(text_msg);
+        free(msg);
 
         return size;
     }
