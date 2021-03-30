@@ -12,7 +12,8 @@ namespace SecureWiki.MediaWiki
     {
         private readonly Manager _manager;
         private readonly MediaWikiObjects _mwo;
-        public bool LoggedIn;
+        
+        public readonly bool LoggedIn;
 
         public WikiHandler(string username, string password, HttpClient inputClient, Manager manager,
             string url = "http://localhost/mediawiki/api.php")
@@ -22,11 +23,20 @@ namespace SecureWiki.MediaWiki
             LoggedIn = _mwo.loggedIn;
         }
 
+        // Return absolute path to fuse root directory
+        private static string GetRootDir(string relativeFilepath)
+        {
+            var filepath = "fuse/directories/rootdir/" + relativeFilepath;
+            var currentDir = Directory.GetCurrentDirectory();
+            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
+            var srcDir = Path.Combine(projectDir, filepath);
+            return srcDir;
+        }
+
         public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
         {
             MediaWikiObjects.PageQuery.AllRevisions allRevisions = new(_mwo, pageTitle);
             allRevisions.GetAllRevisions();
-            // allRevisions.PrintAllRevisions();
             return allRevisions;
         }
 
@@ -61,87 +71,57 @@ namespace SecureWiki.MediaWiki
         public void Upload(DataFileEntry dataFile, string filepath)
         {
             var srcDir = GetRootDir(filepath);
-            // var lastAccessTime = File.GetLastAccessTime(srcDir);
-            // var currentTime = DateTime.Now;
-            // var span = currentTime - lastAccessTime;
-            // if (span.Seconds < 2)
-            // {
-            //     Console.WriteLine("Tried to upload within 2 seconds of last access");
-            //     return;
-            // }
-            
             var plainText = File.ReadAllBytes(srcDir);
             string pageTitle = dataFile.pageName;
-            // Console.WriteLine("Upload plain text: " + plainText);
 
-            if (plainText.Length > 0)
+            if (plainText.Length <= 0) return;
+
+            var latestRevID = _manager.cacheManager.GetLatestRevisionID(pageTitle);
+            var rev = GetLatestRevision(dataFile);
+
+            if (rev.revisionID != null && !rev.revisionID.Equals(latestRevID))
             {
-                var latestRevID = _manager.cacheManager.GetLatestRevisionID(pageTitle);
-                var rev = GetLatestRevision(dataFile);
+                // TODO: MessageBox content
 
-                if (rev.revisionID != null && !rev.revisionID.Equals(latestRevID))
+                string warningString = "This is not the newest revision available, " +
+                                       "sure you wanna do this, mate?" +
+                                       "\nUploaded: " + rev.timestamp +
+                                       "\nBy user: " + rev.user +
+                                       "\nContent size: " + rev.size;
+
+                var msgBoxOutput = _manager.ShowMessageBox("Warning!", warningString);
+
+                if (msgBoxOutput == MessageBox.MessageBoxResult.Cancel)
                 {
-                    // TODO: MessageBox content
-
-                    string warningString = "This is not the newest revision available, " +
-                                           "sure you wanna do this, mate?" +
-                                           "\nUploaded: " + rev.timestamp +
-                                           "\nBy user: " + rev.user +
-                                           "\nContent size: " + rev.size;
-
-                    var msgBoxOutput = _manager.ShowMessageBox("Warning!", warningString);
-
-                    if (msgBoxOutput == MessageBox.MessageBoxResult.Cancel)
-                    {
-                        Console.WriteLine("Upload cancelled");
-                        return;
-                    }
-                }
-
-                // Sign plaintext
-                var keyList = dataFile.keyList.Last();
-
-                var hash = _manager.SignData(keyList.privateKey!, plainText);
-
-                byte[] rv = new byte[plainText.Length + hash.Length];
-                Buffer.BlockCopy(plainText, 0, rv, 0, plainText.Length);
-                Buffer.BlockCopy(hash, 0, rv, plainText.Length, hash.Length);
-
-                var encryptedBytes = _manager.Encrypt(
-                    rv, keyList.symmKey, keyList.iv);
-                if (encryptedBytes == null)
-                {
-                    Console.WriteLine("Failed encryption");
+                    Console.WriteLine("Upload cancelled");
                     return;
                 }
-                
-                var encryptedText = Convert.ToBase64String(encryptedBytes);
+            }
 
-                // Upload encrypted content
-                MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
-                    dataFile.pageName);
-                uploadNewRevision.UploadContent(encryptedText);
+            // Find latest key in data file key list
+            var key = dataFile.keyList.Last();
 
-                // Get revision ID of the revision that was just uploaded and update DataFileEntry revision start
-                // information for key if not set  
-                rev = GetLatestRevision(dataFile);
-                if (keyList.revisionStart.Equals("-1") && rev.revisionID != null)
-                {
-                    dataFile.keyList.Last().revisionStart = rev.revisionID;
-                }
+            // Sign hash value of plain text
+            var signature = _manager.SignData(key.privateKey!, plainText);
+
+            // Encrypt text and signature using key from key list
+            var encryptedContent = EncryptTextAndSignature(plainText, signature, key);
+            if (encryptedContent == null) return;
+
+            // Upload encrypted content
+            MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
+                dataFile.pageName);
+            uploadNewRevision.UploadContent(encryptedContent);
+
+            // Get revision ID of the revision that was just uploaded and update DataFileEntry revision start
+            // information for key if not set  
+            rev = GetLatestRevision(dataFile);
+            if (key.revisionStart.Equals("-1") && rev.revisionID != null)
+            {
+                dataFile.keyList.Last().revisionStart = rev.revisionID;
             }
         }
-
-        // Return absolute path to fuse root directory
-        private static string GetRootDir(string relativeFilepath)
-        {
-            var filepath = "fuse/directories/rootdir/" + relativeFilepath;
-            var currentDir = Directory.GetCurrentDirectory();
-            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-            var srcDir = Path.Combine(projectDir, filepath);
-            return srcDir;
-        }
-
+        
         // Get latest valid revision of wiki page
         public byte[]? GetLatestValidRevision(DataFileEntry dataFile, List<Revision> revisions)
         {
@@ -166,15 +146,17 @@ namespace SecureWiki.MediaWiki
                 var pageContent = getPageContent.GetContent();
 
                 var decryptedBytes = DecryptPageContent(pageContent, key);
+                
+                // If decryption fails, continue
                 if (decryptedBytes == null)
                 {
                     continue;
                 }
 
                 var textBytes = decryptedBytes.Value.textBytes;
-                var hashBytes = decryptedBytes.Value.hashBytes;
-                
-                if (_manager.VerifyData(key.publicKey, textBytes, hashBytes))
+                var signBytes = decryptedBytes.Value.signBytes;
+
+                if (_manager.VerifyData(key.publicKey, textBytes, signBytes))
                 {
                     return textBytes;
                 }
@@ -200,17 +182,19 @@ namespace SecureWiki.MediaWiki
                 return Convert.FromBase64String(cacheResult);
             }
 
-            DataFileKey? keyList = null;
+            DataFileKey? key = null;
+            // Find key in data file key list with correct start revision ID and end revision ID
             for (var i = 0; i < dataFile.keyList.Count; i++)
             {
                 if (dataFile.IsValidRevisionID(revid, i))
                 {
-                    keyList = dataFile.keyList[i];
+                    key = dataFile.keyList[i];
                     break;
                 }
             }
 
-            if (keyList == null)
+            // If key == null, then return null?? 
+            if (key == null)
             {
                 var revisions = GetAllRevisions(dataFile.pageName).revisionList;
                 return GetLatestValidRevision(dataFile, revisions);
@@ -226,7 +210,7 @@ namespace SecureWiki.MediaWiki
 
             try
             {
-                var decryptedBytes= DecryptPageContent(pageContent, keyList);
+                var decryptedBytes = DecryptPageContent(pageContent, key);
                 if (decryptedBytes == null)
                 {
                     var revisions = GetAllRevisions(dataFile.pageName).revisionList;
@@ -234,8 +218,8 @@ namespace SecureWiki.MediaWiki
                 }
 
                 var textBytes = decryptedBytes.Value.textBytes;
-                var hashBytes = decryptedBytes.Value.hashBytes;
-                if (!_manager.VerifyData(keyList.publicKey, textBytes, hashBytes))
+                var signBytes = decryptedBytes.Value.signBytes;
+                if (!_manager.VerifyData(key.publicKey, textBytes, signBytes))
                 {
                     Console.WriteLine("Verifying failed...");
                     var revisions = GetAllRevisions(dataFile.pageName).revisionList;
@@ -259,7 +243,25 @@ namespace SecureWiki.MediaWiki
             }
         }
 
-        private (byte[] textBytes, byte[] hashBytes)? DecryptPageContent(string pageContent, DataFileKey keyList)
+        private string? EncryptTextAndSignature(byte[] plainText, byte[] signature, DataFileKey keyList)
+        {
+            byte[] rv = new byte[plainText.Length + signature.Length];
+            Buffer.BlockCopy(plainText, 0, rv, 0, plainText.Length);
+            Buffer.BlockCopy(signature, 0, rv, plainText.Length, signature.Length);
+
+            var encryptedBytes = _manager.Encrypt(
+                rv, keyList.symmKey, keyList.iv);
+            if (encryptedBytes == null)
+            {
+                Console.WriteLine("Failed encryption");
+                return null;
+            }
+
+            var encryptedText = Convert.ToBase64String(encryptedBytes);
+            return encryptedText;
+        }
+
+        private (byte[] textBytes, byte[] signBytes)? DecryptPageContent(string pageContent, DataFileKey keyList)
         {
             var pageContentBytes = Convert.FromBase64String(pageContent);
             var decryptedBytes = _manager.Decrypt(pageContentBytes,
@@ -272,8 +274,8 @@ namespace SecureWiki.MediaWiki
             }
 
             var textBytes = decryptedBytes.Take(decryptedBytes.Length - 256).ToArray();
-            var hashBytes = decryptedBytes.Skip(decryptedBytes.Length - 256).ToArray();
-            return (textBytes, hashBytes);
+            var signBytes = decryptedBytes.Skip(decryptedBytes.Length - 256).ToArray();
+            return (textBytes, signBytes);
         }
     }
 }
