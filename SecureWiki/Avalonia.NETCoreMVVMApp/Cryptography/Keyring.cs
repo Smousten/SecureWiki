@@ -100,15 +100,10 @@ namespace SecureWiki.Cryptography
             }
         }
 
-        // Create new keyring.json file with empty keyring object
+        // Create new keyring.json file with keyring object
         private void CreateNewKeyRing()
         {
-            rootKeyring = new RootKeyring
-            {
-                name = "Root",
-                dataFiles = new ObservableCollection<DataFileEntry>(),
-                keyrings = new ObservableCollection<KeyringEntry>()
-            };
+            SerializeAndWriteFile(GetKeyringFilePath(), rootKeyring);
         }
 
         // Returns the keyringEntry where the new keyring/datafile should be inserted
@@ -405,23 +400,17 @@ namespace SecureWiki.Cryptography
 
         public void RevokeAccess(DataFileEntry datafile, string latestRevisionID)
         {
-            var keyringFilePath = GetKeyringFilePath();
-            var existingKeyRing = GetRootKeyring(keyringFilePath);
             var datafilePath = GetDataFileFilePath(datafile);
 
             // Find the keyring where the data file is located
-            var foundKeyring = FindKeyringPath(existingKeyRing, datafilePath);
+            var foundKeyring = FindKeyringPath(rootKeyring, datafilePath);
 
             var dataFileEntry = foundKeyring.dataFiles.First(e => e.pageName.Equals(datafile.pageName));
             dataFileEntry.keyList.Last().revisionStart = datafile.keyList.Last().revisionStart;
             dataFileEntry.keyList.Last().revisionEnd = latestRevisionID;
-
-            dataFileEntry.keyList.Last().SignKey(datafile.ownerPrivateKey!);
             
             DataFileKey newDataFileKey = new();
-            
-            newDataFileKey.SignKey(datafile.ownerPrivateKey);
-            
+            newDataFileKey.SignKey(datafile.ownerPrivateKey!);
             dataFileEntry.keyList.Add(newDataFileKey);
 
             AttemptSaveRootKeyring();
