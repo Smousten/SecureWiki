@@ -15,6 +15,10 @@ namespace SecureWiki.Model
         [JsonProperty]
         public byte[] publicKey { get; set; }
         [JsonProperty]
+        public byte[] signedPrivateKey { get; set; }
+        [JsonProperty]
+        public byte[] signedPublicKey { get; set; }
+        [JsonProperty]
         public string revisionStart { get; set; }
         [JsonProperty]
         public string revisionEnd { get; set; }
@@ -23,12 +27,12 @@ namespace SecureWiki.Model
         {
             Crypto crypto = new();
             var (newSymmKey, newIV) = crypto.GenerateAESParams();
-            var (newPrivateKey, newPublickey) = crypto.GenerateRSAParams();
+            var (newPrivateKey, newPublicKey) = crypto.GenerateRSAParams();
             
             symmKey = newSymmKey;
             iv = newIV;
             privateKey = newPrivateKey;
-            publicKey = newPublickey;
+            publicKey = newPublicKey;
             revisionStart = "-1";
             revisionEnd = "-1";
         }
@@ -41,6 +45,16 @@ namespace SecureWiki.Model
             this.publicKey = publicKey;
             this.revisionStart = revisionStart;
             this.revisionEnd = revisionEnd;
+        }
+
+        public void SignKey(byte[] key)
+        {
+            Crypto crypto = new();
+            if (privateKey != null)
+            {
+                signedPrivateKey = crypto.SignData(key, privateKey);
+                signedPublicKey = crypto.SignData(key, publicKey);    
+            }
         }
     }
 }

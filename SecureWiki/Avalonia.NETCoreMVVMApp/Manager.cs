@@ -523,7 +523,7 @@ namespace SecureWiki
             var wikiHandler = GetWikiHandler(datafile.serverLink);
             var latestRevision = wikiHandler?.GetLatestRevision(datafile);
 
-            if (latestRevision?.revisionID != null)
+            if (latestRevision?.revisionID != null && datafile.ownerPrivateKey != null)
             {
                 _keyring.RevokeAccess(datafile, latestRevision.revisionID);                
             }

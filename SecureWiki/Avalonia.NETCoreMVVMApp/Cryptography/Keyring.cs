@@ -337,6 +337,13 @@ namespace SecureWiki.Cryptography
         {
             // Read RootKeyring from import path and initialise
             RootKeyring rk = GetRootKeyring(importPath);
+
+            if (!VerifyImportKeyring(rk))
+            {
+                Console.WriteLine("Import keyring contains invalid key");
+                return;
+            }
+
             UpdateKeyringParentPropertyRecursively(rk);
 
             // Merge imported RootKeyring into current RootKeyring
@@ -383,10 +390,33 @@ namespace SecureWiki.Cryptography
             dataFileEntry.keyList.Last().revisionStart = datafile.keyList.Last().revisionStart;
             dataFileEntry.keyList.Last().revisionEnd = latestRevisionID;
 
+            dataFileEntry.keyList.Last().SignKey(datafile.ownerPrivateKey!);
+            
             DataFileKey newDataFileKey = new();
+            
+            newDataFileKey.SignKey(datafile.ownerPrivateKey);
+            
             dataFileEntry.keyList.Add(newDataFileKey);
 
             SerializeAndWriteFile(keyringFilePath, existingKeyRing);
+        }
+
+        private bool VerifyImportKeyring(KeyringEntry rk)
+        {
+            if (rk.dataFiles.Any(file => !file.VerifyKeys()))
+            {
+                return false;
+            }
+
+            foreach (var childKeyring in rk.keyrings)
+            {
+                var res = VerifyImportKeyring(childKeyring);
+                if (res == false)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         // public void SetKeyStartRevision(DataFileEntry datafile, string revisionID)

@@ -20,9 +20,13 @@ namespace SecureWiki.Model
         public string serverLink { get; set; }
         [JsonProperty]
         public string pageName { get; set; }
-        
-        // Tuple of (Start revision id, public key, private key, end revision end
         [JsonProperty]
+        public byte[]? ownerPrivateKey { get; set; }
+        [JsonProperty]
+        public byte[]? ownerPublicKey { get; set; }
+
+        // Tuple of (Start revision id, public key, private key, end revision)
+        [JsonProperty] 
         public List<DataFileKey> keyList { get; set; }
 
         private KeyringEntry? _parent;
@@ -31,10 +35,11 @@ namespace SecureWiki.Model
             get => _parent;
             set
             {
-                _parent = value; 
+                _parent = value;
                 RaisePropertyChanged(nameof(parent));
             }
         }
+
         private bool? _isChecked = false;
         public bool? isChecked
         {
@@ -95,11 +100,44 @@ namespace SecureWiki.Model
         {
             this.filename = filename;
             this.serverLink = serverLink;
+
+            Crypto crypto = new();
+            var (newPrivateKey, newPublicKey) = crypto.GenerateRSAParams();
+            ownerPrivateKey = newPrivateKey;
+            ownerPublicKey = newPublicKey;
+
             pageName = RandomString.GenerateRandomAlphanumericString();
             keyList = new List<DataFileKey> {new()};
             
+            keyList.Last().SignKey(ownerPrivateKey);
+
             CheckedChanged -= CheckedChangedUpdateParent;
             CheckedChanged += CheckedChangedUpdateParent;
+        }
+
+        public bool VerifyKeys()
+        {
+            Crypto crypto = new();
+            foreach (var key in keyList)
+            {
+                if (!crypto.VerifyData(ownerPublicKey, key.privateKey, key.signedPrivateKey) ||
+                    !crypto.VerifyData(ownerPublicKey, key.publicKey, key.signedPublicKey))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public void SignKeys()
+        {
+            Crypto crypto = new();
+            foreach (var key in keyList)
+            {
+                key.signedPrivateKey = crypto.SignData(ownerPrivateKey, key.privateKey);
+                key.signedPublicKey = crypto.SignData(ownerPrivateKey, key.publicKey);
+            }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
