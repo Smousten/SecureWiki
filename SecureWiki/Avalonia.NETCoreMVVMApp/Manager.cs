@@ -19,6 +19,7 @@ using SecureWiki.MediaWiki;
 using SecureWiki.Model;
 using SecureWiki.Utilities;
 using SecureWiki.Views;
+using Action = System.Action;
 
 namespace SecureWiki
 {
@@ -80,6 +81,8 @@ namespace SecureWiki
 
             Thread fuseThread = new(Program.RunFuse) {IsBackground = true};
             fuseThread.Start();
+            
+            logger.Add("manager start up", "in manager");
         }
 
         public void PrintTestMethod(string input)
@@ -242,7 +245,7 @@ namespace SecureWiki
 
         public string? GetPageContent(string pageTitle, string revID, string url)
         {
-            logger.Add(pageTitle, revID);
+            logger.Add( revID, pageTitle);
             var wikiHandler = GetWikiHandler(url);
             return wikiHandler?.GetPageContent(pageTitle, revID);
         }
@@ -267,7 +270,22 @@ namespace SecureWiki
             if (keyList?.privateKey != null)
             {
                 var wikiHandler = GetWikiHandler(df!.serverLink);
-                wikiHandler?.Upload(df!, filepath);
+
+                if (wikiHandler != null)
+                {
+                    // Write to logger
+                    string loggerMsg = "Attempting to upload file to server '" + df!.serverLink + "'";
+                    logger.Add(loggerMsg, filepath);
+                
+                    wikiHandler?.Upload(df!, filepath);
+                }
+                else
+                {
+                    // Write to logger
+                    string loggerMsg = $"File upload to server '{df!.serverLink}' " +
+                                       $"failed due to missing server credentials";
+                    logger.Add(loggerMsg, null);
+                }
             }
             else
             {

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
@@ -25,17 +26,17 @@ namespace SecureWiki.Views
         private RootKeyring _rootKeyring = new();
         private Manager manager;
         public MainWindowViewModel _viewModel;
-        public Logger logger = new Logger();
+        public Logger logger = new();
         private bool autoscrollLogger = true;
         
         public MainWindow()
         {
-            _viewModel = new(_rootKeyring, logger);
+            _viewModel = new MainWindowViewModel(_rootKeyring, logger);
             DataContext = _viewModel;
             InitializeComponent();
 
-            
-            manager = new(Thread.CurrentThread, _rootKeyring, logger);
+            Console.WriteLine("MainWindow(): current thread:" + Thread.CurrentThread.Name);
+            manager = new Manager(Thread.CurrentThread, _rootKeyring, logger);
             Thread managerThread = new(manager.Run) {IsBackground = true, Name = "ManagerThread"};
             managerThread.Start();
 
