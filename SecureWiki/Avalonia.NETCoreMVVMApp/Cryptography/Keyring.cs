@@ -393,15 +393,7 @@ namespace SecureWiki.Cryptography
                 return false;
             }
 
-            foreach (var childKeyring in rk.keyrings)
-            {
-                var res = VerifyImportKeyring(childKeyring);
-                if (res == false)
-                {
-                    return false;
-                }
-            }
-            return true;
+            return rk.keyrings.Select(childKeyring => VerifyImportKeyring(childKeyring)).All(res => res);
         }
 
         // public void SetKeyStartRevision(DataFileEntry datafile, string revisionID)

@@ -1,3 +1,4 @@
+using System.Linq;
 using Newtonsoft.Json;
 using SecureWiki.Cryptography;
 
@@ -55,6 +56,38 @@ namespace SecureWiki.Model
                 signedPrivateKey = crypto.SignData(key, privateKey);
                 signedPublicKey = crypto.SignData(key, publicKey);    
             }
+        }
+
+        public bool MergeWithOtherKey(DataFileKey otherDFkey)
+        {
+            if (!symmKey.SequenceEqual(otherDFkey.symmKey) ||
+                // !iv.SequenceEqual(otherDFkey.iv) ||
+                !publicKey.SequenceEqual(otherDFkey.publicKey) ||
+                (privateKey != null && otherDFkey.privateKey != null && !privateKey.SequenceEqual(otherDFkey.privateKey))
+                )
+            {
+                return false;
+            }
+
+            privateKey ??= otherDFkey.privateKey;
+            iv ??= otherDFkey.iv;
+
+            var revStart = int.Parse(revisionStart);
+            var revEnd = int.Parse(revisionEnd);
+            var revStartOther = int.Parse(otherDFkey.revisionStart);
+            var revEndOther = int.Parse(otherDFkey.revisionEnd);
+
+            if (revStart > revStartOther)
+            {
+                revisionStart = otherDFkey.revisionStart;
+            }
+
+            if (revEnd < revEndOther)
+            {
+                revisionEnd = otherDFkey.revisionEnd;
+            }
+
+            return true;
         }
     }
 }

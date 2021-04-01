@@ -358,7 +358,7 @@ namespace SecureWiki.Model
                 }
             }
             
-            foreach (DataFileEntry item in ke.dataFiles)
+            foreach (DataFileEntry otherDF in ke.dataFiles)
             {
                 // Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Checking", 
                 //     item.filename, isChecked, parent?.name ?? "null");
@@ -368,11 +368,11 @@ namespace SecureWiki.Model
                 foreach (DataFileEntry ownDF in dataFiles)
                 {
                     
-                    if (item.filename.Equals(ownDF.filename))
+                    if (otherDF.filename.Equals(ownDF.filename))
                     {
                         // Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Filename match", 
                         //     item.filename, isChecked, parent?.name ?? "null");
-                        if (ownDF.IsEqual(item))
+                        if (ownDF.IsEqual(otherDF))
                         {
                             // Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Exact copy already exists", 
                             //     item.filename, isChecked, parent?.name ?? "null");
@@ -387,6 +387,14 @@ namespace SecureWiki.Model
                         
                         break;
                     }
+                    // If they point to the exact same page
+                    else if (otherDF.pageName.Equals(ownDF.pageName) && otherDF.serverLink.Equals(ownDF.serverLink))
+                    {
+                        ownDF.MergeWithOtherDataFileEntry(otherDF);
+                        fileAlreadyExists = true;
+                        break;
+                    }
+
                 }
                 
                 // Rename new datafile if name is already in use
@@ -398,7 +406,7 @@ namespace SecureWiki.Model
                     // Check new names until either an identical copy or no match is found 
                     while (newNameInUse)
                     {
-                        string newName = item.filename + "(" + cnt + ")";
+                        string newName = otherDF.filename + "(" + cnt + ")";
                         
                         // Find any DataFileEntry with the same filename
                         newNameInUse = dataFiles.Any(x => x.filename.Equals(newName));
@@ -406,7 +414,7 @@ namespace SecureWiki.Model
                         {
                             DataFileEntry df = dataFiles.First(x => x.filename.Equals(newName));
 
-                            if (df.HasSameStaticProperties(item))
+                            if (df.HasSameStaticProperties(otherDF))
                             {
                                 fileAlreadyExists = true;
                                 break;
@@ -416,7 +424,7 @@ namespace SecureWiki.Model
                         }
                         else
                         {
-                            item.filename = newName;
+                            otherDF.filename = newName;
                             break;
                         }
                     }
@@ -426,7 +434,7 @@ namespace SecureWiki.Model
                 {
                     // Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Adding file", 
                     //     item.filename, isChecked, parent?.name ?? "null");
-                    AddDataFile(item);
+                    AddDataFile(otherDF);
                 }
             }
         }

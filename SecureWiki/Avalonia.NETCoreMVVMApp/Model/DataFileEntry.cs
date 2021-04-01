@@ -120,7 +120,8 @@ namespace SecureWiki.Model
             Crypto crypto = new();
             foreach (var key in keyList)
             {
-                if (!crypto.VerifyData(ownerPublicKey, key.privateKey, key.signedPrivateKey) ||
+                if (ownerPublicKey == null || 
+                    (key.privateKey != null && !crypto.VerifyData(ownerPublicKey, key.privateKey, key.signedPrivateKey)) ||
                     !crypto.VerifyData(ownerPublicKey, key.publicKey, key.signedPublicKey))
                 {
                     return false;
@@ -130,15 +131,18 @@ namespace SecureWiki.Model
             return true;
         }
 
-        public void SignKeys()
-        {
-            Crypto crypto = new();
-            foreach (var key in keyList)
-            {
-                key.signedPrivateKey = crypto.SignData(ownerPrivateKey, key.privateKey);
-                key.signedPublicKey = crypto.SignData(ownerPrivateKey, key.publicKey);
-            }
-        }
+        // 
+        // public void SignKeys()
+        // {
+        //     Crypto crypto = new();
+        //
+        //
+        //     foreach (var key in keyList)
+        //     {
+        //         key.signedPrivateKey = crypto.SignData(ownerPrivateKey, key.privateKey);
+        //         key.signedPublicKey = crypto.SignData(ownerPrivateKey, key.publicKey);
+        //     }
+        // }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public event PropertyChangingEventHandler? PropertyChanging;
@@ -196,7 +200,6 @@ namespace SecureWiki.Model
             {
                 ignoreList.Add(filenameProperty);
             }
-            // ignoreList.Add(typeof(DataFileEntry).GetProperty(nameof(revisionNr)));
             
             return CompareProperties(reference, ignoreList);
         }
@@ -307,6 +310,49 @@ namespace SecureWiki.Model
 
             // If no valid DataFileKey is found
             return null;
+        }
+
+        public void MergeWithOtherDataFileEntry(DataFileEntry df)
+        {
+            if (!filename.Equals(df.filename) ||
+                !serverLink.Equals(df.serverLink) ||
+                !pageName.Equals(df.pageName) ||
+                (ownerPrivateKey != null && df.ownerPrivateKey != null && !ownerPrivateKey.SequenceEqual(df.ownerPrivateKey)) ||
+                (ownerPublicKey != null && df.ownerPublicKey != null && !ownerPublicKey.SequenceEqual(df.ownerPublicKey))
+                )
+            {
+                return;
+            }
+
+            ownerPrivateKey ??= df.ownerPrivateKey;
+            ownerPublicKey ??= df.ownerPublicKey;
+
+            List<DataFileKey> combinedKeyList = new();
+            List<DataFileKey> resultingKeyList = new();
+            
+            combinedKeyList.AddRange(keyList);
+            combinedKeyList.AddRange(df.keyList);
+            
+            combinedKeyList = combinedKeyList.OrderBy(entry => entry.publicKey).ToList();
+
+            int i = 0;
+            while (i < combinedKeyList.Count)
+            {
+                int cnt = 1;
+
+                while (i + cnt < combinedKeyList.Count && combinedKeyList[i].publicKey.SequenceEqual(combinedKeyList[i + cnt].publicKey))
+                {
+                    combinedKeyList[i].MergeWithOtherKey(combinedKeyList[i + cnt]);
+                    cnt++;
+                }
+                
+                resultingKeyList.Add(combinedKeyList[i]);
+                i += cnt;
+            }
+            
+            resultingKeyList = resultingKeyList.OrderBy(entry => entry.revisionStart).ToList();
+            keyList.Clear();
+            keyList.AddRange(resultingKeyList);
         }
 
         public void PrintInfo()
