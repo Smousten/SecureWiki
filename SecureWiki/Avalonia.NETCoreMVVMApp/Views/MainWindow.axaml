@@ -214,7 +214,7 @@
             </Button>
 
             <!--Revoke access popup-->
-            <Popup Name="RevokeAccessPopup" PlacementTarget="RevokeAccessButton">
+            <Popup Name="RevokeAccessPopup" PlacementTarget="RevokeAccessButton" IsLightDismissEnabled="True">
                 <Border BorderBrush="Black" BorderThickness="1,1,1,1">
                     <Grid>
                         <TextBlock Name="AccessRevocationText" Background="White"
@@ -229,7 +229,7 @@
             </Popup>
             
             <!--Cache setting popup-->
-            <Popup Name="CacheSettingPopup" PlacementTarget="CacheSettingButton" Opened="CacheSettingPopup_OnOpened">
+            <Popup Name="CacheSettingPopup" PlacementTarget="CacheSettingButton" Opened="CacheSettingPopup_OnOpened" IsLightDismissEnabled="True" >
                 <Border IsVisible="{Binding IsCacheSettingPopupOpen}" BorderBrush="Black" BorderThickness="1,1,1,1">
                     <Grid>
                         <TextBlock Name="CacheSettingPopupTextBlock" Background="White"

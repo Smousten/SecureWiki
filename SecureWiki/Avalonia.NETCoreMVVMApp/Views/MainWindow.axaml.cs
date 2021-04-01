@@ -299,7 +299,7 @@ namespace SecureWiki.Views
         {
             var datafile = _viewModel.selectedFile;
             
-            Thread localThread = new Thread(() =>
+            Thread localThread = new(() =>
                 manager.RevokeAccess(datafile));
             localThread.Start();
             
@@ -376,5 +376,7 @@ namespace SecureWiki.Views
                 scrollViewer.ScrollToEnd();
             }
         }
+
+
     }
 }
