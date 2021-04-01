@@ -136,19 +136,19 @@ namespace SecureWiki.Utilities
         public Logger()
         {
             Headers = new LoggerEntry("Timestamp", "Location", "Message", LoggerEntry.LogPriority.Low);
-            Add("at creation", "yes yes");
-            var longString = "this is a very long text and it should be wider than the textblock and maybe even the " +
-                             "container of then textblock but how do we know that? We don't but let's find out... now? " +
-                             "Yes, that should do it.";
-            Add("some file", longString, LoggerEntry.LogPriority.Fatal);
-            Add("some file", longString, LoggerEntry.LogPriority.Error);
-            Add("some file", longString, LoggerEntry.LogPriority.Warning);
-            Add("some file", longString, LoggerEntry.LogPriority.High);
-            Add("some file", longString, LoggerEntry.LogPriority.Normal);
-            Add("some file", longString, LoggerEntry.LogPriority.Low);
+            // Add("at creation", "yes yes");
+            // var longString = "this is a very long text and it should be wider than the textblock and maybe even the " +
+            //                  "container of then textblock but how do we know that? We don't but let's find out... now? " +
+            //                  "Yes, that should do it.";
+            // Add("some file", longString, LoggerEntry.LogPriority.Fatal);
+            // Add("some file", longString, LoggerEntry.LogPriority.Error);
+            // Add("some file", longString, LoggerEntry.LogPriority.Warning);
+            // Add("some file", longString, LoggerEntry.LogPriority.High);
+            // Add("some file", longString, LoggerEntry.LogPriority.Normal);
+            // Add("some file", longString, LoggerEntry.LogPriority.Low);
         }
 
-        public void Add(string content, string? location, LoggerEntry.LogPriority priority = LoggerEntry.LogPriority.Normal)
+        public void Add(string content, string? location = null, LoggerEntry.LogPriority priority = LoggerEntry.LogPriority.Normal)
         {
             var timeNow = DateTime.Now;
             Dispatcher.UIThread.Post(

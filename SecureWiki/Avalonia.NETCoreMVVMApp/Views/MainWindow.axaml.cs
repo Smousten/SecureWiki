@@ -35,7 +35,6 @@ namespace SecureWiki.Views
             DataContext = _viewModel;
             InitializeComponent();
 
-            Console.WriteLine("MainWindow(): current thread:" + Thread.CurrentThread.Name);
             manager = new Manager(Thread.CurrentThread, _rootKeyring, logger);
             Thread managerThread = new(manager.Run) {IsBackground = true, Name = "ManagerThread"};
             managerThread.Start();

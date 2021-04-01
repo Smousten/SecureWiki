@@ -121,9 +121,7 @@ namespace SecureWiki.ViewModels
             this.logger = logger;
             loggerCollection = new ObservableCollection<Logger>();
             loggerCollection.Add(this.logger);
-            logger.Add("input logger - mainwindowviewmodel.cs", "same");
-            this.logger.Add("own logger - mainwindowviewmodel.cs", "same");
-
+            
             revisions = new ObservableCollection<Revision>();
         }
 
