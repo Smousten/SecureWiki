@@ -121,7 +121,7 @@ namespace SecureWiki.ViewModels
             this.logger = logger;
             loggerCollection = new ObservableCollection<Logger>();
             loggerCollection.Add(this.logger);
-
+            
             revisions = new ObservableCollection<Revision>();
         }
 

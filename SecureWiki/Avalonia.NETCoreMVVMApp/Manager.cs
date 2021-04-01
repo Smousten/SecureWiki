@@ -19,6 +19,7 @@ using SecureWiki.MediaWiki;
 using SecureWiki.Model;
 using SecureWiki.Utilities;
 using SecureWiki.Views;
+using Action = System.Action;
 
 namespace SecureWiki
 {
@@ -75,11 +76,14 @@ namespace SecureWiki
             
             TCPListenerThread = new Thread(tcpListener.RunListener) {IsBackground = true};
             TCPListenerThread.Start();
-
+            logger.Add("Starting up TCPListener", null);
+            
             Thread.Sleep(1000);
 
             Thread fuseThread = new(Program.RunFuse) {IsBackground = true};
             fuseThread.Start();
+            
+            logger.Add("Starting up FUSE", null);
         }
 
         public void PrintTestMethod(string input)
@@ -245,9 +249,22 @@ namespace SecureWiki
 
         public string? GetPageContent(string pageTitle, string revID, string url)
         {
-            logger.Add(pageTitle, revID);
+            // Write to logger
+            string loggerMsg = $"Attempting to read file from page title '{pageTitle}', revision {revID} on server '{url}'";
+            logger.Add(loggerMsg);
+            
             var wikiHandler = GetWikiHandler(url);
-            return wikiHandler?.GetPageContent(pageTitle, revID);
+            var output = wikiHandler?.GetPageContent(pageTitle, revID);
+
+            // Write to logger if read fails
+            if (output == null)
+            {
+                logger.Add(wikiHandler == null
+                    ? $"File read failed due to missing server credentials"
+                    : $"Could not read file from server");
+            }
+            
+            return output;
         }
 
         public bool UndoRevisionsByID(string pageTitle, string startID, string endID, string url)
@@ -270,7 +287,22 @@ namespace SecureWiki
             if (keyList?.privateKey != null)
             {
                 var wikiHandler = GetWikiHandler(df!.serverLink);
-                wikiHandler?.Upload(df!, filepath);
+
+                if (wikiHandler != null)
+                {
+                    // Write to logger
+                    string loggerMsg = "Attempting to upload file to server '" + df!.serverLink + "'";
+                    logger.Add(loggerMsg, filepath);
+                
+                    wikiHandler?.Upload(df!, filepath);
+                }
+                else
+                {
+                    // Write to logger
+                    string loggerMsg = $"File upload to server '{df!.serverLink}' " +
+                                       $"failed due to missing server credentials";
+                    logger.Add(loggerMsg, null);
+                }
             }
             else
             {
@@ -332,6 +364,7 @@ namespace SecureWiki
 
         public byte[]? Download(string filename)
         {
+            logger.Add($"Attempting read file '{filename}'");
             var dataFile = GetDataFile(filename, rootKeyring);
 
             if (dataFile == null) return null;
@@ -361,6 +394,7 @@ namespace SecureWiki
 
         public void RenameFile(string oldPath, string newPath)
         {
+            logger.Add($"Renaming '{oldPath}' to '{newPath}'.");
             _keyring.Rename(oldPath, newPath);
         }
 
@@ -376,12 +410,15 @@ namespace SecureWiki
 
         public void ExportKeyring()
         {
+            // TODO: add export path
+            logger.Add("Exporting keyring");
             _keyring.ExportRootKeyringBasedOnIsChecked();
         }
 
         public void ImportKeyring(string importPath)
         {
             Console.WriteLine("Manager:- ImportKeyring('{0}')", importPath);
+            logger.Add($"Importing keyring from '{importPath}'");
             _keyring.ImportRootKeyring(importPath);
         }
 
@@ -531,6 +568,8 @@ namespace SecureWiki
 
         public void RevokeAccess(DataFileEntry datafile)
         {
+            logger.Add($"Attempting to revoke access to file '{datafile.filename}'");
+            
             var wikiHandler = GetWikiHandler(datafile.serverLink);
             var latestRevision = wikiHandler?.GetLatestRevision(datafile);
 
