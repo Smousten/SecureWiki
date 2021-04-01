@@ -175,10 +175,13 @@ namespace SecureWiki
             
             if (serverCredentials?.Username != null)
             {
-                if (serverCredentials.Password != null)
+                if (serverCredentials.ProtectedPassword != null && serverCredentials.Entropy != null)
                 {
-                    return new WikiHandler(serverCredentials.Username, serverCredentials.Password, 
-                        new HttpClient(), this, url);
+                    var unprotectedPassword =
+                        ConfigEntry.Unprotect(serverCredentials.ProtectedPassword, serverCredentials.Entropy);
+                    if (unprotectedPassword != null)
+                        return new WikiHandler(serverCredentials.Username, unprotectedPassword,
+                            new HttpClient(), this, url);
                 }
 
                 savedUsername = serverCredentials.Username;

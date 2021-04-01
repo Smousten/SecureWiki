@@ -590,51 +590,66 @@ namespace SecureWiki.MediaWiki
             return responseJson;
         }
 
-
         public void PostHttpToServer(Action action)
         {
-            HttpResponseMessage httpResponseMessage =
-                httpClient.PostAsync(URL + action.action, new FormUrlEncodedContent(action.values)).Result;
-            string httpResponseMessageString = httpResponseMessage.Content.ReadAsStringAsync().Result;
-            // Console.WriteLine("postHttpToServer: " + httpResponseMessageString);
+            try
+            {
+                HttpResponseMessage httpResponseMessage =
+                    httpClient.PostAsync(URL + action.action, new FormUrlEncodedContent(action.values)).Result;
+                string httpResponseMessageString = httpResponseMessage.Content.ReadAsStringAsync().Result;
+                // Console.WriteLine("postHttpToServer: " + httpResponseMessageString);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to post http request to server {0}", URL);
+                Console.WriteLine(e.Message);
+            }
         }
 
         public bool LoginMediaWiki(string username, string password)
         {
             // Build request
-            string query = "?action=query";
-            query += "&meta=tokens";
-            query += "&type=login";
-            query += "&format=json";
-
-            HttpResponseMessage response = httpClient.GetAsync(URL + query).Result;
-            response.EnsureSuccessStatusCode();
-            string responseBody = response.Content.ReadAsStringAsync().Result;
-            Console.WriteLine("LoginHttpClient:- resonseBody: " + responseBody);
-            JObject responseJson = JObject.Parse(responseBody);
-
-            var loginToken = responseJson["query"]?["tokens"]?["logintoken"]?.ToString();
-            Console.WriteLine("LoginHttpClient:- LoginToken: " + loginToken);
-
-            string action = "?action=clientlogin";
-            if (loginToken == null) return false;
-            var values = new List<KeyValuePair<string, string>>
+            try
             {
-                new("format", "json"),
-                new("loginreturnurl", "http://example.org"),
-                new("logintoken", loginToken),
-                new("username", username),
-                new("password", password)
-            };
-            HttpResponseMessage responseClientLogin =
-                httpClient.PostAsync(URL + action, new FormUrlEncodedContent(values)).Result;
-            string responseBodyClientLogin = responseClientLogin.Content.ReadAsStringAsync().Result;
-            Console.WriteLine("LoginHttpClient:- responseBodyClientLogin: " + responseBodyClientLogin);
-            MWuserID = username;
-            MWuserPassword = password;
-            loggedIn = true;
+                string query = "?action=query";
+                query += "&meta=tokens";
+                query += "&type=login";
+                query += "&format=json";
+                HttpResponseMessage response = httpClient.GetAsync(URL + query).Result;
+                response.EnsureSuccessStatusCode();
+                string responseBody = response.Content.ReadAsStringAsync().Result;
+                Console.WriteLine("LoginHttpClient:- resonseBody: " + responseBody);
+                JObject responseJson = JObject.Parse(responseBody);
 
-            return true;
+                var loginToken = responseJson["query"]?["tokens"]?["logintoken"]?.ToString();
+                Console.WriteLine("LoginHttpClient:- LoginToken: " + loginToken);
+
+                string action = "?action=clientlogin";
+                if (loginToken == null) return false;
+                var values = new List<KeyValuePair<string, string>>
+                {
+                    new("format", "json"),
+                    new("loginreturnurl", "http://example.org"),
+                    new("logintoken", loginToken),
+                    new("username", username),
+                    new("password", password)
+                };
+                HttpResponseMessage responseClientLogin =
+                    httpClient.PostAsync(URL + action, new FormUrlEncodedContent(values)).Result;
+                string responseBodyClientLogin = responseClientLogin.Content.ReadAsStringAsync().Result;
+                Console.WriteLine("LoginHttpClient:- responseBodyClientLogin: " + responseBodyClientLogin);
+                MWuserID = username;
+                MWuserPassword = password;
+                loggedIn = true;
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to login at url: " + URL);
+                Console.WriteLine(e.Message);
+                return false;
+            }
         }
 
         public class NotLoggedInException : Exception

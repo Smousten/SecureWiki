@@ -14,6 +14,7 @@
         <PackageReference Include="Avalonia.Desktop" Version="0.10.0" />
         <PackageReference Include="Avalonia.Diagnostics" Version="0.10.0" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.0" />
+        <PackageReference Include="CrossPlatformProtectedData" Version="1.0.1" />
         <PackageReference Include="JsonFlatten" Version="1.0.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1-beta1" />
         <PackageReference Include="UnmanagedExports" Version="1.2.7" />
