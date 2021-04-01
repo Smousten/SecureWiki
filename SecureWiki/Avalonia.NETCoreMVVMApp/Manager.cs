@@ -157,7 +157,7 @@ namespace SecureWiki
             {
                 var newWikiHandler = CreateNewWikiHandler(url);
 
-                if (newWikiHandler != null)
+                if (newWikiHandler != null && !wikiHandlers.ContainsKey(url))
                 {
                     wikiHandlers.Add(url, newWikiHandler);
                     return newWikiHandler;
