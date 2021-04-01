@@ -268,7 +268,12 @@
             <Button Name="SelectedRevisionButton" DockPanel.Dock="Top"
                     IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}"
                     Click="SelectedRevisionButton_OnClick">
-                Select
+                Open selected
+            </Button>
+            <Button Name="DefaultRevisionButton" DockPanel.Dock="Top"
+                    IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}"
+                    Click="DefaultRevisionButton_OnClick" >
+                Open newest
             </Button>
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                 <StackPanel>
