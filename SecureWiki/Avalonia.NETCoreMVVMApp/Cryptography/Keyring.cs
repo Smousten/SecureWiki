@@ -353,41 +353,36 @@ namespace SecureWiki.Cryptography
             SaveRootKeyring();
         }
 
-        private string GetDataFileFilePath(DataFileEntry datafile)
-        {
-            var filepath = datafile.filename;
-            var datafilePath = datafile.parent != null ? GetDataFilePathLoop(datafile.parent, filepath) : filepath;
-
-            // Remove Root/ from string
-            var datafilePathSplit = datafilePath.Split("Root/", 2);
-            return datafilePathSplit[^1];
-        }
-
-        private string GetDataFilePathLoop(KeyringEntry keyring, string filepath)
-        {
-            while (true)
-            {
-                filepath = keyring.name + "/" + filepath;
-                if (keyring.parent == null) return filepath;
-                keyring = keyring.parent;
-            }
-        }
+        // private string GetDataFileFilePath(DataFileEntry datafile)
+        // {
+        //     var filepath = datafile.filename;
+        //     var datafilePath = datafile.parent != null ? GetDataFilePathLoop(datafile.parent, filepath) : filepath;
+        //
+        //     // Remove Root/ from string
+        //     var datafilePathSplit = datafilePath.Split("Root/", 2);
+        //     return datafilePathSplit[^1];
+        // }
+        //
+        // private string GetDataFilePathLoop(KeyringEntry keyring, string filepath)
+        // {
+        //     while (true)
+        //     {
+        //         filepath = keyring.name + "/" + filepath;
+        //         if (keyring.parent == null) return filepath;
+        //         keyring = keyring.parent;
+        //     }
+        // }
 
         public void RevokeAccess(DataFileEntry datafile, string latestRevisionID)
         {
-            var datafilePath = GetDataFileFilePath(datafile);
-
-            // Find the keyring where the data file is located
-            var foundKeyring = FindKeyringPath(rootKeyring, datafilePath);
-
-            var dataFileEntry = foundKeyring.dataFiles.First(e => e.pageName.Equals(datafile.pageName));
-            dataFileEntry.keyList.Last().revisionStart = datafile.keyList.Last().revisionStart;
-            dataFileEntry.keyList.Last().revisionEnd = latestRevisionID;
+            if (datafile.keyList.Last().revisionStart.Equals("-1")) return;
+            
+            datafile.keyList.Last().revisionEnd = latestRevisionID;
             
             DataFileKey newDataFileKey = new();
             newDataFileKey.SignKey(datafile.ownerPrivateKey!);
-            dataFileEntry.keyList.Add(newDataFileKey);
-
+            datafile.keyList.Add(newDataFileKey);
+            
             AttemptSaveRootKeyring();
         }
 
