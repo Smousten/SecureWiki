@@ -4,8 +4,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ViewModels="clr-namespace:SecureWiki.ViewModels"
         xmlns:Models="clr-namespace:SecureWiki.Model"
-        xmlns:Utilities="clr-namespace:SecureWiki.Utilities"
         xmlns:secureWiki="clr-namespace:SecureWiki"
+        xmlns:Utilities="clr-namespace:SecureWiki.Utilities"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="SecureWiki.Views.MainWindow"
         Opened="MainWindow_Shown"
@@ -40,10 +40,10 @@
             </Grid>
         </DataTemplate>
     </Window.Resources>
+
+
     
-
-
-
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -96,9 +96,9 @@
                 <RowDefinition Height="3*" />
                 <RowDefinition Height="1*" />
             </Grid.RowDefinitions>
-            
-            <!--TreeView-->
-            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+
+        <!--TreeView-->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                       Name="ScrollViewerTreeView">
             <StackPanel Orientation="Vertical">
                 <TreeView Items="{Binding rootKeyringCollection, Mode=TwoWay}" Name="TreeView1">
@@ -172,16 +172,16 @@
             </StackPanel>
         </ScrollViewer>
 
-            <Border Grid.Row="1" BorderThickness="3" BorderBrush="Black" Name="BorderLogger">
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" ScrollChanged="ScrollViewerItemsRepeaterLog_OnScrollChanged"
-                              Name="ScrollViewerItemsRepeaterLog" Width="{Binding Bounds.Width, ElementName=BorderLogger}">
-                    <ItemsRepeater Grid.Row="1" Name="ItemsRepeaterLog" DataContext="{Binding logger}" Items="{Binding Entries}" ItemTemplate="{StaticResource LoggerEntryTemplate}">
+        <Border Grid.Row="1" BorderThickness="3" BorderBrush="Black" Name="BorderLogger">
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" ScrollChanged="ScrollViewerItemsRepeaterLog_OnScrollChanged"
+                          Name="ScrollViewerItemsRepeaterLog" Width="{Binding Bounds.Width, ElementName=BorderLogger}">
+                <ItemsRepeater Grid.Row="1" Name="ItemsRepeaterLog" DataContext="{Binding logger}" Items="{Binding Entries}" ItemTemplate="{StaticResource LoggerEntryTemplate}">
 
-                    </ItemsRepeater>                    
-                </ScrollViewer>
-            </Border>
-            
-            
+                </ItemsRepeater>                    
+            </ScrollViewer>
+        </Border>
+        
+        
         </Grid>
         
         
@@ -215,7 +215,7 @@
 
             <!--Revoke access popup-->
             <Popup Name="RevokeAccessPopup" PlacementTarget="RevokeAccessButton">
-                <Border IsVisible="{Binding isAccessRevocationPopupOpen}" BorderBrush="Black" BorderThickness="1,1,1,1">
+                <Border BorderBrush="Black" BorderThickness="1,1,1,1">
                     <Grid>
                         <TextBlock Name="AccessRevocationText" Background="White"
                                    Text="Are you that you want to revoke access to the file?&#x0a; This action cannot be undone."

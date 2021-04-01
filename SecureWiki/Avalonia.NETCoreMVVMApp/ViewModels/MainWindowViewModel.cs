@@ -110,8 +110,6 @@ namespace SecureWiki.ViewModels
             set => this.RaiseAndSetIfChanged(ref _selectedRevision, value);
         }
 
-        public bool isAccessRevocationPopupOpen { get; set; } = false;
-
         public MainWindowViewModel(RootKeyring rk, Logger logger)
         {
             rootKeyring = rk;

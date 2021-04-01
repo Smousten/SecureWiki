@@ -253,9 +253,6 @@ namespace SecureWiki.Views
             
             if (sender is TextBlock tb)
             {
-                
-
-                
                 DataFileEntry dataFile = tb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
                 _viewModel.selectedFile = dataFile;
 
@@ -278,7 +275,6 @@ namespace SecureWiki.Views
             var tag = (string)((Button) sender!).Tag;
             var popup = this.FindControl<Popup>(tag);
             popup.IsOpen = false;
-            _viewModel.isAccessRevocationPopupOpen = false;
         }
 
         private void ShowButtonPopup_Click(object? sender, RoutedEventArgs e)
@@ -286,13 +282,11 @@ namespace SecureWiki.Views
             var tag = (string)((Button) sender!).Tag;
             var popup = this.FindControl<Popup>(tag);
             popup.IsOpen = true;
-            _viewModel.isAccessRevocationPopupOpen = true;
         }
 
         private void Revoke_Click(object? sender, RoutedEventArgs e)
         {
             var datafile = _viewModel.selectedFile;
-            
             
             Thread localThread = new Thread(() =>
                 manager.RevokeAccess(datafile));
@@ -300,7 +294,6 @@ namespace SecureWiki.Views
             
             var popup = this.FindControl<Popup>("RevokeAccessPopup");
             popup.IsOpen = false;
-            _viewModel.isAccessRevocationPopupOpen = false;
         }
         
         private void CacheSettingButton_Click(object? sender, RoutedEventArgs e)
