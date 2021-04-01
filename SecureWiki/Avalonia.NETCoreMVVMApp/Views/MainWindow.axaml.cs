@@ -212,62 +212,73 @@ namespace SecureWiki.Views
         
         private void SelectedRevisionButton_OnClick(object? sender, RoutedEventArgs e)
         {
-            if (_viewModel.selectedRevision.revisionID != null)
-            {
-                Console.WriteLine(_viewModel.selectedRevision.revisionID);
+            if (_viewModel.selectedRevision.revisionID == null) return;
 
-                bool newestSelected = true;
-                int selectedRevID = Int32.Parse(_viewModel.selectedRevision.revisionID);
-                foreach (Revision item in _viewModel.revisions)
-                {
-                    if (item.revisionID != null)
-                    {
-                        int itemID = Int32.Parse(item.revisionID);
-                        if (itemID > selectedRevID)
-                        {
-                            newestSelected = false;
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("SelectedRevisionButton_OnClick: item.revisionID == null");
-                    }
-                }
+            _viewModel.selectedFile.newestRevisionSelected = false; // IsNewestRevision();
                 
-                _viewModel.selectedFile.newestRevisionSelected = newestSelected;
-                
-                if (manager.RequestedRevision.ContainsKey(_viewModel.selectedFile.pageName))
-                {
-                    manager.RequestedRevision[_viewModel.selectedFile.pageName] = _viewModel.selectedRevision.revisionID;
-                }
-                else
-                {
-                    manager.RequestedRevision.Add(_viewModel.selectedFile.pageName, _viewModel.selectedRevision.revisionID);
-                }
+            if (manager.RequestedRevision.ContainsKey(_viewModel.selectedFile.pageName))
+            {
+                manager.RequestedRevision[_viewModel.selectedFile.pageName] = _viewModel.selectedRevision.revisionID;
             }
-        }   
+            else
+            {
+                manager.RequestedRevision.Add(_viewModel.selectedFile.pageName, _viewModel.selectedRevision.revisionID);
+            }
+        }
+        
+        private void DefaultRevisionButton_OnClick(object? sender, RoutedEventArgs e)
+        {
+            // Remove pagename from dictionary of requested revisions
+            
+            if (manager.RequestedRevision.ContainsKey(_viewModel.selectedFile.pageName))
+            {
+                manager.RequestedRevision.Remove(_viewModel.selectedFile.pageName);
+            }
+            
+            _viewModel.selectedFile.newestRevisionSelected = true;
+        }
 
         private void InputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
         {
-            // Console.WriteLine("InputElement_OnPointerPressed by" + sender);
-            
             if (sender is TextBlock tb)
             {
                 DataFileEntry dataFile = tb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
                 _viewModel.selectedFile = dataFile;
 
-                Thread localThread = new Thread(() =>
+                Thread localThread = new(() =>
                     manager.UpdateAllRevisionsAsync(dataFile.pageName, dataFile.serverLink, _viewModel.revisions));
                 localThread.Start();
                 
-                // _viewModel.revisions = manager.GetAllRevisions(dataFile.pageName, dataFile.serverLink).revisionList;
-                // manager.UpdateAllRevisionsAsync(dataFile.pageName, dataFile.serverLink, _viewModel.revisions);
-                Console.WriteLine("InputElement_OnPointerPressed: call passed");
-                // var allRevisions = manager.GetAllRevisions(dataFile.pagename);
-                // _viewModel.revisions = new ObservableCollection<Revision>(allRevisions.revisionList);
-                // Console.WriteLine(dataFile.filename);
+              // Console.WriteLine("InputElement_OnPointerPressed: call passed");
+
             }
             
+        }
+
+        private bool IsNewestRevision()
+        {
+            var newestSelected = true;
+
+            if (_viewModel.selectedRevision.revisionID == null) return newestSelected;
+            
+            var selectedRevID = int.Parse(_viewModel.selectedRevision.revisionID);
+            foreach (Revision item in _viewModel.revisions)
+            {
+                if (item.revisionID != null)
+                {
+                    var itemID = int.Parse(item.revisionID);
+                    if (itemID > selectedRevID)
+                    {
+                        newestSelected = false;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("SelectedRevisionButton_OnClick: item.revisionID == null");
+                }
+            }
+
+            return newestSelected;
         }
 
         private void HideButtonPopup_Click(object? sender, RoutedEventArgs e)
@@ -288,7 +299,7 @@ namespace SecureWiki.Views
         {
             var datafile = _viewModel.selectedFile;
             
-            Thread localThread = new Thread(() =>
+            Thread localThread = new(() =>
                 manager.RevokeAccess(datafile));
             localThread.Start();
             
@@ -365,5 +376,7 @@ namespace SecureWiki.Views
                 scrollViewer.ScrollToEnd();
             }
         }
+
+
     }
 }

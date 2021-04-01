@@ -214,7 +214,7 @@
             </Button>
 
             <!--Revoke access popup-->
-            <Popup Name="RevokeAccessPopup" PlacementTarget="RevokeAccessButton">
+            <Popup Name="RevokeAccessPopup" PlacementTarget="RevokeAccessButton" IsLightDismissEnabled="True">
                 <Border BorderBrush="Black" BorderThickness="1,1,1,1">
                     <Grid>
                         <TextBlock Name="AccessRevocationText" Background="White"
@@ -229,7 +229,7 @@
             </Popup>
             
             <!--Cache setting popup-->
-            <Popup Name="CacheSettingPopup" PlacementTarget="CacheSettingButton" Opened="CacheSettingPopup_OnOpened">
+            <Popup Name="CacheSettingPopup" PlacementTarget="CacheSettingButton" Opened="CacheSettingPopup_OnOpened" IsLightDismissEnabled="True" >
                 <Border IsVisible="{Binding IsCacheSettingPopupOpen}" BorderBrush="Black" BorderThickness="1,1,1,1">
                     <Grid>
                         <TextBlock Name="CacheSettingPopupTextBlock" Background="White"
@@ -268,7 +268,12 @@
             <Button Name="SelectedRevisionButton" DockPanel.Dock="Top"
                     IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}"
                     Click="SelectedRevisionButton_OnClick">
-                Select
+                Open selected
+            </Button>
+            <Button Name="DefaultRevisionButton" DockPanel.Dock="Top"
+                    IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}"
+                    Click="DefaultRevisionButton_OnClick" >
+                Open newest
             </Button>
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                 <StackPanel>
