@@ -189,7 +189,8 @@ namespace SecureWiki.Views
         {
             var textBox = this.FindControl<TextBox>("TextBoxIp");
             var ip = textBox.Text;
-            // manager.SetNewMediaWikiServer(ip);
+            var url = $"http://{ip}/mediawiki/api.php";
+            manager.SetDefaultServerLink(url);
         }
 
         private void ButtonLogin_Click(object? sender, RoutedEventArgs e)

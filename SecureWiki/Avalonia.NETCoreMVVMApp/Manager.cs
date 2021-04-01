@@ -144,6 +144,11 @@ namespace SecureWiki
             return configManager!.cachePreferences.GetSetting(pageTitle);
         }
 
+        public void SetDefaultServerLink(string url)
+        {
+            configManager!.DefaultServerLink = url;
+        }
+
         private void InitializeWikiHandlers()
         {
             wikiHandlers = new();

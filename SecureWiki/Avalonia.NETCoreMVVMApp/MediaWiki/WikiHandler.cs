@@ -120,6 +120,16 @@ namespace SecureWiki.MediaWiki
             {
                 dataFile.keyList.Last().revisionStart = rev.revisionID;
             }
+            
+            // If uploaded revision ID is greater than latest revision end. 
+            // Only happens if user manually deletes entries from key list 
+            // if (!key.revisionEnd.Equals("-1") 
+            //     && rev.revisionID != null 
+            //     && int.Parse(key.revisionEnd) < int.Parse(rev.revisionID))
+            // {
+            //     dataFile.keyList.Last().revisionStart = rev.revisionID;
+            //     dataFile.keyList.Last().revisionEnd = "-1";
+            // }
         }
         
         // Get latest valid revision of wiki page
