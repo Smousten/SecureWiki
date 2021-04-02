@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using ReactiveUI;
 using SecureWiki.Cryptography;
+using SecureWiki.Utilities;
 
 namespace SecureWiki.Model
 {
@@ -124,6 +125,8 @@ namespace SecureWiki.Model
                     (key.privateKey != null && !crypto.VerifyData(ownerPublicKey, key.privateKey, key.signedPrivateKey)) ||
                     !crypto.VerifyData(ownerPublicKey, key.publicKey, key.signedPublicKey))
                 {
+                    Console.WriteLine("DataFileEntry filename='{0}', key pair with revstart='{1}', revend='{2}'", 
+                        filename, key.revisionStart, key.revisionEnd);
                     return false;
                 }
             }
@@ -186,25 +189,48 @@ namespace SecureWiki.Model
 
         public bool IsEqual(DataFileEntry reference)
         {
-            return CompareProperties(reference, null);
+            return CompareAllPropertiesExcept(reference, null);
         }
 
         public bool HasSameStaticProperties(DataFileEntry reference)
         {
-            // Construct ignore list and populate with non-static properties
-            List<PropertyInfo> ignoreList = new();
-
-            var filenameProperty = typeof(DataFileEntry).GetProperty(nameof(filename));
-
-            if (filenameProperty != null)
-            {
-                ignoreList.Add(filenameProperty);
-            }
+            // // Construct ignore list and populate with non-static properties
+            // List<PropertyInfo> ignoreList = new();
+            //
+            // var filenameProperty = typeof(DataFileEntry).GetProperty(nameof(filename));
+            // var ownerPrivKeyProperty = typeof(DataFileEntry).GetProperty(nameof(ownerPrivateKey));
+            //
+            // if (filenameProperty != null)
+            // {
+            //     ignoreList.Add(filenameProperty);
+            // }
+            // if (ownerPrivKeyProperty != null)
+            // {
+            //     ignoreList.Add((ownerPrivKeyProperty));
+            // }
+            //
+            // return CompareProperties(reference, ignoreList);
             
-            return CompareProperties(reference, ignoreList);
+            List<PropertyInfo?> staticPropertyList = new();
+            List<PropertyInfo> compareList = new();
+            
+            staticPropertyList.Add(typeof(DataFileEntry).GetProperty(nameof(pageName)));
+            staticPropertyList.Add(typeof(DataFileEntry).GetProperty(nameof(serverLink)));
+            staticPropertyList.Add(typeof(DataFileEntry).GetProperty(nameof(ownerPublicKey)));
+
+            
+            foreach (var item in staticPropertyList)
+            {
+                if (item != null)
+                {
+                    compareList.Add(item);
+                }
+            }
+
+            return CompareProperties(reference, compareList);
         }
 
-        private bool CompareProperties(DataFileEntry reference, List<PropertyInfo>? ignoreList)
+        public bool CompareAllPropertiesExcept(DataFileEntry reference, List<PropertyInfo>? ignoreList)
         {
             PropertyInfo[] properties = typeof(DataFileEntry).GetProperties();
 
@@ -219,7 +245,12 @@ namespace SecureWiki.Model
 
                 propertiesToBeCompared.Add(prop);
             }
-            
+
+            return CompareProperties(reference, propertiesToBeCompared);
+        }
+
+        private bool CompareProperties(DataFileEntry reference, List<PropertyInfo> propertiesToBeCompared)
+        {
             foreach (PropertyInfo prop in propertiesToBeCompared)
             {
                 var ownValue = typeof(DataFileEntry).GetProperty(prop.Name)?.GetValue(this, null);
@@ -333,7 +364,7 @@ namespace SecureWiki.Model
             combinedKeyList.AddRange(keyList);
             combinedKeyList.AddRange(df.keyList);
             
-            combinedKeyList = combinedKeyList.OrderBy(entry => entry.publicKey).ToList();
+            combinedKeyList = combinedKeyList.OrderBy(entry => entry.publicKey, new ByteArrayComparer()).ToList();
 
             int i = 0;
             while (i < combinedKeyList.Count)

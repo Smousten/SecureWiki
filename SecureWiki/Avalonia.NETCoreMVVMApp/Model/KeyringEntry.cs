@@ -378,6 +378,12 @@ namespace SecureWiki.Model
                             //     item.filename, isChecked, parent?.name ?? "null");
                             fileAlreadyExists = true;
                         }
+                        // If they point to the exact same page
+                        else if (ownDF.HasSameStaticProperties(otherDF))
+                        {
+                            ownDF.MergeWithOtherDataFileEntry(otherDF);
+                            fileAlreadyExists = true;
+                        }
                         else
                         {
                             // Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Name is used by existing file", 
@@ -387,14 +393,6 @@ namespace SecureWiki.Model
                         
                         break;
                     }
-                    // If they point to the exact same page
-                    else if (otherDF.pageName.Equals(ownDF.pageName) && otherDF.serverLink.Equals(ownDF.serverLink))
-                    {
-                        ownDF.MergeWithOtherDataFileEntry(otherDF);
-                        fileAlreadyExists = true;
-                        break;
-                    }
-
                 }
                 
                 // Rename new datafile if name is already in use
@@ -414,8 +412,10 @@ namespace SecureWiki.Model
                         {
                             DataFileEntry df = dataFiles.First(x => x.filename.Equals(newName));
 
+                            // If they point to the exact same page
                             if (df.HasSameStaticProperties(otherDF))
                             {
+                                df.MergeWithOtherDataFileEntry(otherDF);
                                 fileAlreadyExists = true;
                                 break;
                             }
