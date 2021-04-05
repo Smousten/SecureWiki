@@ -410,6 +410,7 @@ namespace SecureWiki
 
         public void RemoveFile(string filePath, string filename)
         {
+            WriteToLogger($"Removing file '{filename}'", filePath);
             _keyring.RemoveFile(filePath, filename);
         }
 
@@ -582,6 +583,12 @@ namespace SecureWiki
             {
                 _keyring.RevokeAccess(datafile, latestRevision.revisionID);                
             }
+        }
+
+        public void WriteToLogger(string content, string? location = null,
+            LoggerEntry.LogPriority priority = LoggerEntry.LogPriority.Normal)
+        {
+            logger.Add(content, location, priority);
         }
     }
 }

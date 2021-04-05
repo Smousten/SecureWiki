@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -12,6 +13,11 @@ namespace SecureWiki.FuseCommunication
         private readonly IPAddress _localAddr;
         private readonly Manager _manager;
         private NetworkStream? _stream;
+        private Dictionary<string, List<string>> _queue = new();
+        private bool lastOperationWasRead = false;
+        private string previousFilename = "";
+        private string previousFilepath = "";
+        private byte[] decryptedText;
 
         public TCPListener(int port, string localAddr, Manager manager)
         {
@@ -92,19 +98,23 @@ namespace SecureWiki.FuseCommunication
             {
                 case "create":
                     Create(filename, filepath);
+                    lastOperationWasRead = false;
                     break;
                 case "read":
                     Read(filename, op[1]);
                     break;
                 case "write":
                     Write(filename, filepath);
+                    lastOperationWasRead = false;
                     break;
                 case "rename":
                     var renamePathSplit = op[1].Split("%", 2);
                     Rename(filename, renamePathSplit);
+                    lastOperationWasRead = false;
                     break;
                 case "mkdir":
                     Mkdir(filename, filepath);
+                    lastOperationWasRead = false;
                     break;
             }
         }
@@ -121,6 +131,8 @@ namespace SecureWiki.FuseCommunication
         {
             if (RealFileName(filename))
             {
+                
+                
                 // Method 1) write to file in rootdir
                 // var decryptedText = _manager.Download(filename) ?? Encoding.ASCII.GetBytes("File error");
                 // byte[] byData = decryptedText;
@@ -150,7 +162,16 @@ namespace SecureWiki.FuseCommunication
                 // _stream?.Write(msgPath);
                 
                 // Method 2) use socket to send bytes
-                var decryptedText = _manager.Download(filename) ?? Encoding.ASCII.GetBytes("File error");
+                
+                // If the previous operation was not exactly the same, otherwise reuse decrypted text
+                if (!(lastOperationWasRead && filename.Equals(previousFilename) && filepath.Equals(previousFilepath)))
+                {
+                    decryptedText = _manager.Download(filename) ?? Encoding.ASCII.GetBytes("File error");
+                    lastOperationWasRead = true;
+                    previousFilename = filename;
+                    previousFilepath = filepath;
+                }
+                
                 byte[] byData = decryptedText;
                 byte[] byDataLen = BitConverter.GetBytes(byData.Length);
                 byte[] msgPath = Encoding.ASCII.GetBytes(filepath);
@@ -162,6 +183,7 @@ namespace SecureWiki.FuseCommunication
                 Buffer.BlockCopy(msgPath, 0, rv, msgPathLen.Length + byDataLen.Length, msgPath.Length);
                 Buffer.BlockCopy(byData, 0, rv, msgPathLen.Length + byDataLen.Length + msgPath.Length, byData.Length);
                 _stream?.Write(rv);
+                lastOperationWasRead = true;
             }
         }
 
