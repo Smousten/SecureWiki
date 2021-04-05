@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using SecureWiki.Model;
+using SecureWiki.Utilities;
 using SecureWiki.Views;
 
 namespace SecureWiki.MediaWiki
@@ -168,6 +169,8 @@ namespace SecureWiki.MediaWiki
 
                 if (_manager.VerifyData(key.publicKey, textBytes, signBytes))
                 {
+                    _manager.WriteToLogger($"Signature of revision '{revid}' verified. This is the latest valid revision.", 
+                        dataFile.filename, LoggerEntry.LogPriority.Normal);
                     return textBytes;
                 }
             }
@@ -232,6 +235,8 @@ namespace SecureWiki.MediaWiki
                 if (!_manager.VerifyData(key.publicKey, textBytes, signBytes))
                 {
                     Console.WriteLine("Verifying failed...");
+                    _manager.WriteToLogger($"Verifying signature of revision '{revid}'failed. Attempting to get latest valid revision.", 
+                        dataFile.filename, LoggerEntry.LogPriority.Warning);
                     var revisions = GetAllRevisions(dataFile.pageName).revisionList;
                     return GetLatestValidRevision(dataFile, revisions);
                 }
