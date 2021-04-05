@@ -19,7 +19,6 @@ using SecureWiki.MediaWiki;
 using SecureWiki.Model;
 using SecureWiki.Utilities;
 using SecureWiki.Views;
-using Action = System.Action;
 
 namespace SecureWiki
 {

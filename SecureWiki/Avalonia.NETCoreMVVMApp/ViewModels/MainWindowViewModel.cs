@@ -103,6 +103,13 @@ namespace SecureWiki.ViewModels
             }
         }
 
+        private string _selectedFileRevision;
+        public string selectedFileRevision
+        {
+            get => _selectedFileRevision;
+            set => this.RaiseAndSetIfChanged(ref _selectedFileRevision, value);
+        }
+
         private Revision _selectedRevision;
         public Revision selectedRevision
         {

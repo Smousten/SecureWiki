@@ -249,8 +249,10 @@ namespace SecureWiki.Views
                 Thread localThread = new(() =>
                     manager.UpdateAllRevisionsAsync(dataFile.pageName, dataFile.serverLink, _viewModel.revisions));
                 localThread.Start();
-                
-              // Console.WriteLine("InputElement_OnPointerPressed: call passed");
+
+                _viewModel.selectedFileRevision = manager.RequestedRevision.ContainsKey(dataFile.pageName) ? 
+                    manager.RequestedRevision[dataFile.pageName] : "Newest";
+                // Console.WriteLine("InputElement_OnPointerPressed: call passed");
 
             }
             

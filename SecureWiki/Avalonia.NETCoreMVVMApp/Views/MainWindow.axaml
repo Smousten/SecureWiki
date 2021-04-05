@@ -262,7 +262,13 @@
             <!--         </MultiBinding> -->
             <!--     </TextBlock.IsVisible> -->
             <!-- </TextBlock> -->
-
+            
+            <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto" DockPanel.Dock="Top"
+                  IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}">
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Selected RevisionID: "></TextBlock>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding selectedFileRevision}"/>
+            </Grid>
+            
             <TextBlock Text="Select revision to open" DockPanel.Dock="Top"
                        IsVisible="{Binding selectedRevision, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <Button Name="SelectedRevisionButton" DockPanel.Dock="Top"
