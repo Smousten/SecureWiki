@@ -63,6 +63,8 @@ namespace SecureWiki.Views
             manager.SaveConfigManagerToFile();
             Console.WriteLine("Saving keyring to file");
             manager.SaveKeyringToFile();
+            Console.WriteLine("Saving contacts to file");
+            manager.SaveContactManagerToFile();
             
             
             var currentDir = Directory.GetCurrentDirectory();

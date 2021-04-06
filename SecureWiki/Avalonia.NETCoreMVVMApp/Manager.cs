@@ -37,6 +37,7 @@ namespace SecureWiki
         private static HttpClient httpClient = new();
         public CacheManager cacheManager;
         public ConfigManager configManager;
+        public ContactManager contactManager;
 
         public Logger logger;
         public RootKeyring rootKeyring;
@@ -72,6 +73,7 @@ namespace SecureWiki
 
             _keyring.InitKeyring();
             InitializeCacheManager();
+            InitializeContactManager();
             
             TCPListenerThread = new Thread(tcpListener.RunListener) {IsBackground = true};
             TCPListenerThread.Start();
@@ -146,6 +148,53 @@ namespace SecureWiki
         public void SetDefaultServerLink(string url)
         {
             configManager!.DefaultServerLink = url;
+        }
+        
+        public string GetContactsFilePath()
+        {
+            const string filename = "Contacts/Contacts.json";
+            var currentDir = Directory.GetCurrentDirectory();
+            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+            var path = Path.Combine(projectDir, filename);
+
+            return path;
+        }
+        
+        public string GetOwnContactsFilePath()
+        {
+            const string filename = "Contacts/OwnContacts.json";
+            var currentDir = Directory.GetCurrentDirectory();
+            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+            var path = Path.Combine(projectDir, filename);
+
+            return path;
+        }
+        
+        public void InitializeContactManager()
+        {
+            var contactsPath = GetContactsFilePath();
+            var ownContactsPath = GetOwnContactsFilePath();
+
+            contactManager = new ContactManager();
+            
+            // Read existing contacts from their respective files
+            if (File.Exists(contactsPath))
+            {
+                contactManager.Contacts = (List<Contact>) JSONSerialization.ReadFileAndDeserialize(contactsPath, typeof(List<Contact>));
+            }
+            if (File.Exists(ownContactsPath))
+            {
+                contactManager.OwnContacts = (List<Contact>) JSONSerialization.ReadFileAndDeserialize(ownContactsPath, typeof(List<Contact>));
+            }
+        }
+
+        public void SaveContactManagerToFile()
+        {
+            var contactsPath = GetContactsFilePath();
+            var ownContactsPath = GetOwnContactsFilePath();
+            
+            JSONSerialization.SerializeAndWriteFile(contactsPath, contactManager.Contacts);
+            JSONSerialization.SerializeAndWriteFile(ownContactsPath, contactManager.OwnContacts);
         }
 
         private void InitializeWikiHandlers()
