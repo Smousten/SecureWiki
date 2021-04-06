@@ -226,6 +226,36 @@ namespace SecureWiki.Utilities
             ClearOwnContacts();
             AddRangeOwnContacts(sortedList);
         }
+
+        public Contact? GetContactByNickname(string nickname)
+        {
+            return Contacts.Find(entry => entry.Nickname.Equals(nickname));
+        }
+        
+        public Contact? GetContactByPageTitle(string pageTitle)
+        {
+            return Contacts.Find(entry => entry.PageTitle.Equals(pageTitle));
+        }
+        
+        public Contact? GetContactByServerLink(string serverLink)
+        {
+            return Contacts.Find(entry => entry.ServerLink.Equals(serverLink));
+        }
+        
+        public Contact? GetOwnContactByNickname(string nickname)
+        {
+            return OwnContacts.Find(entry => entry.Nickname.Equals(nickname));
+        }
+        
+        public Contact? GetOwnContactByPageTitle(string pageTitle)
+        {
+            return OwnContacts.Find(entry => entry.PageTitle.Equals(pageTitle));
+        }
+        
+        public Contact? GetOwnContactByServerLink(string serverLink)
+        {
+            return OwnContacts.Find(entry => entry.ServerLink.Equals(serverLink));
+        }
         
     }
 }
