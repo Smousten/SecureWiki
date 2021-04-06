@@ -223,6 +223,7 @@
             </StackPanel>
         </ScrollViewer>
 
+        <!-- Logger -->
         <Border Grid.Row="1" BorderThickness="3" BorderBrush="Black" Name="BorderLogger">
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" ScrollChanged="ScrollViewerItemsRepeaterLog_OnScrollChanged"
                           Name="ScrollViewerItemsRepeaterLog" Width="{Binding Bounds.Width, ElementName=BorderLogger}">
