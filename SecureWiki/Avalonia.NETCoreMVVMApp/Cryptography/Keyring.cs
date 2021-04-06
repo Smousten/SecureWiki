@@ -378,9 +378,9 @@ namespace SecureWiki.Cryptography
 
         public void RevokeAccess(DataFileEntry datafile, string latestRevisionID)
         {
-            if (datafile.keyList.Last().revisionStart.Equals("-1")) return;
+            if (datafile.keyList.Last().RevisionStart.Equals("-1")) return;
             
-            datafile.keyList.Last().revisionEnd = latestRevisionID;
+            datafile.keyList.Last().RevisionEnd = latestRevisionID;
             
             DataFileKey newDataFileKey = new();
             newDataFileKey.SignKey(datafile.ownerPrivateKey!);

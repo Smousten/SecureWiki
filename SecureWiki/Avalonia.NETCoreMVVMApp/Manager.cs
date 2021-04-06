@@ -62,11 +62,11 @@ namespace SecureWiki
         {
             InitializeConfigManager();
             InitializeWikiHandlers();
-            
+
             // localhostWikiHandler = new WikiHandler("new_mysql_user",
             //     "THISpasswordSHOULDbeCHANGED", httpClient, this, "http://localhost/mediawiki/api.php");
             // wikiHandlers.Add("http://localhost/mediawiki/api.php", localhostWikiHandler);
-            
+
             _keyring = new Keyring(rootKeyring);
             _crypto = new Crypto();
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
@@ -74,16 +74,16 @@ namespace SecureWiki
             _keyring.InitKeyring();
             InitializeCacheManager();
             InitializeContactManager();
-            
+
             TCPListenerThread = new Thread(tcpListener.RunListener) {IsBackground = true};
             TCPListenerThread.Start();
             logger.Add("Starting up TCPListener", null);
-            
+
             Thread.Sleep(1000);
-            
+
             Thread fuseThread = new(Program.RunFuse) {IsBackground = true};
             fuseThread.Start();
-            
+
             logger.Add("Starting up FUSE", null);
         }
 
@@ -105,9 +105,8 @@ namespace SecureWiki
 
         public void InitializeConfigManager()
         {
-
             var path = GetConfigManagerFilePath();
-            
+
             if (File.Exists(path))
             {
                 configManager = (ConfigManager) JSONSerialization.ReadFileAndDeserialize(path, typeof(ConfigManager));
@@ -121,7 +120,7 @@ namespace SecureWiki
         public void SaveConfigManagerToFile()
         {
             var path = GetConfigManagerFilePath();
-            
+
             JSONSerialization.SerializeAndWriteFile(path, configManager);
         }
 
@@ -129,17 +128,17 @@ namespace SecureWiki
         {
             configManager!.cachePreferences.GeneralSetting = setting;
         }
-        
+
         public void SetCacheSettingSingleFile(string pageTitle, CachePreferences.CacheSetting? setting)
         {
             configManager!.cachePreferences.SetPreference(pageTitle, setting);
         }
-        
+
         public CachePreferences.CacheSetting GetCacheSettingGeneral()
         {
             return configManager!.cachePreferences.GeneralSetting;
         }
-        
+
         public CachePreferences.CacheSetting? GetCacheSettingSingleFile(string pageTitle)
         {
             return configManager!.cachePreferences.GetSetting(pageTitle);
@@ -200,10 +199,10 @@ namespace SecureWiki
         private void InitializeWikiHandlers()
         {
             wikiHandlers = new();
-            
+
             // TODO: read from config file
         }
-        
+
         private IServerInteraction? GetWikiHandler(string url)
         {
             if (wikiHandlers.ContainsKey(url))
@@ -229,7 +228,7 @@ namespace SecureWiki
             var serverCredentials = configManager.GetServerCredentials(url);
 
             string? savedUsername = null;
-            
+
             if (serverCredentials?.Username != null)
             {
                 if (serverCredentials.ProtectedPassword != null && serverCredentials.Entropy != null)
@@ -246,16 +245,16 @@ namespace SecureWiki
 
             const string title = "MediaWiki server login";
             string content = "Enter credentials for server: " + url;
-            
-            CredentialsPopup.CredentialsResult credentialsResult = 
+
+            CredentialsPopup.CredentialsResult credentialsResult =
                 ShowPopupEnterCredentials(title, content, savedUsername);
 
-            if (credentialsResult.ButtonResult == CredentialsPopup.PopupButtonResult.Cancel || 
+            if (credentialsResult.ButtonResult == CredentialsPopup.PopupButtonResult.Cancel ||
                 credentialsResult.Username.Equals("") || credentialsResult.Password.Equals(""))
             {
                 return null;
             }
-            
+
             // Create new wiki handler from input credentials and attempt login to server
             var wikiHandler = new WikiHandler(credentialsResult.Username, credentialsResult.Password, new HttpClient(),
                 this, url);
@@ -269,7 +268,7 @@ namespace SecureWiki
 
             if (credentialsResult.SaveUsername)
             {
-                configManager.AddEntry(url, credentialsResult.Username, 
+                configManager.AddEntry(url, credentialsResult.Username,
                     credentialsResult.SavePassword ? credentialsResult.Password : null);
             }
             else
@@ -286,14 +285,15 @@ namespace SecureWiki
             var wikiHandler = GetWikiHandler(url);
             return wikiHandler?.GetAllRevisions(pageTitle);
         }
-        
-        public async void UpdateAllRevisionsAsync(string pageTitle, string url, ObservableCollection<Revision> revisions)
+
+        public async void UpdateAllRevisionsAsync(string pageTitle, string url,
+            ObservableCollection<Revision> revisions)
         {
             var wikiHandler = GetWikiHandler(url);
-            var allRev =  wikiHandler?.GetAllRevisions(pageTitle);
+            var allRev = wikiHandler?.GetAllRevisions(pageTitle);
 
             revisions.Clear();
-            
+
             if (allRev?.revisionList != null)
             {
                 revisions.AddRange(allRev.revisionList);
@@ -303,9 +303,10 @@ namespace SecureWiki
         public string? GetPageContent(string pageTitle, string revID, string url)
         {
             // Write to logger
-            string loggerMsg = $"Attempting to read file from page title '{pageTitle}', revision {revID} on server '{url}'";
+            string loggerMsg =
+                $"Attempting to read file from page title '{pageTitle}', revision {revID} on server '{url}'";
             logger.Add(loggerMsg);
-            
+
             var wikiHandler = GetWikiHandler(url);
             var output = wikiHandler?.GetPageContent(pageTitle, revID);
 
@@ -316,7 +317,7 @@ namespace SecureWiki
                     ? $"File read failed due to missing server credentials"
                     : $"Could not read file from server");
             }
-            
+
             return output;
         }
 
@@ -337,7 +338,7 @@ namespace SecureWiki
         {
             DataFileEntry? df = GetDataFile(filename, rootKeyring);
             var keyList = df?.keyList.Last();
-            if (keyList?.privateKey != null)
+            if (keyList?.PrivateKey != null)
             {
                 var wikiHandler = GetWikiHandler(df!.serverLink);
 
@@ -346,7 +347,7 @@ namespace SecureWiki
                     // Write to logger
                     string loggerMsg = "Attempting to upload file to server '" + df!.serverLink + "'";
                     logger.Add(loggerMsg, filepath);
-                
+
                     wikiHandler?.Upload(df!, filepath);
                 }
                 else
@@ -383,8 +384,9 @@ namespace SecureWiki
 
             return output;
         }
-        
-        public CredentialsPopup.CredentialsResult ShowPopupEnterCredentials(string title, string content, string? savedUsername)
+
+        public CredentialsPopup.CredentialsResult ShowPopupEnterCredentials(string title, string content,
+            string? savedUsername)
         {
             // Invoke UI thread with highest priority
             var output = Dispatcher.UIThread.InvokeAsync(async () =>
@@ -405,8 +407,7 @@ namespace SecureWiki
 
             return output;
         }
-        
-        
+
 
         // public void SetNewMediaWikiServer(string url)
         // {
@@ -421,12 +422,12 @@ namespace SecureWiki
             var dataFile = GetDataFile(filename, rootKeyring);
 
             if (dataFile == null) return null;
-            
+
             var wikiHandler = GetWikiHandler(dataFile.serverLink);
 
-            return RequestedRevision.ContainsKey(dataFile.pageName) ? 
-                wikiHandler?.Download(dataFile, RequestedRevision[dataFile.pageName]) : 
-                wikiHandler?.Download(dataFile);
+            return RequestedRevision.ContainsKey(dataFile.pageName)
+                ? wikiHandler?.Download(dataFile, RequestedRevision[dataFile.pageName])
+                : wikiHandler?.Download(dataFile);
         }
 
         public void LoginToMediaWiki(string username, string password)
@@ -480,7 +481,7 @@ namespace SecureWiki
         {
             _keyring.SaveRootKeyring();
         }
-        
+
         public string? AttemptReadFileFromCache(string pageTitle, string revid)
         {
             string? cacheResult;
@@ -562,7 +563,7 @@ namespace SecureWiki
         {
             return _keyring.GetDataFile(filename, keyring);
         }
-        
+
         public byte[]? Encrypt(byte[] plainText, byte[] symmKey, byte[] iv)
         {
             return _crypto.Encrypt(plainText, symmKey, iv);
@@ -582,7 +583,7 @@ namespace SecureWiki
         {
             return _crypto.VerifyData(publicKey, plainText, signedData);
         }
-        
+
         public void SendEmail(string recipientEmail)
         {
             // string mailto = string.Format("xdg-email mailto:{0}?subject={1}&body={2}",
@@ -623,13 +624,13 @@ namespace SecureWiki
         public void RevokeAccess(DataFileEntry datafile)
         {
             logger.Add($"Attempting to revoke access to file '{datafile.filename}'");
-            
+
             var wikiHandler = GetWikiHandler(datafile.serverLink);
             var latestRevision = wikiHandler?.GetLatestRevision(datafile);
 
             if (latestRevision?.revisionID != null && datafile.ownerPrivateKey != null)
             {
-                _keyring.RevokeAccess(datafile, latestRevision.revisionID);                
+                _keyring.RevokeAccess(datafile, latestRevision.revisionID);
             }
         }
 
@@ -641,12 +642,22 @@ namespace SecureWiki
 
         public void ExportContact()
         {
-            throw new NotImplementedException();
+            // logger.Add("Exporting contacts");
+            // contactManager.ExportContactsBasedOnIsChecked();
         }
 
         public void ImportContact(string path)
         {
-            throw new NotImplementedException();
+            // logger.Add($"Importing contacts from '{importPath}'");
+            // contactManager.ImportContacts(importPath);
+        }
+
+        public void GenerateContact(string serverLink, string nickname)
+        {
+            var pageTitle = RandomString.GenerateRandomAlphanumericString();
+            var url = "http://" + serverLink + "/mediawiki/api.php";
+            Contact newContact = new(url, pageTitle, nickname);
+            contactManager.AddOwnContact(newContact);
         }
     }
 }

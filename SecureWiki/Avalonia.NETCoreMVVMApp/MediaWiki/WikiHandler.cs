@@ -103,7 +103,7 @@ namespace SecureWiki.MediaWiki
             var key = dataFile.keyList.Last();
 
             // Sign hash value of plain text
-            var signature = _manager.SignData(key.privateKey!, plainText);
+            var signature = _manager.SignData(key.PrivateKey!, plainText);
 
             // Encrypt text and signature using key from key list
             var encryptedContent = EncryptTextAndSignature(plainText, signature, key);
@@ -117,9 +117,9 @@ namespace SecureWiki.MediaWiki
             // Get revision ID of the revision that was just uploaded and update DataFileEntry revision start
             // information for key if not set  
             rev = GetLatestRevision(dataFile);
-            if (key.revisionStart.Equals("-1") && rev.revisionID != null)
+            if (key.RevisionStart.Equals("-1") && rev.revisionID != null)
             {
-                dataFile.keyList.Last().revisionStart = rev.revisionID;
+                dataFile.keyList.Last().RevisionStart = rev.revisionID;
             }
             
             // If uploaded revision ID is greater than latest revision end. 
@@ -167,7 +167,7 @@ namespace SecureWiki.MediaWiki
                 var textBytes = decryptedBytes.Value.textBytes;
                 var signBytes = decryptedBytes.Value.signBytes;
 
-                if (_manager.VerifyData(key.publicKey, textBytes, signBytes))
+                if (_manager.VerifyData(key.PublicKey, textBytes, signBytes))
                 {
                     _manager.WriteToLogger($"Signature of revision '{revid}' verified. This is the latest valid revision.", 
                         dataFile.filename, LoggerEntry.LogPriority.Normal);
@@ -232,7 +232,7 @@ namespace SecureWiki.MediaWiki
 
                 var textBytes = decryptedBytes.Value.textBytes;
                 var signBytes = decryptedBytes.Value.signBytes;
-                if (!_manager.VerifyData(key.publicKey, textBytes, signBytes))
+                if (!_manager.VerifyData(key.PublicKey, textBytes, signBytes))
                 {
                     Console.WriteLine("Verifying failed...");
                     _manager.WriteToLogger($"Verifying signature of revision '{revid}'failed. Attempting to get latest valid revision.", 
@@ -265,7 +265,7 @@ namespace SecureWiki.MediaWiki
             Buffer.BlockCopy(signature, 0, rv, plainText.Length, signature.Length);
 
             var encryptedBytes = _manager.Encrypt(
-                rv, keyList.symmKey, keyList.iv);
+                rv, keyList.SymmKey, keyList.IV);
             if (encryptedBytes == null)
             {
                 Console.WriteLine("Failed encryption");
@@ -280,7 +280,7 @@ namespace SecureWiki.MediaWiki
         {
             var pageContentBytes = Convert.FromBase64String(pageContent);
             var decryptedBytes = _manager.Decrypt(pageContentBytes,
-                keyList.symmKey, keyList.iv);
+                keyList.SymmKey, keyList.IV);
 
             if (decryptedBytes == null)
             {

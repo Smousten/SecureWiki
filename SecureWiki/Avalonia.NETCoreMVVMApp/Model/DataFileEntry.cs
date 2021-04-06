@@ -60,7 +60,7 @@ namespace SecureWiki.Model
             get
             {
                 // if (privateKey == null)
-                if (keyList.TrueForAll(e => e.privateKey == null))
+                if (keyList.TrueForAll(e => e.PrivateKey == null))
                 {
                     return false;
                 }
@@ -78,7 +78,7 @@ namespace SecureWiki.Model
             get
             {
                 // if (privateKey == null)
-                if (keyList.TrueForAll(e => e.privateKey == null))
+                if (keyList.TrueForAll(e => e.PrivateKey == null))
                 {
                     return false;
                 }
@@ -122,11 +122,11 @@ namespace SecureWiki.Model
             foreach (var key in keyList)
             {
                 if (ownerPublicKey == null || 
-                    (key.privateKey != null && !crypto.VerifyData(ownerPublicKey, key.privateKey, key.signedPrivateKey)) ||
-                    !crypto.VerifyData(ownerPublicKey, key.publicKey, key.signedPublicKey))
+                    (key.PrivateKey != null && !crypto.VerifyData(ownerPublicKey, key.PrivateKey, key.SignedPrivateKey)) ||
+                    !crypto.VerifyData(ownerPublicKey, key.PublicKey, key.SignedPublicKey))
                 {
                     Console.WriteLine("DataFileEntry filename='{0}', key pair with revstart='{1}', revend='{2}'", 
-                        filename, key.revisionStart, key.revisionEnd);
+                        filename, key.RevisionStart, key.RevisionEnd);
                     return false;
                 }
             }
@@ -310,10 +310,10 @@ namespace SecureWiki.Model
     
             // Parse revisions IDs to int 
             int rev = int.Parse(revid);
-            int revStart = int.Parse(keyList[i].revisionStart);
-            int revEnd = int.Parse(keyList[i].revisionEnd);
+            int revStart = int.Parse(keyList[i].RevisionStart);
+            int revEnd = int.Parse(keyList[i].RevisionEnd);
             
-            bool revEndNotSet = keyList[i].revisionEnd.Equals("-1");
+            bool revEndNotSet = keyList[i].RevisionEnd.Equals("-1");
             
             return revStart <= rev && (revEnd >= rev || revEndNotSet);
         }
@@ -325,8 +325,8 @@ namespace SecureWiki.Model
             // Find first key where revid is in range
             foreach (DataFileKey dataFileKey in keyList)
             {
-                int revStart = int.Parse(dataFileKey.revisionStart);
-                int revEnd = int.Parse(dataFileKey.revisionEnd);
+                int revStart = int.Parse(dataFileKey.RevisionStart);
+                int revEnd = int.Parse(dataFileKey.RevisionEnd);
 
                 if (revStart > rev)
                 {
@@ -364,14 +364,14 @@ namespace SecureWiki.Model
             combinedKeyList.AddRange(keyList);
             combinedKeyList.AddRange(df.keyList);
             
-            combinedKeyList = combinedKeyList.OrderBy(entry => entry.publicKey, new ByteArrayComparer()).ToList();
+            combinedKeyList = combinedKeyList.OrderBy(entry => entry.PublicKey, new ByteArrayComparer()).ToList();
 
             int i = 0;
             while (i < combinedKeyList.Count)
             {
                 int cnt = 1;
 
-                while (i + cnt < combinedKeyList.Count && combinedKeyList[i].publicKey.SequenceEqual(combinedKeyList[i + cnt].publicKey))
+                while (i + cnt < combinedKeyList.Count && combinedKeyList[i].PublicKey.SequenceEqual(combinedKeyList[i + cnt].PublicKey))
                 {
                     combinedKeyList[i].MergeWithOtherKey(combinedKeyList[i + cnt]);
                     cnt++;
@@ -381,7 +381,7 @@ namespace SecureWiki.Model
                 i += cnt;
             }
             
-            resultingKeyList = resultingKeyList.OrderBy(entry => entry.revisionStart).ToList();
+            resultingKeyList = resultingKeyList.OrderBy(entry => entry.RevisionStart).ToList();
             keyList.Clear();
             keyList.AddRange(resultingKeyList);
         }

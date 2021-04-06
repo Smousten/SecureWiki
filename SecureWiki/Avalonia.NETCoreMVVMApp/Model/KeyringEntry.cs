@@ -471,7 +471,7 @@ namespace SecureWiki.Model
             {
                 if (dataFileEntry.isCheckedWrite != true)
                 {
-                    dataFileEntry.keyList.ForEach(e => e.privateKey = null);
+                    dataFileEntry.keyList.ForEach(e => e.PrivateKey = null);
                     // dataFileEntry.privateKey = null;
                 }
             }

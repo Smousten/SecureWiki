@@ -8,21 +8,21 @@ namespace SecureWiki.Model
     public class DataFileKey
     {
         [JsonProperty]
-        public byte[] symmKey { get; set; }
+        public byte[] SymmKey { get; set; }
         [JsonProperty]
-        public byte[] iv { get; set; }
+        public byte[] IV { get; set; }
         [JsonProperty]
-        public byte[]? privateKey { get; set; }
+        public byte[]? PrivateKey { get; set; }
         [JsonProperty]
-        public byte[] publicKey { get; set; }
+        public byte[] PublicKey { get; set; }
         [JsonProperty]
-        public byte[] signedPrivateKey { get; set; }
+        public byte[] SignedPrivateKey { get; set; }
         [JsonProperty]
-        public byte[] signedPublicKey { get; set; }
+        public byte[] SignedPublicKey { get; set; }
         [JsonProperty]
-        public string revisionStart { get; set; }
+        public string RevisionStart { get; set; }
         [JsonProperty]
-        public string revisionEnd { get; set; }
+        public string RevisionEnd { get; set; }
 
         public DataFileKey()
         {
@@ -30,61 +30,61 @@ namespace SecureWiki.Model
             var (newSymmKey, newIV) = crypto.GenerateAESParams();
             var (newPrivateKey, newPublicKey) = crypto.GenerateRSAParams();
             
-            symmKey = newSymmKey;
-            iv = newIV;
-            privateKey = newPrivateKey;
-            publicKey = newPublicKey;
-            revisionStart = "-1";
-            revisionEnd = "-1";
+            SymmKey = newSymmKey;
+            IV = newIV;
+            PrivateKey = newPrivateKey;
+            PublicKey = newPublicKey;
+            RevisionStart = "-1";
+            RevisionEnd = "-1";
         }
 
         public DataFileKey(byte[] symmKey, byte[] iv, byte[]? privateKey, byte[] publicKey, string revisionStart, string revisionEnd)
         {
-            this.symmKey = symmKey;
-            this.iv = iv;
-            this.privateKey = privateKey;
-            this.publicKey = publicKey;
-            this.revisionStart = revisionStart;
-            this.revisionEnd = revisionEnd;
+            this.SymmKey = symmKey;
+            this.IV = iv;
+            this.PrivateKey = privateKey;
+            this.PublicKey = publicKey;
+            this.RevisionStart = revisionStart;
+            this.RevisionEnd = revisionEnd;
         }
 
         public void SignKey(byte[] key)
         {
             Crypto crypto = new();
-            if (privateKey != null)
+            if (PrivateKey != null)
             {
-                signedPrivateKey = crypto.SignData(key, privateKey);
-                signedPublicKey = crypto.SignData(key, publicKey);    
+                SignedPrivateKey = crypto.SignData(key, PrivateKey);
+                SignedPublicKey = crypto.SignData(key, PublicKey);    
             }
         }
 
         public bool MergeWithOtherKey(DataFileKey otherDFkey)
         {
-            if (!symmKey.SequenceEqual(otherDFkey.symmKey) ||
+            if (!SymmKey.SequenceEqual(otherDFkey.SymmKey) ||
                 // !iv.SequenceEqual(otherDFkey.iv) ||
-                !publicKey.SequenceEqual(otherDFkey.publicKey) ||
-                (privateKey != null && otherDFkey.privateKey != null && !privateKey.SequenceEqual(otherDFkey.privateKey))
+                !PublicKey.SequenceEqual(otherDFkey.PublicKey) ||
+                (PrivateKey != null && otherDFkey.PrivateKey != null && !PrivateKey.SequenceEqual(otherDFkey.PrivateKey))
                 )
             {
                 return false;
             }
 
-            privateKey ??= otherDFkey.privateKey;
-            iv ??= otherDFkey.iv;
+            PrivateKey ??= otherDFkey.PrivateKey;
+            IV ??= otherDFkey.IV;
 
-            var revStart = int.Parse(revisionStart);
-            var revEnd = int.Parse(revisionEnd);
-            var revStartOther = int.Parse(otherDFkey.revisionStart);
-            var revEndOther = int.Parse(otherDFkey.revisionEnd);
+            var revStart = int.Parse(RevisionStart);
+            var revEnd = int.Parse(RevisionEnd);
+            var revStartOther = int.Parse(otherDFkey.RevisionStart);
+            var revEndOther = int.Parse(otherDFkey.RevisionEnd);
 
             if (revStart > revStartOther)
             {
-                revisionStart = otherDFkey.revisionStart;
+                RevisionStart = otherDFkey.RevisionStart;
             }
 
             if (revEnd < revEndOther)
             {
-                revisionEnd = otherDFkey.revisionEnd;
+                RevisionEnd = otherDFkey.RevisionEnd;
             }
 
             return true;

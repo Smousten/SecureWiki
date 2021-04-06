@@ -116,7 +116,11 @@ namespace SecureWiki.ViewModels
             get => _selectedRevision;
             set => this.RaiseAndSetIfChanged(ref _selectedRevision, value);
         }
-
+        
+        public string ServerLinkPopUp { get; set; }
+        
+        public string NicknamePopUp { get; set; }
+        
         public MainWindowViewModel(RootKeyring rk, Logger logger)
         {
             rootKeyring = rk;

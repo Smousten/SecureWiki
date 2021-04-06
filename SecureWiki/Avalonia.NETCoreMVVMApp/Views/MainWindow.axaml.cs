@@ -381,8 +381,12 @@ namespace SecureWiki.Views
                 scrollViewer.ScrollToEnd();
             }
         }
-
-
+        
+        private void ButtonGenerateContact_Click(object? sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+        
         private void ButtonExportContact_Click(object? sender, RoutedEventArgs e)
         {
             manager.ExportContact();
@@ -406,5 +410,24 @@ namespace SecureWiki.Views
                 Console.WriteLine("No path given from FileDialog");
             }
         }
+
+        private void GenerateContactPopup_Click(object? sender, RoutedEventArgs e)
+        {
+            var serverLinkTextBox = this.FindControl<TextBox>("ServerLinkTextBox");
+            var serverLink = serverLinkTextBox.Text;
+
+            var nicknameTextBox = this.FindControl<TextBox>("NicknameTextBox");
+            var nickname = nicknameTextBox.Text;
+
+            if (serverLink != null && nickname != null)
+            {
+                Thread localThread = new(() =>
+                    manager.GenerateContact(serverLink, nickname));
+                localThread.Start();
+            }
+
+            var popup = this.FindControl<Popup>("GenerateContactPopup");
+            popup.IsOpen = false;
+    }
     }
 }
