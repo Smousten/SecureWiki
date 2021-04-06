@@ -7,11 +7,15 @@ namespace SecureWiki.Utilities
     [JsonObject(MemberSerialization.OptIn)]
     public class Contact
     {
-        [JsonProperty] public byte[] PublicKey;
-        [JsonProperty] public byte[]? PrivateKey;
-        [JsonProperty] public string ServerLink;
-        [JsonProperty] public string PageTitle;
-        [JsonProperty] public string Nickname;
+        [JsonProperty] public byte[] PublicKey { get; set; }
+        [JsonProperty] public byte[]? PrivateKey { get; set; }
+        [JsonProperty] public string ServerLink { get; set; }
+        [JsonProperty] public string PageTitle { get; set; }
+        [JsonProperty] public string Nickname { get; set; }
+
+        public Contact()
+        {
+        }
 
         public Contact(string serverLink, string pageTitle, string nickname, 
             byte[] publicKey, byte[]? privateKey)

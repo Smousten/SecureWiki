@@ -659,5 +659,32 @@ namespace SecureWiki
             Contact newContact = new(url, pageTitle, nickname);
             contactManager.AddOwnContact(newContact);
         }
+
+        public void GetAllContacts(ObservableCollection<Contact> contacts)
+        {
+            contacts.Clear();
+            if (contactManager.OwnContacts.Count > 0)
+            {
+                contacts.AddRange(contactManager.OwnContacts);
+            }
+
+            if (contactManager.Contacts.Count > 0)
+            {
+                contacts.AddRange(contactManager.Contacts);
+            }
+        }
+
+        public void ExportContacts(ObservableCollection<Contact> exportContacts)
+        {
+            logger.Add("Exporting contacts");
+
+            var noDuplicates = exportContacts.Distinct().ToList();
+            
+            var currentDir = Directory.GetCurrentDirectory();
+            var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+            var exportFileName = "ContactExport.json";
+            var exportFilePath = Path.Combine(path, exportFileName);
+            JSONSerialization.SerializeAndWriteFile(exportFilePath, noDuplicates);
+        }
     }
 }

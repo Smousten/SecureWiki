@@ -121,6 +121,22 @@ namespace SecureWiki.ViewModels
         
         public string NicknamePopUp { get; set; }
         
+        private ObservableCollection<Contact> _contacts = new();
+        public ObservableCollection<Contact> Contacts
+        {
+            get => _contacts;
+            // set => this.RaiseAndSetIfChanged(ref _revisions, value);
+            set
+            {
+                // Console.WriteLine("setting revisions");
+                _contacts = value;
+                // Console.WriteLine("revisions set");
+                this.RaisePropertyChanged(nameof(Contacts));
+                // Console.WriteLine("property raised");
+            }
+        }
+        public ObservableCollection<Contact> SelectedContacts { get; } = new ObservableCollection<Contact>();
+        
         public MainWindowViewModel(RootKeyring rk, Logger logger)
         {
             rootKeyring = rk;

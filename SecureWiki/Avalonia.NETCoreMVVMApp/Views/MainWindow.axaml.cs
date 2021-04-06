@@ -28,7 +28,7 @@ namespace SecureWiki.Views
         public MainWindowViewModel _viewModel;
         public Logger logger = new();
         private bool autoscrollLogger = true;
-        
+
         public MainWindow()
         {
             _viewModel = new MainWindowViewModel(_rootKeyring, logger);
@@ -39,12 +39,12 @@ namespace SecureWiki.Views
             Thread managerThread = new(manager.Run) {IsBackground = true, Name = "ManagerThread"};
             managerThread.Start();
 
-            
+
 #if DEBUG
             this.AttachDevTools();
 #endif
         }
-        
+
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
@@ -65,8 +65,8 @@ namespace SecureWiki.Views
             manager.SaveKeyringToFile();
             Console.WriteLine("Saving contacts to file");
             manager.SaveContactManagerToFile();
-            
-            
+
+
             var currentDir = Directory.GetCurrentDirectory();
             var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var mountdirPath = Path.Combine(baseDir, @"fuse/directories/mountdir");
@@ -91,7 +91,7 @@ namespace SecureWiki.Views
             {
                 var first = TV.GetLogicalChildren().First(c => c.GetType() == typeof(TreeViewItem));
                 TreeViewItem root = (TreeViewItem) first;
-                root.IsExpanded = true;    
+                root.IsExpanded = true;
             }
         }
 
@@ -133,19 +133,20 @@ namespace SecureWiki.Views
         private async Task<string?> OpenFileDialogAndGetFilePath()
         {
             OpenFileDialog dialog = new();
-            dialog.Filters.Add(new FileDialogFilter() { Extensions =  { "json" } });
+            dialog.Filters.Add(new FileDialogFilter() {Extensions = {"json"}});
 
             var output = await dialog.ShowAsync(this);
 
             // Return first file chosen, if any exist
             if (output != null && output.Length > 0)
             {
-                return output[0];                
+                return output[0];
             }
+
             return null;
         }
 
-      
+
         /*
         private void InitCheckBoxHandlers(TreeViewItem root)
         {
@@ -164,10 +165,9 @@ namespace SecureWiki.Views
             }
         }
         */
-        
+
         private void CheckBox_OnInitialized(object? sender, EventArgs e)
         {
-
         }
 
         private TreeViewItem GetTreeViewItemParent(Control item)
@@ -181,6 +181,7 @@ namespace SecureWiki.Views
                     Console.WriteLine("Error: Parent is treeview");
                     throw new Exception();
                 }
+
                 parent = parent.Parent;
             }
 
@@ -199,7 +200,7 @@ namespace SecureWiki.Views
         {
             var textBoxUser = this.FindControl<TextBox>("TextBoxUser");
             var username = textBoxUser.Text;
-            
+
             var textBoxPass = this.FindControl<TextBox>("TextBoxPass");
             var password = textBoxPass.Text;
 
@@ -212,13 +213,13 @@ namespace SecureWiki.Views
             var recipientEmail = textBoxMail.Text;
             manager.SendEmail(recipientEmail);
         }
-        
+
         private void SelectedRevisionButton_OnClick(object? sender, RoutedEventArgs e)
         {
             if (_viewModel.selectedRevision.revisionID == null) return;
 
             _viewModel.selectedFile.newestRevisionSelected = false; // IsNewestRevision();
-                
+
             if (manager.RequestedRevision.ContainsKey(_viewModel.selectedFile.pageName))
             {
                 manager.RequestedRevision[_viewModel.selectedFile.pageName] = _viewModel.selectedRevision.revisionID;
@@ -228,16 +229,16 @@ namespace SecureWiki.Views
                 manager.RequestedRevision.Add(_viewModel.selectedFile.pageName, _viewModel.selectedRevision.revisionID);
             }
         }
-        
+
         private void DefaultRevisionButton_OnClick(object? sender, RoutedEventArgs e)
         {
             // Remove pagename from dictionary of requested revisions
-            
+
             if (manager.RequestedRevision.ContainsKey(_viewModel.selectedFile.pageName))
             {
                 manager.RequestedRevision.Remove(_viewModel.selectedFile.pageName);
             }
-            
+
             _viewModel.selectedFile.newestRevisionSelected = true;
         }
 
@@ -252,12 +253,11 @@ namespace SecureWiki.Views
                     manager.UpdateAllRevisionsAsync(dataFile.pageName, dataFile.serverLink, _viewModel.revisions));
                 localThread.Start();
 
-                _viewModel.selectedFileRevision = manager.RequestedRevision.ContainsKey(dataFile.pageName) ? 
-                    manager.RequestedRevision[dataFile.pageName] : "Newest";
+                _viewModel.selectedFileRevision = manager.RequestedRevision.ContainsKey(dataFile.pageName)
+                    ? manager.RequestedRevision[dataFile.pageName]
+                    : "Newest";
                 // Console.WriteLine("InputElement_OnPointerPressed: call passed");
-
             }
-            
         }
 
         private bool IsNewestRevision()
@@ -265,7 +265,7 @@ namespace SecureWiki.Views
             var newestSelected = true;
 
             if (_viewModel.selectedRevision.revisionID == null) return newestSelected;
-            
+
             var selectedRevID = int.Parse(_viewModel.selectedRevision.revisionID);
             foreach (Revision item in _viewModel.revisions)
             {
@@ -288,37 +288,45 @@ namespace SecureWiki.Views
 
         private void HideButtonPopup_Click(object? sender, RoutedEventArgs e)
         {
-            var tag = (string)((Button) sender!).Tag;
+            var tag = (string) ((Button) sender!).Tag;
             var popup = this.FindControl<Popup>(tag);
             popup.IsOpen = false;
         }
 
         private void ShowButtonPopup_Click(object? sender, RoutedEventArgs e)
         {
-            var tag = (string)((Button) sender!).Tag;
+            var tag = (string) ((Button) sender!).Tag;
             var popup = this.FindControl<Popup>(tag);
+
+            if (tag.Equals("ExportContactsPopup"))
+            {
+                Thread localThread = new(() =>
+                    manager.GetAllContacts(_viewModel.Contacts));
+                localThread.Start();
+            }
+
             popup.IsOpen = true;
         }
 
         private void Revoke_Click(object? sender, RoutedEventArgs e)
         {
             var datafile = _viewModel.selectedFile;
-            
+
             Thread localThread = new(() =>
                 manager.RevokeAccess(datafile));
             localThread.Start();
-            
+
             var popup = this.FindControl<Popup>("RevokeAccessPopup");
             popup.IsOpen = false;
         }
-        
+
         private void CacheSettingButton_Click(object? sender, RoutedEventArgs e)
         {
             var button = (Button) sender!;
             var tag = (string) button.Tag;
             var name = button.Name;
             var content = name?.Substring("CacheSettingPopup".Length);
-            
+
             var popup = this.FindControl<Popup>(tag);
             popup.IsOpen = false;
 
@@ -331,7 +339,7 @@ namespace SecureWiki.Views
             else
             {
                 // Get setting chosen
-                setting = (CachePreferences.CacheSetting) Enum.Parse(typeof(CachePreferences.CacheSetting), content);    
+                setting = (CachePreferences.CacheSetting) Enum.Parse(typeof(CachePreferences.CacheSetting), content);
             }
 
             manager.SetCacheSettingSingleFile(_viewModel.selectedFile.pageName, setting);
@@ -342,23 +350,23 @@ namespace SecureWiki.Views
             var popup = (Popup) sender!;
 
             // Reset color of the other buttons
-            var gridChildren = popup.FindLogicalDescendantOfType<Grid>().
-                FindLogicalDescendantOfType<Grid>().GetLogicalChildren();
+            var gridChildren = popup.FindLogicalDescendantOfType<Grid>().FindLogicalDescendantOfType<Grid>()
+                .GetLogicalChildren();
             foreach (var item in gridChildren)
             {
-                if (item.GetType() == typeof(Button) && ((Button)item).Name != null)
+                if (item.GetType() == typeof(Button) && ((Button) item).Name != null)
                 {
-                    ((Button)item).Background = Brushes.LightBlue;
+                    ((Button) item).Background = Brushes.LightBlue;
                 }
             }
-            
+
             var setting = manager.GetCacheSettingSingleFile(_viewModel.selectedFile.pageName);
 
             const string buttonNameCommon = "CacheSettingPopup";
             string buttonName = setting != null ? buttonNameCommon + setting : buttonNameCommon + "Default";
 
             Button button = popup.FindControl<Button>(buttonName);
-            
+
             if (button != null)
             {
                 button.Background = Brushes.LightSteelBlue;
@@ -372,21 +380,22 @@ namespace SecureWiki.Views
             // If entries have not been updated
             if (e.ExtentDelta.Y == 0)
             {
-                autoscrollLogger = Math.Abs(scrollViewer.Extent.Height - scrollViewer.Bounds.Height - scrollViewer.Offset.Y) < 5;
+                autoscrollLogger =
+                    Math.Abs(scrollViewer.Extent.Height - scrollViewer.Bounds.Height - scrollViewer.Offset.Y) < 5;
             }
-            
+
             // If autoscroll is on and entries have been updated
             if (autoscrollLogger && e.ExtentDelta.Y != 0)
-            {   
+            {
                 scrollViewer.ScrollToEnd();
             }
         }
-        
+
         private void ButtonGenerateContact_Click(object? sender, RoutedEventArgs e)
         {
             throw new NotImplementedException();
         }
-        
+
         private void ButtonExportContact_Click(object? sender, RoutedEventArgs e)
         {
             manager.ExportContact();
@@ -428,6 +437,23 @@ namespace SecureWiki.Views
 
             var popup = this.FindControl<Popup>("GenerateContactPopup");
             popup.IsOpen = false;
-    }
+        }
+
+
+        private void ExportContactsPopup_Click(object? sender, RoutedEventArgs e)
+        {
+
+            var exportContacts = _viewModel.SelectedContacts;
+            
+            if (exportContacts.Count > 0)
+            {
+                Thread localThread = new(() =>
+                    manager.ExportContacts(exportContacts));
+                localThread.Start();
+            }
+            
+            var popup = this.FindControl<Popup>("ExportContactsPopup");
+            popup.IsOpen = false;
+        }
     }
 }

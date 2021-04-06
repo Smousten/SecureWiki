@@ -6,6 +6,7 @@
         xmlns:Models="clr-namespace:SecureWiki.Model"
         xmlns:secureWiki="clr-namespace:SecureWiki"
         xmlns:Utilities="clr-namespace:SecureWiki.Utilities"
+        xmlns:mediaWiki="clr-namespace:SecureWiki.MediaWiki"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="SecureWiki.Views.MainWindow"
         Opened="MainWindow_Shown"
@@ -73,7 +74,7 @@
             <Popup Name="GenerateContactPopup" PlacementTarget="ButtonGenerateContact" IsLightDismissEnabled="True">
                 <Border BorderBrush="Black" BorderThickness="1,1,1,1">
                     <Grid>
-                        <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto, Auto, Auto, Auto" Background="White">
+                        <Grid ColumnDefinitions="Auto" RowDefinitions="Auto, Auto, Auto, Auto" Background="White">
                             <TextBlock Grid.Row="0" Grid.Column="0" Name="GenerateContactText" 
                                        Text="Generate contact information to be shared with other users."
                                        TextAlignment="Center" />
@@ -82,13 +83,41 @@
                             <TextBox Grid.Row="2" Grid.Column="0" Name="NicknameTextBox" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
                                      Text="{Binding NicknamePopUp}" Watermark="nickname" />
                             <Button Grid.Row="3" Grid.Column="0" Click="HideButtonPopup_Click" Tag="GenerateContactPopup" Margin="30,80,10,10">Cancel</Button>
-                            <Button Grid.Row="3" Grid.Column="1" Click="GenerateContactPopup_Click" Tag="GenerateContactPopup" Margin="150,80,30,10" Background="LightBlue">Confirm</Button>
+                            <Button Grid.Row="3" Grid.Column="0" Click="GenerateContactPopup_Click" Tag="GenerateContactPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button>
                         </Grid>
                     </Grid>
                 </Border>
             </Popup>
             
-            <Button Name="ButtonExportContact" Click="ButtonExportContact_Click">Export contact</Button>
+            <Button Name="ButtonExportContact" Click="ShowButtonPopup_Click" Tag="ExportContactsPopup">Export contacts</Button>
+            <!--Export contacts popup-->
+            <Popup Name="ExportContactsPopup" PlacementTarget="ButtonExportContact" IsLightDismissEnabled="True">
+                <Border BorderBrush="Black" BorderThickness="1,1,1,1">
+                    <Grid>
+                        <Grid ColumnDefinitions="Auto" RowDefinitions="Auto, Auto, Auto" Background="White">
+                            <TextBlock Grid.Row="0" Grid.Column="0" Name="ExportContactsText" 
+                                       Text="Select the contacts you wish to export."
+                                       TextAlignment="Center" />
+                            
+                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding Contacts, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedContacts}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="Utilities:Contact">
+                                        <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
+                                            <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" />
+                                            <TextBlock Grid.Row="1" Grid.Column="0">Server link: </TextBlock>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ServerLink}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <Button Grid.Row="2" Grid.Column="0" Click="HideButtonPopup_Click" Tag="ExportContactsPopup" Margin="30,80,10,10">Cancel</Button>
+                            <Button Grid.Row="2" Grid.Column="0" Click="ExportContactsPopup_Click" Tag="ExportContactsPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Popup>
+
             <Button Name="ButtonImportContact" Click="ButtonImportContact_Click">Import contact</Button>
             
             <TextBlock>Enter IP address of MediaWiki server</TextBlock>
@@ -308,7 +337,7 @@
                     <ListBox Items="{Binding revisions, Mode=TwoWay}" SelectionMode="Single"
                              SelectedItem="{Binding selectedRevision}" Width="300">
                         <ListBox.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate DataType="mediaWiki:Revision">
                                 <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto, Auto, Auto">
                                     <TextBlock Grid.Row="0" Grid.Column="0">revisionID: </TextBlock>
                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding revisionID}" />
