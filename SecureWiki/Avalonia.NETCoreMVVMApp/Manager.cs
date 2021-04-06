@@ -175,7 +175,7 @@ namespace SecureWiki
             var contactsPath = GetContactsFilePath();
             var ownContactsPath = GetOwnContactsFilePath();
 
-            contactManager = new ContactManager();
+            contactManager = new ContactManager(this);
             
             // Read existing contacts from their respective files
             if (File.Exists(contactsPath))
