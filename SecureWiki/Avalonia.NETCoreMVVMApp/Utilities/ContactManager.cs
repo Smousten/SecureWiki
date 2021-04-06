@@ -1,31 +1,53 @@
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using SecureWiki.Cryptography;
 
 namespace SecureWiki.Utilities
 {
     [JsonObject(MemberSerialization.OptIn)]
+    public class OwnContact : Contact
+    {
+        [JsonProperty] public byte[] PrivateKey;
+        [JsonProperty] public int revidCounter;
+        
+        public OwnContact(string serverLink, string pageTitle, string nickname, int revidCounter = 0) 
+            : base(serverLink, pageTitle, nickname)
+        {
+            this.revidCounter = revidCounter;
+            
+            Crypto crypto = new();
+            var (newPrivateKey, newPublicKey) = crypto.GenerateRSAParams();
+            PrivateKey = newPrivateKey;
+            PublicKey = newPublicKey;
+        }
+        
+    }
+
+
+    [JsonObject(MemberSerialization.OptIn)]
     public class Contact
     {
         [JsonProperty] public byte[] PublicKey { get; set; }
-        [JsonProperty] public byte[]? PrivateKey { get; set; }
+        // [JsonProperty] public byte[]? PrivateKey;
         [JsonProperty] public string ServerLink { get; set; }
         [JsonProperty] public string PageTitle { get; set; }
         [JsonProperty] public string Nickname { get; set; }
 
         public Contact()
         {
+            
         }
-
+        
         public Contact(string serverLink, string pageTitle, string nickname, 
-            byte[] publicKey, byte[]? privateKey)
+            byte[] publicKey)
         {
             ServerLink = serverLink;
             PageTitle = pageTitle;
             Nickname = nickname;
             PublicKey = publicKey;
-            PrivateKey = privateKey;
+            // PrivateKey = privateKey;
         }
         
         public Contact(string serverLink, string pageTitle, string nickname)
@@ -34,10 +56,10 @@ namespace SecureWiki.Utilities
             PageTitle = pageTitle;
             Nickname = nickname;
             
-            Crypto crypto = new();
-            var (newPrivateKey, newPublicKey) = crypto.GenerateRSAParams();
-            PrivateKey = newPrivateKey;
-            PublicKey = newPublicKey;
+            // Crypto crypto = new();
+            // var (newPrivateKey, newPublicKey) = crypto.GenerateRSAParams();
+            // // PrivateKey = newPrivateKey;
+            // PublicKey = newPublicKey;
         }
 
         public bool HasSameStaticProperties(Contact refContact)
@@ -52,13 +74,13 @@ namespace SecureWiki.Utilities
     [JsonObject(MemberSerialization.OptIn)]
     public class ContactManager
     {
-        [JsonProperty] public List<Contact> OwnContacts;
+        [JsonProperty] public List<OwnContact> OwnContacts;
         [JsonProperty] public List<Contact> Contacts;
         public Manager manager;
 
         public ContactManager(Manager manager)
         {
-            OwnContacts = new List<Contact>();
+            OwnContacts = new List<OwnContact>();
             Contacts = new List<Contact>();
             this.manager = manager;
         }
@@ -76,12 +98,12 @@ namespace SecureWiki.Utilities
             }
         }
         
-        public void AddOwnContact(Contact contact)
+        public void AddOwnContact(OwnContact contact)
         {
             OwnContacts.Add(contact);
         }
         
-        public void RemoveOwnContact(Contact contact)
+        public void RemoveOwnContact(OwnContact contact)
         {
             if (OwnContacts.Contains(contact))
             {
@@ -94,7 +116,7 @@ namespace SecureWiki.Utilities
             Contacts.AddRange(contacts);
         }
         
-        public void AddRangeOwnContacts(List<Contact> contacts)
+        public void AddRangeOwnContacts(List<OwnContact> contacts)
         {
             OwnContacts.AddRange(contacts);
         }
@@ -111,15 +133,19 @@ namespace SecureWiki.Utilities
 
         public void MergeContacts(List<Contact> newContacts)
         {
-            MergeContactLists(Contacts, newContacts);
+            var newList = MergeContactLists(Contacts, newContacts);
+            ClearContacts();
+            AddRangeContacts(newList);
         }
         
-        public void MergeOwnContacts(List<Contact> newContacts)
+        // TODO: Check if this actually works
+        public void MergeOwnContacts(List<OwnContact> newContacts)
         {
-            MergeContactLists(OwnContacts, newContacts);
+            var newList = MergeContactLists(new List<Contact>(OwnContacts), new List<Contact>(newContacts));
+            
         }
 
-        private void MergeContactLists(List<Contact> existingContacts, List<Contact> newContacts)
+        private List<Contact> MergeContactLists(List<Contact> existingContacts, List<Contact> newContacts)
         {
             List<Contact> newInputList = new();
             List<Contact> resultingList = new();
@@ -132,8 +158,8 @@ namespace SecureWiki.Utilities
             ownList.AddRange(existingContacts);
             ownList = ownList.OrderBy(entry => entry.PageTitle).ToList();
 
+            // Check if there are any collisions in regard to PageTitle and ServerLink
             int l = 0;
-
             foreach (var inputContact in inputList)
             {
                 while (true)
@@ -177,6 +203,7 @@ namespace SecureWiki.Utilities
             newInputList = newInputList.OrderBy(entry => entry.Nickname).ToList();
             ownList = ownList.OrderBy(entry => entry.Nickname).ToList();
 
+            // Check if there are any collisions in regard to Nickname
             int k = 0;
             foreach (var inputContact in newInputList)
             {
@@ -213,8 +240,8 @@ namespace SecureWiki.Utilities
             }
             
             resultingList = resultingList.OrderBy(entry => entry.Nickname).ToList();
-            ClearContacts();
-            AddRangeContacts(resultingList);
+
+            return resultingList;
         }
 
         public void SortContacts()
@@ -246,19 +273,35 @@ namespace SecureWiki.Utilities
             return Contacts.Find(entry => entry.ServerLink.Equals(serverLink));
         }
         
-        public Contact? GetOwnContactByNickname(string nickname)
+        public List<Contact>? GetContactsByServerLink(string serverLink)
+        {
+            var contacts = Contacts.FindAll(entry => entry.ServerLink.Equals(serverLink));
+
+            // Return results if any found, otherwise null
+            return contacts.Count > 0 ? contacts : null;
+        }
+        
+        public OwnContact? GetOwnContactByNickname(string nickname)
         {
             return OwnContacts.Find(entry => entry.Nickname.Equals(nickname));
         }
         
-        public Contact? GetOwnContactByPageTitle(string pageTitle)
+        public OwnContact? GetOwnContactByPageTitle(string pageTitle)
         {
             return OwnContacts.Find(entry => entry.PageTitle.Equals(pageTitle));
         }
         
-        public Contact? GetOwnContactByServerLink(string serverLink)
+        public OwnContact? GetOwnContactByServerLink(string serverLink)
         {
             return OwnContacts.Find(entry => entry.ServerLink.Equals(serverLink));
+        }
+        
+        public List<OwnContact>? GetOwnContactsByServerLink(string serverLink)
+        {
+            var contacts = OwnContacts.FindAll(entry => entry.ServerLink.Equals(serverLink));
+
+            // Return results if any found, otherwise null
+            return contacts.Count > 0 ? contacts : null;
         }
         
     }

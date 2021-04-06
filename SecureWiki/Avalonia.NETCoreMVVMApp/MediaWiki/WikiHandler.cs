@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
+using SecureWiki.Cryptography;
 using SecureWiki.Model;
 using SecureWiki.Utilities;
 using SecureWiki.Views;
@@ -13,8 +15,9 @@ namespace SecureWiki.MediaWiki
     {
         private readonly Manager _manager;
         private readonly MediaWikiObjects _mwo;
-        
+
         public readonly bool LoggedIn;
+        public string url;
 
         public WikiHandler(string username, string password, HttpClient inputClient, Manager manager,
             string url = "http://localhost/mediawiki/api.php")
@@ -22,6 +25,7 @@ namespace SecureWiki.MediaWiki
             _mwo = new MediaWikiObjects(inputClient, username, password, url);
             _manager = manager;
             LoggedIn = _mwo.loggedIn;
+            this.url = url;
         }
 
         // Return absolute path to fuse root directory
@@ -291,6 +295,98 @@ namespace SecureWiki.MediaWiki
             var textBytes = decryptedBytes.Take(decryptedBytes.Length - 256).ToArray();
             var signBytes = decryptedBytes.Skip(decryptedBytes.Length - 256).ToArray();
             return (textBytes, signBytes);
+        }
+
+        public List<string>? GetInboxPagesContent()
+        {
+            List<string> outputList = new();
+            
+            var contactList = _manager.contactManager.GetOwnContactsByServerLink(url);
+
+            if (contactList == null)
+            {
+                return null;
+            }
+
+            foreach (var contact in contactList)
+            {
+                var allRevs = GetAllRevisions(contact.PageTitle);
+
+                int highestRev = 0;
+
+                foreach (var rev in allRevs.revisionList)
+                {
+                    if (rev.revisionID == null)
+                    {
+                        continue;
+                    }
+                    
+                    var revid = int.Parse(rev.revisionID);
+
+                    if (revid > highestRev)
+                    {
+                        highestRev = revid;
+                    }
+
+                    // If content has previously been parsed
+                    if (revid < contact.revidCounter) 
+                    {
+                        break;
+                    }
+                    
+                    MediaWikiObjects.PageQuery.PageContent getPageContent = new(_mwo, contact.PageTitle, revid.ToString());
+                    var pageContent = getPageContent.GetContent();
+
+                    if (pageContent.Equals(""))
+                    {
+                        continue;
+                    }
+                        
+                    outputList.Add(pageContent);
+                }
+
+                if (highestRev > contact.revidCounter)
+                {
+                    contact.revidCounter = highestRev;
+                }
+                
+            }
+
+            // Return outputList if it is not empty, null otherwise
+            return outputList.Count > 0 ? outputList : null;
+        }
+
+        public void UploadToInboxPage(string pageTitle, string content, byte[] publicKey)
+        {
+            Crypto _crypto = new();
+            var (symmKey, IV) = _crypto.GenerateAESParams();
+            
+            var symmKeyData = ByteArrayCombiner.Combine(symmKey, IV);
+            var encryptedSymmKeyData = _crypto.RSAEncryptWithPublicKey(symmKeyData, publicKey);
+
+            Console.WriteLine("encryptedSymmKeyData.length: " + encryptedSymmKeyData?.Length);
+            Console.WriteLine("SymmKey.length: " + symmKey.Length);
+            Console.WriteLine("IV.length: " + IV.Length);
+            
+            var contentBytes = Encoding.ASCII.GetBytes(content);
+            var encryptedBytes = _manager.Encrypt(
+                contentBytes, symmKey, IV);
+            
+            if (encryptedBytes == null || encryptedSymmKeyData == null)
+            {
+                Console.WriteLine("UploadToInboxPage: Failed encryption");
+                return;
+            }
+
+            // Combine ciphertexts
+            byte[] pageContentBytes = ByteArrayCombiner.Combine(encryptedBytes, encryptedSymmKeyData);
+
+            var pageContent = Encoding.ASCII.GetString(pageContentBytes);
+
+            // Upload encrypted content
+            MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
+                pageTitle);
+            uploadNewRevision.UploadContent(pageContent);
         }
     }
 }

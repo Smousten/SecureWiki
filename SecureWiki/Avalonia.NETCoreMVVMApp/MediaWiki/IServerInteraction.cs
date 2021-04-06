@@ -32,5 +32,8 @@ namespace SecureWiki.MediaWiki
 
         // Delete revisions with given page title and IDs
         public void DeleteRevisionsByID(string pageTitle, string IDs);
+
+        // Encrypt and upload DataFileEntry to specified page
+        public void UploadToInboxPage(string pageTitle, string content, byte[] publicKey);
     }
 }

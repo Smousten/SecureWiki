@@ -427,7 +427,7 @@ namespace SecureWiki.Views
             if (serverLink != null && nickname != null)
             {
                 Thread localThread = new(() =>
-                    manager.GenerateContact(serverLink, nickname));
+                    manager.GenerateOwnContact(serverLink, nickname));
                 localThread.Start();
             }
 

@@ -70,7 +70,7 @@ namespace SecureWiki.Cryptography
         }
 
         
-        public static byte[]? RSAEncrypt(byte[] data, byte[] publicKey)
+        public byte[]? RSAEncryptWithPublicKey(byte[] data, byte[] publicKey)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace SecureWiki.Cryptography
                 //Create a new instance of RSACryptoServiceProvider.
                 using (RSACryptoServiceProvider rsa = new())
                 {
-                    rsa.ImportRSAPrivateKey(publicKey, out _);
+                    rsa.ImportRSAPublicKey(publicKey, out _);
                     
                     encryptedData = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA512);
                 }

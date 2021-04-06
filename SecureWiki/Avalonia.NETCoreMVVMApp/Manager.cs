@@ -85,6 +85,7 @@ namespace SecureWiki
             fuseThread.Start();
 
             logger.Add("Starting up FUSE", null);
+            TestUpload();
         }
 
         public void PrintTestMethod(string input)
@@ -183,7 +184,7 @@ namespace SecureWiki
             }
             if (File.Exists(ownContactsPath))
             {
-                contactManager.OwnContacts = (List<Contact>) JSONSerialization.ReadFileAndDeserialize(ownContactsPath, typeof(List<Contact>));
+                contactManager.OwnContacts = (List<OwnContact>) JSONSerialization.ReadFileAndDeserialize(ownContactsPath, typeof(List<OwnContact>));
             }
         }
 
@@ -648,11 +649,11 @@ namespace SecureWiki
             contactManager.MergeContacts(newContacts);
         }
 
-        public void GenerateContact(string serverLink, string nickname)
+        public void GenerateOwnContact(string serverLink, string nickname)
         {
             var pageTitle = RandomString.GenerateRandomAlphanumericString();
             var url = "http://" + serverLink + "/mediawiki/api.php";
-            Contact newContact = new(url, pageTitle, nickname);
+            OwnContact newContact = new(url, pageTitle, nickname);
             contactManager.AddOwnContact(newContact);
         }
 
@@ -681,6 +682,23 @@ namespace SecureWiki
             var exportFileName = "ContactExport.json";
             var exportFilePath = Path.Combine(path, exportFileName);
             JSONSerialization.SerializeAndWriteFile(exportFilePath, noDuplicates);
+        }
+
+        public void UploadToInboxPage(string serverLink, string pageTitle, string content, byte[] publicKey)
+        {
+            var wikiHandler = GetWikiHandler(serverLink);
+
+            wikiHandler?.UploadToInboxPage(pageTitle, content, publicKey);
+        }
+
+        public void TestUpload()
+        {
+            var pubKey =
+                "MIIBCgKCAQEAug/PiOEJGPvdFdfyhMZLzp1ELdH1UBNMStxnGAQ3eQRJ0RyzgmSvq9FD9g106oPpz+GxaLjPplhz10bn108IwpjcB4+5XLMhedU0K4bOUHpSwsn+af6nkinU5/3BYN2EsI1hR31GNn0HiR0utJVs/6/CIZ/6RWPd4Z4CbD0f+Og4v3x24a0eYgr/vb02+T0HVG9gOyjomPnLiCj+pqnLb+x1Evpyy2y8SXXR76YpP+CVtgMRmQ4k+6YHU3VLCGTmwDEEvhm6KkjozA3A3RAl2M4BvKTZiHG1SxM79pUJkpFSor2SuRmrAr1S4tCgY9wBhBf0yRBZJa9xxjSVnZkWEwIDAQAB";
+
+            var pubKeyBytes = Convert.FromBase64String(pubKey);
+
+            UploadToInboxPage(configManager.DefaultServerLink, "asd", "bcd", pubKeyBytes);
         }
     }
 }
