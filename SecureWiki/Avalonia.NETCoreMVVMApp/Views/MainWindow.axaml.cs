@@ -395,11 +395,7 @@ namespace SecureWiki.Views
         {
             throw new NotImplementedException();
         }
-
-        private void ButtonExportContact_Click(object? sender, RoutedEventArgs e)
-        {
-            manager.ExportContact();
-        }
+        
 
         private void ButtonImportContact_Click(object? sender, RoutedEventArgs e)
         {

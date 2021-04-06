@@ -640,16 +640,12 @@ namespace SecureWiki
             logger.Add(content, location, priority);
         }
 
-        public void ExportContact()
-        {
-            // logger.Add("Exporting contacts");
-            // contactManager.ExportContactsBasedOnIsChecked();
-        }
-
         public void ImportContact(string path)
         {
-            // logger.Add($"Importing contacts from '{importPath}'");
-            // contactManager.ImportContacts(importPath);
+            logger.Add($"Importing contacts from '{path}'");
+            var newContacts = (List<Contact>) JSONSerialization.ReadFileAndDeserialize(
+                path, typeof(List<Contact>));
+            contactManager.MergeContacts(newContacts);
         }
 
         public void GenerateContact(string serverLink, string nickname)
