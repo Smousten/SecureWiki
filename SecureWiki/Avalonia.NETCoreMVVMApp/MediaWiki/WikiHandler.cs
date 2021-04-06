@@ -381,7 +381,8 @@ namespace SecureWiki.MediaWiki
             // Combine ciphertexts
             byte[] pageContentBytes = ByteArrayCombiner.Combine(encryptedBytes, encryptedSymmKeyData);
 
-            var pageContent = Encoding.ASCII.GetString(pageContentBytes);
+            // var pageContent = Encoding.ASCII.GetString(pageContentBytes);
+            var pageContent = Convert.ToBase64String(pageContentBytes);
 
             // Upload encrypted content
             MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,

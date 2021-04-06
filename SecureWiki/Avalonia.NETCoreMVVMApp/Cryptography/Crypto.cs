@@ -80,7 +80,7 @@ namespace SecureWiki.Cryptography
                 {
                     rsa.ImportRSAPublicKey(publicKey, out _);
                     
-                    encryptedData = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA512);
+                    encryptedData = rsa.Encrypt(data, RSAEncryptionPadding.Pkcs1);
                 }
                 return encryptedData;
             }
@@ -94,7 +94,7 @@ namespace SecureWiki.Cryptography
             }
         }
         
-        public static byte[]? RSADecrypt(byte[] data, byte[] privateKey)
+        public byte[]? RSADecrypt(byte[] data, byte[] privateKey)
         {
             try
             {
@@ -107,7 +107,7 @@ namespace SecureWiki.Cryptography
                     //Decrypt the passed byte array and specify OAEP padding.  
                     //OAEP padding is only available on Microsoft Windows XP or
                     //later.  
-                    decryptedData = rsa.Decrypt(data, RSAEncryptionPadding.OaepSHA512);
+                    decryptedData = rsa.Decrypt(data, RSAEncryptionPadding.Pkcs1);
                 }
                 return decryptedData;
             }
