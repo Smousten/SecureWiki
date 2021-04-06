@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using SecureWiki.Cryptography;
 
 namespace SecureWiki.Utilities
 {
@@ -20,6 +21,18 @@ namespace SecureWiki.Utilities
             Nickname = nickname;
             PublicKey = publicKey;
             PrivateKey = privateKey;
+        }
+        
+        public Contact(string serverLink, string pageTitle, string nickname)
+        {
+            ServerLink = serverLink;
+            PageTitle = pageTitle;
+            Nickname = nickname;
+            
+            Crypto crypto = new();
+            var (newPrivateKey, newPublicKey) = crypto.GenerateRSAParams();
+            PrivateKey = newPrivateKey;
+            PublicKey = newPublicKey;
         }
         
     }
