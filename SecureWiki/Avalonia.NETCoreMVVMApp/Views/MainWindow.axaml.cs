@@ -381,5 +381,28 @@ namespace SecureWiki.Views
         }
 
 
+        private void ButtonExportContact_Click(object? sender, RoutedEventArgs e)
+        {
+            manager.ExportContact();
+        }
+
+        private void ButtonImportContact_Click(object? sender, RoutedEventArgs e)
+        {
+            importContact();
+        }
+
+        private async void importContact()
+        {
+            var path = await OpenFileDialogAndGetFilePath();
+
+            if (path != null)
+            {
+                manager.ImportContact(path);
+            }
+            else
+            {
+                Console.WriteLine("No path given from FileDialog");
+            }
+        }
     }
 }

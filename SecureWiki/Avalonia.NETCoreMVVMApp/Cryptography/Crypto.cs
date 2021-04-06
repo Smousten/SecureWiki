@@ -6,6 +6,8 @@ namespace SecureWiki.Cryptography
 {
     public class Crypto
     {
+        // Encrypts plainText bytes using input key and iv.
+        // Encryption algorithm is aes256 with PKCS7 padding
         public byte[]? Encrypt(byte[] plainText, byte[] key, byte[] iv)
         {
             // Ensure argument validity
@@ -27,6 +29,8 @@ namespace SecureWiki.Cryptography
             return PerformCryptography(plainText, encryptor);
         }
 
+        // Decrypts ciphertext bytes using input key and iv.
+        // Decryption algorithm is AES256 with PKCS7 padding
         public byte[]? Decrypt(byte[] cipherText, byte[] key, byte[] iv)
         {
             // Ensure argument validity
@@ -48,6 +52,7 @@ namespace SecureWiki.Cryptography
             return PerformCryptography(cipherText, decryptor);
         }
 
+        // Perform symmetric cryptography on input data with crypto transformer (encryptor/decryptor)
         private byte[]? PerformCryptography(byte[] data, ICryptoTransform cryptoTransform)
         {
             using var ms = new MemoryStream();

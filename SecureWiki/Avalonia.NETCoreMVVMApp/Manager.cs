@@ -78,7 +78,7 @@ namespace SecureWiki
             logger.Add("Starting up TCPListener", null);
             
             Thread.Sleep(1000);
-
+            
             Thread fuseThread = new(Program.RunFuse) {IsBackground = true};
             fuseThread.Start();
             
@@ -588,6 +588,16 @@ namespace SecureWiki
             LoggerEntry.LogPriority priority = LoggerEntry.LogPriority.Normal)
         {
             logger.Add(content, location, priority);
+        }
+
+        public void ExportContact()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ImportContact(string path)
+        {
+            throw new NotImplementedException();
         }
     }
 }

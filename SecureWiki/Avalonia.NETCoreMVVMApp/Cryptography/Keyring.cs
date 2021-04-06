@@ -18,6 +18,8 @@ namespace SecureWiki.Cryptography
             rootKeyring = rk;
         }
 
+        // Initialises keyring object by loading data from json file into rootkeyring object
+        // Creates the file structure in root directory with empty files
         public void InitKeyring()
         {
             var filepath = GetKeyringFilePath();
@@ -69,6 +71,7 @@ namespace SecureWiki.Cryptography
             return GetRootKeyring(keyringFilePath);
         }
 
+        // Copies all data from json object into root keyring object
         public void ReadIntoKeyring(RootKeyring rk)
         {
             KeyringEntry readKeyring = ReadKeyRing();
@@ -240,7 +243,7 @@ namespace SecureWiki.Cryptography
         //     File.WriteAllText(keyringFilePath, jsonData);
         // }
 
-
+        // Remove file from keyring object
         public void RemoveFile(string filePath, string filename)
         {
             // Find the keyring where the data file is located
