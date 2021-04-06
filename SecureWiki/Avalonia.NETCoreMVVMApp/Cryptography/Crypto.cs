@@ -69,6 +69,58 @@ namespace SecureWiki.Cryptography
             return ms.ToArray();
         }
 
+        
+        public static byte[]? RSAEncrypt(byte[] data, byte[] publicKey)
+        {
+            try
+            {
+                byte[] encryptedData;
+                //Create a new instance of RSACryptoServiceProvider.
+                using (RSACryptoServiceProvider rsa = new())
+                {
+                    rsa.ImportRSAPrivateKey(publicKey, out _);
+                    
+                    encryptedData = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA512);
+                }
+                return encryptedData;
+            }
+            //Catch and display a CryptographicException  
+            //to the console.
+            catch (CryptographicException e)
+            {
+                Console.WriteLine(e.Message);
+
+                return null;
+            }
+        }
+        
+        public static byte[]? RSADecrypt(byte[] data, byte[] privateKey)
+        {
+            try
+            {
+                byte[] decryptedData;
+                //Create a new instance of RSACryptoServiceProvider.
+                using (RSACryptoServiceProvider rsa = new())
+                {
+                    rsa.ImportRSAPrivateKey(privateKey, out _);
+
+                    //Decrypt the passed byte array and specify OAEP padding.  
+                    //OAEP padding is only available on Microsoft Windows XP or
+                    //later.  
+                    decryptedData = rsa.Decrypt(data, RSAEncryptionPadding.OaepSHA512);
+                }
+                return decryptedData;
+            }
+            //Catch and display a CryptographicException  
+            //to the console.
+            catch (CryptographicException e)
+            {
+                Console.WriteLine(e.ToString());
+
+                return null;
+            }
+        }
+        
         // Generate asymmetric key pair
         public (byte[] privateKey, byte[] publicKey) GenerateRSAParams()
         {

@@ -258,14 +258,14 @@ namespace SecureWiki.MediaWiki
             }
         }
 
-        private string? EncryptTextAndSignature(byte[] plainText, byte[] signature, DataFileKey keyList)
+        private string? EncryptTextAndSignature(byte[] plainText, byte[] signature, DataFileKey key)
         {
             byte[] rv = new byte[plainText.Length + signature.Length];
             Buffer.BlockCopy(plainText, 0, rv, 0, plainText.Length);
             Buffer.BlockCopy(signature, 0, rv, plainText.Length, signature.Length);
 
             var encryptedBytes = _manager.Encrypt(
-                rv, keyList.SymmKey, keyList.IV);
+                rv, key.SymmKey, key.IV);
             if (encryptedBytes == null)
             {
                 Console.WriteLine("Failed encryption");
@@ -276,11 +276,11 @@ namespace SecureWiki.MediaWiki
             return encryptedText;
         }
 
-        private (byte[] textBytes, byte[] signBytes)? DecryptPageContent(string pageContent, DataFileKey keyList)
+        private (byte[] textBytes, byte[] signBytes)? DecryptPageContent(string pageContent, DataFileKey key)
         {
             var pageContentBytes = Convert.FromBase64String(pageContent);
             var decryptedBytes = _manager.Decrypt(pageContentBytes,
-                keyList.SymmKey, keyList.IV);
+                key.SymmKey, key.IV);
 
             if (decryptedBytes == null)
             {
