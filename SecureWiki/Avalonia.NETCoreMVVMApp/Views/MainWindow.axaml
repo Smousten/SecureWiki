@@ -99,7 +99,7 @@
                                        Text="Select the contacts you wish to export."
                                        TextAlignment="Center" />
                             
-                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding Contacts, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedContacts}">
+                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding ExportContacts, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedExportContacts}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="Utilities:Contact">
                                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
@@ -269,12 +269,25 @@
             <Popup Name="RevokeAccessPopup" PlacementTarget="RevokeAccessButton" IsLightDismissEnabled="True">
                 <Border BorderBrush="Black" BorderThickness="1,1,1,1">
                     <Grid>
-                        <TextBlock Name="AccessRevocationText" Background="White"
-                                   Text="Are you that you want to revoke access to the file?&#x0a; This action cannot be undone."
-                                   TextAlignment="Center" />
-                        <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto">
-                            <Button Grid.Column="0" Click="HideButtonPopup_Click" Tag="RevokeAccessPopup" Margin="30,80,10,10">Cancel</Button>
-                            <Button Grid.Column="1" Click="Revoke_Click" Tag="RevokeAccessPopup" Margin="150,80,30,10" Background="LightBlue">Confirm</Button>
+                        <Grid ColumnDefinitions="Auto" RowDefinitions="Auto, Auto, Auto" Background="White">
+                            <TextBlock Name="AccessRevocationText" Background="White"
+                                       Text="Are you that you want to revoke access to the file?&#x0a; This action cannot be undone. &#x0a; Decide who should have access from the list below."
+                                       TextAlignment="Center" />
+                            
+                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding RevokeContacts, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedRevokeContacts}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="Utilities:Contact">
+                                        <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
+                                            <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" />
+                                            <TextBlock Grid.Row="1" Grid.Column="0">Server link: </TextBlock>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ServerLink}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <Button Grid.Row="2" Grid.Column="0" Click="HideButtonPopup_Click" Tag="RevokeAccessPopup" Margin="30,80,10,10">Cancel</Button>
+                            <Button Grid.Row="2" Grid.Column="0" Click="Revoke_Click" Tag="RevokeAccessPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button>
                         </Grid>
                     </Grid>
                 </Border>
