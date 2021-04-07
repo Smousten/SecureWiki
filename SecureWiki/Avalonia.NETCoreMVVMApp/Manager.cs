@@ -805,6 +805,11 @@ namespace SecureWiki
                     }
                 }
 
+                if (newDataFiles.Count == 0)
+                {
+                    continue;
+                }
+                
                 var keyringEntry = new KeyringEntry();
                 
                 keyringEntry.dataFiles.AddRange(newDataFiles);
