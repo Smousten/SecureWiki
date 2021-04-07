@@ -25,6 +25,10 @@ namespace SecureWiki.Model
         public byte[]? ownerPrivateKey { get; set; }
         [JsonProperty]
         public byte[]? ownerPublicKey { get; set; }
+        
+        // List of the page titles of contacts that this file is automatically shared with
+        [JsonProperty] 
+        public List<(string, string?)> contactList { get; set; }
 
         // Tuple of (Start revision id, public key, private key, end revision)
         [JsonProperty] 
@@ -106,6 +110,8 @@ namespace SecureWiki.Model
             ownerPrivateKey = newPrivateKey;
             ownerPublicKey = newPublicKey;
 
+            contactList = new List<(string, string?)>();
+            
             pageName = RandomString.GenerateRandomAlphanumericString();
             keyList = new List<DataFileKey> {new()};
             
@@ -382,6 +388,66 @@ namespace SecureWiki.Model
             resultingKeyList = resultingKeyList.OrderBy(entry => entry.RevisionStart).ToList();
             keyList.Clear();
             keyList.AddRange(resultingKeyList);
+        }
+
+        public void PrepareForExport()
+        {
+            ownerPrivateKey = null;
+            contactList.Clear();
+        }
+
+        public (string, string?)? GetContactInfo(string pageTitle, string serverlink)
+        {
+            (string, string?) output;
+            
+            if (serverlink.Equals(serverLink))
+            {
+                output = contactList.FirstOrDefault
+                    (e => e.Item1.Equals(pageTitle) && e.Item2 == null);
+            }
+            else
+            {
+                output = contactList.FirstOrDefault
+                    (e => e.Item1.Equals(pageTitle) && e.Item2 == serverlink);
+            }
+            
+            if (output.Equals(default)) return null;
+            
+            output.Item2 ??= serverLink;
+            
+            return output;
+        }
+
+        public void AddContactInfo(string pageTitle, string serverlink)
+        {
+            (string, string?) existingContactInfo;
+            
+            if (serverlink.Equals(serverLink))
+            {
+                existingContactInfo = contactList.FirstOrDefault
+                    (e => e.Item1.Equals(pageTitle) && e.Item2 == null);
+            }
+            else
+            {
+                existingContactInfo = contactList.FirstOrDefault
+                    (e => e.Item1.Equals(pageTitle) && e.Item2 == serverlink);
+            }
+
+            if (existingContactInfo.Equals(default))
+            {
+                contactList.Add((pageTitle, null));
+                return;
+            }
+
+            if ((existingContactInfo.Item2 == null && serverlink.Equals(serverLink)) ||
+                (existingContactInfo.Item2 != null && existingContactInfo.Item2.Equals(serverlink))) 
+            {
+                return;
+            }
+            else
+            {
+                contactList.Add((pageTitle, serverlink));
+            }
         }
 
         public void PrintInfo()

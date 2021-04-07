@@ -782,5 +782,42 @@ namespace SecureWiki
                 Console.WriteLine("count: " + item.Count);
             }
         }
+
+        public void ShareSelectedKeyring(List<Contact> contacts)
+        {
+            logger.Add("Sharing keyring");
+            
+            var dataFileList = _keyring.GetListOfAllCheckedDataFiles();
+
+            foreach (var contact in contacts)
+            {
+                var newDataFiles = new List<DataFileEntry>();
+
+                foreach (var df in dataFileList)
+                {
+                    var contactInfo = df.GetContactInfo
+                        (contact.PageTitle, contact.ServerLink);
+
+                    if (contactInfo == null)
+                    {
+                        df.AddContactInfo(contact.PageTitle, contact.ServerLink);
+                        newDataFiles.Add(df);   
+                    }
+                }
+
+                var keyringEntry = new KeyringEntry();
+                
+                keyringEntry.dataFiles.AddRange(newDataFiles);
+
+                var keyringEntryString = JSONSerialization.SerializeObject(keyringEntry);
+
+                var loggerMsg = $"Sharing {newDataFiles.Count} new files with contact '{contact.Nickname}'.";
+                logger.Add(loggerMsg);
+                
+                UploadToInboxPage(contact.ServerLink, contact.PageTitle, 
+                    keyringEntryString, contact.PublicKey);
+            }
+        }
+        
     }
 }

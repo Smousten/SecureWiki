@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -327,6 +328,17 @@ namespace SecureWiki.Cryptography
             var filepath = keyringFilePath;
 
             SerializeAndWriteFile(filepath, rk);
+        }
+        
+        public List<DataFileEntry> GetListOfAllCheckedDataFiles()
+        {
+            RootKeyring rk = CreateRootKeyringBasedOnIsChecked();
+
+            rk.RemoveEmptyDescendantsRecursively();
+
+            var dataFileList = rk.GetAllDescendantDataFileEntries();
+
+            return dataFileList;
         }
 
         public void ImportRootKeyring(string importPath)

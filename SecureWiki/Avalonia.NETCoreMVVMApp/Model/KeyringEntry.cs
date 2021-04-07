@@ -469,6 +469,8 @@ namespace SecureWiki.Model
             // Remove private keys from DataFileEntries if they do not have write access checked
             foreach (DataFileEntry dataFileEntry in dataFiles)
             {
+                dataFileEntry.PrepareForExport();
+                
                 if (dataFileEntry.isCheckedWrite != true)
                 {
                     dataFileEntry.keyList.ForEach(e => e.PrivateKey = null);
@@ -532,6 +534,21 @@ namespace SecureWiki.Model
             ClearDataFiles();
             AddRangeDataFile(sortedList);
         }
+
+        public List<DataFileEntry> GetAllDescendantDataFileEntries()
+        {
+            var outputList = new List<DataFileEntry>();
+
+            outputList.AddRange(dataFiles);
+
+            foreach (var keyring in keyrings)
+            {
+                outputList.AddRange(keyring.GetAllDescendantDataFileEntries());
+            }
+
+            return outputList;
+        }
+        
 
         public void PrintInfoRecursively()
         {
