@@ -35,5 +35,8 @@ namespace SecureWiki.MediaWiki
 
         // Encrypt and upload DataFileEntry to specified page
         public void UploadToInboxPage(string pageTitle, string content, byte[] publicKey);
+
+        // TODO
+        public List<List<string>>? DownloadFromInboxPages();
     }
 }

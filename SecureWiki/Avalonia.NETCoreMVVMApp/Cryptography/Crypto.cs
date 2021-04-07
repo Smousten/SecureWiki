@@ -68,7 +68,6 @@ namespace SecureWiki.Cryptography
             }
             return ms.ToArray();
         }
-
         
         public byte[]? RSAEncryptWithPublicKey(byte[] data, byte[] publicKey)
         {
@@ -89,6 +88,34 @@ namespace SecureWiki.Cryptography
             catch (CryptographicException e)
             {
                 Console.WriteLine(e.Message);
+
+                return null;
+            }
+        }
+
+        
+        public byte[]? RSADecryptWithPrivateKey(byte[] data, byte[] privateKey)
+        {
+            try
+            {
+                byte[] decryptedData;
+                //Create a new instance of RSACryptoServiceProvider.
+                using (RSACryptoServiceProvider rsa = new())
+                {
+                    rsa.ImportRSAPrivateKey(privateKey, out _);
+
+                    //Decrypt the passed byte array and specify OAEP padding.  
+                    //OAEP padding is only available on Microsoft Windows XP or
+                    //later.  
+                    decryptedData = rsa.Decrypt(data, RSAEncryptionPadding.Pkcs1);
+                }
+                return decryptedData;
+            }
+            //Catch and display a CryptographicException  
+            //to the console.
+            catch (CryptographicException e)
+            {
+                Console.WriteLine(e.ToString());
 
                 return null;
             }

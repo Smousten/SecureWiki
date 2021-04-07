@@ -99,6 +99,7 @@ namespace SecureWiki.Views
         {
             Console.WriteLine("nothing happened");
             logger.Add("loka", "connetent");
+            manager.TestDownload();
         }
 
         private void Button2_Click(object? sender, RoutedEventArgs e)

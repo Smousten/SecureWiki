@@ -206,12 +206,15 @@ namespace SecureWiki
 
         private IServerInteraction? GetWikiHandler(string url)
         {
+            // Console.WriteLine("attempting to get wikihandler with url "+ url);
             if (wikiHandlers.ContainsKey(url))
             {
+                // Console.WriteLine("found in existing wikihandlers");
                 return wikiHandlers[url];
             }
             else
             {
+                // Console.WriteLine("not found in existing wikihandlers");
                 var newWikiHandler = CreateNewWikiHandler(url);
 
                 if (newWikiHandler != null && !wikiHandlers.ContainsKey(url))
@@ -702,12 +705,70 @@ namespace SecureWiki
 
         public void TestUpload()
         {
-            var pubKey =
-                "MIIBCgKCAQEAug/PiOEJGPvdFdfyhMZLzp1ELdH1UBNMStxnGAQ3eQRJ0RyzgmSvq9FD9g106oPpz+GxaLjPplhz10bn108IwpjcB4+5XLMhedU0K4bOUHpSwsn+af6nkinU5/3BYN2EsI1hR31GNn0HiR0utJVs/6/CIZ/6RWPd4Z4CbD0f+Og4v3x24a0eYgr/vb02+T0HVG9gOyjomPnLiCj+pqnLb+x1Evpyy2y8SXXR76YpP+CVtgMRmQ4k+6YHU3VLCGTmwDEEvhm6KkjozA3A3RAl2M4BvKTZiHG1SxM79pUJkpFSor2SuRmrAr1S4tCgY9wBhBf0yRBZJa9xxjSVnZkWEwIDAQAB";
+            var contact = contactManager.GetOwnContactByNickname("Test");
 
-            var pubKeyBytes = Convert.FromBase64String(pubKey);
+            if (contact == null)
+            {
+                Console.WriteLine("contact is null");
+                return;
+            }
+            
+            // var pubKey =
+            //     "MIIBCgKCAQEAug/PiOEJGPvdFdfyhMZLzp1ELdH1UBNMStxnGAQ3eQRJ0RyzgmSvq9FD9g106oPpz+GxaLjPplhz10bn108IwpjcB4+5XLMhedU0K4bOUHpSwsn+af6nkinU5/3BYN2EsI1hR31GNn0HiR0utJVs/6/CIZ/6RWPd4Z4CbD0f+Og4v3x24a0eYgr/vb02+T0HVG9gOyjomPnLiCj+pqnLb+x1Evpyy2y8SXXR76YpP+CVtgMRmQ4k+6YHU3VLCGTmwDEEvhm6KkjozA3A3RAl2M4BvKTZiHG1SxM79pUJkpFSor2SuRmrAr1S4tCgY9wBhBf0yRBZJa9xxjSVnZkWEwIDAQAB";
+            // var pubKeyBytes = Convert.FromBase64String(pubKey);
 
-            UploadToInboxPage(configManager.DefaultServerLink, "asd", "bcd", pubKeyBytes);
+            var pubKeyBytes = contact.PublicKey;
+
+            var df = rootKeyring.dataFiles.First();
+
+            var dfString = JSONSerialization.SerializeObject(df);
+
+            Console.WriteLine("dfString");
+            Console.WriteLine(dfString);
+
+            string content = dfString;
+
+            UploadToInboxPage(contact.ServerLink, contact.PageTitle, content, pubKeyBytes);
+        }
+        
+        public void TestDownload()
+        {
+            var contact = contactManager.GetOwnContactByNickname("Test");
+
+            if (contact == null)
+            {
+                Console.WriteLine("contact is null");
+                return;
+            }
+            Console.WriteLine("contact is not null");
+            
+            // var pubKey =
+            //     "MIIBCgKCAQEAug/PiOEJGPvdFdfyhMZLzp1ELdH1UBNMStxnGAQ3eQRJ0RyzgmSvq9FD9g106oPpz+GxaLjPplhz10bn108IwpjcB4+5XLMhedU0K4bOUHpSwsn+af6nkinU5/3BYN2EsI1hR31GNn0HiR0utJVs/6/CIZ/6RWPd4Z4CbD0f+Og4v3x24a0eYgr/vb02+T0HVG9gOyjomPnLiCj+pqnLb+x1Evpyy2y8SXXR76YpP+CVtgMRmQ4k+6YHU3VLCGTmwDEEvhm6KkjozA3A3RAl2M4BvKTZiHG1SxM79pUJkpFSor2SuRmrAr1S4tCgY9wBhBf0yRBZJa9xxjSVnZkWEwIDAQAB";
+            // var pubKeyBytes = Convert.FromBase64String(pubKey);
+
+            var wikihandler = GetWikiHandler(contact.ServerLink);
+
+            if (wikihandler == null)
+            {
+                Console.WriteLine("wikihandler is null");
+                return;
+            }
+            Console.WriteLine("wikihandler is not null");
+            
+            var output = wikihandler.DownloadFromInboxPages();
+
+            if (output == null)
+            {
+                Console.WriteLine("output is null");
+                return;
+            }
+            Console.WriteLine("output is not null");
+
+            foreach (var item in output)
+            {
+                Console.WriteLine("count: " + item.Count);
+            }
+            
         }
     }
 }

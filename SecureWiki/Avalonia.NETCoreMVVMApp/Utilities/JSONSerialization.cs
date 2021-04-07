@@ -19,6 +19,18 @@ namespace SecureWiki.Utilities
 
             return item;
         }
+        
+        public static string SerializeObject(object item)
+        {
+            var jsonData = JsonConvert.SerializeObject(item, Formatting.Indented);
+            return jsonData;
+        }
+        
+        public static object DeserializeObject(string jsonData, Type type)
+        {
+            var item = JsonConvert.DeserializeObject(jsonData, type);
+            return item;
+        }
 
     }
 }

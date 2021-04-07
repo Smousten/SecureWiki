@@ -297,9 +297,11 @@ namespace SecureWiki.MediaWiki
             return (textBytes, signBytes);
         }
 
-        public List<string>? GetInboxPagesContent()
+        public List<List<string>>? DownloadFromInboxPages()
         {
-            List<string> outputList = new();
+            Crypto crypto = new();
+
+            var outputList = new List<List<string>>();
             
             var contactList = _manager.contactManager.GetOwnContactsByServerLink(url);
 
@@ -310,65 +312,148 @@ namespace SecureWiki.MediaWiki
 
             foreach (var contact in contactList)
             {
-                var allRevs = GetAllRevisions(contact.PageTitle);
+                var encryptedContentList = GetInboxPageContent(contact);
+                
+                // If no new content was found
+                if (encryptedContentList == null) continue;
 
-                int highestRev = 0;
-
-                foreach (var rev in allRevs.revisionList)
+                var contentList = new List<string>();
+                
+                foreach (var entry in encryptedContentList)
                 {
-                    if (rev.revisionID == null)
-                    {
-                        continue;
-                    }
+                    // var ivString = entry.Substring(0, 16);
+                    // var symmKeyString = entry.Substring(16, 32);
                     
-                    var revid = int.Parse(rev.revisionID);
+                    var pageContentBytes = Convert.FromBase64String(entry);
 
-                    if (revid > highestRev)
-                    {
-                        highestRev = revid;
-                    }
+                    var encryptedSymmKeyData = pageContentBytes.Take(256).ToArray(); //Encoding.ASCII.GetBytes(entry.Substring(0, 256));
+                    var encryptedContentBytes = pageContentBytes.Skip(256).ToArray();
+                    
+                    // Console.WriteLine("encryptedSymmKeyData");
+                    // Console.WriteLine(ByteArrayConverter.GetHexString(encryptedSymmKeyData));
+                    
+                    var decryptedSymmKeyData= crypto.RSADecryptWithPrivateKey(encryptedSymmKeyData, contact.PrivateKey);
 
-                    // If content has previously been parsed
-                    if (revid < contact.revidCounter) 
+                    // Console.WriteLine("decryptedSymmKeyData");
+                    // Console.WriteLine(ByteArrayConverter.GetHexString(decryptedSymmKeyData));
+                    // Console.WriteLine("decryptedSymmKeyData.Length: " + decryptedSymmKeyData?.Length);
+
+                    var iv = decryptedSymmKeyData?.Take(16).ToArray();
+                    var symmKey = decryptedSymmKeyData?.Skip(16).ToArray();
+
+                    if (symmKey == null || iv == null)
                     {
+                        Console.WriteLine("symmKey or iv null");
                         break;
                     }
                     
-                    MediaWikiObjects.PageQuery.PageContent getPageContent = new(_mwo, contact.PageTitle, revid.ToString());
-                    var pageContent = getPageContent.GetContent();
-
-                    if (pageContent.Equals(""))
+                    Console.WriteLine("IV");
+                    Console.WriteLine(ByteArrayConverter.GetHexString(iv));
+                    Console.WriteLine("symmKey");
+                    Console.WriteLine(ByteArrayConverter.GetHexString(symmKey));
+                    
+                    var decryptedContent = crypto.Decrypt(encryptedContentBytes, symmKey, iv);
+                    
+                    if (decryptedContent == null)
                     {
-                        continue;
+                        Console.WriteLine("decryptedContent is null");
+                        break;
                     }
-                    
-                    
-                        
-                    outputList.Add(pageContent);
+
+                    var decryptedContentString = Encoding.ASCII.GetString(decryptedContent);
+
+                    Console.WriteLine("encryptedContent.Length: " + encryptedContentBytes.Length);
+                    Console.WriteLine("decryptedContent.Length: " + decryptedContent.Length);
+
+                    Console.WriteLine("decryptedContentString");
+                    Console.WriteLine(decryptedContentString);
+
+                    contentList.Add(decryptedContentString);
                 }
 
-                if (highestRev > contact.revidCounter)
+                if (contentList.Count > 0)
                 {
-                    contact.revidCounter = highestRev;
+                    outputList.Add(contentList);
                 }
-                
             }
 
             // Return outputList if it is not empty, null otherwise
             return outputList.Count > 0 ? outputList : null;
         }
+        
+        private List<string>? GetInboxPageContent(OwnContact contact)
+        {
+            List<string> encryptedContentList = new();
+            
+            Console.WriteLine("Checking contact with nickname " + contact.Nickname);
+            var allRevs = GetAllRevisions(contact.PageTitle);
+
+            int highestRev = 0;
+
+            foreach (var rev in allRevs.revisionList)
+            {
+                Console.WriteLine("checking revid " + rev.revisionID);
+                if (rev.revisionID == null)
+                {
+                    continue;
+                }
+
+                var revid = int.Parse(rev.revisionID);
+
+                if (revid > highestRev)
+                {
+                    highestRev = revid;
+                }
+
+                // If content has previously been parsed
+                if (revid <= contact.revidCounter)
+                {
+                    Console.WriteLine("revid too low, breaking");
+                    break;
+                }
+
+                MediaWikiObjects.PageQuery.PageContent getPageContent = new(_mwo, contact.PageTitle, revid.ToString());
+                var pageContent = getPageContent.GetContent();
+                
+
+                if (pageContent.Equals(""))
+                {
+                    continue;
+                }
+
+                encryptedContentList.Add(pageContent);
+            }
+
+            if (highestRev > contact.revidCounter)
+            {
+                contact.revidCounter = highestRev;
+            }
+            
+            return encryptedContentList.Count > 0 ? encryptedContentList : null;
+        }
+
 
         public void UploadToInboxPage(string pageTitle, string content, byte[] publicKey)
         {
-            Crypto _crypto = new();
-            var (symmKey, IV) = _crypto.GenerateAESParams();
+            Crypto crypto = new();
+            var (symmKey, IV) = crypto.GenerateAESParams();
             
-            var symmKeyData = ByteArrayCombiner.Combine(symmKey, IV);
-            var encryptedSymmKeyData = _crypto.RSAEncryptWithPublicKey(symmKeyData, publicKey);
+            var symmKeyData = ByteArrayCombiner.Combine(IV, symmKey);
+            var encryptedSymmKeyData = crypto.RSAEncryptWithPublicKey(symmKeyData, publicKey);
 
-            Console.WriteLine("encryptedSymmKeyData.length: " + encryptedSymmKeyData?.Length);
-            Console.WriteLine("SymmKey.length: " + symmKey.Length);
-            Console.WriteLine("IV.length: " + IV.Length);
+            Console.WriteLine("content: " + content);
+            
+            Console.WriteLine("IV");
+            Console.WriteLine(ByteArrayConverter.GetHexString(IV));
+            Console.WriteLine("symmKey");
+            Console.WriteLine(ByteArrayConverter.GetHexString(symmKey));
+            // Console.WriteLine("symmKeyData");
+            // Console.WriteLine(ByteArrayConverter.GetHexString(symmKeyData));
+            // Console.WriteLine("encryptedSymmKeyData");
+            // Console.WriteLine(ByteArrayConverter.GetHexString(encryptedSymmKeyData));
+            // Console.WriteLine("encryptedSymmKeyData.length: " + encryptedSymmKeyData?.Length);
+            // Console.WriteLine("SymmKey.length: " + symmKey.Length);
+            // Console.WriteLine("IV.length: " + IV.Length);
             
             var contentBytes = Encoding.ASCII.GetBytes(content);
             var encryptedBytes = _manager.Encrypt(
@@ -379,10 +464,14 @@ namespace SecureWiki.MediaWiki
                 Console.WriteLine("UploadToInboxPage: Failed encryption");
                 return;
             }
+            
+            Console.WriteLine("encryptedBytes.length: " + encryptedBytes.Length);
 
             // Combine ciphertexts
-            byte[] pageContentBytes = ByteArrayCombiner.Combine(encryptedBytes, encryptedSymmKeyData);
+            byte[] pageContentBytes = ByteArrayCombiner.Combine(encryptedSymmKeyData, encryptedBytes);
 
+            Console.WriteLine("pageContentBytes.length: " + pageContentBytes.Length);
+            
             // var pageContent = Encoding.ASCII.GetString(pageContentBytes);
             var pageContent = Convert.ToBase64String(pageContentBytes);
 
