@@ -171,6 +171,24 @@ namespace SecureWiki.ViewModels
 
         public ObservableCollection<Contact> SelectedRevokeContacts { get; } = new();
         
+        private ObservableCollection<Contact> _shareContacts = new();
+
+        public ObservableCollection<Contact> ShareContacts
+        {
+            get => _shareContacts;
+            // set => this.RaiseAndSetIfChanged(ref _revisions, value);
+            set
+            {
+                // Console.WriteLine("setting revisions");
+                _shareContacts = value;
+                // Console.WriteLine("revisions set");
+                this.RaisePropertyChanged(nameof(ShareContacts));
+                // Console.WriteLine("property raised");
+            }
+        }
+
+        public ObservableCollection<Contact> SelectedShareContacts { get; } = new();
+
         
         public MainWindowViewModel(RootKeyring rk, Logger logger)
         {

@@ -785,6 +785,7 @@ namespace SecureWiki
 
         public void ShareSelectedKeyring(List<Contact> contacts)
         {
+            Console.WriteLine(contacts.Count);
             logger.Add("Sharing keyring");
             
             var dataFileList = _keyring.GetListOfAllCheckedDataFiles();

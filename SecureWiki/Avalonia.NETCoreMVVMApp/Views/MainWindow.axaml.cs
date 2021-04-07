@@ -114,6 +114,13 @@ namespace SecureWiki.Views
         {
             manager.ExportKeyring();
         }
+        
+        private void ButtonShareKeyring_Click(object? sender, RoutedEventArgs e)
+        {
+            Thread localThread = new(() =>
+                manager.ShareSelectedKeyring(_viewModel.SelectedShareContacts.ToList()));
+            localThread.Start();
+        }
 
         private void ButtonImport_Click(object? sender, RoutedEventArgs e)
         {
@@ -315,7 +322,14 @@ namespace SecureWiki.Views
                     manager.GetOtherContacts(_viewModel.RevokeContacts));
                 localThread.Start();
             }
-
+            
+            if (tag.Equals("ShareKeyringPopup"))
+            {
+                Thread localThread = new(() =>
+                    manager.GetOtherContacts(_viewModel.ShareContacts));
+                localThread.Start();
+            }
+            
             popup.IsOpen = true;
         }
 
@@ -465,5 +479,7 @@ namespace SecureWiki.Views
             var popup = this.FindControl<Popup>("ExportContactsPopup");
             popup.IsOpen = false;
         }
+
+
     }
 }
