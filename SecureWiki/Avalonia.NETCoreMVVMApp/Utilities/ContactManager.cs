@@ -145,7 +145,7 @@ namespace SecureWiki.Utilities
             ClearOwnContacts();
             AddRangeOwnContacts(newList);
         }
-        
+
         private List<Contact> MergeContactLists(List<Contact> existingContacts, List<Contact> newContacts)
         {
             List<Contact> newInputList = new();
@@ -159,62 +159,7 @@ namespace SecureWiki.Utilities
             ownList.AddRange(existingContacts);
             ownList = ownList.OrderBy(entry => entry.PageTitle).ToList();
 
-            // If no existing contact, return new contacts sorted by nickname
-            if (existingContacts.Count == 0)
-            {
-                resultingList = inputList.OrderBy(entry => entry.Nickname).ToList();
-                return resultingList;
-            }
-            
-            // If no new contacts, return existing contacts sorted by nickname
-            if (newContacts.Count == 0)
-            {
-                resultingList = ownList.OrderBy(entry => entry.Nickname).ToList();
-                return resultingList;
-            }
-
-            // // Resulting list must always contain existing contacts
-            // resultingList.AddRange(ownList);
-            //
-            // // Check for collisions in pageTitle, serverLink, and nicknames
-            // foreach (var contact in inputList)
-            // {
-            //     // If no collisions in pageTitle, serverLink and nickname, 
-            //     // then add new contact to resulting list.
-            //     if (!resultingList.Exists(e => e.PageTitle.Equals(contact.PageTitle) &&
-            //                              e.ServerLink.Equals(contact.ServerLink)))
-            //     {
-            //         // If new contact nickname already exists in contact list,
-            //         // then rename contact
-            //         if (resultingList.Exists(e => e.Nickname.Equals(contact.Nickname)))
-            //         {
-            //             var oldNickname = contact.Nickname;
-            //             contact.Nickname = contact.Nickname + "(1)";
-            //             string loggerMsg = $"Imported contact with nickname '{oldNickname}' " +
-            //                                $"contains different information compared to existing contact with same nickname " +
-            //                                $"and will be renamed to '{contact.Nickname}'.";
-            //             manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
-            //             resultingList.Add(contact);
-            //         }
-            //         else
-            //         {
-            //             resultingList.Add(contact);
-            //         }
-            //     }
-            //     // If collision in PageTitle and serverLink, then do not add new contact to resulting list
-            //     else
-            //     {
-            //         string loggerMsg = $"Imported contact with nickname '{contact.Nickname}' " +
-            //                            $"contains same information as existing contact " +
-            //                            $"and will not be added to contacts.";
-            //         manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
-            //     }
-            // }
-            //
-            // resultingList = resultingList.OrderBy(e => e.Nickname).ToList();
-            //
-            // return resultingList;
-            // Check if there are any collisions in regard to PageTitle and ServerLink
+            // Check if there are any collisions in regards to PageTitle and ServerLink
             int l = 0;
             foreach (var inputContact in inputList)
             {
@@ -222,9 +167,11 @@ namespace SecureWiki.Utilities
                 {
                     if (l >= ownList.Count)
                     {
+                        newInputList.Add(inputContact);
                         break;
                     }
-            
+                    
+                    // Compares the strings and returns -1, 0, or 1 depending on their relation
                     var comp = inputContact.PageTitle.CompareTo(ownList[l].PageTitle);
                     
                     if (comp > 0)
@@ -232,34 +179,35 @@ namespace SecureWiki.Utilities
                         l++;
                         continue;
                     }
-                    else if (comp < 0)
+
+                    if (comp < 0)
                     {
                         newInputList.Add(inputContact);
                         break;
                     }
-                    else
+
+                    if (!inputContact.ServerLink.Equals(ownList[l].ServerLink))
                     {
-                        if (!inputContact.ServerLink.Equals(ownList[l].ServerLink))
-                        {
-                            continue;
-                        }
-                        else if (!inputContact.Nickname.Equals(ownList[l].Nickname))
-                        {
-                            string loggerMsg = $"Imported contact with nickname '{inputContact.Nickname}' " +
-                                               $"contains same information as existing contact with nickname " +
-                                               $"'{ownList[l].Nickname}' and will not be added to contacts.";
-                            manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
-                        }
+                        newInputList.Add(inputContact);
+                        break;
                     }
-                    
-                    l++;
+
+                    if (!inputContact.Nickname.Equals(ownList[l].Nickname))
+                    {
+                        string loggerMsg = $"Imported contact with nickname '{inputContact.Nickname}' " +
+                                           $"contains same information as existing contact with nickname " +
+                                           $"'{ownList[l].Nickname}' and will not be added to contacts.";
+                        manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
+                    }
+
+                    break;
                 }
             }
             
             // Sort lists by nickname
             newInputList = newInputList.OrderBy(entry => entry.Nickname).ToList();
             ownList = ownList.OrderBy(entry => entry.Nickname).ToList();
-            
+
             // Check if there are any collisions in regard to Nickname
             int k = 0;
             foreach (var inputContact in newInputList)
@@ -268,9 +216,11 @@ namespace SecureWiki.Utilities
                 {
                     if (k >= ownList.Count)
                     {
+                        resultingList.Add(inputContact);
                         break;
                     }
-            
+                    
+                    // Compares the strings and returns -1, 0, or 1 depending on their relation
                     var comp = inputContact.Nickname.CompareTo(ownList[k].Nickname);
                     
                     if (comp > 0)
@@ -278,25 +228,25 @@ namespace SecureWiki.Utilities
                         k++;
                         continue;
                     }
-                    else if (comp < 0)
+                    if (comp < 0)
                     {
                         resultingList.Add(inputContact);
                         break;
                     }
-                    else
-                    {
-                        inputContact.Nickname += "(1)"; 
+
+                    inputContact.Nickname += "(1)"; 
                         
-                        string loggerMsg = $"Imported contact with nickname '{ownList[k].Nickname}' " +
-                                           $"contains different information compared to existing contact with same nickname " +
-                                           $"and will be renamed to '{inputContact.Nickname}'.";
-                        manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
-                    }
+                    string loggerMsg = $"Imported contact with nickname '{ownList[k].Nickname}' " +
+                                       $"contains different information compared to existing contact with same nickname " +
+                                       $"and will be renamed to '{inputContact.Nickname}'.";
+                    manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
                     
-                    k++;
+                    resultingList.Add(inputContact);
+                    break;
                 }
             }
             
+            resultingList.AddRange(ownList);
             resultingList = resultingList.OrderBy(entry => entry.Nickname).ToList();
 
             return resultingList;
@@ -315,44 +265,48 @@ namespace SecureWiki.Utilities
             ownList.AddRange(existingContacts);
             ownList = ownList.OrderBy(entry => entry.PageTitle).ToList();
 
-            // Check if there are any collisions in regard to PageTitle and ServerLink
+            // Check if there are any collisions in regards to PageTitle and ServerLink
             int l = 0;
             foreach (var inputContact in inputList)
             {
                 while (true)
                 {
-                    if (l > ownList.Count)
-                    {
-                        break;
-                    }
-
-                    var comp = inputContact.PageTitle.CompareTo(ownList[l].PageTitle);
-                    
-                    if (comp > 0)
-                    {
-                        continue;
-                    }
-                    else if (comp < 0)
+                    if (l >= ownList.Count)
                     {
                         newInputList.Add(inputContact);
                         break;
                     }
-                    else
-                    {
-                        if (!inputContact.ServerLink.Equals(ownList[l].ServerLink))
-                        {
-                            continue;
-                        }
-                        else if (!inputContact.Nickname.Equals(ownList[l].Nickname))
-                        {
-                            string loggerMsg = $"Imported contact with nickname '{inputContact.Nickname}' " +
-                                               $"contains same information as existing contact with nickname " +
-                                               $"'{ownList[l].Nickname}' and will not be added to contacts.";
-                            manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
-                        }
-                    }
                     
-                    l++;
+                    // Compares the strings and returns -1, 0, or 1 depending on their relation
+                    var comp = inputContact.PageTitle.CompareTo(ownList[l].PageTitle);
+                    
+                    if (comp > 0)
+                    {
+                        l++;
+                        continue;
+                    }
+
+                    if (comp < 0)
+                    {
+                        newInputList.Add(inputContact);
+                        break;
+                    }
+
+                    if (!inputContact.ServerLink.Equals(ownList[l].ServerLink))
+                    {
+                        newInputList.Add(inputContact);
+                        break;
+                    }
+
+                    if (!inputContact.Nickname.Equals(ownList[l].Nickname))
+                    {
+                        string loggerMsg = $"Imported contact with nickname '{inputContact.Nickname}' " +
+                                           $"contains same information as existing contact with nickname " +
+                                           $"'{ownList[l].Nickname}' and will not be added to contacts.";
+                        manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
+                    }
+
+                    break;
                 }
             }
             
@@ -366,41 +320,41 @@ namespace SecureWiki.Utilities
             {
                 while (true)
                 {
-                    if (k > ownList.Count)
+                    if (k >= ownList.Count)
                     {
+                        resultingList.Add(inputContact);
                         break;
                     }
-
+                    
+                    // Compares the strings and returns -1, 0, or 1 depending on their relation
                     var comp = inputContact.Nickname.CompareTo(ownList[k].Nickname);
                     
                     if (comp > 0)
                     {
+                        k++;
                         continue;
                     }
-                    else if (comp < 0)
+                    if (comp < 0)
                     {
                         resultingList.Add(inputContact);
                         break;
                     }
-                    else
-                    {
-                        inputContact.Nickname += "(1)"; 
+
+                    inputContact.Nickname += "(1)"; 
                         
-                        string loggerMsg = $"Imported contact with nickname '{ownList[k].Nickname}' " +
-                                           $"contains different information compared to existing contact with same nickname " +
-                                           $"and will be renamed to '{inputContact.Nickname}'.";
-                        manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
-                        resultingList.Add(inputContact);
-                    }
+                    string loggerMsg = $"Imported contact with nickname '{ownList[k].Nickname}' " +
+                                       $"contains different information compared to existing contact with same nickname " +
+                                       $"and will be renamed to '{inputContact.Nickname}'.";
+                    manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
                     
-                    k++;
+                    resultingList.Add(inputContact);
+                    break;
                 }
             }
             
             resultingList.AddRange(ownList);
-            
             resultingList = resultingList.OrderBy(entry => entry.Nickname).ToList();
-            
+
             return resultingList;
         }
 
