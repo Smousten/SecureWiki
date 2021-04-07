@@ -17,9 +17,8 @@ namespace SecureWiki.Utilities
             : base(serverLink, pageTitle, nickname)
         {
             this.revidCounter = revidCounter;
-            
-            Crypto crypto = new();
-            var (newPrivateKey, newPublicKey) = crypto.GenerateRSAParams();
+
+            var (newPrivateKey, newPublicKey) = Crypto.GenerateRSAParams();
             PrivateKey = newPrivateKey;
             PublicKey = newPublicKey;
         }

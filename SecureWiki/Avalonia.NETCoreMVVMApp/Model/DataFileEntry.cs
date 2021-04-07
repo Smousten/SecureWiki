@@ -102,8 +102,7 @@ namespace SecureWiki.Model
             this.filename = filename;
             this.serverLink = serverLink;
 
-            Crypto crypto = new();
-            var (newPrivateKey, newPublicKey) = crypto.GenerateRSAParams();
+            var (newPrivateKey, newPublicKey) = Crypto.GenerateRSAParams();
             ownerPrivateKey = newPrivateKey;
             ownerPublicKey = newPublicKey;
 
@@ -118,12 +117,11 @@ namespace SecureWiki.Model
 
         public bool VerifyKeys()
         {
-            Crypto crypto = new();
             foreach (var key in keyList)
             {
                 if (ownerPublicKey == null || 
-                    (key.PrivateKey != null && !crypto.VerifyData(ownerPublicKey, key.PrivateKey, key.SignedPrivateKey)) ||
-                    !crypto.VerifyData(ownerPublicKey, key.PublicKey, key.SignedPublicKey))
+                    (key.PrivateKey != null && !Crypto.VerifyData(ownerPublicKey, key.PrivateKey, key.SignedPrivateKey)) ||
+                    !Crypto.VerifyData(ownerPublicKey, key.PublicKey, key.SignedPublicKey))
                 {
                     Console.WriteLine("DataFileEntry filename='{0}', key pair with revstart='{1}', revend='{2}'", 
                         filename, key.RevisionStart, key.RevisionEnd);

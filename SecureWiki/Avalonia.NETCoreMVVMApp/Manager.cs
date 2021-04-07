@@ -32,7 +32,6 @@ namespace SecureWiki
         private Dictionary<string, IServerInteraction> wikiHandlers;
         private IServerInteraction localhostWikiHandler;
         private Keyring _keyring;
-        private Crypto _crypto;
         private IFuseInteraction tcpListener;
         private static HttpClient httpClient = new();
         public CacheManager cacheManager;
@@ -68,7 +67,6 @@ namespace SecureWiki
             // wikiHandlers.Add("http://localhost/mediawiki/api.php", localhostWikiHandler);
 
             _keyring = new Keyring(rootKeyring);
-            _crypto = new Crypto();
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
 
             _keyring.InitKeyring();
@@ -570,22 +568,22 @@ namespace SecureWiki
 
         public byte[]? Encrypt(byte[] plainText, byte[] symmKey, byte[] iv)
         {
-            return _crypto.Encrypt(plainText, symmKey, iv);
+            return Crypto.Encrypt(plainText, symmKey, iv);
         }
 
         public byte[]? Decrypt(byte[] pageContentBytes, byte[] symmKey, byte[] iv)
         {
-            return _crypto.Decrypt(pageContentBytes, symmKey, iv);
+            return Crypto.Decrypt(pageContentBytes, symmKey, iv);
         }
 
         public byte[] SignData(byte[] privateKey, byte[] plainText)
         {
-            return _crypto.SignData(privateKey, plainText);
+            return Crypto.SignData(privateKey, plainText);
         }
 
         public bool VerifyData(byte[] publicKey, byte[] plainText, byte[] signedData)
         {
-            return _crypto.VerifyData(publicKey, plainText, signedData);
+            return Crypto.VerifyData(publicKey, plainText, signedData);
         }
 
         public void SendEmail(string recipientEmail)
@@ -736,6 +734,12 @@ namespace SecureWiki
             string content = dfString;
         
             UploadToInboxPage(contact.ServerLink, contact.PageTitle, content, pubKeyBytes);
+        }
+
+        public void TestDownloadInboxes()
+        {
+            var wikiHandler = GetWikiHandler("http://192.168.1.7/mediawiki/api.php");
+            wikiHandler?.DownloadFromInboxPages();
         }
         
         public void TestDownload()

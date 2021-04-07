@@ -299,8 +299,6 @@ namespace SecureWiki.MediaWiki
 
         public List<List<string>>? DownloadFromInboxPages()
         {
-            Crypto crypto = new();
-
             var outputList = new List<List<string>>();
             
             var contactList = _manager.contactManager.GetOwnContactsByServerLink(url);
@@ -332,7 +330,7 @@ namespace SecureWiki.MediaWiki
                     // Console.WriteLine("encryptedSymmKeyData");
                     // Console.WriteLine(ByteArrayConverter.GetHexString(encryptedSymmKeyData));
                     
-                    var decryptedSymmKeyData= crypto.RSADecryptWithPrivateKey(encryptedSymmKeyData, contact.PrivateKey);
+                    var decryptedSymmKeyData= Crypto.RSADecryptWithPrivateKey(encryptedSymmKeyData, contact.PrivateKey);
 
                     // Console.WriteLine("decryptedSymmKeyData");
                     // Console.WriteLine(ByteArrayConverter.GetHexString(decryptedSymmKeyData));
@@ -352,7 +350,7 @@ namespace SecureWiki.MediaWiki
                     Console.WriteLine("symmKey");
                     Console.WriteLine(ByteArrayConverter.GetHexString(symmKey));
                     
-                    var decryptedContent = crypto.Decrypt(encryptedContentBytes, symmKey, iv);
+                    var decryptedContent = Crypto.Decrypt(encryptedContentBytes, symmKey, iv);
                     
                     if (decryptedContent == null)
                     {
@@ -435,11 +433,10 @@ namespace SecureWiki.MediaWiki
 
         public void UploadToInboxPage(string pageTitle, string content, byte[] publicKey)
         {
-            Crypto crypto = new();
-            var (symmKey, IV) = crypto.GenerateAESParams();
+            var (symmKey, IV) = Crypto.GenerateAESParams();
             
             var symmKeyData = ByteArrayCombiner.Combine(IV, symmKey);
-            var encryptedSymmKeyData = crypto.RSAEncryptWithPublicKey(symmKeyData, publicKey);
+            var encryptedSymmKeyData = Crypto.RSAEncryptWithPublicKey(symmKeyData, publicKey);
 
             Console.WriteLine("content: " + content);
             

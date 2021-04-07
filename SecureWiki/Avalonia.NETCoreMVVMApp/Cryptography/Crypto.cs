@@ -4,11 +4,11 @@ using System.Security.Cryptography;
 
 namespace SecureWiki.Cryptography
 {
-    public class Crypto
+    public static class Crypto
     {
         // Encrypts plainText bytes using input key and iv.
         // Encryption algorithm is aes256 with PKCS7 padding
-        public byte[]? Encrypt(byte[] plainText, byte[] key, byte[] iv)
+        public static byte[]? Encrypt(byte[] plainText, byte[] key, byte[] iv)
         {
             // Ensure argument validity
             if (plainText == null || plainText.Length <= 0)
@@ -31,7 +31,7 @@ namespace SecureWiki.Cryptography
 
         // Decrypts ciphertext bytes using input key and iv.
         // Decryption algorithm is AES256 with PKCS7 padding
-        public byte[]? Decrypt(byte[] cipherText, byte[] key, byte[] iv)
+        public static byte[]? Decrypt(byte[] cipherText, byte[] key, byte[] iv)
         {
             // Ensure argument validity
             if (cipherText == null || cipherText.Length <= 0)
@@ -53,7 +53,7 @@ namespace SecureWiki.Cryptography
         }
 
         // Perform symmetric cryptography on input data with crypto transformer (encryptor/decryptor)
-        private byte[]? PerformCryptography(byte[] data, ICryptoTransform cryptoTransform)
+        private static byte[]? PerformCryptography(byte[] data, ICryptoTransform cryptoTransform)
         {
             using var ms = new MemoryStream();
             using var cryptoStream = new CryptoStream(ms, cryptoTransform, CryptoStreamMode.Write);
@@ -69,7 +69,7 @@ namespace SecureWiki.Cryptography
             return ms.ToArray();
         }
         
-        public byte[]? RSAEncryptWithPublicKey(byte[] data, byte[] publicKey)
+        public static byte[]? RSAEncryptWithPublicKey(byte[] data, byte[] publicKey)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace SecureWiki.Cryptography
         }
 
         
-        public byte[]? RSADecryptWithPrivateKey(byte[] data, byte[] privateKey)
+        public static byte[]? RSADecryptWithPrivateKey(byte[] data, byte[] privateKey)
         {
             try
             {
@@ -121,7 +121,7 @@ namespace SecureWiki.Cryptography
             }
         }
         
-        public byte[]? RSADecrypt(byte[] data, byte[] privateKey)
+        public static byte[]? RSADecrypt(byte[] data, byte[] privateKey)
         {
             try
             {
@@ -149,7 +149,7 @@ namespace SecureWiki.Cryptography
         }
         
         // Generate asymmetric key pair
-        public (byte[] privateKey, byte[] publicKey) GenerateRSAParams()
+        public static (byte[] privateKey, byte[] publicKey) GenerateRSAParams()
         {
             RSA rsa = RSA.Create();
             var privateKey = rsa.ExportRSAPrivateKey();
@@ -158,7 +158,7 @@ namespace SecureWiki.Cryptography
         }
 
         // Generate symmetric key and IV
-        public (byte[] Key, byte[] IV) GenerateAESParams()
+        public static (byte[] Key, byte[] IV) GenerateAESParams()
         {
             Aes aes = Aes.Create();
             aes.GenerateKey();
@@ -167,7 +167,7 @@ namespace SecureWiki.Cryptography
         }
 
         // Returns signed plaintext using private key stored in datafile object
-        public byte[] SignData(byte[] key, byte[] plainText)
+        public static byte[] SignData(byte[] key, byte[] plainText)
         {
             RSACryptoServiceProvider rsa = new();
             rsa.ImportRSAPrivateKey(key, out _);
@@ -175,7 +175,7 @@ namespace SecureWiki.Cryptography
         }
 
         // Verify the signature from signedData hash, plaintext and public key stored in datafile object
-        public bool VerifyData(byte[] key, byte[] plainText, byte[] signedData)
+        public static bool VerifyData(byte[] key, byte[] plainText, byte[] signedData)
         {
             try
             {

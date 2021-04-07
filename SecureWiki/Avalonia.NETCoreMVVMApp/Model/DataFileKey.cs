@@ -26,9 +26,8 @@ namespace SecureWiki.Model
 
         public DataFileKey()
         {
-            Crypto crypto = new();
-            var (newSymmKey, newIV) = crypto.GenerateAESParams();
-            var (newPrivateKey, newPublicKey) = crypto.GenerateRSAParams();
+            var (newSymmKey, newIV) = Crypto.GenerateAESParams();
+            var (newPrivateKey, newPublicKey) = Crypto.GenerateRSAParams();
             
             SymmKey = newSymmKey;
             IV = newIV;
@@ -50,11 +49,10 @@ namespace SecureWiki.Model
 
         public void SignKey(byte[] key)
         {
-            Crypto crypto = new();
             if (PrivateKey != null)
             {
-                SignedPrivateKey = crypto.SignData(key, PrivateKey);
-                SignedPublicKey = crypto.SignData(key, PublicKey);    
+                SignedPrivateKey = Crypto.SignData(key, PrivateKey);
+                SignedPublicKey = Crypto.SignData(key, PublicKey);    
             }
         }
 
