@@ -321,7 +321,7 @@ namespace SecureWiki.Views
             var datafile = _viewModel.selectedFile;
 
             Thread localThread = new(() =>
-                manager.RevokeAccess(datafile));
+                manager.RevokeAccess(datafile, _viewModel.SelectedRevokeContacts));
             localThread.Start();
 
             var popup = this.FindControl<Popup>("RevokeAccessPopup");
