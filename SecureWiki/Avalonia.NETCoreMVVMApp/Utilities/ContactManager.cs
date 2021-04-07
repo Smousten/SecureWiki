@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using SecureWiki.Cryptography;
 
@@ -141,8 +140,9 @@ namespace SecureWiki.Utilities
         // TODO: Check if this actually works
         public void MergeOwnContacts(List<OwnContact> newContacts)
         {
-            var newList = MergeContactLists(new List<Contact>(OwnContacts), new List<Contact>(newContacts));
-            
+            var newList = MergeOwnContactLists(OwnContacts, newContacts);
+            ClearOwnContacts();
+            AddRangeOwnContacts(newList);
         }
 
         private List<Contact> MergeContactLists(List<Contact> existingContacts, List<Contact> newContacts)
@@ -227,7 +227,106 @@ namespace SecureWiki.Utilities
                     }
                     else
                     {
-                        inputContact.Nickname = inputContact.Nickname + "(1)"; 
+                        inputContact.Nickname += "(1)"; 
+                        
+                        string loggerMsg = $"Imported contact with nickname '{ownList[k].Nickname}' " +
+                                           $"contains different information compared to existing contact with same nickname " +
+                                           $"and will be renamed to '{inputContact.Nickname}'.";
+                        manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
+                    }
+                    
+                    k++;
+                }
+            }
+            
+            resultingList = resultingList.OrderBy(entry => entry.Nickname).ToList();
+
+            return resultingList;
+        }
+        
+        private List<OwnContact> MergeOwnContactLists(List<OwnContact> existingContacts, List<OwnContact> newContacts)
+        {
+            List<OwnContact> newInputList = new();
+            List<OwnContact> resultingList = new();
+            
+            List<OwnContact> inputList = new();
+            inputList.AddRange(newContacts);
+            inputList = inputList.OrderBy(entry => entry.PageTitle).ToList();
+            
+            List<OwnContact> ownList = new();
+            ownList.AddRange(existingContacts);
+            ownList = ownList.OrderBy(entry => entry.PageTitle).ToList();
+
+            // Check if there are any collisions in regard to PageTitle and ServerLink
+            int l = 0;
+            foreach (var inputContact in inputList)
+            {
+                while (true)
+                {
+                    if (l > ownList.Count)
+                    {
+                        break;
+                    }
+
+                    var comp = inputContact.PageTitle.CompareTo(ownList[l].PageTitle);
+                    
+                    if (comp > 0)
+                    {
+                        continue;
+                    }
+                    else if (comp < 0)
+                    {
+                        newInputList.Add(inputContact);
+                        break;
+                    }
+                    else
+                    {
+                        if (!inputContact.ServerLink.Equals(ownList[l].ServerLink))
+                        {
+                            continue;
+                        }
+                        else if (!inputContact.Nickname.Equals(ownList[l].Nickname))
+                        {
+                            string loggerMsg = $"Imported contact with nickname '{inputContact.Nickname}' " +
+                                               $"contains same information as existing contact with nickname " +
+                                               $"'{ownList[l].Nickname}' and will not be added to contacts.";
+                            manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
+                        }
+                    }
+                    
+                    l++;
+                }
+            }
+            
+            // Sort lists by nickname
+            newInputList = newInputList.OrderBy(entry => entry.Nickname).ToList();
+            ownList = ownList.OrderBy(entry => entry.Nickname).ToList();
+
+            // Check if there are any collisions in regard to Nickname
+            int k = 0;
+            foreach (var inputContact in newInputList)
+            {
+                while (true)
+                {
+                    if (k > ownList.Count)
+                    {
+                        break;
+                    }
+
+                    var comp = inputContact.Nickname.CompareTo(ownList[k].Nickname);
+                    
+                    if (comp > 0)
+                    {
+                        continue;
+                    }
+                    else if (comp < 0)
+                    {
+                        resultingList.Add(inputContact);
+                        break;
+                    }
+                    else
+                    {
+                        inputContact.Nickname += "(1)"; 
                         
                         string loggerMsg = $"Imported contact with nickname '{ownList[k].Nickname}' " +
                                            $"contains different information compared to existing contact with same nickname " +
