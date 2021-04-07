@@ -192,8 +192,8 @@ namespace SecureWiki.Views
         {
             var textBox = this.FindControl<TextBox>("TextBoxIp");
             var ip = textBox.Text;
-            var url = $"http://{ip}/mediawiki/api.php";
-            manager.SetDefaultServerLink(url);
+            // var url = $"http://{ip}/mediawiki/api.php";
+            manager.SetDefaultServerLink(ip);
         }
 
         private void ButtonLogin_Click(object? sender, RoutedEventArgs e)
@@ -301,7 +301,14 @@ namespace SecureWiki.Views
             if (tag.Equals("ExportContactsPopup"))
             {
                 Thread localThread = new(() =>
-                    manager.GetAllContacts(_viewModel.Contacts));
+                    manager.GetAllContacts(_viewModel.ExportContacts));
+                localThread.Start();
+            }
+
+            if (tag.Equals("RevokeAccessPopup"))
+            {
+                Thread localThread = new(() =>
+                    manager.GetOtherContacts(_viewModel.RevokeContacts));
                 localThread.Start();
             }
 
@@ -399,10 +406,10 @@ namespace SecureWiki.Views
 
         private void ButtonImportContact_Click(object? sender, RoutedEventArgs e)
         {
-            importContact();
+            ImportContact();
         }
 
-        private async void importContact()
+        private async void ImportContact()
         {
             var path = await OpenFileDialogAndGetFilePath();
 
@@ -439,7 +446,7 @@ namespace SecureWiki.Views
         private void ExportContactsPopup_Click(object? sender, RoutedEventArgs e)
         {
 
-            var exportContacts = _viewModel.SelectedContacts;
+            var exportContacts = _viewModel.SelectedExportContacts;
             
             if (exportContacts.Count > 0)
             {

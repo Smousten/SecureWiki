@@ -652,8 +652,8 @@ namespace SecureWiki
         public void GenerateOwnContact(string serverLink, string nickname)
         {
             var pageTitle = RandomString.GenerateRandomAlphanumericString();
-            var url = "http://" + serverLink + "/mediawiki/api.php";
-            OwnContact newContact = new(url, pageTitle, nickname);
+            // var url = "http://" + serverLink + "/mediawiki/api.php";
+            OwnContact newContact = new(serverLink, pageTitle, nickname);
             contactManager.AddOwnContact(newContact);
         }
 
@@ -682,6 +682,15 @@ namespace SecureWiki
             var exportFileName = "ContactExport.json";
             var exportFilePath = Path.Combine(path, exportFileName);
             JSONSerialization.SerializeAndWriteFile(exportFilePath, noDuplicates);
+        }
+
+        public void GetOtherContacts(ObservableCollection<Contact> contacts)
+        {
+            contacts.Clear();
+            if (contactManager.Contacts.Count > 0)
+            {
+                contacts.AddRange(contactManager.Contacts);
+            }
         }
 
         public void UploadToInboxPage(string serverLink, string pageTitle, string content, byte[] publicKey)
