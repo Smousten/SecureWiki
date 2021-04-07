@@ -117,23 +117,41 @@ namespace SecureWiki.ViewModels
 
         public string NicknamePopUp { get; set; }
 
-        private ObservableCollection<Contact> _exportContacts = new();
+        private ObservableCollection<Contact> _exportContactsOwn = new();
 
-        public ObservableCollection<Contact> ExportContacts
+        public ObservableCollection<Contact> ExportContactsOwn
         {
-            get => _exportContacts;
+            get => _exportContactsOwn;
             // set => this.RaiseAndSetIfChanged(ref _revisions, value);
             set
             {
                 // Console.WriteLine("setting revisions");
-                _exportContacts = value;
+                _exportContactsOwn = value;
                 // Console.WriteLine("revisions set");
-                this.RaisePropertyChanged(nameof(ExportContacts));
+                this.RaisePropertyChanged(nameof(ExportContactsOwn));
                 // Console.WriteLine("property raised");
             }
         }
 
-        public ObservableCollection<Contact> SelectedExportContacts { get; } = new();
+        public ObservableCollection<Contact> SelectedExportContactsOwn { get; } = new();
+        
+        private ObservableCollection<Contact> _exportContactsOther = new();
+
+        public ObservableCollection<Contact> ExportContactsOther
+        {
+            get => _exportContactsOther;
+            // set => this.RaiseAndSetIfChanged(ref _revisions, value);
+            set
+            {
+                // Console.WriteLine("setting revisions");
+                _exportContactsOther = value;
+                // Console.WriteLine("revisions set");
+                this.RaisePropertyChanged(nameof(ExportContactsOther));
+                // Console.WriteLine("property raised");
+            }
+        }
+
+        public ObservableCollection<Contact> SelectedExportContactsOther { get; } = new();
 
         private ObservableCollection<Contact> _revokeContacts = new();
 

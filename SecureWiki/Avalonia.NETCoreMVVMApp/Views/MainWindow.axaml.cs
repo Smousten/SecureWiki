@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
@@ -14,6 +15,7 @@ using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using DynamicData;
 using SecureWiki.MediaWiki;
 using SecureWiki.Model;
 using SecureWiki.Utilities;
@@ -303,7 +305,7 @@ namespace SecureWiki.Views
             if (tag.Equals("ExportContactsPopup"))
             {
                 Thread localThread = new(() =>
-                    manager.GetAllContacts(_viewModel.ExportContacts));
+                    manager.GetAllContacts(_viewModel.ExportContactsOwn, _viewModel.ExportContactsOther));
                 localThread.Start();
             }
 
@@ -448,7 +450,10 @@ namespace SecureWiki.Views
         private void ExportContactsPopup_Click(object? sender, RoutedEventArgs e)
         {
 
-            var exportContacts = _viewModel.SelectedExportContacts;
+            // var exportContacts = _viewModel.SelectedExportContactsOwn;
+            var exportContacts = new ObservableCollection<Contact>();
+            exportContacts.AddRange(_viewModel.SelectedExportContactsOwn);
+            exportContacts.AddRange(_viewModel.SelectedExportContactsOther);
             
             if (exportContacts.Count > 0)
             {

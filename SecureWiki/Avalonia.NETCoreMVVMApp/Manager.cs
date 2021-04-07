@@ -665,17 +665,18 @@ namespace SecureWiki
             contactManager.AddOwnContact(newContact);
         }
 
-        public void GetAllContacts(ObservableCollection<Contact> contacts)
+        public void GetAllContacts(ObservableCollection<Contact> contactsOwn, ObservableCollection<Contact> contactsOther)
         {
-            contacts.Clear();
+            contactsOwn.Clear();
+            contactsOther.Clear();
             if (contactManager.OwnContacts.Count > 0)
             {
-                contacts.AddRange(contactManager.OwnContacts);
+                contactsOwn.AddRange(contactManager.OwnContacts);
             }
 
             if (contactManager.Contacts.Count > 0)
             {
-                contacts.AddRange(contactManager.Contacts);
+                contactsOther.AddRange(contactManager.Contacts);
             }
         }
 
