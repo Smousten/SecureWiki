@@ -28,7 +28,7 @@ namespace SecureWiki.MediaWiki
         public string GetPageContent(string pageTitle, string revID);
         
         // Check if page exists on server
-        public bool CheckIfPageExists(string pageTitle, string revID);
+        public bool PageAlreadyExists(string pageTitle, string revID);
         
         // Undo revisions with given page title from revisions with ID between startID to endID
         public void UndoRevisionsByID(string pageTitle, string startID, string endID);

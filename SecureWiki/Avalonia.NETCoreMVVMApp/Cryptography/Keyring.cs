@@ -124,10 +124,10 @@ namespace SecureWiki.Cryptography
         }
 
         // Add new data file to existing keyring json file
-        public void AddNewFile(string filename, string filepath, string serverLink)
+        public void AddNewFile(string filename, string filepath, string serverLink, string pageTitle)
         {
             // var serverLink = "http://localhost/mediawiki/api.php";
-            DataFileEntry dataFileEntry = new(serverLink, filename);
+            DataFileEntry dataFileEntry = new(serverLink, pageTitle, filename);
             
             // Find the keyring where the new datafile is inserted
             var foundKeyring = FindKeyringPath(rootKeyring, filepath);

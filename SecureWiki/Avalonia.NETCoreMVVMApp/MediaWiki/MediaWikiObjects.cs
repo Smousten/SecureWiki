@@ -269,7 +269,7 @@ namespace SecureWiki.MediaWiki
                     return revision.content ?? string.Empty;
                 }
 
-                public bool CheckIfPageExists()
+                public bool PageAlreadyExists()
                 {
                     if (!loggedIn)
                     {

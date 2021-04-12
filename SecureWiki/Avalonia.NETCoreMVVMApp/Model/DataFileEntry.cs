@@ -101,7 +101,7 @@ namespace SecureWiki.Model
             }
         }
         
-        public DataFileEntry(string serverLink, string filename = "unnamed")
+        public DataFileEntry(string serverLink, string pageName, string filename = "unnamed")
         {
             this.filename = filename;
             this.serverLink = serverLink;
@@ -112,7 +112,8 @@ namespace SecureWiki.Model
 
             contactList = new List<(string, string?)>();
             
-            pageName = RandomString.GenerateRandomAlphanumericString();
+            // pageName = RandomString.GenerateRandomAlphanumericString();
+            this.pageName = pageName;
             keyList = new List<DataFileKey> {new()};
             
             keyList.Last().SignKey(ownerPrivateKey);

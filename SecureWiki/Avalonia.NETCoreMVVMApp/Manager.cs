@@ -323,6 +323,12 @@ namespace SecureWiki
             return output;
         }
 
+        public bool PageAlreadyExists(string pageTitle, string revID, string url)
+        {
+            var wikiHandler = GetWikiHandler(url);
+            return wikiHandler != null && wikiHandler.PageAlreadyExists(pageTitle, revID);
+        }
+
         public bool UndoRevisionsByID(string pageTitle, string startID, string endID, string url)
         {
             var wikiHandler = GetWikiHandler(url);
@@ -440,7 +446,20 @@ namespace SecureWiki
         // Delegated Keyring functions
         public void AddNewFile(string filename, string filepath)
         {
-            _keyring.AddNewFile(filename, filepath, configManager.DefaultServerLink);
+            var pageTitle = RandomString.GenerateRandomAlphanumericString();
+            while (true)
+            {
+                if (PageAlreadyExists(pageTitle, "-1", configManager.DefaultServerLink))
+                {
+                    logger.Add($"Auto generated page title ({pageTitle}) already exists on server. Retrying...");
+                    pageTitle = RandomString.GenerateRandomAlphanumericString();
+                }
+                else
+                {
+                    break;
+                }      
+            }
+            _keyring.AddNewFile(filename, filepath, configManager.DefaultServerLink, pageTitle);
         }
 
         public void AddNewKeyRing(string filename, string filepath)
@@ -660,6 +679,19 @@ namespace SecureWiki
         public void GenerateOwnContact(string serverLink, string nickname)
         {
             var pageTitle = RandomString.GenerateRandomAlphanumericString();
+            while (true)
+            {
+                if (PageAlreadyExists(pageTitle, "-1", serverLink))
+                {
+                    logger.Add($"Auto generated page title ({pageTitle}) already exists on server. Retrying...");
+                    pageTitle = RandomString.GenerateRandomAlphanumericString();
+                }
+                else
+                {
+                    break;
+                }      
+            }
+
             // var url = "http://" + serverLink + "/mediawiki/api.php";
             OwnContact newContact = new(serverLink, pageTitle, nickname);
             contactManager.AddOwnContact(newContact);
@@ -787,7 +819,7 @@ namespace SecureWiki
         {
             var pageTitle = "fdafadssfd";
             var wikiHandler = GetWikiHandler("http://192.168.1.7/mediawiki/api.php");
-            var content = wikiHandler.CheckIfPageExists(pageTitle, "-1");
+            var content = wikiHandler.PageAlreadyExists(pageTitle, "-1");
             if (content)
             {
                 Console.WriteLine("Page exists with pageTitle: " + pageTitle );
