@@ -108,7 +108,7 @@
                                        Text="Generate contact information to be shared with other users."
                                        TextAlignment="Center" />
                             <TextBox Grid.Row="1" Grid.Column="0" Name="ServerLinkTextBox" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
-                                     Text="{Binding ServerLinkPopUp}" Watermark="Server IP" />
+                                     Text="{Binding ServerLinkPopUp}" Watermark="http://localhost/mediawiki/api.php" />
                             <TextBox Grid.Row="2" Grid.Column="0" Name="NicknameTextBox" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
                                      Text="{Binding NicknamePopUp}" Watermark="nickname" />
                             <Button Grid.Row="3" Grid.Column="0" Click="HideButtonPopup_Click" Tag="GenerateContactPopup" Margin="30,80,10,10">Cancel</Button>

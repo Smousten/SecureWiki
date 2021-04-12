@@ -120,6 +120,9 @@ namespace SecureWiki.Views
             Thread localThread = new(() =>
                 manager.ShareSelectedKeyring(_viewModel.SelectedShareContacts.ToList()));
             localThread.Start();
+            
+            var popup = this.FindControl<Popup>("ShareKeyringPopup");
+            popup.IsOpen = false;
         }
 
         private void ButtonImport_Click(object? sender, RoutedEventArgs e)
@@ -301,6 +304,14 @@ namespace SecureWiki.Views
         {
             var tag = (string) ((Button) sender!).Tag;
             var popup = this.FindControl<Popup>(tag);
+
+            if (tag.Equals("GenerateContactPopup"))
+            {
+                Console.WriteLine("resetting serverlink and nickname");
+                _viewModel.NicknamePopUp = "";
+                _viewModel.ServerLinkPopUp = "";
+            }
+            
             popup.IsOpen = false;
         }
 
@@ -457,6 +468,10 @@ namespace SecureWiki.Views
             }
 
             var popup = this.FindControl<Popup>("GenerateContactPopup");
+
+            _viewModel.NicknamePopUp = "";
+            _viewModel.ServerLinkPopUp = "";
+
             popup.IsOpen = false;
         }
 

@@ -113,9 +113,19 @@ namespace SecureWiki.ViewModels
             set => this.RaiseAndSetIfChanged(ref _selectedRevision, value);
         }
 
-        public string ServerLinkPopUp { get; set; }
-
-        public string NicknamePopUp { get; set; }
+        private string _serverLinkPopUp;
+        public string ServerLinkPopUp
+        {
+            get => _serverLinkPopUp;
+            set => this.RaiseAndSetIfChanged(ref _serverLinkPopUp, value);
+        }
+        
+        private string _nicknamePopUp;
+        public string NicknamePopUp
+        {
+            get => _nicknamePopUp;
+            set => this.RaiseAndSetIfChanged(ref _nicknamePopUp, value);
+        }
 
         private ObservableCollection<Contact> _exportContactsOwn = new();
 

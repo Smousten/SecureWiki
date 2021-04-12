@@ -31,9 +31,9 @@ namespace SecureWiki
 
         private Dictionary<string, IServerInteraction> wikiHandlers;
         private IServerInteraction localhostWikiHandler;
-        private Keyring _keyring;
         private IFuseInteraction tcpListener;
-        private static HttpClient httpClient = new();
+
+        private Keyring _keyring;
         public CacheManager cacheManager;
         public ConfigManager configManager;
         public ContactManager contactManager;
