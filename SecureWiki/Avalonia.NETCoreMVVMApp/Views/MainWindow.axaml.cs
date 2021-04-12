@@ -101,8 +101,9 @@ namespace SecureWiki.Views
         {
             Console.WriteLine("nothing happened");
             logger.Add("loka", "connetent");
-            // manager.TestDownload();
-            manager.TestDownloadInboxes();
+            manager.TestDownload();
+            // manager.TestDownloadInboxes();
+            // manager.TestIfPageExists();
         }
 
         private void Button2_Click(object? sender, RoutedEventArgs e)

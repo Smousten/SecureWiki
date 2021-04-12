@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Xml;
 using Newtonsoft.Json.Linq;
 
 namespace SecureWiki.MediaWiki
@@ -266,6 +267,25 @@ namespace SecureWiki.MediaWiki
                     PostRequest();
 
                     return revision.content ?? string.Empty;
+                }
+
+                public bool CheckIfPageExists()
+                {
+                    if (!loggedIn)
+                    {
+                        throw new NotLoggedInException("PostRequest()");
+                    }
+                    // URL does not allow + character, instead encode as hexadecimal
+                    var updatedPageTitle = pageTitle.Replace("+", "%2B");
+
+                    string query = "?action=query";
+                    query += "&titles=" + updatedPageTitle;
+                    query += "&formatversion=2";
+                    query += "&format=json";
+
+                    JObject httpResponse = GetHttpResponse(query);
+                    var token = httpResponse.SelectToken("query.pages[0]");
+                    return token?.SelectToken("missing") == null;
                 }
 
                 public override string BuildQuery()
@@ -580,7 +600,7 @@ namespace SecureWiki.MediaWiki
             HttpResponseMessage response = httpClient.GetAsync(URL + query).Result;
 
             string responseBody = response.Content.ReadAsStringAsync().Result;
-            // Console.WriteLine("getHttpResponse: " + responseBody);
+            Console.WriteLine("getHttpResponse: " + responseBody);
 
             response.EnsureSuccessStatusCode();
 

@@ -59,6 +59,12 @@ namespace SecureWiki.MediaWiki
             return output;
         }
 
+        public bool CheckIfPageExists(string pageTitle, string revID)
+        {
+            MediaWikiObjects.PageQuery.PageContent pc = new(_mwo, pageTitle, revID);
+            return pc.CheckIfPageExists();
+        }
+
         public void UndoRevisionsByID(string pageTitle, string startID, string endID)
         {
             MediaWikiObjects.PageAction.UndoRevisions undoRevisions =

@@ -783,6 +783,21 @@ namespace SecureWiki
             }
         }
 
+        public void TestIfPageExists()
+        {
+            var pageTitle = "fdafadssfd";
+            var wikiHandler = GetWikiHandler("http://192.168.1.7/mediawiki/api.php");
+            var content = wikiHandler.CheckIfPageExists(pageTitle, "-1");
+            if (content)
+            {
+                Console.WriteLine("Page exists with pageTitle: " + pageTitle );
+            }
+            else
+            {
+                Console.WriteLine("Page does not exist with pageTitle: " + pageTitle );
+            }
+        }
+
         public void ShareSelectedKeyring(List<Contact> contacts)
         {
             Console.WriteLine(contacts.Count);
