@@ -304,20 +304,30 @@ namespace SecureWiki.Cryptography
             }
         }
 
-        public RootKeyring CreateRootKeyringBasedOnIsChecked()
+        public RootKeyring CreateCopyRootKeyringBasedOnIsChecked()
         {
             RootKeyring outputRootKeyring = new();
 
-            rootKeyring.AddToOtherKeyringRecursivelyBasedOnIsChecked(outputRootKeyring);
+            rootKeyring.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(outputRootKeyring);
+            outputRootKeyring.RemoveEmptyDescendantsRecursively();
+
+            return outputRootKeyring;
+        }
+        
+        public RootKeyring CreateCopyRootKeyring()
+        {
+            RootKeyring outputRootKeyring = new();
+
+            rootKeyring.AddCopiesToOtherKeyringRecursively(outputRootKeyring);
+            outputRootKeyring.RemoveEmptyDescendantsRecursively();
 
             return outputRootKeyring;
         }
 
         public void ExportRootKeyringBasedOnIsChecked()
         {
-            RootKeyring rk = CreateRootKeyringBasedOnIsChecked();
+            RootKeyring rk = CreateCopyRootKeyringBasedOnIsChecked();
 
-            rk.RemoveEmptyDescendantsRecursively();
             rk.PrepareForExportRecursively();
 
             var currentDir = Directory.GetCurrentDirectory();
@@ -332,11 +342,11 @@ namespace SecureWiki.Cryptography
         
         public List<DataFileEntry> GetListOfAllCheckedDataFiles()
         {
-            RootKeyring rk = CreateRootKeyringBasedOnIsChecked();
+            RootKeyring rk = CreateCopyRootKeyringBasedOnIsChecked();
 
             rk.RemoveEmptyDescendantsRecursively();
 
-            var dataFileList = rk.GetAllDescendantDataFileEntries();
+            var dataFileList = rk.GetAllAndDescendantDataFileEntries();
 
             return dataFileList;
         }

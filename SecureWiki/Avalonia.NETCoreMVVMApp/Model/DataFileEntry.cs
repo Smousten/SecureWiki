@@ -100,6 +100,11 @@ namespace SecureWiki.Model
                 OnPropertyChanged(nameof(newestRevisionSelected));
             }
         }
+
+        private DataFileEntry()
+        {
+            
+        }
         
         public DataFileEntry(string serverLink, string pageName, string filename = "unnamed")
         {
@@ -449,6 +454,27 @@ namespace SecureWiki.Model
             {
                 contactList.Add((pageTitle, serverlink));
             }
+        }
+
+        public DataFileEntry Copy()
+        {
+            // var copy = new DataFileEntry();
+            // copy.filename = filename;
+            // copy.serverLink = serverLink;
+            // copy.pageName = pageName;
+            // copy.ownerPrivateKey = ownerPrivateKey;
+            // copy.ownerPublicKey = ownerPublicKey;
+            // copy.contactList = contactList;
+            // copy.keyList = new List<DataFileKey>();
+
+            var jsonData = JSONSerialization.SerializeObject(this);
+
+            DataFileEntry copy = (JSONSerialization.DeserializeObject(jsonData, typeof(DataFileEntry)) as DataFileEntry)!;
+
+            copy.isChecked = isChecked;
+            copy.isCheckedWrite = isCheckedWrite;
+            
+            return copy;
         }
 
         public void PrintInfo()
