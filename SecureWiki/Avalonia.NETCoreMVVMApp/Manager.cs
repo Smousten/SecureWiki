@@ -740,13 +740,14 @@ namespace SecureWiki
         public void TestDownloadInboxes()
         {
             var wikiHandler = GetWikiHandler("http://192.168.1.7/mediawiki/api.php");
+            
             wikiHandler?.DownloadFromInboxPages();
         }
         
         public void TestDownload()
         {
             // var contact = contactManager.GetOwnContactByNickname("Test");
-            var contact = contactManager.GetContactByPageTitle("tcyaj7kTGsafdsflxVL5vbFsI");
+            var contact = contactManager.GetContactByPageTitle("InboxPageTest");
         
             if (contact == null)
             {
@@ -786,9 +787,10 @@ namespace SecureWiki
         public void ShareSelectedKeyring(List<Contact> contacts)
         {
             Console.WriteLine(contacts.Count);
-            logger.Add("Sharing keyring");
+            logger.Add("Sharing specified parts of keyring");
             
-            var dataFileList = _keyring.GetListOfAllCheckedDataFiles();
+            var keyringEntry = _keyring.CreateCopyRootKeyringBasedOnIsChecked();
+            var dataFileList = keyringEntry.GetAllAndDescendantDataFileEntries();
 
             foreach (var contact in contacts)
             {
@@ -810,12 +812,16 @@ namespace SecureWiki
                 {
                     continue;
                 }
-                
-                var keyringEntry = new KeyringEntry();
-                
-                keyringEntry.dataFiles.AddRange(newDataFiles);
 
-                var keyringEntryString = JSONSerialization.SerializeObject(keyringEntry);
+                // Create new keyring containing copies of the datafiles to be shared
+                var intermediateKeyringEntry = new KeyringEntry(keyringEntry.name);
+                var keyringEntryToExport = new KeyringEntry(intermediateKeyringEntry.name);
+
+                intermediateKeyringEntry.dataFiles.AddRange(newDataFiles);
+                intermediateKeyringEntry.AddCopiesToOtherKeyringRecursively(keyringEntryToExport);       
+                keyringEntryToExport.PrepareForExportRecursively();
+                
+                var keyringEntryString = JSONSerialization.SerializeObject(keyringEntryToExport);
 
                 var loggerMsg = $"Sharing {newDataFiles.Count} new files with contact '{contact.Nickname}'.";
                 logger.Add(loggerMsg);

@@ -345,10 +345,10 @@ namespace SecureWiki.MediaWiki
                         break;
                     }
                     
-                    Console.WriteLine("IV");
-                    Console.WriteLine(ByteArrayConverter.GetHexString(iv));
-                    Console.WriteLine("symmKey");
-                    Console.WriteLine(ByteArrayConverter.GetHexString(symmKey));
+                    // Console.WriteLine("IV");
+                    // Console.WriteLine(ByteArrayConverter.GetHexString(iv));
+                    // Console.WriteLine("symmKey");
+                    // Console.WriteLine(ByteArrayConverter.GetHexString(symmKey));
                     
                     var decryptedContent = Crypto.Decrypt(encryptedContentBytes, symmKey, iv);
                     
@@ -369,6 +369,7 @@ namespace SecureWiki.MediaWiki
                     contentList.Add(decryptedContentString);
                 }
 
+                    
                 if (contentList.Count > 0)
                 {
                     outputList.Add(contentList);
@@ -438,12 +439,12 @@ namespace SecureWiki.MediaWiki
             var symmKeyData = ByteArrayCombiner.Combine(IV, symmKey);
             var encryptedSymmKeyData = Crypto.RSAEncryptWithPublicKey(symmKeyData, publicKey);
 
-            Console.WriteLine("content: " + content);
-            
-            Console.WriteLine("IV");
-            Console.WriteLine(ByteArrayConverter.GetHexString(IV));
-            Console.WriteLine("symmKey");
-            Console.WriteLine(ByteArrayConverter.GetHexString(symmKey));
+            // Console.WriteLine("content: " + content);
+            //
+            // Console.WriteLine("IV");
+            // Console.WriteLine(ByteArrayConverter.GetHexString(IV));
+            // Console.WriteLine("symmKey");
+            // Console.WriteLine(ByteArrayConverter.GetHexString(symmKey));
             // Console.WriteLine("symmKeyData");
             // Console.WriteLine(ByteArrayConverter.GetHexString(symmKeyData));
             // Console.WriteLine("encryptedSymmKeyData");
@@ -462,7 +463,7 @@ namespace SecureWiki.MediaWiki
                 return;
             }
             
-            Console.WriteLine("encryptedBytes.length: " + encryptedBytes.Length);
+            // Console.WriteLine("encryptedBytes.length: " + encryptedBytes.Length);
 
             // Combine ciphertexts
             byte[] pageContentBytes = ByteArrayCombiner.Combine(encryptedSymmKeyData, encryptedBytes);

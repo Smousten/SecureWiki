@@ -439,23 +439,44 @@ namespace SecureWiki.Model
             }
         }
 
-        // Recursively add checked children to another keyring 
-        public void AddToOtherKeyringRecursivelyBasedOnIsChecked(KeyringEntry outputKeyring)
+        // Recursively add copies of checked children to another keyring 
+        public void AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(KeyringEntry outputKeyring)
         {
             foreach (KeyringEntry ke in keyrings)
             {
                 KeyringEntry keCopy = new(ke.name);
                 outputKeyring.AddKeyring(keCopy);
                 
-                ke.AddToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
+                ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
             }
             
             foreach (DataFileEntry dataFileEntry in dataFiles)
             {
                 if (dataFileEntry.isChecked == true)
                 {
-                    outputKeyring.AddDataFile(dataFileEntry);                    
+                    var dfCopy = dataFileEntry.Copy();
+                    
+                    outputKeyring.AddDataFile(dfCopy);                    
                 }
+            }
+        }
+        
+        // Recursively add copies of children to another keyring 
+        public void AddCopiesToOtherKeyringRecursively(KeyringEntry outputKeyring)
+        {
+            foreach (KeyringEntry ke in keyrings)
+            {
+                KeyringEntry keCopy = new(ke.name);
+                outputKeyring.AddKeyring(keCopy);
+                
+                ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
+            }
+            
+            foreach (DataFileEntry dataFileEntry in dataFiles)
+            {
+                var dfCopy = dataFileEntry.Copy();
+                    
+                outputKeyring.AddDataFile(dfCopy);     
             }
         }
 
@@ -535,7 +556,7 @@ namespace SecureWiki.Model
             AddRangeDataFile(sortedList);
         }
 
-        public List<DataFileEntry> GetAllDescendantDataFileEntries()
+        public List<DataFileEntry> GetAllAndDescendantDataFileEntries()
         {
             var outputList = new List<DataFileEntry>();
 
@@ -543,7 +564,7 @@ namespace SecureWiki.Model
 
             foreach (var keyring in keyrings)
             {
-                outputList.AddRange(keyring.GetAllDescendantDataFileEntries());
+                outputList.AddRange(keyring.GetAllAndDescendantDataFileEntries());
             }
 
             return outputList;

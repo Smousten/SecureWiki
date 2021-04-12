@@ -618,7 +618,7 @@ namespace SecureWiki.MediaWiki
                 HttpResponseMessage response = httpClient.GetAsync(URL + query).Result;
                 response.EnsureSuccessStatusCode();
                 string responseBody = response.Content.ReadAsStringAsync().Result;
-                Console.WriteLine("LoginHttpClient:- resonseBody: " + responseBody);
+                // Console.WriteLine("LoginHttpClient:- responseBody: " + responseBody);
                 JObject responseJson = JObject.Parse(responseBody);
 
                 var loginToken = responseJson["query"]?["tokens"]?["logintoken"]?.ToString();
@@ -637,7 +637,7 @@ namespace SecureWiki.MediaWiki
                 HttpResponseMessage responseClientLogin =
                     httpClient.PostAsync(URL + action, new FormUrlEncodedContent(values)).Result;
                 string responseBodyClientLogin = responseClientLogin.Content.ReadAsStringAsync().Result;
-                Console.WriteLine("LoginHttpClient:- responseBodyClientLogin: " + responseBodyClientLogin);
+                // Console.WriteLine("LoginHttpClient:- responseBodyClientLogin: " + responseBodyClientLogin);
                 MWuserID = username;
                 MWuserPassword = password;
                 loggedIn = true;

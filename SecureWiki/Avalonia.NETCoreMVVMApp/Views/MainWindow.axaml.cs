@@ -100,9 +100,9 @@ namespace SecureWiki.Views
         public void Button1_Click(object sender, RoutedEventArgs e)
         {
             Console.WriteLine("nothing happened");
-            logger.Add("loka", "connetent");
-            // manager.TestDownload();
-            manager.TestDownloadInboxes();
+            // logger.Add("loka", "connetent");
+            manager.TestDownload();
+            // manager.TestDownloadInboxes();
         }
 
         private void Button2_Click(object? sender, RoutedEventArgs e)
