@@ -32,6 +32,8 @@ namespace SecureWiki.Views
         public Logger logger = new();
         private bool autoscrollLogger = true;
 
+        public static AutoResetEvent ManagerReadyEvent = new(false);
+        
         public MainWindow()
         {
             _viewModel = new MainWindowViewModel(_rootKeyring, logger);
@@ -42,10 +44,8 @@ namespace SecureWiki.Views
             managerThread.Start();
 
             // Do not show GUI window until manager is ready to handle requests
-            while (!manager.FinishSetup)
-            {
-                Thread.Sleep(100);
-            }
+            ManagerReadyEvent.WaitOne();
+            
             InitializeComponent();
 
 

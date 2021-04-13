@@ -56,6 +56,7 @@ namespace SecureWiki
             printTest = PrintTestMethod;
             rootKeyring = rk;
             this.logger = logger;
+            // this._autoResetEvent = autoEvent;
         }
 
         public void Run()
@@ -85,7 +86,9 @@ namespace SecureWiki
 
             logger.Add("Starting up FUSE", null);
             // TestUpload();
-            FinishSetup = true;
+
+            // GUI can now proceed
+            MainWindow.ManagerReadyEvent.Set();
         }
 
         public void PrintTestMethod(string input)
