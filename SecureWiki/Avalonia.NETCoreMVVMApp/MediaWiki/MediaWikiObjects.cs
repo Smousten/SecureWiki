@@ -108,6 +108,8 @@ namespace SecureWiki.MediaWiki
         private string MWuserPassword;
 
         public JObject JOTokens;
+        public string? editToken;
+
 
         private HttpClient httpClient;
         public bool loggedIn = false;
@@ -451,6 +453,7 @@ namespace SecureWiki.MediaWiki
 
             public PageAction(MediaWikiObjects source) : base(source)
             {
+                editToken = source.editToken;
             }
 
             public class UploadNewRevision : PageAction
@@ -476,19 +479,31 @@ namespace SecureWiki.MediaWiki
                 {
                     revision.content = content;
 
-                    JOTokens = GetTokens();
-
                     action = BuildAction();
 
                     Console.WriteLine("Starting upload: posting to server.");
 
-                    return PostHttpToServer(action);
+                    var result = PostHttpToServer(action);
+
+                    // If post fails, try again with a fresh edit token
+                    if (result == null)
+                    {
+                        editToken = null;
+                        action = BuildAction();
+                        
+                        result = PostHttpToServer(action);
+                    }
+
+                    return result;
                 }
 
                 public override Action BuildAction()
                 {
-                    JOTokens = GetTokens();
-                    string? editToken = ExtractToken(JOTokens, "csrftoken");
+                    if (editToken == null)
+                    {
+                        JOTokens = GetTokens();
+                        editToken = ExtractToken(JOTokens, "csrftoken");
+                    }
 
                     action.action = "?action=edit";
                     action.AddValuePair("title", pageTitle);
@@ -527,7 +542,7 @@ namespace SecureWiki.MediaWiki
                     UndoRevisionsByID(ID, ID);
                 }
 
-                public void UndoRevisionsByID(string startID, string endID)
+                public string? UndoRevisionsByID(string startID, string endID)
                 {
                     undoBeginID = startID;
                     undoEndID = endID;
@@ -536,13 +551,27 @@ namespace SecureWiki.MediaWiki
 
                     Console.WriteLine("Starting upload: posting to server.");
 
-                    PostHttpToServer(action);
+                    var result = PostHttpToServer(action);
+
+                    // If post fails, try again with a fresh edit token
+                    if (result == null)
+                    {
+                        editToken = null;
+                        action = BuildAction();
+                        
+                        result = PostHttpToServer(action);
+                    }
+
+                    return result;
                 }
 
                 public override Action BuildAction()
                 {
-                    JOTokens = GetTokens();
-                    string? editToken = ExtractToken(JOTokens, "csrftoken");
+                    if (editToken == null)
+                    {
+                        JOTokens = GetTokens();
+                        editToken = ExtractToken(JOTokens, "csrftoken");
+                    }
 
                     action.action = "?action=edit";
                     action.AddValuePair("title", pageTitle);
@@ -604,8 +633,11 @@ namespace SecureWiki.MediaWiki
 
                 public override Action BuildAction()
                 {
-                    JOTokens = GetTokens();
-                    string? editToken = ExtractToken(JOTokens, "csrftoken");
+                    if (editToken == null)
+                    {
+                        JOTokens = GetTokens();
+                        editToken = ExtractToken(JOTokens, "csrftoken");
+                    }
 
                     action.action = "?action=revisiondelete";
                     action.AddValuePair("title", pageTitle);
@@ -648,9 +680,9 @@ namespace SecureWiki.MediaWiki
                 return output;
             }
 
-            public string? ExtractToken(JObject JOTokens, string tokenName)
+            public string? ExtractToken(JObject jOTokens, string tokenName)
             {
-                var token = JOTokens["query"]?["tokens"]?[tokenName]?.ToString();
+                var token = jOTokens["query"]?["tokens"]?[tokenName]?.ToString();
 
                 Console.WriteLine("Extracted token '{0}': {1}", tokenName, token);
 

@@ -123,6 +123,7 @@ namespace SecureWiki.MediaWiki
             MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
                 dataFile.pageName);
             var httpResponse = uploadNewRevision.UploadContent(encryptedContent);
+            _mwo.editToken ??= uploadNewRevision.editToken;
             
             // If uploaded revision ID is greater than latest revision end. 
             // Only happens if user manually deletes entries from key list 
@@ -459,6 +460,7 @@ namespace SecureWiki.MediaWiki
             MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
                 pageTitle);
             var httpResponse = uploadNewRevision.UploadContent(pageContent);
+            _mwo.editToken ??= uploadNewRevision.editToken;
 
             // Check if upload was successful
             if (httpResponse != null)
