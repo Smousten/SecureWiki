@@ -68,7 +68,7 @@ namespace SecureWiki
             //     "THISpasswordSHOULDbeCHANGED", httpClient, this, "http://localhost/mediawiki/api.php");
             // wikiHandlers.Add("http://localhost/mediawiki/api.php", localhostWikiHandler);
 
-            _keyring = new Keyring(rootKeyring);
+            _keyring = new Keyring(rootKeyring, this);
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
 
             _keyring.InitKeyring();
@@ -675,9 +675,17 @@ namespace SecureWiki
 
         public void ImportContact(string path)
         {
-            logger.Add($"Importing contacts from '{path}'");
-            var newContacts = (List<Contact>) JSONSerialization.ReadFileAndDeserialize(
-                path, typeof(List<Contact>));
+            WriteToLogger($"Importing contacts from '{path}'");
+            var newContacts = JSONSerialization.ReadFileAndDeserialize(
+                path, typeof(List<Contact>)) as List<Contact>;
+
+            if (newContacts == null)
+            {
+                const string loggerMsg = "Import file cannot be parsed as a list of contact objects. Merged aborted.";
+                WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
+                return;
+            }
+            
             contactManager.MergeContacts(newContacts);
         }
 
