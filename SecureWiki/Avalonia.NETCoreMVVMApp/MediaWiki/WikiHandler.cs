@@ -434,6 +434,7 @@ namespace SecureWiki.MediaWiki
 
         public bool UploadToInboxPage(string pageTitle, string content, byte[] publicKey)
         {
+            Console.WriteLine("Uploading content to mediawiki: " + content);
             // Generate symmetric key
             var (symmKey, IV) = Crypto.GenerateAESParams();
             

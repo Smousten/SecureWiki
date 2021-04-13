@@ -394,6 +394,12 @@ namespace SecureWiki.Utilities
             // Return results if any found, otherwise null
             return contacts.Count > 0 ? contacts : null;
         }
+
+        public Contact? GetContactByPageTitleAndServerLink(string pageTitle, string serverLink)
+        {
+            return Contacts.Find(entry => entry.PageTitle.Equals(pageTitle) 
+                                          && entry.ServerLink.Equals(serverLink));
+        }
         
         public OwnContact? GetOwnContactByNickname(string nickname)
         {

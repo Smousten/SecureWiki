@@ -36,6 +36,7 @@ namespace SecureWiki.Views
         
         public MainWindow()
         {
+            InitializeComponent();
             _viewModel = new MainWindowViewModel(_rootKeyring, logger);
             DataContext = _viewModel;
             
@@ -44,9 +45,9 @@ namespace SecureWiki.Views
             managerThread.Start();
 
             // Do not show GUI window until manager is ready to handle requests
-            ManagerReadyEvent.WaitOne();
+            // ManagerReadyEvent.WaitOne();
             
-            InitializeComponent();
+
 
 
 #if DEBUG
@@ -92,8 +93,9 @@ namespace SecureWiki.Views
 
         private void MainWindow_Shown(object sender, EventArgs e)
         {
+            ManagerReadyEvent.WaitOne();
             Console.WriteLine("MainWindow_Shown");
-
+            
             // Expand root node in TreeView
             TreeView TV = this.FindControl<TreeView>("TreeView1");
             if (TV.GetLogicalChildren().Any())
@@ -241,6 +243,7 @@ namespace SecureWiki.Views
             if (_viewModel.selectedRevision.revisionID == null) return;
 
             _viewModel.selectedFile.newestRevisionSelected = false; // IsNewestRevision();
+            _viewModel.selectedFileRevision = _viewModel.selectedRevision.revisionID;
 
             if (manager.RequestedRevision.ContainsKey(_viewModel.selectedFile.pageName))
             {
@@ -338,7 +341,7 @@ namespace SecureWiki.Views
             if (tag.Equals("RevokeAccessPopup"))
             {
                 Thread localThread = new(() =>
-                    manager.GetOtherContacts(_viewModel.RevokeContacts));
+                    manager.GetFileContacts(_viewModel.RevokeContacts, _viewModel.selectedFile));
                 localThread.Start();
             }
             
@@ -482,11 +485,9 @@ namespace SecureWiki.Views
 
             popup.IsOpen = false;
         }
-
-
+        
         private void ExportContactsPopup_Click(object? sender, RoutedEventArgs e)
         {
-
             // var exportContacts = _viewModel.SelectedExportContactsOwn;
             var exportContacts = new ObservableCollection<Contact>();
             exportContacts.AddRange(_viewModel.SelectedExportContactsOwn);

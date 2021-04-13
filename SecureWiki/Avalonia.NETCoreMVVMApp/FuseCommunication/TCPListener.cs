@@ -166,7 +166,7 @@ namespace SecureWiki.FuseCommunication
                 // If the previous operation was not exactly the same, otherwise reuse decrypted text
                 if (!(lastOperationWasRead && filename.Equals(previousFilename) && filepath.Equals(previousFilepath)))
                 {
-                    decryptedText = _manager.Download(filename) ?? Encoding.ASCII.GetBytes("File error");
+                    decryptedText = _manager.Download(filename) ?? Encoding.ASCII.GetBytes("Empty file.");
                     lastOperationWasRead = true;
                     previousFilename = filename;
                     previousFilepath = filepath;

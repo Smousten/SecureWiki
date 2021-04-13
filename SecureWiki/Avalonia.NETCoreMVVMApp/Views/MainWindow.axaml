@@ -291,8 +291,8 @@
                 <ContentControl.ContentTemplate>
                     <DataTemplate DataType="Models:DataFileEntry">
                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto">
-                            <TextBlock Grid.Row="0" Grid.Column="0">Filename: </TextBlock>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding filename}" />
+                            <TextBlock Grid.Row="0" Grid.Column="0" FontSize="20">Filename: </TextBlock>
+                            <TextBlock Grid.Row="0" Grid.Column="1" FontSize="20" Text="{Binding filename}" />
                         </Grid>
                     </DataTemplate>
                 </ContentControl.ContentTemplate>
@@ -305,6 +305,9 @@
                     Height="30" Click="ShowButtonPopup_Click" Tag="RevokeAccessPopup">
                 Revoke
             </Button>
+            
+            <TextBlock Text="Change cache settings for selected file" DockPanel.Dock="Top"
+                       IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <Button Name="CacheSettingButton" DockPanel.Dock="Top"
                     IsVisible="{Binding selectedFile, Converter={x:Static ObjectConverters.IsNotNull}}" Width="100"
                     Height="30" Click="ShowButtonPopup_Click" Tag="CacheSettingPopup">
