@@ -30,7 +30,7 @@ namespace SecureWiki.Model
         [JsonProperty] 
         public List<(string, string?)> contactList { get; set; }
 
-        // Tuple of (Start revision id, public key, private key, end revision)
+        // DataFileKey is a tuple of (private key, public key and information relevant to their use)
         [JsonProperty] 
         public List<DataFileKey> keyList { get; set; }
 
@@ -63,7 +63,6 @@ namespace SecureWiki.Model
         {
             get
             {
-                // if (privateKey == null)
                 if (keyList.TrueForAll(e => e.PrivateKey == null))
                 {
                     return false;
@@ -81,7 +80,6 @@ namespace SecureWiki.Model
         {
             get
             {
-                // if (privateKey == null)
                 if (keyList.TrueForAll(e => e.PrivateKey == null))
                 {
                     return false;
@@ -110,19 +108,20 @@ namespace SecureWiki.Model
         {
             this.filename = filename;
             this.serverLink = serverLink;
+            this.pageName = pageName;
 
+            // Generate a new asymmetric key pair for owner priv/pub key
             var (newPrivateKey, newPublicKey) = Crypto.GenerateRSAParams();
             ownerPrivateKey = newPrivateKey;
             ownerPublicKey = newPublicKey;
 
             contactList = new List<(string, string?)>();
             
-            // pageName = RandomString.GenerateRandomAlphanumericString();
-            this.pageName = pageName;
+            // Create a new DataFileKey and sign it with the owner private key 
             keyList = new List<DataFileKey> {new()};
-            
             keyList.Last().SignKey(ownerPrivateKey);
 
+            // Set event handlers
             CheckedChanged -= CheckedChangedUpdateParent;
             CheckedChanged += CheckedChangedUpdateParent;
         }
@@ -132,30 +131,16 @@ namespace SecureWiki.Model
             foreach (var key in keyList)
             {
                 if (ownerPublicKey == null || 
-                    (key.PrivateKey != null && !Crypto.VerifyData(ownerPublicKey, key.PrivateKey, key.SignedPrivateKey)) ||
+                    (key.PrivateKey != null && 
+                     !Crypto.VerifyData(ownerPublicKey, key.PrivateKey, key.SignedPrivateKey)) ||
                     !Crypto.VerifyData(ownerPublicKey, key.PublicKey, key.SignedPublicKey))
                 {
-                    Console.WriteLine("DataFileEntry filename='{0}', key pair with revstart='{1}', revend='{2}'", 
-                        filename, key.RevisionStart, key.RevisionEnd);
                     return false;
                 }
             }
 
             return true;
         }
-
-        // 
-        // public void SignKeys()
-        // {
-        //     Crypto crypto = new();
-        //
-        //
-        //     foreach (var key in keyList)
-        //     {
-        //         key.signedPrivateKey = crypto.SignData(ownerPrivateKey, key.privateKey);
-        //         key.signedPublicKey = crypto.SignData(ownerPrivateKey, key.publicKey);
-        //     }
-        // }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public event PropertyChangingEventHandler? PropertyChanging;
@@ -185,7 +170,7 @@ namespace SecureWiki.Model
         {
             EventHandler handler = CheckedChanged;
             
-            // Rider incorrectly thinks handler can never be null
+            // The Rider IDE incorrectly thinks handler can never be null
             // ReSharper disable once ConstantConditionalAccessQualifier
             handler?.Invoke(this, e);
         }
@@ -204,31 +189,15 @@ namespace SecureWiki.Model
 
         public bool HasSameStaticProperties(DataFileEntry reference)
         {
-            // // Construct ignore list and populate with non-static properties
-            // List<PropertyInfo> ignoreList = new();
-            //
-            // var filenameProperty = typeof(DataFileEntry).GetProperty(nameof(filename));
-            // var ownerPrivKeyProperty = typeof(DataFileEntry).GetProperty(nameof(ownerPrivateKey));
-            //
-            // if (filenameProperty != null)
-            // {
-            //     ignoreList.Add(filenameProperty);
-            // }
-            // if (ownerPrivKeyProperty != null)
-            // {
-            //     ignoreList.Add((ownerPrivKeyProperty));
-            // }
-            //
-            // return CompareProperties(reference, ignoreList);
-            
             List<PropertyInfo?> staticPropertyList = new();
             List<PropertyInfo> compareList = new();
             
+            // Add relevant static properties
             staticPropertyList.Add(typeof(DataFileEntry).GetProperty(nameof(pageName)));
             staticPropertyList.Add(typeof(DataFileEntry).GetProperty(nameof(serverLink)));
             staticPropertyList.Add(typeof(DataFileEntry).GetProperty(nameof(ownerPublicKey)));
 
-            
+            // Check properties are not null
             foreach (var item in staticPropertyList)
             {
                 if (item != null)
@@ -270,7 +239,6 @@ namespace SecureWiki.Model
                 
                 if (ownValue == null || refValue == null)
                 {
-                    // Console.WriteLine("AtLeast one is null");
                     if (ownValue != null || refValue != null)
                     {
                         return false;
@@ -278,23 +246,17 @@ namespace SecureWiki.Model
                 }
                 else if (ownValue is string)
                 {
-                    // Console.WriteLine("is a string");
-
                     if (!(ownValue.Equals(refValue)))
                     {
-                        // Console.WriteLine("string: '{0}'!='{1}'", ownValue, refValue);
                         return false;
                     }
                 }
                 else if (ownValue.GetType() == typeof(byte[]))
                 {
-                    // Console.WriteLine("is a byte[]");
-
                     var byteArrayOwn = ownValue as byte[];
                     var byteArrayRef = refValue as byte[];
                     if (!(byteArrayOwn!).SequenceEqual(byteArrayRef!))
                     {
-                        // Console.WriteLine("ByteArray: '{0}'!='{1}'", byteArrayOwn, byteArrayRef);
                         return false;
                     }
                 }
@@ -355,6 +317,7 @@ namespace SecureWiki.Model
 
         public void MergeWithOtherDataFileEntry(DataFileEntry df)
         {
+            // Abort if any of the static information does not match
             if (!filename.Equals(df.filename) ||
                 !serverLink.Equals(df.serverLink) ||
                 !pageName.Equals(df.pageName) ||
@@ -365,23 +328,27 @@ namespace SecureWiki.Model
                 return;
             }
 
+            // Keep highest level of information
             ownerPrivateKey ??= df.ownerPrivateKey;
             ownerPublicKey ??= df.ownerPublicKey;
 
             List<DataFileKey> combinedKeyList = new();
             List<DataFileKey> resultingKeyList = new();
             
+            // Create and sort combined list of keys
             combinedKeyList.AddRange(keyList);
             combinedKeyList.AddRange(df.keyList);
-            
-            combinedKeyList = combinedKeyList.OrderBy(entry => entry.PublicKey, new ByteArrayComparer()).ToList();
+            combinedKeyList = combinedKeyList.OrderBy(
+                entry => entry.PublicKey, new ByteArrayComparer()).ToList();
 
+            // Merge keyLists and remove duplicates 
             int i = 0;
             while (i < combinedKeyList.Count)
             {
                 int cnt = 1;
 
-                while (i + cnt < combinedKeyList.Count && combinedKeyList[i].PublicKey.SequenceEqual(combinedKeyList[i + cnt].PublicKey))
+                while (i + cnt < combinedKeyList.Count && 
+                       combinedKeyList[i].PublicKey.SequenceEqual(combinedKeyList[i + cnt].PublicKey))
                 {
                     combinedKeyList[i].MergeWithOtherKey(combinedKeyList[i + cnt]);
                     cnt++;
@@ -391,6 +358,7 @@ namespace SecureWiki.Model
                 i += cnt;
             }
             
+            // Sort resulting list and update own keyList
             resultingKeyList = resultingKeyList.OrderBy(entry => entry.RevisionStart).ToList();
             keyList.Clear();
             keyList.AddRange(resultingKeyList);
@@ -406,6 +374,8 @@ namespace SecureWiki.Model
         {
             (string, string?) output;
             
+            // Check if contactList contains any entries with the given page title and server link
+            // Serverlink is not saved to file, if it matches that of the DataFileEntry
             if (serverlink.Equals(serverLink))
             {
                 output = contactList.FirstOrDefault
@@ -428,6 +398,8 @@ namespace SecureWiki.Model
         {
             (string, string?) existingContactInfo;
             
+            // Check if contact with same pageTitle already is in contactList
+            // Serverlink is not saved to file, if it matches that of the DataFileEntry
             if (serverlink.Equals(serverLink))
             {
                 existingContactInfo = contactList.FirstOrDefault
@@ -439,23 +411,27 @@ namespace SecureWiki.Model
                     (e => e.Item1.Equals(pageTitle) && e.Item2 == serverlink);
             }
 
+            // If conflicting entry does not exist
             if (existingContactInfo.Equals(default))
             {
-                contactList.Add((pageTitle, null));
+                contactList.Add(serverlink.Equals(serverLink) ? (pageTitle, null) : (pageTitle, serverlink));
                 return;
             }
 
+            // If exact contact already exists 
             if ((existingContactInfo.Item2 == null && serverlink.Equals(serverLink)) ||
                 (existingContactInfo.Item2 != null && existingContactInfo.Item2.Equals(serverlink))) 
             {
                 return;
             }
+            // If there is a conflict
             else
             {
-                contactList.Add((pageTitle, serverlink));
+                contactList.Add(serverlink.Equals(serverLink) ? (pageTitle, null) : (pageTitle, serverlink));
             }
         }
 
+        // Creates a new DataFileEntry and copies most of own properties over
         public DataFileEntry Copy()
         {
             // var copy = new DataFileEntry();
