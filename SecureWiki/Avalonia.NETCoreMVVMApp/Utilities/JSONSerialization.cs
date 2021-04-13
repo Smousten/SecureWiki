@@ -15,20 +15,16 @@ namespace SecureWiki.Utilities
         public static object? ReadFileAndDeserialize(string filepath, Type type)
         {
             var jsonData = File.ReadAllText(filepath);
-            
-            try
+
+            var result = DeserializeObject(jsonData, type);
+
+            if (result == null)
             {
-                var item = JsonConvert.DeserializeObject(jsonData, type);
-                return item;
+                Console.WriteLine("ReadFileAndDeserialize:- Deserialization failed on path='{0}'.", filepath);
 
             }
-            catch (JsonReaderException e)
-            {
-                Console.WriteLine("ReadFileAndDeserialize:- Deserialization failed on path='{0}', type='{1}'.", filepath, type);
-                Console.WriteLine(e.Message);
-            }
 
-            return null;
+            return result;
         }
         
         public static string SerializeObject(object item)
@@ -37,10 +33,22 @@ namespace SecureWiki.Utilities
             return jsonData;
         }
         
-        public static object DeserializeObject(string jsonData, Type type)
+        public static object? DeserializeObject(string jsonData, Type type)
         {
-            var item = JsonConvert.DeserializeObject(jsonData, type);
-            return item;
+            try
+            {
+                var item = JsonConvert.DeserializeObject(jsonData, type);
+                return item;
+
+            }
+            catch (JsonReaderException e)
+            {
+                Console.WriteLine("DeserializeObject:- Deserialization failed on jsonData of type='{0}'.", type);
+                Console.WriteLine(jsonData);
+                Console.WriteLine(e.Message);
+            }
+
+            return null;
         }
 
     }
