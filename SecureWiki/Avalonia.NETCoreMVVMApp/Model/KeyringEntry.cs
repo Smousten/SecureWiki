@@ -590,7 +590,6 @@ namespace SecureWiki.Model
             return outputList;
         }
         
-
         public void PrintInfoRecursively()
         {
             Console.WriteLine("KeyRing: Name='{0}', Checked='{1}', Parent.Name='{2}'", 

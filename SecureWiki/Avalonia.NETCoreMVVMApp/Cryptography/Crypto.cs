@@ -44,11 +44,11 @@ namespace SecureWiki.Cryptography
             using var aes = Aes.Create();
             aes.Key = key;
             aes.IV = iv;
-            
+
             // Build encryptor for transforming the ciphertext to plaintext
             using ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
             aes.Padding = PaddingMode.PKCS7;
-            
+
             return PerformCryptography(cipherText, decryptor);
         }
 
@@ -61,14 +61,16 @@ namespace SecureWiki.Cryptography
             {
                 cryptoStream.Write(data, 0, data.Length);
                 cryptoStream.FlushFinalBlock();
-            } catch (CryptographicException e)
+            }
+            catch (CryptographicException e)
             {
                 Console.WriteLine(e.Message);
                 return null;
             }
+
             return ms.ToArray();
         }
-        
+
         public static byte[]? RSAEncryptWithPublicKey(byte[] data, byte[] publicKey)
         {
             try
@@ -78,9 +80,10 @@ namespace SecureWiki.Cryptography
                 using (RSACryptoServiceProvider rsa = new())
                 {
                     rsa.ImportRSAPublicKey(publicKey, out _);
-                    
+
                     encryptedData = rsa.Encrypt(data, RSAEncryptionPadding.Pkcs1);
                 }
+
                 return encryptedData;
             }
             //Catch and display a CryptographicException  
@@ -93,7 +96,6 @@ namespace SecureWiki.Cryptography
             }
         }
 
-        
         public static byte[]? RSADecryptWithPrivateKey(byte[] data, byte[] privateKey)
         {
             try
@@ -109,6 +111,7 @@ namespace SecureWiki.Cryptography
                     //later.  
                     decryptedData = rsa.Decrypt(data, RSAEncryptionPadding.Pkcs1);
                 }
+
                 return decryptedData;
             }
             //Catch and display a CryptographicException  
@@ -120,7 +123,7 @@ namespace SecureWiki.Cryptography
                 return null;
             }
         }
-        
+
         public static byte[]? RSADecrypt(byte[] data, byte[] privateKey)
         {
             try
@@ -136,6 +139,7 @@ namespace SecureWiki.Cryptography
                     //later.  
                     decryptedData = rsa.Decrypt(data, RSAEncryptionPadding.Pkcs1);
                 }
+
                 return decryptedData;
             }
             //Catch and display a CryptographicException  
@@ -147,7 +151,7 @@ namespace SecureWiki.Cryptography
                 return null;
             }
         }
-        
+
         // Generate asymmetric key pair
         public static (byte[] privateKey, byte[] publicKey) GenerateRSAParams()
         {

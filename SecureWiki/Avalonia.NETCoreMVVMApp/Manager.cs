@@ -286,6 +286,7 @@ namespace SecureWiki
                 configManager.RemoveEntry(url);
             }
 
+            List<DataFileEntry> incomingDataFiles = new();
             // Download from inbox
             var inboxContent = wikiHandler.DownloadFromInboxPages();
             if (inboxContent != null)
@@ -294,13 +295,65 @@ namespace SecureWiki
                 {
                     foreach (var revision in contactInbox)
                     {
-                        KeyringEntry deserializeObject =
-                            (KeyringEntry) JSONSerialization.DeserializeObject(revision, typeof(KeyringEntry));
-                        rootKeyring.MergeAllEntriesFromOtherKeyring(deserializeObject);
+                        if (JSONSerialization.DeserializeObject(revision, typeof(KeyringEntry)) is KeyringEntry
+                            deserializeObject)
+                        {
+                            incomingDataFiles.AddRange(deserializeObject.dataFiles);
+                        }
                     }
                 }
             }
 
+            incomingDataFiles = incomingDataFiles.OrderBy(e => e.pageName).ToList();
+            List<DataFileEntry> intermediateList = new();
+
+            // Merge datafiles and remove duplicates 
+            int i = 0;
+            while (i < incomingDataFiles.Count)
+            {
+                int cnt = 1;
+
+                while (i + cnt < incomingDataFiles.Count &&
+                       incomingDataFiles[i].pageName.SequenceEqual(incomingDataFiles[i + cnt].pageName))
+                {
+                    if (incomingDataFiles[i].serverLink.Equals(incomingDataFiles[i + cnt].serverLink))
+                    {
+                        incomingDataFiles[i].MergeWithOtherDataFileEntry(incomingDataFiles[i + cnt]);
+                    }
+                    cnt++;
+                }
+
+                intermediateList.Add(incomingDataFiles[i]);
+                i += cnt;
+            }
+
+            List<DataFileEntry> newDataFiles = new();
+            var existingDataFiles = rootKeyring.GetAllAndDescendantDataFileEntries();
+            existingDataFiles = existingDataFiles.OrderBy(entry => entry.pageName).ToList();
+            foreach (var dataFile in intermediateList)
+            {
+                var existingDf = existingDataFiles.Find(e => e.pageName.Equals(dataFile.pageName));
+                if (existingDf != null)
+                {
+                    existingDf.MergeWithOtherDataFileEntry(dataFile);
+                }
+                else
+                {
+                    newDataFiles.Add(dataFile);
+                }
+            }
+
+            if (newDataFiles.Count > 0)
+            {
+                if (!rootKeyring.keyrings.Any(e => e.name.Equals("ImportedFromContacts")))
+                {
+                    rootKeyring.keyrings.Add(new KeyringEntry("ImportedFromContacts"));
+                }
+
+                var importFolder =rootKeyring.keyrings.First(e => e.name.Equals("ImportedFromContacts"));
+                importFolder.AddRangeDataFile(newDataFiles);
+            }
+            
             return wikiHandler;
         }
 
@@ -345,7 +398,7 @@ namespace SecureWiki
             return output;
         }
 
-        public bool PageAlreadyExists(string pageTitle, string revID, string url)
+        private bool PageAlreadyExists(string pageTitle, string revID, string url)
         {
             var wikiHandler = GetWikiHandler(url);
             return wikiHandler != null && wikiHandler.PageAlreadyExists(pageTitle, revID);
@@ -680,13 +733,13 @@ namespace SecureWiki
 
             // Send new cryptographic keys as a keyring with one datafile containing latest key
             // to selected contacts
-            var uploadObject = new KeyringEntry();
+            var uploadObject = new KeyringEntry("revocation");
             var datafileCopy = datafile.Copy();
             var latestKey = datafile.keyList.Last();
             datafileCopy.keyList = new List<DataFileKey> {latestKey};
             uploadObject.dataFiles.Add(datafileCopy);
             uploadObject.PrepareForExportRecursively();
-            
+
             var serializeObject = JSONSerialization.SerializeObject(uploadObject);
             foreach (var contact in contacts)
             {
@@ -725,7 +778,7 @@ namespace SecureWiki
                 WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
                 return;
             }
-            
+
             contactManager.MergeContacts(newContacts);
         }
 

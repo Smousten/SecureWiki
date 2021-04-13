@@ -171,12 +171,12 @@
                      Text="{Binding IP}" />
             <Button Name="ButtonIp" Click="ButtonIP_Click">Change</Button>
 
-            <TextBlock>Login to MediaWiki</TextBlock>
-            <TextBox Name="TextBoxUser" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
-                     Text="{Binding Username}" Watermark="Username" />
-            <TextBox Name="TextBoxPass" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
-                     Text="{Binding Password}" Watermark="Password" />
-            <Button Name="ButtonLogin" Click="ButtonLogin_Click">Login</Button>
+            <!-- <TextBlock>Login to MediaWiki</TextBlock> -->
+            <!-- <TextBox Name="TextBoxUser" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" -->
+            <!--          Text="{Binding Username}" Watermark="Username" /> -->
+            <!-- <TextBox Name="TextBoxPass" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" -->
+            <!--          Text="{Binding Password}" Watermark="Password" /> -->
+            <!-- <Button Name="ButtonLogin" Click="ButtonLogin_Click">Login</Button> -->
 
             <!-- <TextBlock>Send keyring</TextBlock> -->
             <!-- -->

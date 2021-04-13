@@ -138,7 +138,7 @@ namespace SecureWiki.Cryptography
                 return null;
             }
             
-            var latestRevId = _dict[pageTitle]?.GetLatestRevID();
+            var latestRevId = _dict[pageTitle].GetLatestRevID();
 
             return latestRevId;
         }
