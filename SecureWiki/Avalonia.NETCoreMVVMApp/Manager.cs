@@ -739,11 +739,12 @@ namespace SecureWiki
             }
         }
 
-        public void UploadToInboxPage(string serverLink, string pageTitle, string content, byte[] publicKey)
+        private bool UploadToInboxPage(string serverLink, string pageTitle, string content, byte[] publicKey)
         {
             var wikiHandler = GetWikiHandler(serverLink);
 
-            wikiHandler?.UploadToInboxPage(pageTitle, content, publicKey);
+            var result = wikiHandler?.UploadToInboxPage(pageTitle, content, publicKey);
+            return result == true;
         }
         
         public void TestUpload()
@@ -878,8 +879,15 @@ namespace SecureWiki
                 var loggerMsg = $"Sharing {newDataFiles.Count} new files with contact '{contact.Nickname}'.";
                 logger.Add(loggerMsg);
                 
-                UploadToInboxPage(contact.ServerLink, contact.PageTitle, 
+                var httpResponse = UploadToInboxPage(contact.ServerLink, contact.PageTitle, 
                     keyringEntryString, contact.PublicKey);
+
+                // Write result to logger
+                WriteToLogger(
+                    httpResponse
+                        ? $"Upload to inbox page belonging to contact '{contact.Nickname}' complete."
+                        : $"Upload to inbox page belonging to contact '{contact.Nickname}' failed.",
+                    null, LoggerEntry.LogPriority.Low);
             }
         }
         

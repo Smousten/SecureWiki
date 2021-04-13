@@ -16,7 +16,7 @@ namespace SecureWiki.MediaWiki
         public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle);
         
         // Upload byte[] stored in file to server
-        public void Upload(DataFileEntry dataFile, string filepath);
+        public bool Upload(DataFileEntry dataFile, string filepath);
 
         // Returns decrypted data stored on server of data file 
         public byte[]? Download(DataFileEntry dataFile);
@@ -37,7 +37,7 @@ namespace SecureWiki.MediaWiki
         public void DeleteRevisionsByID(string pageTitle, string IDs);
 
         // Encrypt and upload DataFileEntry to specified page
-        public void UploadToInboxPage(string pageTitle, string content, byte[] publicKey);
+        public bool UploadToInboxPage(string pageTitle, string content, byte[] publicKey);
 
         // TODO
         public List<List<string>>? DownloadFromInboxPages();

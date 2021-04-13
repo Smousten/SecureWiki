@@ -79,13 +79,13 @@ namespace SecureWiki.MediaWiki
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
-        public void Upload(DataFileEntry dataFile, string filepath)
+        public bool Upload(DataFileEntry dataFile, string filepath)
         {
             var srcDir = GetRootDir(filepath);
             var plainText = File.ReadAllBytes(srcDir);
             string pageTitle = dataFile.pageName;
 
-            if (plainText.Length <= 0) return;
+            if (plainText.Length <= 0) return false;
 
             var latestRevID = _manager.cacheManager.GetLatestRevisionID(pageTitle);
             var rev = GetLatestRevision(dataFile);
@@ -105,7 +105,7 @@ namespace SecureWiki.MediaWiki
                 if (msgBoxOutput == MessageBox.MessageBoxResult.Cancel)
                 {
                     Console.WriteLine("Upload cancelled");
-                    return;
+                    return false;
                 }
             }
 
@@ -117,20 +117,12 @@ namespace SecureWiki.MediaWiki
 
             // Encrypt text and signature using key from key list
             var encryptedContent = EncryptTextAndSignature(plainText, signature, key);
-            if (encryptedContent == null) return;
+            if (encryptedContent == null) return false;
 
             // Upload encrypted content
             MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
                 dataFile.pageName);
-            uploadNewRevision.UploadContent(encryptedContent);
-
-            // Get revision ID of the revision that was just uploaded and update DataFileEntry revision start
-            // information for key if not set  
-            rev = GetLatestRevision(dataFile);
-            if (key.RevisionStart.Equals("-1") && rev.revisionID != null)
-            {
-                dataFile.keyList.Last().RevisionStart = rev.revisionID;
-            }
+            var httpResponse = uploadNewRevision.UploadContent(encryptedContent);
             
             // If uploaded revision ID is greater than latest revision end. 
             // Only happens if user manually deletes entries from key list 
@@ -141,6 +133,27 @@ namespace SecureWiki.MediaWiki
             //     dataFile.keyList.Last().revisionStart = rev.revisionID;
             //     dataFile.keyList.Last().revisionEnd = "-1";
             // }
+
+            // Check if upload was successful
+            if (httpResponse != null)
+            {
+                var response = new Response(httpResponse);
+                
+                // Get revision ID of the revision that was just uploaded and update DataFileEntry revision start
+                // information for key if not set  
+                // rev = GetLatestRevision(dataFile);
+                if (key.RevisionStart.Equals("-1") && response.newrevidString != null)
+                {
+                    dataFile.keyList.Last().RevisionStart = response.newrevidString;
+                }
+                
+                if (response.Result == Response.ResultType.Success)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
         
         // Get latest valid revision of wiki page
@@ -418,7 +431,7 @@ namespace SecureWiki.MediaWiki
         }
 
 
-        public void UploadToInboxPage(string pageTitle, string content, byte[] publicKey)
+        public bool UploadToInboxPage(string pageTitle, string content, byte[] publicKey)
         {
             // Generate symmetric key
             var (symmKey, IV) = Crypto.GenerateAESParams();
@@ -435,7 +448,7 @@ namespace SecureWiki.MediaWiki
             if (encryptedBytes == null || encryptedSymmKeyData == null)
             {
                 Console.WriteLine("UploadToInboxPage: Failed encryption");
-                return;
+                return false;
             }
             
             // Combine ciphertexts
@@ -445,7 +458,20 @@ namespace SecureWiki.MediaWiki
             // Upload encrypted content
             MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
                 pageTitle);
-            uploadNewRevision.UploadContent(pageContent);
+            var httpResponse = uploadNewRevision.UploadContent(pageContent);
+
+            // Check if upload was successful
+            if (httpResponse != null)
+            {
+                var response = new Response(httpResponse);
+
+                if (response.Result == Response.ResultType.Success)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

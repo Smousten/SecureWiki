@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Xml;
 using Newtonsoft.Json.Linq;
@@ -18,7 +19,7 @@ namespace SecureWiki.MediaWiki
 
     public class Action
     {
-        public string action;
+        public string? action;
         public List<KeyValuePair<string, string>> values = new();
 
         public void AddValuePair(string key, string value)
@@ -28,10 +29,80 @@ namespace SecureWiki.MediaWiki
         }
     }
 
+    public class Response
+    {
+        public string actionString;
+        public string resultString;
+        public string pageidString;
+        public string titleString;
+        // public string contentmodelString;
+        public string oldrevidString;
+        public string newrevidString;
+        public string newtimestampString;
+
+        public ActionType Action;
+        public ResultType Result;
+
+        public enum ActionType
+        {
+            Edit,
+            Unknown
+        }
+        
+        public enum ResultType
+        {
+            Success,
+            Failure
+        }
+
+        public Response(string jsondata)
+        {
+            ParseJSON(jsondata);
+
+            switch (resultString)
+            {
+                case "Success":
+                    Result = ResultType.Success;
+                    break;
+                default:
+                    Result = ResultType.Failure;
+                    break;
+            }
+
+            switch (actionString)
+            {
+                case "edit":
+                    Action = ActionType.Edit;
+                    break;
+                default:
+                    Action = ActionType.Unknown;
+                    break;
+            }
+        }
+        
+        public bool ParseJSON(string jsondata)
+        {
+            JObject jObject = JObject.Parse(jsondata);
+
+            actionString = jObject.Properties().Select(x => x.Name).FirstOrDefault();
+            var jAction = jObject[actionString];
+
+            if (jAction == null) return false;
+
+            resultString = (string) jAction["result"];
+            pageidString = (string) jAction["pageid"];
+            titleString = (string) jAction["title"];
+            oldrevidString = (string) jAction["oldrevid"];
+            newrevidString = (string) jAction["newrevid"];
+            newtimestampString = (string) jAction["newtimestamp"];
+
+            // return true only if all of these variables have been set
+            return (resultString ?? pageidString ?? titleString ?? oldrevidString ?? newrevidString ?? newtimestampString) != null;
+        }
+    }
+
     public class MediaWikiObjects
     {
-        // private string URL = "http://localhost/mediawiki/api.php";
-
         private string URL;
         private string MWuserID;
         private string MWuserPassword;
@@ -68,7 +139,6 @@ namespace SecureWiki.MediaWiki
 
         public MediaWikiObjects(HttpClient client, string username, string password, string url)
         {
-            // URL = "http://" + ip + "/mediawiki/api.php";
             URL = url;
             httpClient = client;
             LoginMediaWiki(username, password);
@@ -402,7 +472,7 @@ namespace SecureWiki.MediaWiki
                     httpClient = client;
                 }
 
-                public void UploadContent(string content)
+                public string? UploadContent(string content)
                 {
                     revision.content = content;
 
@@ -412,7 +482,7 @@ namespace SecureWiki.MediaWiki
 
                     Console.WriteLine("Starting upload: posting to server.");
 
-                    PostHttpToServer(action);
+                    return PostHttpToServer(action);
                 }
 
                 public override Action BuildAction()
@@ -610,23 +680,26 @@ namespace SecureWiki.MediaWiki
             return responseJson;
         }
 
-        public void PostHttpToServer(Action action)
+        private string? PostHttpToServer(Action action)
         {
             try
             {
                 HttpResponseMessage httpResponseMessage =
-                    httpClient.PostAsync(URL + action.action, new FormUrlEncodedContent(action.values)).Result;
+                    httpClient.PostAsync(URL + action.action, new FormUrlEncodedContent(action.values!)).Result;
                 string httpResponseMessageString = httpResponseMessage.Content.ReadAsStringAsync().Result;
-                // Console.WriteLine("postHttpToServer: " + httpResponseMessageString);
+                
+                return httpResponseMessageString;
             }
             catch (Exception e)
             {
                 Console.WriteLine("Failed to post http request to server {0}", URL);
                 Console.WriteLine(e.Message);
             }
+
+            return null;
         }
 
-        public bool LoginMediaWiki(string username, string password)
+        private bool LoginMediaWiki(string username, string password)
         {
             // Build request
             try
