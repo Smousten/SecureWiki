@@ -44,6 +44,7 @@ namespace SecureWiki
 
         private readonly string _smtpClientEmail = "SecureWikiMails@gmail.com";
         private readonly string _smtpClientPassword = "SecureWiki";
+        public bool FinishSetup = false;
 
         public delegate void PrintTest(string input);
 
@@ -84,6 +85,7 @@ namespace SecureWiki
 
             logger.Add("Starting up FUSE", null);
             // TestUpload();
+            FinishSetup = true;
         }
 
         public void PrintTestMethod(string input)

@@ -15,6 +15,7 @@ using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using Avalonia.Rendering;
 using DynamicData;
 using SecureWiki.MediaWiki;
 using SecureWiki.Model;
@@ -35,11 +36,17 @@ namespace SecureWiki.Views
         {
             _viewModel = new MainWindowViewModel(_rootKeyring, logger);
             DataContext = _viewModel;
-            InitializeComponent();
-
+            
             manager = new Manager(Thread.CurrentThread, _rootKeyring, logger);
             Thread managerThread = new(manager.Run) {IsBackground = true, Name = "ManagerThread"};
             managerThread.Start();
+
+            // Do not show GUI window until manager is ready to handle requests
+            while (!manager.FinishSetup)
+            {
+                Thread.Sleep(100);
+            }
+            InitializeComponent();
 
 
 #if DEBUG
