@@ -307,6 +307,7 @@ namespace SecureWiki.MediaWiki
         {
             var outputList = new List<List<string>>();
             
+            // Get list of OwnContacts associated with the current server 
             var contactList = _manager.contactManager.GetOwnContactsByServerLink(url);
 
             if (contactList == null)
@@ -323,25 +324,16 @@ namespace SecureWiki.MediaWiki
 
                 var contentList = new List<string>();
                 
+                // For each new revision
                 foreach (var entry in encryptedContentList)
                 {
-                    // var ivString = entry.Substring(0, 16);
-                    // var symmKeyString = entry.Substring(16, 32);
-                    
                     var pageContentBytes = Convert.FromBase64String(entry);
 
-                    var encryptedSymmKeyData = pageContentBytes.Take(256).ToArray(); //Encoding.ASCII.GetBytes(entry.Substring(0, 256));
+                    var encryptedSymmKeyData = pageContentBytes.Take(256).ToArray(); 
                     var encryptedContentBytes = pageContentBytes.Skip(256).ToArray();
-                    
-                    // Console.WriteLine("encryptedSymmKeyData");
-                    // Console.WriteLine(ByteArrayConverter.GetHexString(encryptedSymmKeyData));
-                    
+
+                    // Get IV and symmetric key
                     var decryptedSymmKeyData= Crypto.RSADecryptWithPrivateKey(encryptedSymmKeyData, contact.PrivateKey);
-
-                    // Console.WriteLine("decryptedSymmKeyData");
-                    // Console.WriteLine(ByteArrayConverter.GetHexString(decryptedSymmKeyData));
-                    // Console.WriteLine("decryptedSymmKeyData.Length: " + decryptedSymmKeyData?.Length);
-
                     var iv = decryptedSymmKeyData?.Take(16).ToArray();
                     var symmKey = decryptedSymmKeyData?.Skip(16).ToArray();
 
@@ -350,11 +342,6 @@ namespace SecureWiki.MediaWiki
                         Console.WriteLine("symmKey or iv null");
                         break;
                     }
-                    
-                    // Console.WriteLine("IV");
-                    // Console.WriteLine(ByteArrayConverter.GetHexString(iv));
-                    // Console.WriteLine("symmKey");
-                    // Console.WriteLine(ByteArrayConverter.GetHexString(symmKey));
                     
                     var decryptedContent = Crypto.Decrypt(encryptedContentBytes, symmKey, iv);
                     
@@ -365,12 +352,6 @@ namespace SecureWiki.MediaWiki
                     }
 
                     var decryptedContentString = Encoding.ASCII.GetString(decryptedContent);
-
-                    Console.WriteLine("encryptedContent.Length: " + encryptedContentBytes.Length);
-                    Console.WriteLine("decryptedContent.Length: " + decryptedContent.Length);
-
-                    Console.WriteLine("decryptedContentString");
-                    Console.WriteLine(decryptedContentString);
 
                     contentList.Add(decryptedContentString);
                 }
@@ -390,14 +371,13 @@ namespace SecureWiki.MediaWiki
         {
             List<string> encryptedContentList = new();
             
-            Console.WriteLine("Checking contact with nickname " + contact.Nickname);
+            // Get list of all revisions on 
             var allRevs = GetAllRevisions(contact.PageTitle);
 
             int highestRev = 0;
 
             foreach (var rev in allRevs.revisionList)
             {
-                Console.WriteLine("checking revid " + rev.revisionID);
                 if (rev.revisionID == null)
                 {
                     continue;
@@ -420,7 +400,6 @@ namespace SecureWiki.MediaWiki
                 MediaWikiObjects.PageQuery.PageContent getPageContent = new(_mwo, contact.PageTitle, revid.ToString());
                 var pageContent = getPageContent.GetContent();
                 
-
                 if (pageContent.Equals(""))
                 {
                     continue;
@@ -429,6 +408,7 @@ namespace SecureWiki.MediaWiki
                 encryptedContentList.Add(pageContent);
             }
 
+            // Update contact revision counter so that these revisions don't have to be parsed again
             if (highestRev > contact.revidCounter)
             {
                 contact.revidCounter = highestRev;
@@ -440,25 +420,14 @@ namespace SecureWiki.MediaWiki
 
         public void UploadToInboxPage(string pageTitle, string content, byte[] publicKey)
         {
+            // Generate symmetric key
             var (symmKey, IV) = Crypto.GenerateAESParams();
             
+            // Encrypt symmetric key information with given public key
             var symmKeyData = ByteArrayCombiner.Combine(IV, symmKey);
             var encryptedSymmKeyData = Crypto.RSAEncryptWithPublicKey(symmKeyData, publicKey);
 
-            // Console.WriteLine("content: " + content);
-            //
-            // Console.WriteLine("IV");
-            // Console.WriteLine(ByteArrayConverter.GetHexString(IV));
-            // Console.WriteLine("symmKey");
-            // Console.WriteLine(ByteArrayConverter.GetHexString(symmKey));
-            // Console.WriteLine("symmKeyData");
-            // Console.WriteLine(ByteArrayConverter.GetHexString(symmKeyData));
-            // Console.WriteLine("encryptedSymmKeyData");
-            // Console.WriteLine(ByteArrayConverter.GetHexString(encryptedSymmKeyData));
-            // Console.WriteLine("encryptedSymmKeyData.length: " + encryptedSymmKeyData?.Length);
-            // Console.WriteLine("SymmKey.length: " + symmKey.Length);
-            // Console.WriteLine("IV.length: " + IV.Length);
-            
+            // Encrypt content with the symmetric key
             var contentBytes = Encoding.ASCII.GetBytes(content);
             var encryptedBytes = _manager.Encrypt(
                 contentBytes, symmKey, IV);
@@ -469,14 +438,8 @@ namespace SecureWiki.MediaWiki
                 return;
             }
             
-            // Console.WriteLine("encryptedBytes.length: " + encryptedBytes.Length);
-
             // Combine ciphertexts
             byte[] pageContentBytes = ByteArrayCombiner.Combine(encryptedSymmKeyData, encryptedBytes);
-
-            Console.WriteLine("pageContentBytes.length: " + pageContentBytes.Length);
-            
-            // var pageContent = Encoding.ASCII.GetString(pageContentBytes);
             var pageContent = Convert.ToBase64String(pageContentBytes);
 
             // Upload encrypted content
