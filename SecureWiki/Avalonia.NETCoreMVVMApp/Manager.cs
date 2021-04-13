@@ -245,8 +245,13 @@ namespace SecureWiki
                     var unprotectedPassword =
                         ConfigEntry.Unprotect(serverCredentials.ProtectedPassword, serverCredentials.Entropy);
                     if (unprotectedPassword != null)
-                        return new WikiHandler(serverCredentials.Username, unprotectedPassword,
+                    {
+                        var output = new WikiHandler(serverCredentials.Username, unprotectedPassword,
                             new HttpClient(), this, url);
+                        UpdateFromInboxes(output);
+                        return output;
+                    }
+                        
                 }
 
                 savedUsername = serverCredentials.Username;
@@ -285,7 +290,12 @@ namespace SecureWiki
                 Console.WriteLine("removing entry");
                 configManager.RemoveEntry(url);
             }
+            
+            return wikiHandler;
+        }
 
+        private void UpdateFromInboxes(WikiHandler? wikiHandler)
+        {
             List<DataFileEntry> incomingDataFiles = new();
             // Download from inbox
             var inboxContent = wikiHandler.DownloadFromInboxPages();
@@ -320,6 +330,7 @@ namespace SecureWiki
                     {
                         incomingDataFiles[i].MergeWithOtherDataFileEntry(incomingDataFiles[i + cnt]);
                     }
+
                     cnt++;
                 }
 
@@ -347,14 +358,12 @@ namespace SecureWiki
             {
                 if (!rootKeyring.keyrings.Any(e => e.name.Equals("ImportedFromContacts")))
                 {
-                    rootKeyring.keyrings.Add(new KeyringEntry("ImportedFromContacts"));
+                    rootKeyring.AddKeyring(new KeyringEntry("ImportedFromContacts"));
                 }
 
-                var importFolder =rootKeyring.keyrings.First(e => e.name.Equals("ImportedFromContacts"));
+                var importFolder = rootKeyring.keyrings.First(e => e.name.Equals("ImportedFromContacts"));
                 importFolder.AddRangeDataFile(newDataFiles);
             }
-            
-            return wikiHandler;
         }
 
         public MediaWikiObjects.PageQuery.AllRevisions? GetAllRevisions(string pageTitle, string url)
