@@ -842,7 +842,7 @@ namespace SecureWiki
             Console.WriteLine(contacts.Count);
             logger.Add("Sharing specified parts of keyring");
             
-            var keyringEntry = _keyring.CreateCopyRootKeyringBasedOnIsChecked();
+            var keyringEntry = _keyring.CreateRootKeyringBasedOnIsChecked();
             var dataFileList = keyringEntry.GetAllAndDescendantDataFileEntries();
 
             foreach (var contact in contacts)

@@ -304,6 +304,16 @@ namespace SecureWiki.Cryptography
             }
         }
 
+        public RootKeyring CreateRootKeyringBasedOnIsChecked()
+        {
+            RootKeyring outputRootKeyring = new();
+
+            rootKeyring.AddToOtherKeyringRecursivelyBasedOnIsChecked(outputRootKeyring);
+            outputRootKeyring.RemoveEmptyDescendantsRecursively();
+
+            return outputRootKeyring;
+        }
+        
         public RootKeyring CreateCopyRootKeyringBasedOnIsChecked()
         {
             RootKeyring outputRootKeyring = new();

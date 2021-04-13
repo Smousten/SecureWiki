@@ -439,6 +439,26 @@ namespace SecureWiki.Model
             }
         }
 
+        // Recursively add checked children to another keyring 
+        public void AddToOtherKeyringRecursivelyBasedOnIsChecked(KeyringEntry outputKeyring)
+        {
+            foreach (KeyringEntry ke in keyrings)
+            {
+                KeyringEntry keCopy = new(ke.name);
+                outputKeyring.AddKeyring(keCopy);
+                
+                ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
+            }
+            
+            foreach (DataFileEntry dataFileEntry in dataFiles)
+            {
+                if (dataFileEntry.isChecked == true)
+                {
+                    outputKeyring.AddDataFile(dataFileEntry);                    
+                }
+            }
+        }
+        
         // Recursively add copies of checked children to another keyring 
         public void AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(KeyringEntry outputKeyring)
         {
