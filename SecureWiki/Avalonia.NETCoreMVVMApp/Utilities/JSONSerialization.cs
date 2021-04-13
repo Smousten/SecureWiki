@@ -12,12 +12,23 @@ namespace SecureWiki.Utilities
             File.WriteAllText(filepath, jsonData);
         }
 
-        public static object ReadFileAndDeserialize(string filepath, Type type)
+        public static object? ReadFileAndDeserialize(string filepath, Type type)
         {
             var jsonData = File.ReadAllText(filepath);
-            var item = JsonConvert.DeserializeObject(jsonData, type);
+            
+            try
+            {
+                var item = JsonConvert.DeserializeObject(jsonData, type);
+                return item;
 
-            return item;
+            }
+            catch (JsonReaderException e)
+            {
+                Console.WriteLine("ReadFileAndDeserialize:- Deserialization failed on path='{0}', type='{1}'.", filepath, type);
+                Console.WriteLine(e.Message);
+            }
+
+            return null;
         }
         
         public static string SerializeObject(object item)

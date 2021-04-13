@@ -12,11 +12,14 @@ namespace SecureWiki.Cryptography
     {
         public RootKeyring rootKeyring;
 
+        public Manager _manager;
+
         private DateTime rootKeyringWriteTimestamp;
 
-        public Keyring(RootKeyring rk)
+        public Keyring(RootKeyring rk, Manager manager)
         {
             rootKeyring = rk;
+            _manager = manager;
         }
 
         // Initialises keyring object by loading data from json file into rootkeyring object
@@ -58,25 +61,25 @@ namespace SecureWiki.Cryptography
         }
 
         // Returns root keyring as deserialized json object
-        private RootKeyring GetRootKeyring(string keyringFilePath)
+        private RootKeyring? GetRootKeyring(string keyringFilePath)
         {
-            RootKeyring existingKeyRing = (RootKeyring) JSONSerialization.ReadFileAndDeserialize(
-                keyringFilePath, typeof(RootKeyring));
+            var existingKeyRing = JSONSerialization.ReadFileAndDeserialize(
+                keyringFilePath, typeof(RootKeyring)) as RootKeyring;
             return existingKeyRing;
         }
 
         // Returns root keyring as deserialized json object with no arguments
-        public KeyringEntry ReadKeyRing()
+        public KeyringEntry? ReadKeyRing()
         {
             var keyringFilePath = GetKeyringFilePath();
             return GetRootKeyring(keyringFilePath);
         }
 
         // Copies all data from json object into root keyring object
-        public void ReadIntoKeyring(RootKeyring rk)
+        private void ReadIntoKeyring(RootKeyring rk)
         {
-            KeyringEntry readKeyring = ReadKeyRing();
-            rk.CopyFromOtherKeyring(readKeyring);
+            var readKeyring = ReadKeyRing();
+            if (readKeyring != null) rk.CopyFromOtherKeyring(readKeyring);
         }
 
         // Recursively creates all files and folders from root keyring
@@ -262,7 +265,7 @@ namespace SecureWiki.Cryptography
 
         public void SerializeAndWriteFile(string filepath, KeyringEntry keyring)
         {
-            Utilities.JSONSerialization.SerializeAndWriteFile(filepath, keyring);
+            JSONSerialization.SerializeAndWriteFile(filepath, keyring);
             // var jsonData = JsonConvert.SerializeObject(newKeyringEntry, Formatting.Indented);
             // File.WriteAllText(filepath, jsonData);
         }
@@ -278,7 +281,7 @@ namespace SecureWiki.Cryptography
         public void AttemptSaveRootKeyring()
         {
             var timestampNow = DateTime.Now;
-            var timestampThreshold = rootKeyringWriteTimestamp.AddMinutes(10);;
+            var timestampThreshold = rootKeyringWriteTimestamp.AddMinutes(10);
 
             if (timestampNow > timestampThreshold)
             {
@@ -364,11 +367,22 @@ namespace SecureWiki.Cryptography
         public void ImportRootKeyring(string importPath)
         {
             // Read RootKeyring from import path and initialise
-            RootKeyring rk = GetRootKeyring(importPath);
+            var rk = GetRootKeyring(importPath);
 
+            if (rk == null)
+            {
+                var loggerMsg = "Import file cannot be parsed as a keyring object. Merged aborted.";
+                _manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
+                Console.WriteLine(loggerMsg);
+                
+                return;
+            }
+            
             if (!VerifyImportKeyring(rk))
             {
-                Console.WriteLine("Import keyring contains invalid key");
+                var loggerMsg = "Import keyring contains invalid key. Merge aborted.";
+                _manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
+                Console.WriteLine(loggerMsg);
                 return;
             }
 
