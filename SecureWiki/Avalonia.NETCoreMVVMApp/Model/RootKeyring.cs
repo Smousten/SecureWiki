@@ -1,6 +1,6 @@
 namespace SecureWiki.Model
 {
-    public class RootKeyring : KeyringEntry
+    public class RootKeyring : Keyring
     {
         public RootKeyring()
         {

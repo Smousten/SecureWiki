@@ -262,7 +262,7 @@ namespace SecureWiki.Views
         {
             if (sender is TextBlock tb)
             {
-                DataFileEntry dataFile = tb.DataContext as DataFileEntry ?? throw new InvalidOperationException();
+                DataFile dataFile = tb.DataContext as DataFile ?? throw new InvalidOperationException();
                 _viewModel.selectedFile = dataFile;
 
                 Thread localThread = new(() =>

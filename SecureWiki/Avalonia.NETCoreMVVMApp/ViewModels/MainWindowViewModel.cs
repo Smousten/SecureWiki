@@ -73,9 +73,9 @@ namespace SecureWiki.ViewModels
 
         public ObservableCollection<LoggerEntry> LoggerEntries;
 
-        private DataFileEntry _selectedFile;
+        private DataFile _selectedFile;
 
-        public DataFileEntry selectedFile
+        public DataFile selectedFile
         {
             get => _selectedFile;
             set => this.RaiseAndSetIfChanged(ref _selectedFile, value);

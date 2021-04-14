@@ -45,7 +45,7 @@ namespace SecureWiki.MediaWiki
             return allRevisions;
         }
 
-        public Revision GetLatestRevision(DataFileEntry dataFile)
+        public Revision GetLatestRevision(DataFile dataFile)
         {
             MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(_mwo, dataFile.pageName);
             latestRevision.GetLatestRevision();
@@ -79,7 +79,7 @@ namespace SecureWiki.MediaWiki
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
-        public bool Upload(DataFileEntry dataFile, string filepath)
+        public bool Upload(DataFile dataFile, string filepath)
         {
             var srcDir = GetRootDir(filepath);
             var plainText = File.ReadAllBytes(srcDir);
@@ -146,7 +146,7 @@ namespace SecureWiki.MediaWiki
         }
 
         // Get latest valid revision of wiki page
-        public byte[]? GetLatestValidRevision(DataFileEntry dataFile, List<Revision> revisions)
+        public byte[]? GetLatestValidRevision(DataFile dataFile, List<Revision> revisions)
         {
             for (var i = 0; i < revisions.Count; i++)
             {
@@ -195,7 +195,7 @@ namespace SecureWiki.MediaWiki
         }
 
         // Download latest valid revision
-        public byte[]? Download(DataFileEntry datafile)
+        public byte[]? Download(DataFile datafile)
         {
             MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(_mwo, datafile.pageName);
             latestRevision.GetLatestRevision();
@@ -203,7 +203,7 @@ namespace SecureWiki.MediaWiki
             return Download(datafile, latestRevision.revision.revisionID ?? "-1");
         }
 
-        public byte[]? Download(DataFileEntry dataFile, string revid)
+        public byte[]? Download(DataFile dataFile, string revid)
         {
             // Check if revision already exists in cache and return output if so
             var cacheResult = _manager.AttemptReadFileFromCache(dataFile.pageName, revid);
