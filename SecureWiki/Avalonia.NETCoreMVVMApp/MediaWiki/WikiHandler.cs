@@ -87,13 +87,11 @@ namespace SecureWiki.MediaWiki
 
             if (plainText.Length <= 0) return false;
 
-            var latestRevID = _manager.cacheManager.GetLatestRevisionID(pageTitle);
+            var latestRevIDInCache = _manager.cacheManager.GetLatestRevisionID(pageTitle);
             var rev = GetLatestRevision(dataFile);
 
-            if (rev.revisionID != null && !rev.revisionID.Equals(latestRevID))
+            if (rev.revisionID != null && !rev.revisionID.Equals(latestRevIDInCache))
             {
-                // TODO: MessageBox content
-
                 string warningString = "Your changes are no longer based on the newest revision available, " +
                                        "push changes to server regardless?" +
                                        "\nUploaded: " + rev.timestamp +
@@ -125,16 +123,6 @@ namespace SecureWiki.MediaWiki
             var httpResponse = uploadNewRevision.UploadContent(encryptedContent);
             _mwo.editToken ??= uploadNewRevision.editToken;
 
-            // If uploaded revision ID is greater than latest revision end. 
-            // Only happens if user manually deletes entries from key list 
-            // if (!key.revisionEnd.Equals("-1") 
-            //     && rev.revisionID != null 
-            //     && int.Parse(key.revisionEnd) < int.Parse(rev.revisionID))
-            // {
-            //     dataFile.keyList.Last().revisionStart = rev.revisionID;
-            //     dataFile.keyList.Last().revisionEnd = "-1";
-            // }
-
             // Check if upload was successful
             if (httpResponse != null)
             {
@@ -142,12 +130,12 @@ namespace SecureWiki.MediaWiki
 
                 // Get revision ID of the revision that was just uploaded and update DataFileEntry revision start
                 // information for key if not set  
-                // rev = GetLatestRevision(dataFile);
                 if (key.RevisionStart.Equals("-1") && response.newrevidString != null)
                 {
                     dataFile.keyList.Last().RevisionStart = response.newrevidString;
                 }
 
+                // If upload was a success
                 if (response.Result == Response.ResultType.Success)
                 {
                     return true;
@@ -176,6 +164,7 @@ namespace SecureWiki.MediaWiki
                     continue;
                 }
 
+                // Get page content from server
                 MediaWikiObjects.PageQuery.PageContent getPageContent =
                     new(_mwo, dataFile.pageName, revid);
                 var pageContent = getPageContent.GetContent();
@@ -188,9 +177,11 @@ namespace SecureWiki.MediaWiki
                     continue;
                 }
 
+                // Split decrypted content into plaintext and signature
                 var textBytes = decryptedBytes.Value.textBytes;
                 var signBytes = decryptedBytes.Value.signBytes;
 
+                // Return plaintext if verification succeeds
                 if (Crypto.VerifyData(key.PublicKey, textBytes, signBytes))
                 {
                     _manager.WriteToLogger(
