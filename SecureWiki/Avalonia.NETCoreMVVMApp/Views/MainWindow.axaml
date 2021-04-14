@@ -19,8 +19,8 @@
     </Window.DataContext>
     -->
     <Window.Resources>
-        <Models:FillerTextBlockWidthConverterMulti x:Key="WidthConverterMulti" />
-        <Models:TreeViewItemColourConverter x:Key="TreeViewItemColourConverter" />
+        <Utilities:FillerTextBlockWidthConverterMulti x:Key="WidthConverterMulti" />
+        <Utilities:TreeViewItemColourConverter x:Key="TreeViewItemColourConverter" />
         <DataTemplate x:Key="LoggerEntryTemplate" DataType="Utilities:LoggerEntry">
             <Grid>
                 <Grid.ColumnDefinitions>

@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Avalonia.Controls;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 
-namespace SecureWiki.Model
+namespace SecureWiki.Utilities
 {
     public class TreeViewItemColourConverter : IValueConverter
     {
@@ -14,18 +13,11 @@ namespace SecureWiki.Model
         {
             bool newestRevisionSelected = (bool) value;
 
-            SolidColorBrush output;
-            if (newestRevisionSelected)
-            {
-                output = new SolidColorBrush(Colors.Transparent);
-            }
-            else
-            {
-                output = new SolidColorBrush(Colors.Chocolate) {Opacity = 0.2};
-            }
+            SolidColorBrush output = newestRevisionSelected ? 
+                new SolidColorBrush(Colors.Transparent) : 
+                new SolidColorBrush(Colors.Chocolate) {Opacity = 0.2};
 
             return output;
-
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -65,8 +57,6 @@ namespace SecureWiki.Model
             {
                 output = 0;
             }
-
-            // Console.WriteLine("returning output='{0}'", output);
 
             return output;
         }

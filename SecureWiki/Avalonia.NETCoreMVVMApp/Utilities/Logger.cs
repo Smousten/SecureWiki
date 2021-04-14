@@ -56,8 +56,6 @@ namespace SecureWiki.Utilities
             }
         }
 
-
-
         public LoggerEntry(string timestamp, string? location, string content, LogPriority priority)
         {
             this.timestamp = timestamp;
@@ -113,7 +111,6 @@ namespace SecureWiki.Utilities
             throw new NotImplementedException();
         }
 
-
         public void RaisePropertyChanged(string propertyName)
         {
             PropertyChangedEventHandler? handler = PropertyChanged;
@@ -148,13 +145,15 @@ namespace SecureWiki.Utilities
             // Add("some file", longString, LoggerEntry.LogPriority.Low);
         }
 
-        public void Add(string content, string? location = null, LoggerEntry.LogPriority priority = LoggerEntry.LogPriority.Normal)
+        public void Add(string content, string? location = null, 
+            LoggerEntry.LogPriority priority = LoggerEntry.LogPriority.Normal)
         {
             var timeNow = DateTime.Now;
+            
+            // Add entry through UI thread
             Dispatcher.UIThread.Post(
                 () =>
                 {
-
                     Entries.Add(new LoggerEntry(timeNow.ToShortTimeString(), location, content, priority));
 
                     if (Entries.Count > 200)
