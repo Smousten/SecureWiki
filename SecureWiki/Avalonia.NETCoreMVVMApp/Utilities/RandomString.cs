@@ -3,11 +3,11 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace SecureWiki.Cryptography
+namespace SecureWiki.Utilities
 {
-    public class RandomString
+    public static class RandomString
     {
-        public string ComputeHash(string inputString)
+        public static string ComputeHash(string inputString)
         {
             // init SHA-256   
             using SHA256 sha256 = SHA256.Create();
@@ -27,9 +27,11 @@ namespace SecureWiki.Cryptography
         {
             const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
+            // Create random string of given length containing alphanumeric characters
             var random = new Random();
             var randomString = new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
+            
             return randomString;
         }
     }

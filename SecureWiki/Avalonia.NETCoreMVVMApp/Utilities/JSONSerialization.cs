@@ -4,11 +4,11 @@ using Newtonsoft.Json;
 
 namespace SecureWiki.Utilities
 {
-    public class JSONSerialization
+    public static class JSONSerialization
     {
         public static void SerializeAndWriteFile(string filepath, object item)
         {
-            var jsonData = JsonConvert.SerializeObject(item, Formatting.Indented);
+            var jsonData = SerializeObject(item);
             File.WriteAllText(filepath, jsonData);
         }
 
@@ -21,7 +21,6 @@ namespace SecureWiki.Utilities
             if (result == null)
             {
                 Console.WriteLine("ReadFileAndDeserialize:- Deserialization failed on path='{0}'.", filepath);
-
             }
 
             return result;
@@ -33,13 +32,13 @@ namespace SecureWiki.Utilities
             return jsonData;
         }
         
+        // Attempt to deserialize string into object of specified type, return null if this fails. 
         public static object? DeserializeObject(string jsonData, Type type)
         {
             try
             {
                 var item = JsonConvert.DeserializeObject(jsonData, type);
                 return item;
-
             }
             catch (JsonReaderException e)
             {
