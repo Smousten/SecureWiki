@@ -289,7 +289,6 @@ namespace SecureWiki
             }
         }
 
-
         private void InitializeWikiHandlers()
         {
             wikiHandlers = new();
@@ -359,6 +358,7 @@ namespace SecureWiki
             // Create new wiki handler from input credentials and attempt login to server
             var wikiHandler = new WikiHandler(credentialsResult.Username, credentialsResult.Password, new HttpClient(),
                 this, url);
+            UpdateFromInboxes(wikiHandler);
 
             // Return wikihandler if login was successful
 
@@ -458,7 +458,6 @@ namespace SecureWiki
             }
             
             _keyring.SortAndUpdatePeripherals();
-            
         }
 
         public void ForceUpdateFromAllInboxPages()

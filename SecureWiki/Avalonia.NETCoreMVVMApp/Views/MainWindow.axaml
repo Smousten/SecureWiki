@@ -91,8 +91,8 @@
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
-                            <Button Grid.Row="2" Grid.Column="0" Click="HideButtonPopup_Click" Tag="RevokeAccessPopup" Margin="30,80,10,10">Cancel</Button>
-                            <Button Grid.Row="2" Grid.Column="0" Click="ButtonShareKeyring_Click" Tag="RevokeAccessPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button>
+                            <Button Grid.Row="2" Grid.Column="0" Click="HideButtonPopup_Click" Tag="ShareKeyringPopup" Margin="30,80,10,10">Cancel</Button>
+                            <Button Grid.Row="2" Grid.Column="0" Click="ButtonShareKeyring_Click" Tag="ShareKeyringPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button>
                         </Grid>
                     </Grid>
                 </Border>
@@ -170,6 +170,7 @@
             <TextBox Name="TextBoxIp" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
                      Text="{Binding IP}" />
             <Button Name="ButtonIp" Click="ButtonIP_Click">Change</Button>
+            <Button Name="UpdateInboxes" Click="UpdateInboxes_OnClick">Force update keyring</Button>
 
             <!-- <TextBlock>Login to MediaWiki</TextBlock> -->
             <!-- <TextBox Name="TextBoxUser" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" -->

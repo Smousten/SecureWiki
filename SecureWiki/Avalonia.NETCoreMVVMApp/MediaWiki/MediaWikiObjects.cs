@@ -702,7 +702,7 @@ namespace SecureWiki.MediaWiki
             HttpResponseMessage response = httpClient.GetAsync(URL + query).Result;
 
             string responseBody = response.Content.ReadAsStringAsync().Result;
-            Console.WriteLine("getHttpResponse: " + responseBody);
+            // Console.WriteLine("getHttpResponse: " + responseBody);
 
             response.EnsureSuccessStatusCode();
 

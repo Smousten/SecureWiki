@@ -318,7 +318,6 @@ namespace SecureWiki.Views
 
             if (tag.Equals("GenerateContactPopup"))
             {
-                Console.WriteLine("resetting serverlink and nickname");
                 _viewModel.NicknamePopUp = "";
                 _viewModel.ServerLinkPopUp = "";
             }
@@ -505,5 +504,11 @@ namespace SecureWiki.Views
         }
 
 
+        private void UpdateInboxes_OnClick(object? sender, RoutedEventArgs e)
+        {
+            Thread localThread = new(() =>
+                manager.ForceUpdateFromAllInboxPages());
+            localThread.Start();
+        }
     }
 }
