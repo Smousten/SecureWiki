@@ -32,6 +32,7 @@ namespace SecureWiki.FuseCommunication
             SetupTcpListener();
         }
 
+        // Create new TcpListener with the given address and port, then start listening
         private void SetupTcpListener()
         {
             TcpListener? server = null;
@@ -52,6 +53,7 @@ namespace SecureWiki.FuseCommunication
             }
         }
 
+        // Wait for client to connect, then continue to receive input from client
         private void ListenLoop(TcpListener server)
         {
             var bytes = new byte[256];
@@ -76,6 +78,7 @@ namespace SecureWiki.FuseCommunication
             }
         }
 
+        // Perform operation requested by fuse
         private void Operations(String inputData)
         {
             // Input must contain operation and arguments
@@ -124,6 +127,8 @@ namespace SecureWiki.FuseCommunication
             }
         }
 
+        // Received create operation from FUSE
+        // Should add new file to keyring json file
         public void Create(string filename, string filepath)
         {
             if (RealFileName(filename))
@@ -132,6 +137,8 @@ namespace SecureWiki.FuseCommunication
             }
         }
 
+        // Received read operation from FUSE
+        // Should return byte[] stored on server or in cache
         public void Read(string filename, string filepath)
         {
             if (RealFileName(filename))
@@ -191,7 +198,9 @@ namespace SecureWiki.FuseCommunication
                 lastOperationWasRead = true;
             }
         }
-
+        
+        // Received write operation from FUSE
+        // Should upload new version to server
         public void Write(string filename, string filepath)
         {
             if (RealFileName(filename) && 
@@ -204,6 +213,9 @@ namespace SecureWiki.FuseCommunication
             }
         }
 
+        // Received rename operation from FUSE
+        // Should update keyring json file to reflect rename
+        // Alternatively, used to delete (new path contains .Trash) and upload (old path contains .goutputstream)
         public void Rename(string filename, string[] filepaths)
         {
             var oldPath = filepaths[0].Substring(1);
@@ -231,16 +243,20 @@ namespace SecureWiki.FuseCommunication
             }
         }
 
+        // Received mkdir operation from FUSE
+        // Should make new keyring object in keyring json file
         public void Mkdir(string filename, string filepath)
         {
             _manager.AddNewKeyRing(filename, filepath);
         }
         
+        // Check if file is not goutputstream or trash
         private bool RealFileName(string filepath)
         {
             return !(filepath.Contains(".goutputstream") || filepath.Contains(".Trash"));
         }
-
+        
+        // Reset queue
         public void ResetQueue()
         {
             lastOperationWasRead = false;

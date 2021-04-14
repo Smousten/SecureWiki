@@ -72,6 +72,8 @@ namespace SecureWiki.Cryptography
             return ms.ToArray();
         }
 
+        // Encrypts plainText bytes using public key.
+        // Encryption algorithm is RSA2048 with PKCS1 padding
         public static byte[]? RSAEncryptWithPublicKey(byte[] data, byte[] publicKey)
         {
             try
@@ -97,35 +99,9 @@ namespace SecureWiki.Cryptography
             }
         }
 
+        // Decrypts ciphertext bytes using private key.
+        // Decryption algorithm is RSA2048 with PKCS1 padding
         public static byte[]? RSADecryptWithPrivateKey(byte[] data, byte[] privateKey)
-        {
-            try
-            {
-                byte[] decryptedData;
-                //Create a new instance of RSACryptoServiceProvider.
-                using (RSACryptoServiceProvider rsa = new())
-                {
-                    rsa.ImportRSAPrivateKey(privateKey, out _);
-
-                    //Decrypt the passed byte array and specify OAEP padding.  
-                    //OAEP padding is only available on Microsoft Windows XP or
-                    //later.  
-                    decryptedData = rsa.Decrypt(data, RSAEncryptionPadding.Pkcs1);
-                }
-
-                return decryptedData;
-            }
-            //Catch and display a CryptographicException  
-            //to the console.
-            catch (CryptographicException e)
-            {
-                Console.WriteLine(e.ToString());
-
-                return null;
-            }
-        }
-
-        public static byte[]? RSADecrypt(byte[] data, byte[] privateKey)
         {
             try
             {

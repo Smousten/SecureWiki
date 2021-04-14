@@ -124,7 +124,7 @@ namespace SecureWiki.MediaWiki
                 dataFile.pageName);
             var httpResponse = uploadNewRevision.UploadContent(encryptedContent);
             _mwo.editToken ??= uploadNewRevision.editToken;
-            
+
             // If uploaded revision ID is greater than latest revision end. 
             // Only happens if user manually deletes entries from key list 
             // if (!key.revisionEnd.Equals("-1") 
@@ -139,7 +139,7 @@ namespace SecureWiki.MediaWiki
             if (httpResponse != null)
             {
                 var response = new Response(httpResponse);
-                
+
                 // Get revision ID of the revision that was just uploaded and update DataFileEntry revision start
                 // information for key if not set  
                 // rev = GetLatestRevision(dataFile);
@@ -147,7 +147,7 @@ namespace SecureWiki.MediaWiki
                 {
                     dataFile.keyList.Last().RevisionStart = response.newrevidString;
                 }
-                
+
                 if (response.Result == Response.ResultType.Success)
                 {
                     return true;
@@ -156,7 +156,7 @@ namespace SecureWiki.MediaWiki
 
             return false;
         }
-        
+
         // Get latest valid revision of wiki page
         public byte[]? GetLatestValidRevision(DataFileEntry dataFile, List<Revision> revisions)
         {
@@ -181,7 +181,7 @@ namespace SecureWiki.MediaWiki
                 var pageContent = getPageContent.GetContent();
 
                 var decryptedBytes = DecryptPageContent(pageContent, key);
-                
+
                 // If decryption fails, continue
                 if (decryptedBytes == null)
                 {
@@ -193,7 +193,8 @@ namespace SecureWiki.MediaWiki
 
                 if (Crypto.VerifyData(key.PublicKey, textBytes, signBytes))
                 {
-                    _manager.WriteToLogger($"Signature of revision '{revid}' verified. This is the latest valid revision.", 
+                    _manager.WriteToLogger(
+                        $"Signature of revision '{revid}' verified. This is the latest valid revision.",
                         dataFile.filename, LoggerEntry.LogPriority.Normal);
                     return textBytes;
                 }
@@ -263,7 +264,8 @@ namespace SecureWiki.MediaWiki
                 if (!Crypto.VerifyData(key.PublicKey, textBytes, signBytes))
                 {
                     Console.WriteLine("Verifying failed...");
-                    _manager.WriteToLogger($"Verifying signature of revision '{revid}'failed. Attempting to get latest valid revision.", 
+                    _manager.WriteToLogger(
+                        $"Verifying signature of revision '{revid}'failed. Attempting to get latest valid revision.",
                         dataFile.filename, LoggerEntry.LogPriority.Warning);
                     var revisions = GetAllRevisions(dataFile.pageName).revisionList;
                     return GetLatestValidRevision(dataFile, revisions);
@@ -293,7 +295,7 @@ namespace SecureWiki.MediaWiki
             byte[] rv = new byte[plainText.Length + signature.Length];
             Buffer.BlockCopy(plainText, 0, rv, 0, plainText.Length);
             Buffer.BlockCopy(signature, 0, rv, plainText.Length, signature.Length);
-            
+
             // Encrypt message
             var encryptedBytes = Crypto.Encrypt(
                 rv, key.SymmKey, key.IV);
@@ -329,7 +331,7 @@ namespace SecureWiki.MediaWiki
         {
             // List of new content(s) for each contact
             var outputList = new List<List<string>>();
-            
+
             // Get list of OwnContacts associated with the current server 
             var contactList = _manager.contactManager.GetOwnContactsByServerLink(url);
 
@@ -342,12 +344,12 @@ namespace SecureWiki.MediaWiki
             {
                 // Get list of the contents of new revisions
                 var encryptedContentList = GetInboxPageContent(contact);
-                
+
                 // If no new content was found
                 if (encryptedContentList == null) continue;
 
                 var contentList = new List<string>();
-                
+
                 // For each new revision
                 foreach (var entry in encryptedContentList)
                 {
@@ -355,11 +357,12 @@ namespace SecureWiki.MediaWiki
                     var pageContentBytes = Convert.FromBase64String(entry);
 
                     // Split page content into header and ciphertext 
-                    var encryptedSymmKeyData = pageContentBytes.Take(256).ToArray(); 
+                    var encryptedSymmKeyData = pageContentBytes.Take(256).ToArray();
                     var encryptedContentBytes = pageContentBytes.Skip(256).ToArray();
 
                     // Get IV and symmetric key
-                    var decryptedSymmKeyData= Crypto.RSADecryptWithPrivateKey(encryptedSymmKeyData, contact.PrivateKey);
+                    var decryptedSymmKeyData =
+                        Crypto.RSADecryptWithPrivateKey(encryptedSymmKeyData, contact.PrivateKey);
                     var iv = decryptedSymmKeyData?.Take(16).ToArray();
                     var symmKey = decryptedSymmKeyData?.Skip(16).ToArray();
 
@@ -368,9 +371,10 @@ namespace SecureWiki.MediaWiki
                         Console.WriteLine("symmKey or iv null");
                         break;
                     }
+
                     // Decrypt ciphertext
                     var decryptedContent = Crypto.Decrypt(encryptedContentBytes, symmKey, iv);
-                    
+
                     if (decryptedContent == null)
                     {
                         Console.WriteLine("decryptedContent is null");
@@ -383,7 +387,7 @@ namespace SecureWiki.MediaWiki
                     contentList.Add(decryptedContentString);
                 }
 
-                    
+
                 if (contentList.Count > 0)
                 {
                     outputList.Add(contentList);
@@ -393,11 +397,11 @@ namespace SecureWiki.MediaWiki
             // Return outputList if it is not empty, null otherwise
             return outputList.Count > 0 ? outputList : null;
         }
-        
+
         private List<string>? GetInboxPageContent(OwnContact contact)
         {
             List<string> encryptedContentList = new();
-            
+
             // Get list of all revisions on 
             var allRevs = GetAllRevisions(contact.PageTitle);
 
@@ -427,7 +431,7 @@ namespace SecureWiki.MediaWiki
                 // Get page content from server
                 MediaWikiObjects.PageQuery.PageContent getPageContent = new(_mwo, contact.PageTitle, revid.ToString());
                 var pageContent = getPageContent.GetContent();
-                
+
                 if (pageContent.Equals(""))
                 {
                     continue;
@@ -441,7 +445,7 @@ namespace SecureWiki.MediaWiki
             {
                 contact.revidCounter = highestRev;
             }
-            
+
             return encryptedContentList.Count > 0 ? encryptedContentList : null;
         }
 
@@ -451,7 +455,7 @@ namespace SecureWiki.MediaWiki
             Console.WriteLine("Uploading content to mediawiki: " + content);
             // Generate symmetric key
             var (symmKey, IV) = Crypto.GenerateAESParams();
-            
+
             // Encrypt symmetric key information with given public key
             var symmKeyData = ByteArrayCombiner.Combine(IV, symmKey);
             var encryptedSymmKeyData = Crypto.RSAEncryptWithPublicKey(symmKeyData, publicKey);
@@ -460,13 +464,13 @@ namespace SecureWiki.MediaWiki
             var contentBytes = Encoding.ASCII.GetBytes(content);
             var encryptedBytes = Crypto.Encrypt(
                 contentBytes, symmKey, IV);
-            
+
             if (encryptedBytes == null || encryptedSymmKeyData == null)
             {
                 Console.WriteLine("UploadToInboxPage: Failed encryption");
                 return false;
             }
-            
+
             // Combine ciphertexts
             byte[] pageContentBytes = ByteArrayCombiner.Combine(encryptedSymmKeyData, encryptedBytes);
             var pageContent = Convert.ToBase64String(pageContentBytes);

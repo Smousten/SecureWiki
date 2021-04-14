@@ -245,13 +245,13 @@ namespace SecureWiki.Views
             _viewModel.selectedFile.newestRevisionSelected = false; // IsNewestRevision();
             _viewModel.selectedFileRevision = _viewModel.selectedRevision.revisionID;
 
-            manager.UpdateRequestedRevision(_viewModel.selectedFile.pageName, _viewModel.selectedRevision.revisionID);
+            manager.UpdateRequestedRevision(_viewModel.selectedFile.pageName, _viewModel.selectedFile.serverLink, _viewModel.selectedRevision.revisionID);
         }
 
         private void DefaultRevisionButton_OnClick(object? sender, RoutedEventArgs e)
         {
             // Remove pageName from dictionary of requested revisions
-            manager.UpdateRequestedRevision(_viewModel.selectedFile.pageName, null);
+            manager.UpdateRequestedRevision(_viewModel.selectedFile.pageName, _viewModel.selectedFile.serverLink, null);
 
             _viewModel.selectedFile.newestRevisionSelected = true;
         }
@@ -268,7 +268,7 @@ namespace SecureWiki.Views
                 localThread.Start();
 
                 // Get requested revision, if any
-                _viewModel.selectedFileRevision = manager.GetRequestedRevision(dataFile.pageName) ?? "Newest";
+                _viewModel.selectedFileRevision = manager.GetRequestedRevision(dataFile.pageName, dataFile.serverLink) ?? "Newest";
             }
         }
 

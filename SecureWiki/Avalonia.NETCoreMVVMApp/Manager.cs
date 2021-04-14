@@ -40,7 +40,7 @@ namespace SecureWiki
 
         public Logger logger;
         public RootKeyring rootKeyring;
-        private Dictionary<string, string> RequestedRevision = new();
+        private Dictionary<(string, string), string> RequestedRevision = new();
 
         private readonly string _smtpClientEmail = "SecureWikiMails@gmail.com";
         private readonly string _smtpClientPassword = "SecureWiki";
@@ -590,8 +590,8 @@ namespace SecureWiki
 
             var wikiHandler = GetWikiHandler(dataFile.serverLink);
 
-            return RequestedRevision.ContainsKey(dataFile.pageName)
-                ? wikiHandler?.Download(dataFile, RequestedRevision[dataFile.pageName])
+            return RequestedRevision.ContainsKey((dataFile.pageName, dataFile.serverLink))
+                ? wikiHandler?.Download(dataFile, RequestedRevision[(dataFile.pageName, dataFile.serverLink)])
                 : wikiHandler?.Download(dataFile);
         }
 
@@ -1024,32 +1024,32 @@ namespace SecureWiki
             return output;
         }
 
-        public void UpdateRequestedRevision(string pageName, string? revid)
+        public void UpdateRequestedRevision(string pageName, string serverLink, string? revid)
         {
             tcpListener.ResetQueue();
 
             if (revid == null)
             {
-                RequestedRevision.Remove(pageName);
+                RequestedRevision.Remove((pageName, serverLink));
                 return;
             }
             
-            RequestedRevision[pageName] = revid;
+            RequestedRevision[(pageName, serverLink)] = revid;
         }
         
-        public bool RequestedRevisionContains(string pageName)
+        public bool RequestedRevisionContains(string pageName, string serverLink)
         {
-            return RequestedRevision.ContainsKey(pageName);
+            return RequestedRevision.ContainsKey((pageName, serverLink));
         }
 
-        public string? GetRequestedRevision(string pageName)
+        public string? GetRequestedRevision(string pageName, string serverLink)
         {
-            if (!RequestedRevisionContains(pageName))
+            if (!RequestedRevisionContains(pageName, serverLink))
             {
                 return null;
             }
             
-            var output = RequestedRevision[pageName];
+            var output = RequestedRevision[(pageName, serverLink)];
 
             return output;
         }

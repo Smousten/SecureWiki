@@ -242,7 +242,7 @@ namespace SecureWiki.Cryptography
         //     // var jsonData = JsonConvert.SerializeObject(newKeyringEntry, Formatting.Indented);
         //     // File.WriteAllText(filepath, jsonData);
         // }
-
+        
         public void SaveRootKeyring()
         {
             Console.WriteLine("Saving to Keyring.json");
