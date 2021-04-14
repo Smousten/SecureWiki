@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using SecureWiki.Cryptography;
@@ -22,9 +21,7 @@ namespace SecureWiki.Utilities
             PrivateKey = newPrivateKey;
             PublicKey = newPublicKey;
         }
-        
     }
-
 
     [JsonObject(MemberSerialization.OptIn)]
     public class Contact
@@ -51,7 +48,7 @@ namespace SecureWiki.Utilities
             // PrivateKey = privateKey;
         }
         
-        public Contact(string serverLink, string pageTitle, string nickname)
+        protected Contact(string serverLink, string pageTitle, string nickname)
         {
             ServerLink = serverLink;
             PageTitle = pageTitle;
@@ -65,7 +62,8 @@ namespace SecureWiki.Utilities
 
         public bool HasSameStaticProperties(Contact refContact)
         {
-            bool output = ServerLink.Equals(refContact.ServerLink) && PageTitle.Equals(refContact.PageTitle);
+            bool output = ServerLink.Equals(refContact.ServerLink) && 
+                          PageTitle.Equals(refContact.PageTitle);
 
             return output;
         }
@@ -149,13 +147,16 @@ namespace SecureWiki.Utilities
 
         private List<Contact> MergeContactLists(List<Contact> existingContacts, List<Contact> newContacts)
         {
+            // Intermediate lists
             List<Contact> newInputList = new();
             List<Contact> resultingList = new();
             
+            // Sort input contacts
             List<Contact> inputList = new();
             inputList.AddRange(newContacts);
             inputList = inputList.OrderBy(entry => entry.PageTitle).ToList();
             
+            // Sort own contacts
             List<Contact> ownList = new();
             ownList.AddRange(existingContacts);
             ownList = ownList.OrderBy(entry => entry.PageTitle).ToList();
@@ -164,8 +165,10 @@ namespace SecureWiki.Utilities
             int l = 0;
             foreach (var inputContact in inputList)
             {
+                // As both lists have been sorted by page title, we only need to iterate through each once
                 while (true)
                 {
+                    // If no collision is possible
                     if (l >= ownList.Count)
                     {
                         newInputList.Add(inputContact);
@@ -173,26 +176,44 @@ namespace SecureWiki.Utilities
                     }
                     
                     // Compares the strings and returns -1, 0, or 1 depending on their relation
-                    var comp = inputContact.PageTitle.CompareTo(ownList[l].PageTitle);
+                    // Ordinal comparision simply looks at the byte value of each char, disregarding culture and alphabet
+                    var comp = string.Compare(inputContact.PageTitle, ownList[l].PageTitle, 
+                        StringComparison.Ordinal);
                     
+                    // Keep iterating until reference is equal or greater than self
                     if (comp > 0)
                     {
                         l++;
                         continue;
                     }
 
+                    // If reference is greater than, there are no more potential collisions
                     if (comp < 0)
                     {
                         newInputList.Add(inputContact);
                         break;
                     }
 
+                    // If page titles are equal, but server link differs
                     if (!inputContact.ServerLink.Equals(ownList[l].ServerLink))
                     {
-                        newInputList.Add(inputContact);
-                        break;
+                        // If there are more entries with the same page title, continue
+                        if (l < ownList.Count - 1)
+                        {
+                            if (inputContact.PageTitle.Equals(ownList[l + 1].PageTitle))
+                            {
+                                l++;
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            newInputList.Add(inputContact);
+                            break;
+                        }
                     }
 
+                    // If contact has same static information, but different nickname
                     if (!inputContact.Nickname.Equals(ownList[l].Nickname))
                     {
                         string loggerMsg = $"Imported contact with nickname '{inputContact.Nickname}' " +
@@ -209,7 +230,8 @@ namespace SecureWiki.Utilities
             newInputList = newInputList.OrderBy(entry => entry.Nickname).ToList();
             ownList = ownList.OrderBy(entry => entry.Nickname).ToList();
 
-            // Check if there are any collisions in regard to Nickname
+            // Check if there are any collisions in regard to Nickname.
+            // Simpler version of previous loop.
             int k = 0;
             foreach (var inputContact in newInputList)
             {
@@ -221,8 +243,8 @@ namespace SecureWiki.Utilities
                         break;
                     }
                     
-                    // Compares the strings and returns -1, 0, or 1 depending on their relation
-                    var comp = inputContact.Nickname.CompareTo(ownList[k].Nickname);
+                    var comp = string.Compare(inputContact.Nickname, ownList[k].Nickname, 
+                        StringComparison.Ordinal);
                     
                     if (comp > 0)
                     {
@@ -253,6 +275,7 @@ namespace SecureWiki.Utilities
             return resultingList;
         }
         
+        // TODO: copy from MergeContactLists, test and document
         private List<OwnContact> MergeOwnContactLists(List<OwnContact> existingContacts, List<OwnContact> newContacts)
         {
             List<OwnContact> newInputList = new();
@@ -450,6 +473,5 @@ namespace SecureWiki.Utilities
             // If any server links have been found, return those.
             return output.Count > 0 ? output : null;
         }
-        
     }
 }

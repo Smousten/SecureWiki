@@ -128,22 +128,22 @@ namespace SecureWiki
 
         public void SetCacheSettingGeneral(CachePreferences.CacheSetting setting)
         {
-            configManager!.cachePreferences.GeneralSetting = setting;
+            configManager!.CachePreference.GeneralSetting = setting;
         }
 
         public void SetCacheSettingSingleFile(string pageTitle, CachePreferences.CacheSetting? setting)
         {
-            configManager!.cachePreferences.SetPreference(pageTitle, setting);
+            configManager!.CachePreference.SetPreference(pageTitle, setting);
         }
 
         public CachePreferences.CacheSetting GetCacheSettingGeneral()
         {
-            return configManager!.cachePreferences.GeneralSetting;
+            return configManager!.CachePreference.GeneralSetting;
         }
 
         public CachePreferences.CacheSetting? GetCacheSettingSingleFile(string pageTitle)
         {
-            return configManager!.cachePreferences.GetSetting(pageTitle);
+            return configManager!.CachePreference.GetSetting(pageTitle);
         }
 
         public void SetDefaultServerLink(string url)
@@ -734,7 +734,7 @@ namespace SecureWiki
 
         public void CleanCache()
         {
-            cacheManager.CleanCacheDirectory(configManager.cachePreferences ?? new CachePreferences());
+            cacheManager.CleanCacheDirectory(configManager.CachePreference ?? new CachePreferences());
         }
 
         // Delegated Crypto functions

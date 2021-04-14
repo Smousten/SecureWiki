@@ -12,14 +12,15 @@ namespace SecureWiki.Utilities
     {
         [JsonProperty] public Dictionary<string, ConfigEntry> ConfigDictionary;
 
-        [JsonProperty] public CachePreferences cachePreferences;
+        [JsonProperty] public CachePreferences CachePreference;
 
         [JsonProperty] public string DefaultServerLink;
         
+        // TODO: fix default server link
         public ConfigManager(CachePreferences.CacheSetting cacheSetting = CachePreferences.CacheSetting.KeepLatest, string defaultServerLink = "http://localhost/mediawiki/api.php")
         {
             ConfigDictionary = new Dictionary<string, ConfigEntry>();
-            cachePreferences = new CachePreferences(cacheSetting);
+            CachePreference = new CachePreferences(cacheSetting);
             DefaultServerLink = defaultServerLink;
         }
 
@@ -43,26 +44,19 @@ namespace SecureWiki.Utilities
         {
             if (ConfigDictionary.ContainsKey(serverLink))
             {
-                Console.WriteLine("removing: " + serverLink);
+                Console.WriteLine("removing config entry: " + serverLink);
                 ConfigDictionary.Remove(serverLink);
             }
         }
 
         public ConfigEntry? GetServerCredentials(string serverLink)
         {
-            if (ConfigDictionary.ContainsKey(serverLink))
-            {
-                return ConfigDictionary[serverLink];
-            }
-            else
-            {
-                return null;
-            }
+            return ConfigDictionary.ContainsKey(serverLink) ? ConfigDictionary[serverLink] : null;
         }
 
         public CachePreferences.CacheSetting? GetSetting(string pageTitle)
         {
-            return cachePreferences.GetSettingOrDefault(pageTitle);
+            return CachePreference.GetSettingOrDefault(pageTitle);
         }
     }
 
