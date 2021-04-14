@@ -35,6 +35,7 @@ namespace SecureWiki.Utilities
         [JsonProperty] public string PageTitle { get; set; }
         [JsonProperty] public string Nickname { get; set; }
 
+        // Empty constructor used for deserialization
         public Contact()
         {
             

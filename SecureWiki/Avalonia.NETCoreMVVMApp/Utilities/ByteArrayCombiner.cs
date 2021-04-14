@@ -4,6 +4,8 @@ namespace SecureWiki.Utilities
 {
     public static class ByteArrayCombiner
     {
+        
+        // Combine two byte arrays to one byte array
         public static byte[] Combine(byte[] a, byte[] b)
         {
             byte[] output = new byte[a.Length + b.Length];

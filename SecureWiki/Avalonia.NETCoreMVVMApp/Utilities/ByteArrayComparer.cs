@@ -5,6 +5,8 @@ namespace SecureWiki.Utilities
 {
     public class ByteArrayComparer : IComparer<byte[]>
     {
+        
+        // Returns -1 if x < y, 0 if x=y, and 1 if x > y
         public int Compare(byte[]? x, byte[]? y)
         {
             if (x == null && y == null)

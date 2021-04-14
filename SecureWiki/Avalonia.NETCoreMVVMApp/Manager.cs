@@ -99,7 +99,7 @@ namespace SecureWiki
         {
             const string filename = "Config.json";
             var currentDir = Directory.GetCurrentDirectory();
-            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../"));
             var path = Path.Combine(projectDir, filename);
 
             return path;

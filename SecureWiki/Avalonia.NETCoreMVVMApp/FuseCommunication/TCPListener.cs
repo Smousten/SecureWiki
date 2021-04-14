@@ -75,11 +75,13 @@ namespace SecureWiki.FuseCommunication
                 }
 
                 client.Close();
+                _stream.Close();
+                break;
             }
         }
 
         // Perform operation requested by fuse
-        private void Operations(String inputData)
+        private void Operations(string inputData)
         {
             // Input must contain operation and arguments
             var op = inputData.Split(new[] {':'}, 2);

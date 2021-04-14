@@ -76,7 +76,7 @@ namespace SecureWiki.Views
             Console.WriteLine("Saving contacts to file");
             manager.SaveContactManagerToFile();
 
-
+            // Unmount mounted directory
             var currentDir = Directory.GetCurrentDirectory();
             var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
             var mountdirPath = Path.Combine(baseDir, @"fuse/directories/mountdir");
@@ -89,6 +89,8 @@ namespace SecureWiki.Views
             var process = Process.Start(start);
             process?.WaitForExit();
             process?.Close();
+            
+            // 
         }
 
         private void MainWindow_Shown(object sender, EventArgs e)
