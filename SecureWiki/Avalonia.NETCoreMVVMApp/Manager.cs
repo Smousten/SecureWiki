@@ -776,6 +776,8 @@ namespace SecureWiki
             smtpClient.Send(mailMessage);
         }
 
+        // Revoke access to the selected data file. Create new cryptographic keys and the given contacts
+        // will receive the new key in their inbox
         public void RevokeAccess(DataFile datafile, ObservableCollection<Contact> contacts)
         {
             logger.Add($"Attempting to revoke access to file '{datafile.filename}'");
@@ -818,13 +820,14 @@ namespace SecureWiki
             }
         }
 
+        // write to logger with normal as default priority 
         public void WriteToLogger(string content, string? location = null,
             LoggerEntry.LogPriority priority = LoggerEntry.LogPriority.Normal)
         {
             logger.Add(content, location, priority);
         }
 
-
+        // Upload input content to given serverLink and pageTitle using the wikiHandler
         private bool UploadToInboxPage(string serverLink, string pageTitle, string content, byte[] publicKey)
         {
             var wikiHandler = GetWikiHandler(serverLink);
@@ -926,14 +929,20 @@ namespace SecureWiki
             }
         }
 
+        // create new keyring containing all data files selected by user in GUI
+        // send new Keyring to the selected contacts inbox page
         public void ShareSelectedKeyring(List<Contact> contacts)
         {
             Console.WriteLine(contacts.Count);
             logger.Add("Sharing specified parts of keyring");
 
+            // create new keyring with all selected folder and files
             var keyringEntry = _keyringManager.CreateRootKeyringBasedOnIsChecked();
+            
+            // get the list of all the data files in the new keyring
             var dataFileList = keyringEntry.GetAllAndDescendantDataFileEntries();
 
+            // for each contact create a new list with data files not previously received
             foreach (var contact in contacts)
             {
                 var newDataFiles = new List<DataFile>();
@@ -981,6 +990,7 @@ namespace SecureWiki
         }
 
 
+        // Show popup window alerting the user about information. User can click confirm or cancel to exit
         public MessageBox.MessageBoxResult ShowMessageBox(string title, string content,
             MessageBox.MessageBoxButtons buttons = MessageBox.MessageBoxButtons.OkCancel)
         {
@@ -1001,6 +1011,7 @@ namespace SecureWiki
             return output;
         }
 
+        // Show popup window where the user can enter credentials and click confirm or cancel to exit
         public CredentialsPopup.CredentialsResult ShowPopupEnterCredentials(string title, string content,
             string? savedUsername)
         {
@@ -1024,6 +1035,9 @@ namespace SecureWiki
             return output;
         }
 
+        // Reset queue in TCPListener (set false that last operation was read/write)
+        // If the input revision id is null then remove key with given pageName and serverLink
+        // otherwise update revision id of key
         public void UpdateRequestedRevision(string pageName, string serverLink, string? revid)
         {
             tcpListener.ResetQueue();
@@ -1037,11 +1051,15 @@ namespace SecureWiki
             RequestedRevision[(pageName, serverLink)] = revid;
         }
         
+        // If the RequestedRevision dictionary contains key with given pageName and serverLink 
+        // then return true, otherwise return false
         public bool RequestedRevisionContains(string pageName, string serverLink)
         {
             return RequestedRevision.ContainsKey((pageName, serverLink));
         }
 
+        // If the RequestedRevision dictionary contains key with given pageName and serverLink
+        // then return value, otherwise return null
         public string? GetRequestedRevision(string pageName, string serverLink)
         {
             if (!RequestedRevisionContains(pageName, serverLink))

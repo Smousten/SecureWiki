@@ -7,6 +7,8 @@ namespace SecureWiki.Utilities
 {
     public static class RandomString
     {
+        
+        // Compute SHA-256 hash of input string
         public static string ComputeHash(string inputString)
         {
             // init SHA-256   
@@ -23,11 +25,11 @@ namespace SecureWiki.Utilities
             return sb.ToString();
         }
         
+        // Create random string of given length containing alphanumeric characters
         public static string GenerateRandomAlphanumericString(int length = 20)
         {
             const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-            // Create random string of given length containing alphanumeric characters
+            
             var random = new Random();
             var randomString = new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());

@@ -40,6 +40,7 @@ namespace SecureWiki.Utilities
             }
         }
 
+        // Remove key, value in the config dictionary 
         public void RemoveEntry(string serverLink)
         {
             if (ConfigDictionary.ContainsKey(serverLink))
