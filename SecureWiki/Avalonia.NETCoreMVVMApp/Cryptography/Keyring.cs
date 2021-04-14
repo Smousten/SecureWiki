@@ -375,26 +375,6 @@ namespace SecureWiki.Cryptography
             SaveRootKeyring();
         }
 
-        // private string GetDataFileFilePath(DataFileEntry datafile)
-        // {
-        //     var filepath = datafile.filename;
-        //     var datafilePath = datafile.parent != null ? GetDataFilePathLoop(datafile.parent, filepath) : filepath;
-        //
-        //     // Remove Root/ from string
-        //     var datafilePathSplit = datafilePath.Split("Root/", 2);
-        //     return datafilePathSplit[^1];
-        // }
-        //
-        // private string GetDataFilePathLoop(KeyringEntry keyring, string filepath)
-        // {
-        //     while (true)
-        //     {
-        //         filepath = keyring.name + "/" + filepath;
-        //         if (keyring.parent == null) return filepath;
-        //         keyring = keyring.parent;
-        //     }
-        // }
-
         public void RevokeAccess(DataFileEntry datafile, string latestRevisionID)
         {
             if (datafile.keyList.Last().RevisionStart.Equals("-1")) return;

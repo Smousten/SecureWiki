@@ -18,6 +18,7 @@ namespace SecureWiki.Cryptography
             if (iv == null || iv.Length <= 0)
                 throw new ArgumentNullException(nameof(iv));
 
+            // Use given symmetric key and iv
             using Aes aesAlg = Aes.Create();
             aesAlg.Key = key;
             aesAlg.IV = iv;

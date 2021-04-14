@@ -18,6 +18,7 @@ namespace SecureWiki.Cryptography
 
         public CacheManager()
         {
+            // Create cache directory if it does not already exist
             const string cachePath = "RevisionCache";
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
@@ -31,7 +32,7 @@ namespace SecureWiki.Cryptography
             CacheEntry ce;
             if (!_dict.ContainsKey(pageTitle))
             {
-                ce = new(_dirpath, pageTitle);  
+                ce = new CacheEntry(_dirpath, pageTitle);  
                 _dict.Add(pageTitle, ce);
             }
             else
@@ -68,8 +69,6 @@ namespace SecureWiki.Cryptography
         {
             if (_dict.ContainsKey(pageTitle) == false)
             {
-                // Console.WriteLine("GetFilePath:- Dict does not contain key '{0}', printing info", pageTitle);
-                // PrintInfo();
                 return null;
             }
             
@@ -82,15 +81,15 @@ namespace SecureWiki.Cryptography
         // Default is to remove all entries in the cache that is not the latest entry for a page title
         public void CleanCacheDirectory(CachePreferences preferences)
         {
-            // Files that should be kept
+            // Files that should not be deleted
             List<string> exemptionList = new(); 
             
-            foreach (var item in _dict)
+            foreach (var (key, cacheEntry) in _dict)
             {
                 // call CleanCacheEntry based on own settings if set, general setting otherwise
                 List<string> cleanedList = 
-                    item.Value.CleanCacheEntry(preferences.ExceptionDictionary.ContainsKey(item.Key) ? 
-                        preferences.ExceptionDictionary[item.Key] : preferences.GeneralSetting);
+                    cacheEntry.CleanCacheEntry(preferences.ExceptionDictionary.ContainsKey(key) ? 
+                        preferences.ExceptionDictionary[key] : preferences.GeneralSetting);
 
                 exemptionList.AddRange(cleanedList);
             }
@@ -105,22 +104,6 @@ namespace SecureWiki.Cryptography
 
             // Keep the files in the exemption list
             var toBeDeleted = dirFileList.Except(exemptionList).ToList();
-
-
-            // foreach (var item in exemptionList)
-            // {
-            //     Console.WriteLine("exemptionList: " + item);
-            // }
-            //
-            // foreach (var item in dirFileList)
-            // {
-            //     Console.WriteLine("dirFileList: " + item);
-            // }
-            //
-            // foreach (var item in toBeDeleted)
-            // {
-            //     Console.WriteLine("toBeDeleted: " + item);
-            // }
             
             // Delete the rest
             foreach (var file in toBeDeleted)
@@ -129,12 +112,12 @@ namespace SecureWiki.Cryptography
             }
         }
 
+        // Get revision id of latest entry in cache belonging to the given page title, if one exists.
         public string? GetLatestRevisionID(string pageTitle)
         {
             if (_dict.ContainsKey(pageTitle) == false)
             {
                 Console.WriteLine("GetFilePath:- Dict does not contain key '{0}'", pageTitle);
-                // PrintInfo();
                 return null;
             }
             
@@ -146,10 +129,10 @@ namespace SecureWiki.Cryptography
         public void PrintInfo()
         {
             Console.WriteLine("CacheManager:- PrintInfo():");
-            foreach (var item in _dict)
+            foreach (var (key, cacheEntry) in _dict)
             {
-                Console.WriteLine("item.Key='{0}', item.Value='{1}'", item.Key, item.Value);
-                item.Value.PrintInfo();
+                Console.WriteLine("item.Key='{0}', item.Value='{1}'", key, cacheEntry);
+                cacheEntry.PrintInfo();
             }
         }
     }

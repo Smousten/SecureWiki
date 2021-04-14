@@ -458,6 +458,35 @@ namespace SecureWiki
             }
         }
 
+        public void ForceUpdateFromAllInboxPages()
+        {
+            var serverLinks = contactManager.GetAllUniqueServerLinksFromOwnContacts();
+
+            if (serverLinks == null)
+            {
+                return;
+            }
+
+            foreach (var serverLink in serverLinks)
+            {
+                // If wikihandler already exists, let it update from inbox pages again
+                if (wikiHandlers.ContainsKey(serverLink))
+                {
+                    if (GetWikiHandler(serverLink) is WikiHandler wh)
+                    {
+                        UpdateFromInboxes(wh);
+                    }
+                }
+                // else attempt to create a new wikihandler of that serverlink
+                // this will automatically call UpdateFromInboxes() if wikihandler can be created
+                else
+                {
+                    GetWikiHandler(serverLink);
+                }
+            }
+            
+        }
+
         public MediaWikiObjects.PageQuery.AllRevisions? GetAllRevisions(string pageTitle, string url)
         {
             var wikiHandler = GetWikiHandler(url);

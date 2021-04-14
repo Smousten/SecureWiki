@@ -423,6 +423,32 @@ namespace SecureWiki.Utilities
             // Return results if any found, otherwise null
             return contacts.Count > 0 ? contacts : null;
         }
+
+        public List<string>? GetAllUniqueServerLinksFromOwnContacts()
+        {
+            List<string> output = new();
+
+            var sortedContacts = OwnContacts.OrderBy(c => c.ServerLink).ToList();
+
+            // Iterate over all contacts and add unique server links to output list
+            int i = 0;
+            while (i < sortedContacts.Count)
+            {
+                int cnt = 1;
+
+                while (i + cnt < sortedContacts.Count &&
+                       sortedContacts[i].ServerLink.Equals(sortedContacts[i + cnt].ServerLink))
+                {
+                    cnt++;
+                }
+
+                output.Add(sortedContacts[i].ServerLink);
+                i += cnt;
+            }
+
+            // If any server links have been found, return those.
+            return output.Count > 0 ? output : null;
+        }
         
     }
 }
