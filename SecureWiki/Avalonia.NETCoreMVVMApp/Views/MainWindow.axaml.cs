@@ -245,24 +245,13 @@ namespace SecureWiki.Views
             _viewModel.selectedFile.newestRevisionSelected = false; // IsNewestRevision();
             _viewModel.selectedFileRevision = _viewModel.selectedRevision.revisionID;
 
-            if (manager.RequestedRevision.ContainsKey(_viewModel.selectedFile.pageName))
-            {
-                manager.RequestedRevision[_viewModel.selectedFile.pageName] = _viewModel.selectedRevision.revisionID;
-            }
-            else
-            {
-                manager.RequestedRevision.Add(_viewModel.selectedFile.pageName, _viewModel.selectedRevision.revisionID);
-            }
+            manager.UpdateRequestedRevision(_viewModel.selectedFile.pageName, _viewModel.selectedRevision.revisionID);
         }
 
         private void DefaultRevisionButton_OnClick(object? sender, RoutedEventArgs e)
         {
-            // Remove pagename from dictionary of requested revisions
-
-            if (manager.RequestedRevision.ContainsKey(_viewModel.selectedFile.pageName))
-            {
-                manager.RequestedRevision.Remove(_viewModel.selectedFile.pageName);
-            }
+            // Remove pageName from dictionary of requested revisions
+            manager.UpdateRequestedRevision(_viewModel.selectedFile.pageName, null);
 
             _viewModel.selectedFile.newestRevisionSelected = true;
         }
@@ -278,10 +267,8 @@ namespace SecureWiki.Views
                     manager.UpdateAllRevisionsAsync(dataFile.pageName, dataFile.serverLink, _viewModel.revisions));
                 localThread.Start();
 
-                _viewModel.selectedFileRevision = manager.RequestedRevision.ContainsKey(dataFile.pageName)
-                    ? manager.RequestedRevision[dataFile.pageName]
-                    : "Newest";
-                // Console.WriteLine("InputElement_OnPointerPressed: call passed");
+                // Get requested revision, if any
+                _viewModel.selectedFileRevision = manager.GetRequestedRevision(dataFile.pageName) ?? "Newest";
             }
         }
 
