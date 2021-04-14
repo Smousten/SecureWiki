@@ -40,7 +40,7 @@ namespace SecureWiki
 
         public Logger logger;
         public RootKeyring rootKeyring;
-        public Dictionary<string, string> RequestedRevision = new();
+        private Dictionary<string, string> RequestedRevision = new();
 
         private readonly string _smtpClientEmail = "SecureWikiMails@gmail.com";
         private readonly string _smtpClientPassword = "SecureWiki";
@@ -1020,6 +1020,36 @@ namespace SecureWiki
 
             // Console.WriteLine("output: username='{0}', password='{1}', usernameBool='{2}', passwordBool='{3}'", 
             //     output.Username, output.Password, output.SaveUsername, output.SavePassword);
+
+            return output;
+        }
+
+        public void UpdateRequestedRevision(string pageName, string? revid)
+        {
+            tcpListener.ResetQueue();
+
+            if (revid == null)
+            {
+                RequestedRevision.Remove(pageName);
+                return;
+            }
+            
+            RequestedRevision[pageName] = revid;
+        }
+        
+        public bool RequestedRevisionContains(string pageName)
+        {
+            return RequestedRevision.ContainsKey(pageName);
+        }
+
+        public string? GetRequestedRevision(string pageName)
+        {
+            if (!RequestedRevisionContains(pageName))
+            {
+                return null;
+            }
+            
+            var output = RequestedRevision[pageName];
 
             return output;
         }

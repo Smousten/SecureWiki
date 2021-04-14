@@ -22,6 +22,9 @@ namespace SecureWiki.FuseCommunication
         // Received mkdir operation from FUSE
         // Should make new keyring object in keyring json file
         void Mkdir(string filename, string filepath);
+
+        // Reset queue
+        public void ResetQueue();
         
         // Run Thread
         void RunListener();

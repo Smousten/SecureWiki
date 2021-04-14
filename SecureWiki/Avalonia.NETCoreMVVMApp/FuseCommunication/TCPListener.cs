@@ -240,5 +240,11 @@ namespace SecureWiki.FuseCommunication
         {
             return !(filepath.Contains(".goutputstream") || filepath.Contains(".Trash"));
         }
+
+        public void ResetQueue()
+        {
+            lastOperationWasRead = false;
+            lastOperationWasWrite = false;
+        }
     }
 }
