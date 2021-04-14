@@ -21,7 +21,7 @@ namespace SecureWiki.Cryptography
         public CacheEntry(string dirPath, string pageTitle)
         {
             _dirPath = dirPath;
-            this._pageTitle = pageTitle;
+            _pageTitle = pageTitle;
         }
 
         public void AddEntry(string revid, string content)
@@ -30,12 +30,12 @@ namespace SecureWiki.Cryptography
             {
                 return;
             }
-            
-            var hash = new RandomString().ComputeHash(_pageTitle + revid);
+
+            // Calculate filename
+            var hash = RandomString.ComputeHash(_pageTitle + revid);
             var path = Path.Combine(_dirPath, hash);
 
             File.WriteAllText(path, content);
-                    
             _dict.Add(revid, hash);
         }
 
@@ -49,6 +49,7 @@ namespace SecureWiki.Cryptography
             _dict.Add(revid, filename);
         }
         
+        // Delete cache file and its reference
         public void RemoveEntry(string revid)
         {
             DeleteCacheFile(_dict[revid]);
@@ -104,6 +105,7 @@ namespace SecureWiki.Cryptography
 
             string path = Path.Combine(_dirPath, _dict[revid]);
 
+            // Return file if it exists, remove reference otherwise
             if (File.Exists(path))
             {
                 return path;
@@ -152,6 +154,7 @@ namespace SecureWiki.Cryptography
             File.Delete(path);
         }
         
+        // Delete unwanted cache files and return list of files to be kept
         public List<string> CleanCacheEntry(CachePreferences.CacheSetting setting)
         {
             List<string> exemptionList = new();
