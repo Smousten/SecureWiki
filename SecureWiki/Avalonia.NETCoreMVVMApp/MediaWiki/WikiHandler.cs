@@ -94,8 +94,8 @@ namespace SecureWiki.MediaWiki
             {
                 // TODO: MessageBox content
 
-                string warningString = "This is not the newest revision available, " +
-                                       "sure you wanna do this, mate?" +
+                string warningString = "Your changes are no longer based on the newest revision available, " +
+                                       "push changes to server regardless?" +
                                        "\nUploaded: " + rev.timestamp +
                                        "\nBy user: " + rev.user +
                                        "\nContent size: " + rev.size;
@@ -202,6 +202,7 @@ namespace SecureWiki.MediaWiki
             return null;
         }
 
+        // Download latest valid revision
         public byte[]? Download(DataFileEntry datafile)
         {
             MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(_mwo, datafile.pageName);
@@ -230,13 +231,14 @@ namespace SecureWiki.MediaWiki
                 }
             }
 
-            // If key == null, then return null?? 
+            // If no such key is found, return latest valid revision
             if (key == null)
             {
                 var revisions = GetAllRevisions(dataFile.pageName).revisionList;
                 return GetLatestValidRevision(dataFile, revisions);
             }
 
+            // Get page content from server
             MediaWikiObjects.PageQuery.PageContent getPageContent = new(_mwo, dataFile.pageName, revid);
             var pageContent = getPageContent.GetContent();
 
@@ -245,6 +247,7 @@ namespace SecureWiki.MediaWiki
                 return null;
             }
 
+            // Decrypt and verify content, return latest valid revision if this fails
             try
             {
                 var decryptedBytes = DecryptPageContent(pageContent, key);
@@ -254,6 +257,7 @@ namespace SecureWiki.MediaWiki
                     return GetLatestValidRevision(dataFile, revisions);
                 }
 
+                // Split decrypted page content into plaintext and signature
                 var textBytes = decryptedBytes.Value.textBytes;
                 var signBytes = decryptedBytes.Value.signBytes;
                 if (!_manager.VerifyData(key.PublicKey, textBytes, signBytes))
@@ -270,6 +274,7 @@ namespace SecureWiki.MediaWiki
                     return null;
                 }
 
+                // Add plaintext to cache
                 getPageContent.revision.content = Convert.ToBase64String(textBytes);
                 _manager.AddEntryToCache(dataFile.pageName, getPageContent.revision);
 
@@ -284,10 +289,12 @@ namespace SecureWiki.MediaWiki
 
         private string? EncryptTextAndSignature(byte[] plainText, byte[] signature, DataFileKey key)
         {
+            // Combine plaintext and signature
             byte[] rv = new byte[plainText.Length + signature.Length];
             Buffer.BlockCopy(plainText, 0, rv, 0, plainText.Length);
             Buffer.BlockCopy(signature, 0, rv, plainText.Length, signature.Length);
 
+            // Encrypt message
             var encryptedBytes = _manager.Encrypt(
                 rv, key.SymmKey, key.IV);
             if (encryptedBytes == null)
@@ -296,6 +303,7 @@ namespace SecureWiki.MediaWiki
                 return null;
             }
 
+            // Convert to string and return
             var encryptedText = Convert.ToBase64String(encryptedBytes);
             return encryptedText;
         }
@@ -319,6 +327,7 @@ namespace SecureWiki.MediaWiki
 
         public List<List<string>>? DownloadFromInboxPages()
         {
+            // List of new content(s) for each contact
             var outputList = new List<List<string>>();
             
             // Get list of OwnContacts associated with the current server 
@@ -331,6 +340,7 @@ namespace SecureWiki.MediaWiki
 
             foreach (var contact in contactList)
             {
+                // Get list of the contents of new revisions
                 var encryptedContentList = GetInboxPageContent(contact);
                 
                 // If no new content was found
@@ -341,8 +351,10 @@ namespace SecureWiki.MediaWiki
                 // For each new revision
                 foreach (var entry in encryptedContentList)
                 {
+                    // Convert page content to byte array so it can be processed
                     var pageContentBytes = Convert.FromBase64String(entry);
 
+                    // Split page content into header and ciphertext 
                     var encryptedSymmKeyData = pageContentBytes.Take(256).ToArray(); 
                     var encryptedContentBytes = pageContentBytes.Skip(256).ToArray();
 
@@ -356,7 +368,7 @@ namespace SecureWiki.MediaWiki
                         Console.WriteLine("symmKey or iv null");
                         break;
                     }
-                    
+                    // Decrypt ciphertext
                     var decryptedContent = Crypto.Decrypt(encryptedContentBytes, symmKey, iv);
                     
                     if (decryptedContent == null)
@@ -365,6 +377,7 @@ namespace SecureWiki.MediaWiki
                         break;
                     }
 
+                    // Convert plaintext to string
                     var decryptedContentString = Encoding.ASCII.GetString(decryptedContent);
 
                     contentList.Add(decryptedContentString);
@@ -411,6 +424,7 @@ namespace SecureWiki.MediaWiki
                     break;
                 }
 
+                // Get page content from server
                 MediaWikiObjects.PageQuery.PageContent getPageContent = new(_mwo, contact.PageTitle, revid.ToString());
                 var pageContent = getPageContent.GetContent();
                 
