@@ -23,6 +23,8 @@ namespace SecureWiki.Model
         public string RevisionStart { get; set; }
         [JsonProperty]
         public string RevisionEnd { get; set; }
+        
+        public DataFileKey() {}
 
         public DataFileKey(byte[] ownerPrivateKey)
         {
