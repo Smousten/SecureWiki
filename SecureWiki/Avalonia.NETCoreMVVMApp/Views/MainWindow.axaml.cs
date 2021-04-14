@@ -9,13 +9,11 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
-using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using Avalonia.Rendering;
 using DynamicData;
 using SecureWiki.MediaWiki;
 using SecureWiki.Model;
@@ -40,6 +38,9 @@ namespace SecureWiki.Views
             _viewModel = new MainWindowViewModel(_rootKeyring, logger);
             DataContext = _viewModel;
             
+            // Check if fuse is already running, if yes then unmount
+            IsFuseRunning();
+            
             manager = new Manager(Thread.CurrentThread, _rootKeyring, logger);
             Thread managerThread = new(manager.Run) {IsBackground = true, Name = "ManagerThread"};
             managerThread.Start();
@@ -54,6 +55,8 @@ namespace SecureWiki.Views
             this.AttachDevTools();
 #endif
         }
+
+
 
         private void InitializeComponent()
         {
@@ -77,9 +80,35 @@ namespace SecureWiki.Views
             manager.SaveContactManagerToFile();
 
             // Unmount mounted directory
+            Unmount();
+
+            // Remove files in root directory
+            var rootdirPath = GetPathToDirectory("rootdir");
+            var rootdirInfo = new DirectoryInfo(rootdirPath);
+            
+            foreach (FileInfo file in rootdirInfo.GetFiles())
+            {
+                file.Delete(); 
+            }
+            foreach (DirectoryInfo dir in rootdirInfo.GetDirectories())
+            {
+                dir.Delete(true); 
+            }
+        }
+        
+        // Get Path to fuse directory
+        private static string GetPathToDirectory(string directory)
+        {
             var currentDir = Directory.GetCurrentDirectory();
             var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-            var mountdirPath = Path.Combine(baseDir, @"fuse/directories/mountdir");
+            var outputPath = Path.Combine(baseDir, @"fuse/directories", @directory);
+            return outputPath;
+        }
+
+        // Start process to unmount fuse mounted directory
+        private static void Unmount()
+        {
+            var mountdirPath = GetPathToDirectory("mountdir");
             ProcessStartInfo start = new();
             start.FileName = "/bin/fusermount";
             start.Arguments = $"-u {mountdirPath}";
@@ -89,8 +118,18 @@ namespace SecureWiki.Views
             var process = Process.Start(start);
             process?.WaitForExit();
             process?.Close();
-            
-            // 
+        }
+        
+        // If mountdir is already mounted, then unmount
+        private static void IsFuseRunning()
+        {
+            var mountdirPath = GetPathToDirectory("mountdir");
+            var allDrives = DriveInfo.GetDrives().ToList();
+            if (allDrives.Any(d => d.Name.Equals(mountdirPath)))
+            {
+                Console.WriteLine("fuse already running... Unmounting...");
+                Unmount();
+            }
         }
 
         private void MainWindow_Shown(object sender, EventArgs e)
