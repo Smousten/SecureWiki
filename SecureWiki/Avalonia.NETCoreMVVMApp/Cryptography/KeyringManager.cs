@@ -8,13 +8,13 @@ using SecureWiki.Utilities;
 
 namespace SecureWiki.Cryptography
 {
-    public class Keyring
+    public class KeyringManager
     {
         private readonly RootKeyring _rootKeyring;
         private readonly Manager _manager;
         private DateTime _rootKeyringWriteTimestamp;
 
-        public Keyring(RootKeyring rk, Manager manager)
+        public KeyringManager(RootKeyring rk, Manager manager)
         {
             _rootKeyring = rk;
             _manager = manager;
@@ -67,7 +67,7 @@ namespace SecureWiki.Cryptography
         }
 
         // Returns root keyring as deserialized json object with no arguments
-        public KeyringEntry? ReadKeyRing()
+        public Keyring? ReadKeyRing()
         {
             var keyringFilePath = GetKeyringFilePath();
             return GetRootKeyring(keyringFilePath);
@@ -81,14 +81,14 @@ namespace SecureWiki.Cryptography
         }
 
         // Recursively creates all files and folders from root keyring
-        private void CreateFileStructureRecursion(KeyringEntry keyringEntry, string path)
+        private void CreateFileStructureRecursion(Keyring keyring, string path)
         {
-            foreach (var file in keyringEntry.dataFiles)
+            foreach (var file in keyring.dataFiles)
             {
                 File.Create(Path.Combine(path, file.filename)).Dispose();
             }
 
-            foreach (var childKeyRing in keyringEntry.keyrings)
+            foreach (var childKeyRing in keyring.keyrings)
             {
                 Directory.CreateDirectory(Path.Combine(path, childKeyRing.name));
                 CreateFileStructureRecursion(childKeyRing, Path.Combine(path, childKeyRing.name));
@@ -96,7 +96,7 @@ namespace SecureWiki.Cryptography
         }
 
         // Returns the keyringEntry where the new keyring/datafile should be inserted
-        private KeyringEntry FindKeyringPath(KeyringEntry keyring, string filePath)
+        private Keyring FindKeyringPath(Keyring keyring, string filePath)
         {
             var filePathSplit = filePath.Split("/");
 
@@ -114,11 +114,11 @@ namespace SecureWiki.Cryptography
                 return FindKeyringPath(childKeyring, newPath);
             }
 
-            KeyringEntry intermediateKeyring = new()
+            Keyring intermediateKeyring = new()
             {
                 name = filePathSplit[0],
-                dataFiles = new ObservableCollection<DataFileEntry>(),
-                keyrings = new ObservableCollection<KeyringEntry>()
+                dataFiles = new ObservableCollection<DataFile>(),
+                keyrings = new ObservableCollection<Keyring>()
             };
             keyring.AddKeyring(intermediateKeyring);
             return FindKeyringPath(intermediateKeyring, newPath);
@@ -128,11 +128,11 @@ namespace SecureWiki.Cryptography
         public void AddNewFile(string filename, string filepath, string serverLink, string pageTitle)
         {
             // var serverLink = "http://localhost/mediawiki/api.php";
-            DataFileEntry dataFileEntry = new(serverLink, pageTitle, filename);
+            DataFile dataFile = new(serverLink, pageTitle, filename);
             
             // Find the keyring where the new datafile is inserted
             var foundKeyring = FindKeyringPath(_rootKeyring, filepath);
-            foundKeyring.AddDataFile(dataFileEntry);
+            foundKeyring.AddDataFile(dataFile);
 
             AttemptSaveRootKeyring();
         }
@@ -140,16 +140,16 @@ namespace SecureWiki.Cryptography
         // Add new data file to existing keyring json file
         public void AddNewKeyRing(string filename, string filepath)
         {
-            KeyringEntry newKeyringEntry = new()
+            Keyring newKeyring = new()
             {
                 name = filename,
-                dataFiles = new ObservableCollection<DataFileEntry>(),
-                keyrings = new ObservableCollection<KeyringEntry>()
+                dataFiles = new ObservableCollection<DataFile>(),
+                keyrings = new ObservableCollection<Keyring>()
             };
 
             // Find the keyring where the new keyring is inserted
             var foundKeyring = FindKeyringPath(_rootKeyring, filepath);
-            foundKeyring.AddKeyring(newKeyringEntry);
+            foundKeyring.AddKeyring(newKeyring);
 
             // JsonSerializerOptions options = new() {WriteIndented = true};
 
@@ -158,7 +158,7 @@ namespace SecureWiki.Cryptography
         }
 
         // Find the datafile with the given name -- better performance if whole filepath is given
-        public DataFileEntry? GetDataFile(string filename, KeyringEntry keyring)
+        public DataFile? GetDataFile(string filename, Keyring keyring)
         {
             var dataFile = keyring.dataFiles.FirstOrDefault(f => f.filename.Equals(filename));
             if (dataFile != null)
@@ -197,7 +197,7 @@ namespace SecureWiki.Cryptography
 
             // Rename/relocate datafile/keyring
             // Find data file in oldkeyring
-            DataFileEntry? dataFile = oldKeyring.dataFiles.FirstOrDefault(f => f.filename.Equals(oldName));
+            DataFile? dataFile = oldKeyring.dataFiles.FirstOrDefault(f => f.filename.Equals(oldName));
             if (dataFile != null)
             {
                 oldKeyring.dataFiles.Remove(dataFile);
@@ -259,14 +259,14 @@ namespace SecureWiki.Cryptography
         }
 
         // Recursively update keyring parent property
-        private void UpdateKeyringParentPropertyRecursively(KeyringEntry ke)
+        private void UpdateKeyringParentPropertyRecursively(Keyring ke)
         {
-            foreach (DataFileEntry item in ke.dataFiles)
+            foreach (DataFile item in ke.dataFiles)
             {
                 item.parent = ke;
             }
 
-            foreach (KeyringEntry item in ke.keyrings)
+            foreach (Keyring item in ke.keyrings)
             {
                 item.parent = ke;
                 UpdateKeyringParentPropertyRecursively(item);
@@ -369,7 +369,7 @@ namespace SecureWiki.Cryptography
             SaveRootKeyring();
         }
 
-        public void RevokeAccess(DataFileEntry datafile, string latestRevisionID)
+        public void RevokeAccess(DataFile datafile, string latestRevisionID)
         {
             // If no revisions are known to exist for current latest key
             if (datafile.keyList.Last().RevisionStart.Equals("-1")) return;
@@ -378,15 +378,14 @@ namespace SecureWiki.Cryptography
             datafile.keyList.Last().RevisionEnd = latestRevisionID;
             
             // Create
-            DataFileKey newDataFileKey = new();
-            newDataFileKey.SignKey(datafile.ownerPrivateKey!);
+            DataFileKey newDataFileKey = new(datafile.ownerPrivateKey!);
             datafile.keyList.Add(newDataFileKey);
             
             SaveRootKeyring();
         }
 
         // Recursively verify all keys of all datafiles in given keyring 
-        private (bool, DataFileEntry?) VerifyImportKeyring(KeyringEntry rk)
+        private (bool, DataFile?) VerifyImportKeyring(Keyring rk)
         {
             foreach (var df in rk.dataFiles)
             {

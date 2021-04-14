@@ -216,7 +216,7 @@
                                 </Border>
                             </StackPanel>
                         </TreeDataTemplate>
-                        <TreeDataTemplate DataType="Models:KeyringEntry" ItemsSource="{Binding combinedList}">
+                        <TreeDataTemplate DataType="Models:Keyring" ItemsSource="{Binding combinedList}">
                             <StackPanel Orientation="Horizontal">
                                 <!--IsChecked CheckBox-->
                                 <CheckBox IsChecked="{Binding isChecked}" MinWidth="20" Name="CheckBox"
@@ -230,7 +230,7 @@
                                 </Border>
                             </StackPanel>
                         </TreeDataTemplate>
-                        <DataTemplate DataType="Models:DataFileEntry">
+                        <DataTemplate DataType="Models:DataFile">
                             <DockPanel LastChildFill="False" Name="DockPanel_DataFileEntry"
                                        MaxWidth="{Binding Bounds.Width, ElementName=ScrollViewerTreeView}">
                                 <!--IsChecked CheckBox-->
@@ -290,7 +290,7 @@
             <ContentControl Content="{Binding selectedFile, Mode=TwoWay}" Width="300" DockPanel.Dock="Top"
                             IsVisible="{Binding revisions, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <ContentControl.ContentTemplate>
-                    <DataTemplate DataType="Models:DataFileEntry">
+                    <DataTemplate DataType="Models:DataFile">
                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0" FontSize="20">Filename: </TextBlock>
                             <TextBlock Grid.Row="0" Grid.Column="1" FontSize="20" Text="{Binding filename}" />

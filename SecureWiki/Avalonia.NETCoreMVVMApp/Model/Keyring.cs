@@ -12,7 +12,7 @@ using ReactiveUI;
 namespace SecureWiki.Model
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class KeyringEntry : IReactiveObject
+    public class Keyring : IReactiveObject
     {
         private bool? _isChecked = false;
         public bool? isChecked
@@ -53,8 +53,8 @@ namespace SecureWiki.Model
             }
         }
 
-        private KeyringEntry? _parent;
-        public KeyringEntry? parent
+        private Keyring? _parent;
+        public Keyring? parent
         {
             get => _parent;
             set
@@ -65,9 +65,9 @@ namespace SecureWiki.Model
         }
         
         [JsonProperty]
-        public ObservableCollection<KeyringEntry> keyrings { get; set; } = new();
+        public ObservableCollection<Keyring> keyrings { get; set; } = new();
         [JsonProperty]
-        public ObservableCollection<DataFileEntry> dataFiles { get; set; } = new();
+        public ObservableCollection<DataFile> dataFiles { get; set; } = new();
 
         public ObservableCollection<object> combinedList
         {
@@ -75,11 +75,11 @@ namespace SecureWiki.Model
             {
                 var output = new ObservableCollection<object>();
 
-                foreach (KeyringEntry entry in keyrings)
+                foreach (Keyring entry in keyrings)
                 {
                     output.Add(entry);
                 }
-                foreach (DataFileEntry entry in dataFiles)
+                foreach (DataFile entry in dataFiles)
                 {
                     output.Add(entry);
                 }
@@ -88,7 +88,7 @@ namespace SecureWiki.Model
             }   
         }
 
-        public KeyringEntry(string name = "unnamed")
+        public Keyring(string name = "unnamed")
         {
             _name = name;
             
@@ -97,42 +97,42 @@ namespace SecureWiki.Model
             CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
         }
         
-        public void AddKeyring(KeyringEntry keyringEntry)
+        public void AddKeyring(Keyring keyring)
         {
-            keyrings.Add(keyringEntry);
+            keyrings.Add(keyring);
             RaisePropertyChanged(nameof(keyrings));
             RaisePropertyChanged(nameof(combinedList));
         }
 
-        public void AddRangeKeyring(List<KeyringEntry> keyringEntries)
+        public void AddRangeKeyring(List<Keyring> keyringEntries)
         {
             keyrings.AddRange(keyringEntries);
             RaisePropertyChanged(nameof(keyrings));
             RaisePropertyChanged(nameof(combinedList));
         }
         
-        public void RemoveKeyring(KeyringEntry keyringEntry)
+        public void RemoveKeyring(Keyring keyring)
         {
-            keyrings.Remove(keyringEntry);
+            keyrings.Remove(keyring);
             RaisePropertyChanged(nameof(keyrings));
             RaisePropertyChanged(nameof(combinedList));
         }
         
-        public void AddDataFile(DataFileEntry dataFile)
+        public void AddDataFile(DataFile dataFile)
         {
             dataFiles.Add(dataFile);
             RaisePropertyChanged(nameof(dataFiles));
             RaisePropertyChanged(nameof(combinedList));
         }
         
-        public void AddRangeDataFile(List<DataFileEntry> dataFileEntries)
+        public void AddRangeDataFile(List<DataFile> dataFileEntries)
         {
             dataFiles.AddRange(dataFileEntries);
             RaisePropertyChanged(nameof(dataFileEntries));
             RaisePropertyChanged(nameof(combinedList));
         }
         
-        public void RemoveDataFile(DataFileEntry dataFile)
+        public void RemoveDataFile(DataFile dataFile)
         {
             dataFiles.Remove(dataFile);
             RaisePropertyChanged(nameof(dataFiles));
@@ -202,14 +202,14 @@ namespace SecureWiki.Model
         protected void CheckedChangedUpdateChildren(object? sender, EventArgs e)
         {
             // Disable events updating ancestors while setting values  
-            foreach (KeyringEntry child in keyrings)
+            foreach (Keyring child in keyrings)
             {
                 child.CheckedChanged -= child.CheckedChangedUpdateParent;
                 child.isChecked = isChecked;
                 child.CheckedChanged += child.CheckedChangedUpdateParent;
             }
             
-            foreach (DataFileEntry child in dataFiles)
+            foreach (DataFile child in dataFiles)
             {
                 child.CheckedChanged -= child.CheckedChangedUpdateParent;
                 child.isChecked = isChecked;
@@ -220,12 +220,12 @@ namespace SecureWiki.Model
         // Update children isCheckedWrite based own value
         protected void CheckedWriteChangedUpdateChildren(object? sender, EventArgs e)
         {
-            foreach (KeyringEntry child in keyrings)
+            foreach (Keyring child in keyrings)
             {
                 child.isCheckedWrite = isCheckedWrite;
             }
             
-            foreach (DataFileEntry child in dataFiles)
+            foreach (DataFile child in dataFiles)
             {
                 child.isCheckedWrite = isCheckedWrite;
             }
@@ -241,7 +241,7 @@ namespace SecureWiki.Model
             bool anyUnchecked = false;
             bool ancestorChecked = false;
             
-            foreach (KeyringEntry child in keyrings)
+            foreach (Keyring child in keyrings)
             {
                 if (child.isChecked == true)
                 {
@@ -257,7 +257,7 @@ namespace SecureWiki.Model
                 }
             }
             
-            foreach (DataFileEntry child in dataFiles)
+            foreach (DataFile child in dataFiles)
             {
                 if (child.isChecked == true)
                 {
@@ -274,7 +274,7 @@ namespace SecureWiki.Model
             }
 
             var localParent = parent;
-            List<KeyringEntry> ancestorList = new();
+            List<Keyring> ancestorList = new();
 
             // Find chain of unchecked ancestors and set isChecked to true
             while (localParent != null)
@@ -284,7 +284,7 @@ namespace SecureWiki.Model
                     ancestorChecked = true;
 
                     // Disable events updating ancestors or children while setting values  
-                    foreach (KeyringEntry item in ancestorList)
+                    foreach (Keyring item in ancestorList)
                     {
                         item.CheckedChanged -= item.CheckedChangedUpdateChildren;
                         item.CheckedChanged -= item.CheckedChangedUpdateParent;
@@ -324,7 +324,7 @@ namespace SecureWiki.Model
         }
 
 
-        public void CopyFromOtherKeyring(KeyringEntry ke)
+        public void CopyFromOtherKeyring(Keyring ke)
         {
             keyrings.Clear();
             dataFiles.Clear();
@@ -334,13 +334,13 @@ namespace SecureWiki.Model
             MergeAllEntriesFromOtherKeyring(ke);
         }
         
-        public void MergeAllEntriesFromOtherKeyring(KeyringEntry ke)
+        public void MergeAllEntriesFromOtherKeyring(Keyring ke)
         {
             // Add all KeyringEntries to own and merge recursively if name conflicts are found
-            foreach (KeyringEntry item in ke.keyrings)
+            foreach (Keyring item in ke.keyrings)
             {
                 bool nameAlreadyInUse = false;
-                foreach (KeyringEntry ownKe in keyrings)
+                foreach (Keyring ownKe in keyrings)
                 {
                     if (item.name.Equals(ownKe.name))
                     {
@@ -358,14 +358,14 @@ namespace SecureWiki.Model
                 }
             }
             
-            foreach (DataFileEntry otherDF in ke.dataFiles)
+            foreach (DataFile otherDF in ke.dataFiles)
             {
                 // Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Checking", 
                 //     item.filename, isChecked, parent?.name ?? "null");
 
                 bool nameAlreadyInUse = false;
                 bool fileAlreadyExists = false;
-                foreach (DataFileEntry ownDF in dataFiles)
+                foreach (DataFile ownDF in dataFiles)
                 {
                     
                     if (otherDF.filename.Equals(ownDF.filename))
@@ -410,7 +410,7 @@ namespace SecureWiki.Model
                         newNameInUse = dataFiles.Any(x => x.filename.Equals(newName));
                         if (newNameInUse)
                         {
-                            DataFileEntry df = dataFiles.First(x => x.filename.Equals(newName));
+                            DataFile df = dataFiles.First(x => x.filename.Equals(newName));
 
                             // If they point to the exact same page
                             if (df.HasSameStaticProperties(otherDF))
@@ -440,17 +440,17 @@ namespace SecureWiki.Model
         }
 
         // Recursively add checked children to another keyring 
-        public void AddToOtherKeyringRecursivelyBasedOnIsChecked(KeyringEntry outputKeyring)
+        public void AddToOtherKeyringRecursivelyBasedOnIsChecked(Keyring outputKeyring)
         {
-            foreach (KeyringEntry ke in keyrings)
+            foreach (Keyring ke in keyrings)
             {
-                KeyringEntry keCopy = new(ke.name);
+                Keyring keCopy = new(ke.name);
                 outputKeyring.AddKeyring(keCopy);
                 
                 ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
             }
             
-            foreach (DataFileEntry dataFileEntry in dataFiles)
+            foreach (DataFile dataFileEntry in dataFiles)
             {
                 if (dataFileEntry.isChecked == true)
                 {
@@ -460,17 +460,17 @@ namespace SecureWiki.Model
         }
         
         // Recursively add copies of checked children to another keyring 
-        public void AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(KeyringEntry outputKeyring)
+        public void AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(Keyring outputKeyring)
         {
-            foreach (KeyringEntry ke in keyrings)
+            foreach (Keyring ke in keyrings)
             {
-                KeyringEntry keCopy = new(ke.name);
+                Keyring keCopy = new(ke.name);
                 outputKeyring.AddKeyring(keCopy);
                 
                 ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
             }
             
-            foreach (DataFileEntry dataFileEntry in dataFiles)
+            foreach (DataFile dataFileEntry in dataFiles)
             {
                 if (dataFileEntry.isChecked == true)
                 {
@@ -482,17 +482,17 @@ namespace SecureWiki.Model
         }
         
         // Recursively add copies of children to another keyring 
-        public void AddCopiesToOtherKeyringRecursively(KeyringEntry outputKeyring)
+        public void AddCopiesToOtherKeyringRecursively(Keyring outputKeyring)
         {
-            foreach (KeyringEntry ke in keyrings)
+            foreach (Keyring ke in keyrings)
             {
-                KeyringEntry keCopy = new(ke.name);
+                Keyring keCopy = new(ke.name);
                 outputKeyring.AddKeyring(keCopy);
                 
                 ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
             }
             
-            foreach (DataFileEntry dataFileEntry in dataFiles)
+            foreach (DataFile dataFileEntry in dataFiles)
             {
                 var dfCopy = dataFileEntry.Copy();
                     
@@ -502,13 +502,13 @@ namespace SecureWiki.Model
 
         public void PrepareForExportRecursively()
         {
-            foreach (KeyringEntry ke in keyrings)
+            foreach (Keyring ke in keyrings)
             {
                 ke.PrepareForExportRecursively();
             }
 
             // Remove private keys from DataFileEntries if they do not have write access checked
-            foreach (DataFileEntry dataFileEntry in dataFiles)
+            foreach (DataFile dataFileEntry in dataFiles)
             {
                 dataFileEntry.PrepareForExport();
                 
@@ -520,21 +520,16 @@ namespace SecureWiki.Model
             }
         }
 
+        // Return true if this or any descendant keyring has at least one DataFileEntry
         public bool HasDataFileEntryDescendant()
         {
-
-            if (dataFiles.Count > 0)
-            {
-                return true;
-            }
-
-            return keyrings.Any(ke => ke.HasDataFileEntryDescendant());
+            return dataFiles.Count > 0 || keyrings.Any(ke => ke.HasDataFileEntryDescendant());
         }
 
         public void RemoveEmptyDescendantsRecursively()
         {
-            List<KeyringEntry> removeList = new();
-            foreach (KeyringEntry ke in keyrings)
+            List<Keyring> removeList = new();
+            foreach (Keyring ke in keyrings)
             {
                 if (ke.HasDataFileEntryDescendant() == false)
                 {
@@ -545,7 +540,7 @@ namespace SecureWiki.Model
                     ke.RemoveEmptyDescendantsRecursively();
                 }
             }
-            foreach (KeyringEntry ke in removeList)
+            foreach (Keyring ke in removeList)
             {
                 RemoveKeyring(ke);
             }
@@ -576,9 +571,9 @@ namespace SecureWiki.Model
             AddRangeDataFile(sortedList);
         }
 
-        public List<DataFileEntry> GetAllAndDescendantDataFileEntries()
+        public List<DataFile> GetAllAndDescendantDataFileEntries()
         {
-            var outputList = new List<DataFileEntry>();
+            var outputList = new List<DataFile>();
 
             outputList.AddRange(dataFiles);
 
@@ -594,12 +589,12 @@ namespace SecureWiki.Model
         {
             Console.WriteLine("KeyRing: Name='{0}', Checked='{1}', Parent.Name='{2}'", 
                 name, isChecked, parent?.name ?? "null");
-            foreach (DataFileEntry item in dataFiles)
+            foreach (DataFile item in dataFiles)
             {
                 item.PrintInfo();
             }
 
-            foreach (KeyringEntry item in keyrings)
+            foreach (Keyring item in keyrings)
             {
                 item.PrintInfoRecursively();
             }

@@ -13,7 +13,7 @@ using SecureWiki.Utilities;
 namespace SecureWiki.Model
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class DataFileEntry : IReactiveObject
+    public class DataFile : IReactiveObject
     {
         [JsonProperty]
         public string filename { get; set; }
@@ -34,8 +34,8 @@ namespace SecureWiki.Model
         [JsonProperty] 
         public List<DataFileKey> keyList { get; set; }
 
-        private KeyringEntry? _parent;
-        public KeyringEntry? parent
+        private Keyring? _parent;
+        public Keyring? parent
         {
             get => _parent;
             set
@@ -99,12 +99,12 @@ namespace SecureWiki.Model
             }
         }
 
-        private DataFileEntry()
+        private DataFile()
         {
             
         }
         
-        public DataFileEntry(string serverLink, string pageName, string filename = "unnamed")
+        public DataFile(string serverLink, string pageName, string filename = "unnamed")
         {
             this.filename = filename;
             this.serverLink = serverLink;
@@ -118,8 +118,7 @@ namespace SecureWiki.Model
             contactList = new List<(string, string?)>();
             
             // Create a new DataFileKey and sign it with the owner private key 
-            keyList = new List<DataFileKey> {new()};
-            keyList.Last().SignKey(ownerPrivateKey);
+            keyList = new List<DataFileKey> {new(ownerPrivateKey)};
 
             // Set event handlers
             CheckedChanged -= CheckedChangedUpdateParent;
@@ -182,20 +181,20 @@ namespace SecureWiki.Model
             parent?.UpdateIsCheckedBasedOnChildren();
         }
 
-        public bool IsEqual(DataFileEntry reference)
+        public bool IsEqual(DataFile reference)
         {
             return CompareAllPropertiesExcept(reference, null);
         }
 
-        public bool HasSameStaticProperties(DataFileEntry reference)
+        public bool HasSameStaticProperties(DataFile reference)
         {
             List<PropertyInfo?> staticPropertyList = new();
             List<PropertyInfo> compareList = new();
             
             // Add relevant static properties
-            staticPropertyList.Add(typeof(DataFileEntry).GetProperty(nameof(pageName)));
-            staticPropertyList.Add(typeof(DataFileEntry).GetProperty(nameof(serverLink)));
-            staticPropertyList.Add(typeof(DataFileEntry).GetProperty(nameof(ownerPublicKey)));
+            staticPropertyList.Add(typeof(DataFile).GetProperty(nameof(pageName)));
+            staticPropertyList.Add(typeof(DataFile).GetProperty(nameof(serverLink)));
+            staticPropertyList.Add(typeof(DataFile).GetProperty(nameof(ownerPublicKey)));
 
             // Check properties are not null
             foreach (var item in staticPropertyList)
@@ -209,9 +208,9 @@ namespace SecureWiki.Model
             return CompareProperties(reference, compareList);
         }
 
-        public bool CompareAllPropertiesExcept(DataFileEntry reference, List<PropertyInfo>? ignoreList)
+        public bool CompareAllPropertiesExcept(DataFile reference, List<PropertyInfo>? ignoreList)
         {
-            PropertyInfo[] properties = typeof(DataFileEntry).GetProperties();
+            PropertyInfo[] properties = typeof(DataFile).GetProperties();
 
             List<PropertyInfo> propertiesToBeCompared = new();
 
@@ -228,12 +227,12 @@ namespace SecureWiki.Model
             return CompareProperties(reference, propertiesToBeCompared);
         }
 
-        private bool CompareProperties(DataFileEntry reference, List<PropertyInfo> propertiesToBeCompared)
+        private bool CompareProperties(DataFile reference, List<PropertyInfo> propertiesToBeCompared)
         {
             foreach (PropertyInfo prop in propertiesToBeCompared)
             {
-                var ownValue = typeof(DataFileEntry).GetProperty(prop.Name)?.GetValue(this, null);
-                var refValue = typeof(DataFileEntry).GetProperty(prop.Name)?.GetValue(reference, null);
+                var ownValue = typeof(DataFile).GetProperty(prop.Name)?.GetValue(this, null);
+                var refValue = typeof(DataFile).GetProperty(prop.Name)?.GetValue(reference, null);
 
                 // Console.WriteLine("Testing property: '{0}'='{1}'", prop, ownValue);
                 
@@ -259,12 +258,6 @@ namespace SecureWiki.Model
                     {
                         return false;
                     }
-                }
-                else
-                {
-                    // Console.WriteLine("is neither");
-
-                    // Console.WriteLine("'{0}'=='{1}'", ownValue, refValue);
                 }
             }
 
@@ -315,7 +308,7 @@ namespace SecureWiki.Model
             return null;
         }
 
-        public void MergeWithOtherDataFileEntry(DataFileEntry df)
+        public void MergeWithOtherDataFileEntry(DataFile df)
         {
             // Abort if any of the static information does not match
             if (!filename.Equals(df.filename) ||
@@ -375,7 +368,7 @@ namespace SecureWiki.Model
             (string, string?) output;
             
             // Check if contactList contains any entries with the given page title and server link
-            // Serverlink is not saved to file, if it matches that of the DataFileEntry
+            // Serverlink is not saved to file if it matches that of the DataFileEntry
             if (serverlink.Equals(serverLink))
             {
                 output = contactList.FirstOrDefault
@@ -399,7 +392,7 @@ namespace SecureWiki.Model
             (string, string?) existingContactInfo;
             
             // Check if contact with same pageTitle already is in contactList
-            // Serverlink is not saved to file, if it matches that of the DataFileEntry
+            // Serverlink is not saved to file if it matches that of the DataFileEntry
             if (serverlink.Equals(serverLink))
             {
                 existingContactInfo = contactList.FirstOrDefault
@@ -432,7 +425,7 @@ namespace SecureWiki.Model
         }
 
         // Creates a new DataFileEntry and copies most of own properties over
-        public DataFileEntry Copy()
+        public DataFile Copy()
         {
             // var copy = new DataFileEntry();
             // copy.filename = filename;
@@ -445,7 +438,7 @@ namespace SecureWiki.Model
 
             var jsonData = JSONSerialization.SerializeObject(this);
 
-            DataFileEntry copy = (JSONSerialization.DeserializeObject(jsonData, typeof(DataFileEntry)) as DataFileEntry)!;
+            DataFile copy = (JSONSerialization.DeserializeObject(jsonData, typeof(DataFile)) as DataFile)!;
 
             copy.isChecked = isChecked;
             copy.isCheckedWrite = isCheckedWrite;

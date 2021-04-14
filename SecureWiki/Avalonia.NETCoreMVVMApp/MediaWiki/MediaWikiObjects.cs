@@ -201,14 +201,6 @@ namespace SecureWiki.MediaWiki
 
                 public override void ParseJObject(JObject inputJObject)
                 {
-                    // Print input JObject
-                    /*
-                    foreach (var pair in inputJObject)
-                    {
-                        Console.WriteLine("{0}: {1}", pair.Key, pair.Value);
-                    }
-                    */
-
                     // Read the relevant fields of each revision entry into a Revision object
                     // and add it to the list of revisions
                     Revision tmp = new();
@@ -223,11 +215,6 @@ namespace SecureWiki.MediaWiki
                     }
 
                     revision = tmp;
-
-                    //Console.WriteLine("revCount: " + revCount);
-                    //Console.WriteLine("number of entries in revisionList: " + revisionList.Count);
-                    //Console.WriteLine("Size of first, last entry: {0}, {1}", revisionList[0].size, revisionList[revisionList.Count-1].size);
-                    // Console.WriteLine("Loaded {0} entries into revisionList", revisionList.Count);
                 }
             }
 
@@ -581,8 +568,6 @@ namespace SecureWiki.MediaWiki
 
                     action.AddValuePair("undo", undoBeginID);
                     action.AddValuePair("undoafter", undoEndID);
-                    //action.AddValuePair("undo", "14");
-                    //action.AddValuePair("undo", "13");
 
                     return action;
                 }
