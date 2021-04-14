@@ -14,11 +14,11 @@ namespace SecureWiki.FuseCommunication
         private readonly Manager _manager;
         private NetworkStream? _stream;
         private Dictionary<string, List<string>> _queue = new();
-        private bool lastOperationWasRead = false;
-        private bool lastOperationWasWrite = false;
+        private bool lastOperationWasRead;
+        private bool lastOperationWasWrite;
         private string previousFilename = "";
         private string previousFilepath = "";
-        private byte[] decryptedText;
+        private byte[]? decryptedText;
 
         public TCPListener(int port, string localAddr, Manager manager)
         {
@@ -45,7 +45,7 @@ namespace SecureWiki.FuseCommunication
             }
             catch (SocketException e)
             {
-                Console.WriteLine("SetupTcpListener:- SocketException: {0}", e);
+                Console.WriteLine("SetupTcpListener:- SocketException: {0}", e.Message);
             }
             finally
             {
@@ -145,40 +145,9 @@ namespace SecureWiki.FuseCommunication
         {
             if (RealFileName(filename))
             {
-                
-                
-                // Method 1) write to file in rootdir
-                // var decryptedText = _manager.Download(filename) ?? Encoding.ASCII.GetBytes("File error");
-                // byte[] byData = decryptedText;
-                // byte[] msgPath = Encoding.ASCII.GetBytes(filepath);
-                //
-                // filepath = filepath.Trim('\0');
-                // var relativeFilePath = "fuse/directories/rootdir" + filepath;
-                // var currentDir = Directory.GetCurrentDirectory();
-                // var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-                // var srcDir = Path.Combine(projectDir, relativeFilePath);
-                //
-                // // Do not write bytes to file if last write time was within 10 seconds
-                // if (File.Exists(srcDir))
-                // {
-                //     var lastWriteTime = File.GetLastWriteTime(srcDir);
-                //     var currentTime = DateTime.Now;
-                //     var span = currentTime - lastWriteTime;
-                //     if (span.Seconds < 10)
-                //     {
-                //         _stream?.Write(msgPath);
-                //         return;
-                //     }
-                // }
-                //
-                // Console.WriteLine("writing to file " + srcDir);
-                // File.WriteAllBytes(srcDir, byData);
-                // _stream?.Write(msgPath);
-                
-                // Method 2) use socket to send bytes
-                
                 // If the previous operation was not exactly the same, otherwise reuse decrypted text
-                if (!(lastOperationWasRead && filename.Equals(previousFilename) && filepath.Equals(previousFilepath)))
+                if (!(lastOperationWasRead && filename.Equals(previousFilename) && filepath.Equals(previousFilepath)) || 
+                    decryptedText == null)
                 {
                     decryptedText = _manager.Download(filename) ?? Encoding.ASCII.GetBytes("Empty file.");
                     lastOperationWasRead = true;
