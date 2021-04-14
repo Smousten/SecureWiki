@@ -213,10 +213,7 @@ namespace SecureWiki.Cryptography
                 keyring.name = newName;
                 newKeyring.AddKeyring(keyring);
             }
-
-            // JsonSerializerOptions options = new() {WriteIndented = true};
-
-            // var jsonData = JsonSerializer.Serialize(rootKeyring, options);
+            
             AttemptSaveRootKeyring();
         }
         
@@ -235,14 +232,8 @@ namespace SecureWiki.Cryptography
 
             AttemptSaveRootKeyring();
         }
-        //
-        // public void SerializeAndWriteFile(string filepath, KeyringEntry keyring)
-        // {
-        //     JSONSerialization.SerializeAndWriteFile(filepath, keyring);
-        //     // var jsonData = JsonConvert.SerializeObject(newKeyringEntry, Formatting.Indented);
-        //     // File.WriteAllText(filepath, jsonData);
-        // }
-        
+
+        // Save root keyring to file
         public void SaveRootKeyring()
         {
             Console.WriteLine("Saving to Keyring.json");
@@ -251,10 +242,11 @@ namespace SecureWiki.Cryptography
             _rootKeyringWriteTimestamp = DateTime.Now;
         }
 
+        // Save root keyring to file if this has not happened recently
         public void AttemptSaveRootKeyring()
         {
             var timestampNow = DateTime.Now;
-            var timestampThreshold = _rootKeyringWriteTimestamp.AddMinutes(10);
+            var timestampThreshold = _rootKeyringWriteTimestamp.AddMinutes(5);
 
             if (timestampNow > timestampThreshold)
             {
@@ -266,6 +258,7 @@ namespace SecureWiki.Cryptography
             }
         }
 
+        // Recursively update keyring parent property
         private void UpdateKeyringParentPropertyRecursively(KeyringEntry ke)
         {
             foreach (DataFileEntry item in ke.dataFiles)
@@ -280,6 +273,7 @@ namespace SecureWiki.Cryptography
             }
         }
 
+        // Create and return a root keyring containing only all checked entries
         public RootKeyring CreateRootKeyringBasedOnIsChecked()
         {
             RootKeyring outputRootKeyring = new();
@@ -290,6 +284,7 @@ namespace SecureWiki.Cryptography
             return outputRootKeyring;
         }
 
+        // Same as CreateRootKeyringBasedOnIsChecked() but uses deep copies instead
         private RootKeyring CreateCopyRootKeyringBasedOnIsChecked()
         {
             RootKeyring outputRootKeyring = new();
@@ -314,27 +309,16 @@ namespace SecureWiki.Cryptography
         {
             RootKeyring rk = CreateCopyRootKeyringBasedOnIsChecked();
 
+            // Remove information that should not be shared
             rk.PrepareForExportRecursively();
 
+            // Get export path            
             var currentDir = Directory.GetCurrentDirectory();
             var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
             var keyringFileName = "KeyringExport.json";
             var keyringFilePath = Path.Combine(path, keyringFileName);
 
-            var filepath = keyringFilePath;
-
-            JSONSerialization.SerializeAndWriteFile(filepath, rk);
-        }
-        
-        public List<DataFileEntry> GetListOfAllCheckedDataFiles()
-        {
-            RootKeyring rk = CreateCopyRootKeyringBasedOnIsChecked();
-
-            rk.RemoveEmptyDescendantsRecursively();
-
-            var dataFileList = rk.GetAllAndDescendantDataFileEntries();
-
-            return dataFileList;
+            JSONSerialization.SerializeAndWriteFile(keyringFilePath, rk);
         }
 
         public void ImportRootKeyring(string importPath)
@@ -342,6 +326,7 @@ namespace SecureWiki.Cryptography
             // Read RootKeyring from import path and initialise
             var rk = GetRootKeyring(importPath);
 
+            // If import file is not a keyring
             if (rk == null)
             {
                 var loggerMsg = "Import file cannot be parsed as a keyring object. Merged aborted.";
@@ -351,9 +336,13 @@ namespace SecureWiki.Cryptography
                 return;
             }
             
-            if (!VerifyImportKeyring(rk))
+            // If any of the datafiles in the imported keyring cannot be verified
+            var (res, failedDF) = VerifyImportKeyring(rk); 
+            if (res == false)
             {
-                var loggerMsg = "Import keyring contains invalid key. Merge aborted.";
+                var location = failedDF!.pageName;
+                var loggerMsg = $"Import keyring contains invalid key in data file with pageName='{location}'. " +
+                                $"Merge aborted.";
                 _manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
                 Console.WriteLine(loggerMsg);
                 return;
@@ -382,25 +371,42 @@ namespace SecureWiki.Cryptography
 
         public void RevokeAccess(DataFileEntry datafile, string latestRevisionID)
         {
+            // If no revisions are known to exist for current latest key
             if (datafile.keyList.Last().RevisionStart.Equals("-1")) return;
             
+            // Set end revision for current latest key
             datafile.keyList.Last().RevisionEnd = latestRevisionID;
             
+            // Create
             DataFileKey newDataFileKey = new();
             newDataFileKey.SignKey(datafile.ownerPrivateKey!);
             datafile.keyList.Add(newDataFileKey);
             
-            AttemptSaveRootKeyring();
+            SaveRootKeyring();
         }
 
-        private bool VerifyImportKeyring(KeyringEntry rk)
+        // Recursively verify all keys of all datafiles in given keyring 
+        private (bool, DataFileEntry?) VerifyImportKeyring(KeyringEntry rk)
         {
-            if (rk.dataFiles.Any(file => !file.VerifyKeys()))
+            foreach (var df in rk.dataFiles)
             {
-                return false;
+                if (!df.VerifyKeys())
+                {
+                    return (false, df);
+                }
             }
 
-            return rk.keyrings.Select(childKeyring => VerifyImportKeyring(childKeyring)).All(res => res);
+            foreach (var ke in rk.keyrings)
+            {
+                var res = VerifyImportKeyring(ke);
+
+                if (res.Item1 == false)
+                {
+                    return res;
+                }
+            }
+
+            return (true, null);
         }
     }
 }
