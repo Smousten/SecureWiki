@@ -16,7 +16,7 @@ namespace SecureWiki.Model
         [JsonProperty]
         public byte[] PublicKey { get; set; }
         [JsonProperty]
-        public byte[] SignedPrivateKey { get; set; }
+        public byte[]? SignedPrivateKey { get; set; }
         [JsonProperty]
         public byte[] SignedPublicKey { get; set; }
         [JsonProperty]
@@ -24,8 +24,9 @@ namespace SecureWiki.Model
         [JsonProperty]
         public string RevisionEnd { get; set; }
 
-        public DataFileKey()
+        public DataFileKey(byte[] ownerPrivateKey)
         {
+            // Generate new symmetric key and new asymmetric key pair
             var (newSymmKey, newIV) = Crypto.GenerateAESParams();
             var (newPrivateKey, newPublicKey) = Crypto.GenerateRSAParams();
             
@@ -35,54 +36,53 @@ namespace SecureWiki.Model
             PublicKey = newPublicKey;
             RevisionStart = "-1";
             RevisionEnd = "-1";
+            
+            // Sign private and public key with given owner private key
+            SignedPrivateKey = Crypto.SignData(ownerPrivateKey, PrivateKey!);
+            SignedPublicKey = Crypto.SignData(ownerPrivateKey, PublicKey);
         }
 
-        public DataFileKey(byte[] symmKey, byte[] iv, byte[]? privateKey, byte[] publicKey, string revisionStart, string revisionEnd)
+        public DataFileKey(byte[] symmKey, byte[] iv, 
+            byte[]? privateKey, byte[] publicKey, byte[]? signedPrivateKey, byte[] signedPublicKey,
+            string revisionStart, string revisionEnd)
         {
-            this.SymmKey = symmKey;
-            this.IV = iv;
-            this.PrivateKey = privateKey;
-            this.PublicKey = publicKey;
-            this.RevisionStart = revisionStart;
-            this.RevisionEnd = revisionEnd;
+            SymmKey = symmKey;
+            IV = iv;
+            PrivateKey = privateKey;
+            PublicKey = publicKey;
+            SignedPrivateKey = signedPrivateKey;
+            SignedPublicKey = signedPublicKey;
+            RevisionStart = revisionStart;
+            RevisionEnd = revisionEnd;
         }
 
-        public void SignKey(byte[] key)
+        public bool MergeWithOtherKey(DataFileKey otherDFKey)
         {
-            if (PrivateKey != null)
-            {
-                SignedPrivateKey = Crypto.SignData(key, PrivateKey);
-                SignedPublicKey = Crypto.SignData(key, PublicKey);    
-            }
-        }
-
-        public bool MergeWithOtherKey(DataFileKey otherDFkey)
-        {
-            if (!SymmKey.SequenceEqual(otherDFkey.SymmKey) ||
-                // !iv.SequenceEqual(otherDFkey.iv) ||
-                !PublicKey.SequenceEqual(otherDFkey.PublicKey) ||
-                (PrivateKey != null && otherDFkey.PrivateKey != null && !PrivateKey.SequenceEqual(otherDFkey.PrivateKey))
+            if (!SymmKey.SequenceEqual(otherDFKey.SymmKey) ||
+                // !iv.SequenceEqual(otherDFKey.iv) ||
+                !PublicKey.SequenceEqual(otherDFKey.PublicKey) ||
+                (PrivateKey != null && otherDFKey.PrivateKey != null && !PrivateKey.SequenceEqual(otherDFKey.PrivateKey))
                 )
             {
                 return false;
             }
 
-            PrivateKey ??= otherDFkey.PrivateKey;
-            IV ??= otherDFkey.IV;
+            PrivateKey ??= otherDFKey.PrivateKey;
+            IV ??= otherDFKey.IV;
 
             var revStart = int.Parse(RevisionStart);
             var revEnd = int.Parse(RevisionEnd);
-            var revStartOther = int.Parse(otherDFkey.RevisionStart);
-            var revEndOther = int.Parse(otherDFkey.RevisionEnd);
+            var revStartOther = int.Parse(otherDFKey.RevisionStart);
+            var revEndOther = int.Parse(otherDFKey.RevisionEnd);
 
             if (revStart > revStartOther)
             {
-                RevisionStart = otherDFkey.RevisionStart;
+                RevisionStart = otherDFKey.RevisionStart;
             }
 
             if (revEnd < revEndOther)
             {
-                RevisionEnd = otherDFkey.RevisionEnd;
+                RevisionEnd = otherDFKey.RevisionEnd;
             }
 
             return true;

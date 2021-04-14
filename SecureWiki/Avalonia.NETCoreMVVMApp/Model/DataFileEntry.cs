@@ -118,8 +118,7 @@ namespace SecureWiki.Model
             contactList = new List<(string, string?)>();
             
             // Create a new DataFileKey and sign it with the owner private key 
-            keyList = new List<DataFileKey> {new()};
-            keyList.Last().SignKey(ownerPrivateKey);
+            keyList = new List<DataFileKey> {new(ownerPrivateKey)};
 
             // Set event handlers
             CheckedChanged -= CheckedChangedUpdateParent;
@@ -260,12 +259,6 @@ namespace SecureWiki.Model
                         return false;
                     }
                 }
-                else
-                {
-                    // Console.WriteLine("is neither");
-
-                    // Console.WriteLine("'{0}'=='{1}'", ownValue, refValue);
-                }
             }
 
             return true;
@@ -375,7 +368,7 @@ namespace SecureWiki.Model
             (string, string?) output;
             
             // Check if contactList contains any entries with the given page title and server link
-            // Serverlink is not saved to file, if it matches that of the DataFileEntry
+            // Serverlink is not saved to file if it matches that of the DataFileEntry
             if (serverlink.Equals(serverLink))
             {
                 output = contactList.FirstOrDefault
@@ -399,7 +392,7 @@ namespace SecureWiki.Model
             (string, string?) existingContactInfo;
             
             // Check if contact with same pageTitle already is in contactList
-            // Serverlink is not saved to file, if it matches that of the DataFileEntry
+            // Serverlink is not saved to file if it matches that of the DataFileEntry
             if (serverlink.Equals(serverLink))
             {
                 existingContactInfo = contactList.FirstOrDefault

@@ -378,8 +378,7 @@ namespace SecureWiki.Cryptography
             datafile.keyList.Last().RevisionEnd = latestRevisionID;
             
             // Create
-            DataFileKey newDataFileKey = new();
-            newDataFileKey.SignKey(datafile.ownerPrivateKey!);
+            DataFileKey newDataFileKey = new(datafile.ownerPrivateKey!);
             datafile.keyList.Add(newDataFileKey);
             
             SaveRootKeyring();
