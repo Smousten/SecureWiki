@@ -202,6 +202,94 @@ namespace SecureWiki
             JSONSerialization.SerializeAndWriteFile(ownContactsPath, contactManager.OwnContacts);
         }
 
+        // Contacts in revoke popup list should only show contacts in data file
+        public void GetFileContacts(ObservableCollection<Contact> revokeContacts, DataFileEntry dataFile)
+        {
+            revokeContacts.Clear();
+            foreach (var (pageTitle, serverLink) in dataFile.contactList)
+            {
+                var contact =
+                    contactManager.GetContactByPageTitleAndServerLink(pageTitle, serverLink ?? dataFile.serverLink);
+                if (contact != null) revokeContacts.Add(contact);
+            }
+        }
+
+        public void ImportContact(string path)
+        {
+            WriteToLogger($"Importing contacts from '{path}'");
+            var newContacts = JSONSerialization.ReadFileAndDeserialize(
+                path, typeof(List<Contact>)) as List<Contact>;
+
+            if (newContacts == null)
+            {
+                const string loggerMsg = "Import file cannot be parsed as a list of contact objects. Merged aborted.";
+                WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
+                return;
+            }
+
+            contactManager.MergeContacts(newContacts);
+        }
+
+        public void GenerateOwnContact(string serverLink, string nickname)
+        {
+            var pageTitle = RandomString.GenerateRandomAlphanumericString();
+            while (true)
+            {
+                if (PageAlreadyExists(pageTitle, "-1", serverLink))
+                {
+                    logger.Add($"Auto generated page title ({pageTitle}) already exists on server. Retrying...");
+                    pageTitle = RandomString.GenerateRandomAlphanumericString();
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            // var url = "http://" + serverLink + "/mediawiki/api.php";
+            OwnContact newContact = new(serverLink, pageTitle, nickname);
+            contactManager.AddOwnContact(newContact);
+        }
+
+        public void GetAllContacts(ObservableCollection<Contact> contactsOwn,
+            ObservableCollection<Contact> contactsOther)
+        {
+            contactsOwn.Clear();
+            contactsOther.Clear();
+            if (contactManager.OwnContacts.Count > 0)
+            {
+                contactsOwn.AddRange(contactManager.OwnContacts);
+            }
+
+            if (contactManager.Contacts.Count > 0)
+            {
+                contactsOther.AddRange(contactManager.Contacts);
+            }
+        }
+
+        public void ExportContacts(ObservableCollection<Contact> exportContacts)
+        {
+            logger.Add("Exporting contacts");
+
+            var noDuplicates = exportContacts.Distinct().ToList();
+
+            var currentDir = Directory.GetCurrentDirectory();
+            var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+            var exportFileName = "ContactExport.json";
+            var exportFilePath = Path.Combine(path, exportFileName);
+            JSONSerialization.SerializeAndWriteFile(exportFilePath, noDuplicates);
+        }
+
+        public void GetOtherContacts(ObservableCollection<Contact> contacts)
+        {
+            contacts.Clear();
+            if (contactManager.Contacts.Count > 0)
+            {
+                contacts.AddRange(contactManager.Contacts);
+            }
+        }
+
+
         private void InitializeWikiHandlers()
         {
             wikiHandlers = new();
@@ -251,7 +339,6 @@ namespace SecureWiki
                         UpdateFromInboxes(output);
                         return output;
                     }
-                        
                 }
 
                 savedUsername = serverCredentials.Username;
@@ -290,15 +377,16 @@ namespace SecureWiki
                 Console.WriteLine("removing entry");
                 configManager.RemoveEntry(url);
             }
-            
+
             return wikiHandler;
         }
 
+        // Check inboxes of own contacts to update existing keyring with new updates
         private void UpdateFromInboxes(WikiHandler? wikiHandler)
         {
             List<DataFileEntry> incomingDataFiles = new();
-            // Download from inbox
-            var inboxContent = wikiHandler.DownloadFromInboxPages();
+            // Download from inbox - iterate through all new revisions for each contact
+            var inboxContent = wikiHandler?.DownloadFromInboxPages();
             if (inboxContent != null)
             {
                 foreach (var contactInbox in inboxContent)
@@ -317,7 +405,7 @@ namespace SecureWiki
             incomingDataFiles = incomingDataFiles.OrderBy(e => e.pageName).ToList();
             List<DataFileEntry> intermediateList = new();
 
-            // Merge datafiles and remove duplicates 
+            // Merge updates to same datafiles and remove duplicates 
             int i = 0;
             while (i < incomingDataFiles.Count)
             {
@@ -338,9 +426,12 @@ namespace SecureWiki
                 i += cnt;
             }
 
+            // Get all existing datafiles in a list
             List<DataFileEntry> newDataFiles = new();
             var existingDataFiles = rootKeyring.GetAllAndDescendantDataFileEntries();
             existingDataFiles = existingDataFiles.OrderBy(entry => entry.pageName).ToList();
+
+            // For each incoming datafile from inbox, merge with existing datafile or add to list of new files
             foreach (var dataFile in intermediateList)
             {
                 var existingDf = existingDataFiles.Find(e => e.pageName.Equals(dataFile.pageName));
@@ -354,6 +445,7 @@ namespace SecureWiki
                 }
             }
 
+            // Add new datafiles to folder the same import folder
             if (newDataFiles.Count > 0)
             {
                 if (!rootKeyring.keyrings.Any(e => e.name.Equals("ImportedFromContacts")))
@@ -457,56 +549,6 @@ namespace SecureWiki
             }
         }
 
-        public MessageBox.MessageBoxResult ShowMessageBox(string title, string content,
-            MessageBox.MessageBoxButtons buttons = MessageBox.MessageBoxButtons.OkCancel)
-        {
-            // Invoke UI thread with highest priority
-            var output = Dispatcher.UIThread.InvokeAsync(async () =>
-            {
-                MessageBox.MessageBoxResult result = MessageBox.MessageBoxResult.No;
-                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime
-                    desktop)
-                {
-                    result = await MessageBox.Show(desktop.MainWindow, content, title,
-                        buttons);
-                }
-
-                return result;
-            }, DispatcherPriority.MaxValue).Result;
-
-            return output;
-        }
-
-        public CredentialsPopup.CredentialsResult ShowPopupEnterCredentials(string title, string content,
-            string? savedUsername)
-        {
-            // Invoke UI thread with highest priority
-            var output = Dispatcher.UIThread.InvokeAsync(async () =>
-            {
-                CredentialsPopup credentialsPopup = new();
-                CredentialsPopup.CredentialsResult result = new();
-                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime
-                    desktop)
-                {
-                    result = await credentialsPopup.Show(desktop.MainWindow, content, title, savedUsername);
-                }
-
-                return result;
-            }, DispatcherPriority.MaxValue).Result;
-
-            // Console.WriteLine("output: username='{0}', password='{1}', usernameBool='{2}', passwordBool='{3}'", 
-            //     output.Username, output.Password, output.SaveUsername, output.SavePassword);
-
-            return output;
-        }
-
-
-        // public void SetNewMediaWikiServer(string url)
-        // {
-        //     httpClient = new HttpClient();
-        //     wikiHandler = new WikiHandler("new_mysql_user",
-        //         "THISpasswordSHOULDbeCHANGED", httpClient, this, url);
-        // }
 
         public byte[]? Download(string filename)
         {
@@ -558,7 +600,7 @@ namespace SecureWiki
             _keyring.Rename(oldPath, newPath);
         }
 
-        public KeyringEntry ReadKeyRing()
+        public KeyringEntry? ReadKeyRing()
         {
             return _keyring.ReadKeyRing();
         }
@@ -670,32 +712,8 @@ namespace SecureWiki
             return _keyring.GetDataFile(filename, keyring);
         }
 
-        public byte[]? Encrypt(byte[] plainText, byte[] symmKey, byte[] iv)
-        {
-            return Crypto.Encrypt(plainText, symmKey, iv);
-        }
-
-        public byte[]? Decrypt(byte[] pageContentBytes, byte[] symmKey, byte[] iv)
-        {
-            return Crypto.Decrypt(pageContentBytes, symmKey, iv);
-        }
-
-        public byte[] SignData(byte[] privateKey, byte[] plainText)
-        {
-            return Crypto.SignData(privateKey, plainText);
-        }
-
-        public bool VerifyData(byte[] publicKey, byte[] plainText, byte[] signedData)
-        {
-            return Crypto.VerifyData(publicKey, plainText, signedData);
-        }
-
         public void SendEmail(string recipientEmail)
         {
-            // string mailto = string.Format("xdg-email mailto:{0}?subject={1}&body={2}",
-            // recipientEmail, "SecureWiki", "Hello");
-            // Console.WriteLine(mailto);
-            // Process.Start(mailto);
             var smtpClient = new SmtpClient("smtp.gmail.com")
             {
                 Port = 587,
@@ -775,80 +793,6 @@ namespace SecureWiki
             logger.Add(content, location, priority);
         }
 
-        public void ImportContact(string path)
-        {
-            WriteToLogger($"Importing contacts from '{path}'");
-            var newContacts = JSONSerialization.ReadFileAndDeserialize(
-                path, typeof(List<Contact>)) as List<Contact>;
-
-            if (newContacts == null)
-            {
-                const string loggerMsg = "Import file cannot be parsed as a list of contact objects. Merged aborted.";
-                WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
-                return;
-            }
-
-            contactManager.MergeContacts(newContacts);
-        }
-
-        public void GenerateOwnContact(string serverLink, string nickname)
-        {
-            var pageTitle = RandomString.GenerateRandomAlphanumericString();
-            while (true)
-            {
-                if (PageAlreadyExists(pageTitle, "-1", serverLink))
-                {
-                    logger.Add($"Auto generated page title ({pageTitle}) already exists on server. Retrying...");
-                    pageTitle = RandomString.GenerateRandomAlphanumericString();
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            // var url = "http://" + serverLink + "/mediawiki/api.php";
-            OwnContact newContact = new(serverLink, pageTitle, nickname);
-            contactManager.AddOwnContact(newContact);
-        }
-
-        public void GetAllContacts(ObservableCollection<Contact> contactsOwn,
-            ObservableCollection<Contact> contactsOther)
-        {
-            contactsOwn.Clear();
-            contactsOther.Clear();
-            if (contactManager.OwnContacts.Count > 0)
-            {
-                contactsOwn.AddRange(contactManager.OwnContacts);
-            }
-
-            if (contactManager.Contacts.Count > 0)
-            {
-                contactsOther.AddRange(contactManager.Contacts);
-            }
-        }
-
-        public void ExportContacts(ObservableCollection<Contact> exportContacts)
-        {
-            logger.Add("Exporting contacts");
-
-            var noDuplicates = exportContacts.Distinct().ToList();
-
-            var currentDir = Directory.GetCurrentDirectory();
-            var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
-            var exportFileName = "ContactExport.json";
-            var exportFilePath = Path.Combine(path, exportFileName);
-            JSONSerialization.SerializeAndWriteFile(exportFilePath, noDuplicates);
-        }
-
-        public void GetOtherContacts(ObservableCollection<Contact> contacts)
-        {
-            contacts.Clear();
-            if (contactManager.Contacts.Count > 0)
-            {
-                contacts.AddRange(contactManager.Contacts);
-            }
-        }
 
         private bool UploadToInboxPage(string serverLink, string pageTitle, string content, byte[] publicKey)
         {
@@ -1005,16 +949,48 @@ namespace SecureWiki
             }
         }
 
-        // Contacts in revoke popup list should only show contacts in data file
-        public void GetFileContacts(ObservableCollection<Contact> revokeContacts, DataFileEntry dataFile)
+
+        public MessageBox.MessageBoxResult ShowMessageBox(string title, string content,
+            MessageBox.MessageBoxButtons buttons = MessageBox.MessageBoxButtons.OkCancel)
         {
-            revokeContacts.Clear();
-            foreach (var (pageTitle, serverLink) in dataFile.contactList)
+            // Invoke UI thread with highest priority
+            var output = Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                var contact =
-                    contactManager.GetContactByPageTitleAndServerLink(pageTitle, serverLink ?? dataFile.serverLink);
-                if (contact != null) revokeContacts.Add(contact);
-            }
+                MessageBox.MessageBoxResult result = MessageBox.MessageBoxResult.No;
+                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime
+                    desktop)
+                {
+                    result = await MessageBox.Show(desktop.MainWindow, content, title,
+                        buttons);
+                }
+
+                return result;
+            }, DispatcherPriority.MaxValue).Result;
+
+            return output;
+        }
+
+        public CredentialsPopup.CredentialsResult ShowPopupEnterCredentials(string title, string content,
+            string? savedUsername)
+        {
+            // Invoke UI thread with highest priority
+            var output = Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                CredentialsPopup credentialsPopup = new();
+                CredentialsPopup.CredentialsResult result = new();
+                if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime
+                    desktop)
+                {
+                    result = await credentialsPopup.Show(desktop.MainWindow, content, title, savedUsername);
+                }
+
+                return result;
+            }, DispatcherPriority.MaxValue).Result;
+
+            // Console.WriteLine("output: username='{0}', password='{1}', usernameBool='{2}', passwordBool='{3}'", 
+            //     output.Username, output.Password, output.SaveUsername, output.SavePassword);
+
+            return output;
         }
     }
 }

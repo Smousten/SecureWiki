@@ -113,7 +113,7 @@ namespace SecureWiki.MediaWiki
             var key = dataFile.keyList.Last();
 
             // Sign hash value of plain text
-            var signature = _manager.SignData(key.PrivateKey!, plainText);
+            var signature = Crypto.SignData(key.PrivateKey!, plainText);
 
             // Encrypt text and signature using key from key list
             var encryptedContent = EncryptTextAndSignature(plainText, signature, key);
@@ -191,7 +191,7 @@ namespace SecureWiki.MediaWiki
                 var textBytes = decryptedBytes.Value.textBytes;
                 var signBytes = decryptedBytes.Value.signBytes;
 
-                if (_manager.VerifyData(key.PublicKey, textBytes, signBytes))
+                if (Crypto.VerifyData(key.PublicKey, textBytes, signBytes))
                 {
                     _manager.WriteToLogger($"Signature of revision '{revid}' verified. This is the latest valid revision.", 
                         dataFile.filename, LoggerEntry.LogPriority.Normal);
@@ -256,7 +256,7 @@ namespace SecureWiki.MediaWiki
 
                 var textBytes = decryptedBytes.Value.textBytes;
                 var signBytes = decryptedBytes.Value.signBytes;
-                if (!_manager.VerifyData(key.PublicKey, textBytes, signBytes))
+                if (!Crypto.VerifyData(key.PublicKey, textBytes, signBytes))
                 {
                     Console.WriteLine("Verifying failed...");
                     _manager.WriteToLogger($"Verifying signature of revision '{revid}'failed. Attempting to get latest valid revision.", 
@@ -288,7 +288,7 @@ namespace SecureWiki.MediaWiki
             Buffer.BlockCopy(plainText, 0, rv, 0, plainText.Length);
             Buffer.BlockCopy(signature, 0, rv, plainText.Length, signature.Length);
 
-            var encryptedBytes = _manager.Encrypt(
+            var encryptedBytes = Crypto.Encrypt(
                 rv, key.SymmKey, key.IV);
             if (encryptedBytes == null)
             {
@@ -303,7 +303,7 @@ namespace SecureWiki.MediaWiki
         private (byte[] textBytes, byte[] signBytes)? DecryptPageContent(string pageContent, DataFileKey key)
         {
             var pageContentBytes = Convert.FromBase64String(pageContent);
-            var decryptedBytes = _manager.Decrypt(pageContentBytes,
+            var decryptedBytes = Crypto.Decrypt(pageContentBytes,
                 key.SymmKey, key.IV);
 
             if (decryptedBytes == null)
@@ -444,7 +444,7 @@ namespace SecureWiki.MediaWiki
 
             // Encrypt content with the symmetric key
             var contentBytes = Encoding.ASCII.GetBytes(content);
-            var encryptedBytes = _manager.Encrypt(
+            var encryptedBytes = Crypto.Encrypt(
                 contentBytes, symmKey, IV);
             
             if (encryptedBytes == null || encryptedSymmKeyData == null)

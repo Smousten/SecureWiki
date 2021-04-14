@@ -15,6 +15,7 @@ namespace SecureWiki.FuseCommunication
         private NetworkStream? _stream;
         private Dictionary<string, List<string>> _queue = new();
         private bool lastOperationWasRead = false;
+        private bool lastOperationWasWrite = false;
         private string previousFilename = "";
         private string previousFilepath = "";
         private byte[] decryptedText;
@@ -99,9 +100,11 @@ namespace SecureWiki.FuseCommunication
                 case "create":
                     Create(filename, filepath);
                     lastOperationWasRead = false;
+                    lastOperationWasWrite = false;
                     break;
                 case "read":
                     Read(filename, op[1]);
+                    lastOperationWasWrite = false;
                     break;
                 case "write":
                     Write(filename, filepath);
@@ -111,10 +114,12 @@ namespace SecureWiki.FuseCommunication
                     var renamePathSplit = op[1].Split("%", 2);
                     Rename(filename, renamePathSplit);
                     lastOperationWasRead = false;
+                    lastOperationWasWrite = false;
                     break;
                 case "mkdir":
                     Mkdir(filename, filepath);
                     lastOperationWasRead = false;
+                    lastOperationWasWrite = false;
                     break;
             }
         }
@@ -189,8 +194,12 @@ namespace SecureWiki.FuseCommunication
 
         public void Write(string filename, string filepath)
         {
-            if (RealFileName(filename))
+            if (RealFileName(filename) && 
+                !(lastOperationWasWrite && filename.Equals(previousFilename) && filepath.Equals(previousFilepath)))
             {
+                lastOperationWasWrite = true;
+                previousFilename = filename;
+                previousFilepath = filepath;
                 _manager.UploadNewVersion(filename, filepath);
             }
         }
