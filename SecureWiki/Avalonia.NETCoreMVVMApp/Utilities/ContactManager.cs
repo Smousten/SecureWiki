@@ -21,6 +21,11 @@ namespace SecureWiki.Utilities
             PrivateKey = newPrivateKey;
             PublicKey = newPublicKey;
         }
+
+        public Contact ConvertToBaseClass()
+        {
+            return new(ServerLink, PageTitle, Nickname, PublicKey);
+        }
     }
 
     [JsonObject(MemberSerialization.OptIn)]

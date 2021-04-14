@@ -269,9 +269,23 @@ namespace SecureWiki
 
         public void ExportContacts(ObservableCollection<Contact> exportContacts)
         {
-            logger.Add("Exporting contacts");
+            WriteToLogger("Exporting contacts");
 
-            var noDuplicates = exportContacts.Distinct().ToList();
+            var contactList = new List<Contact>();
+
+            foreach (var contact in exportContacts)
+            {
+                if (contact is OwnContact ownContact)
+                {
+                    contactList.Add(ownContact.ConvertToBaseClass());
+                }
+                else
+                {
+                    contactList.Add(contact);
+                }
+            }
+
+            var noDuplicates = contactList.Distinct().ToList();
 
             var currentDir = Directory.GetCurrentDirectory();
             var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
