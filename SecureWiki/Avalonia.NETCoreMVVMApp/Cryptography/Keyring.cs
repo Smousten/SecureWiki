@@ -367,6 +367,11 @@ namespace SecureWiki.Cryptography
             // Merge imported RootKeyring into current RootKeyring
             Console.WriteLine("Merging existing RootKeyring and imported Keyring");
             _rootKeyring.MergeAllEntriesFromOtherKeyring(rk);
+            SortAndUpdatePeripherals();
+        }
+
+        public void SortAndUpdatePeripherals()
+        {
             _rootKeyring.SortAllRecursively();
             Console.WriteLine("Updating mounted directory to reflect changes in RootKeyring");
             CreateFileStructureRecursion(_rootKeyring, GetRootDirPath());

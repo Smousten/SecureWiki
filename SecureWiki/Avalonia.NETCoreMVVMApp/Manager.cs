@@ -456,6 +456,9 @@ namespace SecureWiki
                 var importFolder = rootKeyring.keyrings.First(e => e.name.Equals("ImportedFromContacts"));
                 importFolder.AddRangeDataFile(newDataFiles);
             }
+            
+            _keyring.SortAndUpdatePeripherals();
+            
         }
 
         public void ForceUpdateFromAllInboxPages()
