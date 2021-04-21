@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.1259
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecureWiki", "Avalonia.NETCoreMVVMApp\SecureWiki.csproj", "{87692882-D726-40F2-A5C3-995EA7CFDC6A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecureWikiTests", "SecureWikiTests\SecureWikiTests.csproj", "{4C7BCBBA-AA60-47E0-A904-2179BD138D97}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{87692882-D726-40F2-A5C3-995EA7CFDC6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87692882-D726-40F2-A5C3-995EA7CFDC6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87692882-D726-40F2-A5C3-995EA7CFDC6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C7BCBBA-AA60-47E0-A904-2179BD138D97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C7BCBBA-AA60-47E0-A904-2179BD138D97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C7BCBBA-AA60-47E0-A904-2179BD138D97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C7BCBBA-AA60-47E0-A904-2179BD138D97}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

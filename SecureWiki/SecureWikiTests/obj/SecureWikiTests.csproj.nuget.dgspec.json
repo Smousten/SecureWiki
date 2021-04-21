@@ -1,0 +1,170 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/smousten/Documents/SpecialeTests/SecureWiki/SecureWikiTests/SecureWikiTests.csproj": {}
+  },
+  "projects": {
+    "/home/smousten/Documents/SpecialeTests/SecureWiki/Avalonia.NETCoreMVVMApp/SecureWiki.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/smousten/Documents/SpecialeTests/SecureWiki/Avalonia.NETCoreMVVMApp/SecureWiki.csproj",
+        "projectName": "SecureWiki",
+        "projectPath": "/home/smousten/Documents/SpecialeTests/SecureWiki/Avalonia.NETCoreMVVMApp/SecureWiki.csproj",
+        "packagesPath": "/home/smousten/.nuget/packages/",
+        "outputPath": "/home/smousten/Documents/SpecialeTests/SecureWiki/Avalonia.NETCoreMVVMApp/obj/",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "/usr/share/dotnet/sdk/NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "/home/smousten/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net5.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net5.0": {
+            "targetAlias": "net5.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net5.0": {
+          "targetAlias": "net5.0",
+          "dependencies": {
+            "Avalonia": {
+              "target": "Package",
+              "version": "[0.10.0, )"
+            },
+            "Avalonia.Desktop": {
+              "target": "Package",
+              "version": "[0.10.0, )"
+            },
+            "Avalonia.Diagnostics": {
+              "target": "Package",
+              "version": "[0.10.0, )"
+            },
+            "Avalonia.ReactiveUI": {
+              "target": "Package",
+              "version": "[0.10.0, )"
+            },
+            "CrossPlatformProtectedData": {
+              "target": "Package",
+              "version": "[1.0.1, )"
+            },
+            "JsonFlatten": {
+              "target": "Package",
+              "version": "[1.0.1, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1-beta1, )"
+            },
+            "UnmanagedExports": {
+              "target": "Package",
+              "version": "[1.2.7, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.201/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/smousten/Documents/SpecialeTests/SecureWiki/SecureWikiTests/SecureWikiTests.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/smousten/Documents/SpecialeTests/SecureWiki/SecureWikiTests/SecureWikiTests.csproj",
+        "projectName": "SecureWikiTests",
+        "projectPath": "/home/smousten/Documents/SpecialeTests/SecureWiki/SecureWikiTests/SecureWikiTests.csproj",
+        "packagesPath": "/home/smousten/.nuget/packages/",
+        "outputPath": "/home/smousten/Documents/SpecialeTests/SecureWiki/SecureWikiTests/obj/",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "/usr/share/dotnet/sdk/NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "/home/smousten/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net5.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net5.0": {
+            "targetAlias": "net5.0",
+            "projectReferences": {
+              "/home/smousten/Documents/SpecialeTests/SecureWiki/Avalonia.NETCoreMVVMApp/SecureWiki.csproj": {
+                "projectPath": "/home/smousten/Documents/SpecialeTests/SecureWiki/Avalonia.NETCoreMVVMApp/SecureWiki.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net5.0": {
+          "targetAlias": "net5.0",
+          "dependencies": {
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[16.5.0, )"
+            },
+            "NUnit": {
+              "target": "Package",
+              "version": "[3.12.0, )"
+            },
+            "NUnit3TestAdapter": {
+              "target": "Package",
+              "version": "[3.16.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.201/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
