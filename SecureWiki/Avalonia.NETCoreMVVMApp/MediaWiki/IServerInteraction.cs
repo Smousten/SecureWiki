@@ -18,11 +18,11 @@ namespace SecureWiki.MediaWiki
         // Upload byte[] stored in file to server
         public bool Upload(DataFile dataFile, string filepath);
 
-        // Returns decrypted data stored on server of data file 
-        public byte[]? Download(DataFile dataFile);
-        
         // Returns decrypted data stored on server of data file with given revID
-        public byte[]? Download(DataFile dataFile, string revID);
+        public byte[]? Download(DataFile dataFile, string? revID = null);
+
+        // Returns the id of the newest revision of a page on the server, or null if no revision is found
+        public string? GetLatestRevisionID(string pageName);
         
         // Returns encrypted string stored on server of page with given title and revision ID
         public string GetPageContent(string pageTitle, string revID);

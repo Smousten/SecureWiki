@@ -194,23 +194,21 @@ namespace SecureWiki.MediaWiki
             return null;
         }
 
-        // Download latest valid revision
-        public byte[]? Download(DataFile datafile)
+        // Returns the id of the newest revision of a page on the server, or null if no revision is found
+        public string? GetLatestRevisionID(string pageName)
         {
-            MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(_mwo, datafile.pageName);
+            MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(_mwo, pageName);
             latestRevision.GetLatestRevision();
-
-            return Download(datafile, latestRevision.revision.revisionID ?? "-1");
+            return latestRevision.revision.revisionID;
         }
 
-        public byte[]? Download(DataFile dataFile, string revid)
+        // Download latest valid revision starting from given revid.
+        // If revid is null, newest revision on server is starting point
+        public byte[]? Download(DataFile dataFile, string? revid = null)
         {
-            // Check if revision already exists in cache and return output if so
-            var cacheResult = _manager.AttemptReadFileFromCache(dataFile.pageName, revid);
-            if (cacheResult != null)
-            {
-                return Convert.FromBase64String(cacheResult);
-            }
+            
+            // Get id of newest revision, or set to default
+            revid ??= GetLatestRevisionID(dataFile.pageName) ?? "-1";
 
             DataFileKey? key = null;
             // Find key in data file key list with correct start revision ID and end revision ID
@@ -266,10 +264,6 @@ namespace SecureWiki.MediaWiki
                 {
                     return null;
                 }
-
-                // Add plaintext to cache
-                getPageContent.revision.content = Convert.ToBase64String(textBytes);
-                _manager.AddEntryToCache(dataFile.pageName, getPageContent.revision);
 
                 return textBytes;
             }

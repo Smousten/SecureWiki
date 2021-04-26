@@ -602,15 +602,45 @@ namespace SecureWiki
         public byte[]? Download(string filename)
         {
             logger.Add($"Attempting read file '{filename}'");
+            string? revid = null;
+            
             var dataFile = GetDataFile(filename, rootKeyring);
-
             if (dataFile == null) return null;
+            
+            // Check if any specific revision has been requested
+            if (RequestedRevision.ContainsKey((dataFile.pageName, dataFile.serverLink)))
+            {
+                revid = RequestedRevision[(dataFile.pageName, dataFile.serverLink)];
+                
+                // Check if content already is in cache
+                var cacheResult = AttemptReadFileFromCache(dataFile.pageName, revid);
+                if (cacheResult != null) return Convert.FromBase64String(cacheResult);
+            }
 
+            // Get valid WikiHandler or return null
             var wikiHandler = GetWikiHandler(dataFile.serverLink);
+            if (wikiHandler == null) return null;
 
-            return RequestedRevision.ContainsKey((dataFile.pageName, dataFile.serverLink))
-                ? wikiHandler?.Download(dataFile, RequestedRevision[(dataFile.pageName, dataFile.serverLink)])
-                : wikiHandler?.Download(dataFile);
+            // If no specific revid has been requested, get newest revision id, if any exists
+            revid ??= wikiHandler.GetLatestRevisionID(dataFile.pageName);
+
+            // Check if content already is in cache
+            if (revid != null)
+            {
+                var cacheResult = AttemptReadFileFromCache(dataFile.pageName, revid);
+                if (cacheResult != null) return Convert.FromBase64String(cacheResult);
+            } 
+            
+            // Download page content from server
+            var textBytes = wikiHandler.Download(dataFile, revid);
+
+            // Add plaintext to cache
+            if (textBytes != null && revid != null)
+            {
+                AddEntryToCache(dataFile.pageName, revid, Convert.ToBase64String(textBytes)); 
+            }
+
+            return textBytes;
         }
 
         public void LoginToMediaWiki(string username, string password)
@@ -701,10 +731,9 @@ namespace SecureWiki
             return File.ReadAllText(cacheResult);
         }
 
-        public void AddEntryToCache(string pageTitle, Revision rev)
+        public void AddEntryToCache(string pageTitle, string revid, string content)
         {
-            Console.WriteLine("AddEntryToCache:- cacheManager.AddEntry('{0}', '{1}')", pageTitle, rev);
-            cacheManager.AddEntry(pageTitle, rev);
+            cacheManager.AddEntry(pageTitle, revid, content);
         }
 
         public void SerializeCacheManagerAndWriteToFile(string path)
