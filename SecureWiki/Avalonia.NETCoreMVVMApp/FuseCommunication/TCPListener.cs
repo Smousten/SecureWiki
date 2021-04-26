@@ -104,8 +104,7 @@ namespace SecureWiki.FuseCommunication
             {
                 case "create":
                     Create(filename, filepath);
-                    lastOperationWasRead = false;
-                    lastOperationWasWrite = false;
+                    ResetQueue();
                     break;
                 case "read":
                     Read(filename, op[1]);
@@ -118,13 +117,11 @@ namespace SecureWiki.FuseCommunication
                 case "rename":
                     var renamePathSplit = op[1].Split("%", 2);
                     Rename(filename, renamePathSplit);
-                    lastOperationWasRead = false;
-                    lastOperationWasWrite = false;
+                    ResetQueue();
                     break;
                 case "mkdir":
                     Mkdir(filename, filepath);
-                    lastOperationWasRead = false;
-                    lastOperationWasWrite = false;
+                    ResetQueue();
                     break;
             }
         }
