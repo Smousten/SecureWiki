@@ -1,8 +1,4 @@
-/*
-Code taken from https://stackoverflow.com/questions/55706291/how-to-show-a-message-box-in-avaloniaui-beta
-From answer by user 'kekekeks' Apr 16 '19 at 12:05
-*/
-
+using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
@@ -11,20 +7,21 @@ namespace SecureWiki.Views
 {
     public class MessageBox : Window
     {
-        public enum MessageBoxButtons
-        {
-            Ok,
-            OkCancel,
-            YesNo,
-            YesNoCancel
-        }
-
-        public enum MessageBoxResult
+        
+        public enum Result
         {
             Ok,
             Cancel,
             Yes,
             No
+        }
+
+        public enum Buttons
+        {
+            Ok,
+            OkCancel,
+            YesNo,
+            YesNoCancel
         }
 
         public MessageBox()
@@ -34,50 +31,62 @@ namespace SecureWiki.Views
             Activate();
             Focus();
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            // Topmost = false;
         }
 
-        public static Task<MessageBoxResult> Show(Window parent, string text, string title, MessageBoxButtons buttons)
+        public static Task<Result> ShowMessageBox(string message, string title, Buttons buttons)
         {
-            var msgbox = new MessageBox()
-            {
-                Title = title
-            };
-            msgbox.FindControl<TextBlock>("Text").Text = text;
-            var buttonPanel = msgbox.FindControl<StackPanel>("Buttons");
+            // Set window title
+            var msgBox = new MessageBox {Title = title};
+            
+            // Set content text
+            msgBox.FindControl<TextBlock>("TextBlock").Text = message;
+            var stackPanel = msgBox.FindControl<StackPanel>("StackPanelButtons");
 
-            var res = MessageBoxResult.Ok;
+            // set default result
+            var res = Result.Ok;
 
-            void AddButton(string caption, MessageBoxResult r, bool def = false)
+            // Add button to stack panel
+            void AddButton(string content, Result result)
             {
-                var btn = new Button {Content = caption};
-                btn.Click += (_, __) => { 
-                    res = r;
-                    msgbox.Close();
+                var button = new Button {Content = content};
+                // Set click event so that message box closes and returns the answer of the button clicked
+                button.Click += (_, __) => { 
+                    res = result;
+                    msgBox.Close();
                 };
-                buttonPanel.Children.Add(btn);
-                if (def)
-                    res = r;
+                stackPanel.Children.Add(button);
             }
 
-            if (buttons == MessageBoxButtons.Ok || buttons == MessageBoxButtons.OkCancel)
-                AddButton("Ok", MessageBoxResult.Ok, true);
-            if (buttons == MessageBoxButtons.YesNo || buttons == MessageBoxButtons.YesNoCancel)
+            // Set buttons
+            switch (buttons)
             {
-                AddButton("Yes", MessageBoxResult.Yes);
-                AddButton("No", MessageBoxResult.No, true);
+                case Buttons.Ok:
+                    AddButton("Ok", Result.Ok);
+                    break;
+                case Buttons.OkCancel:
+                    AddButton("Ok", Result.Ok);
+                    AddButton("Cancel", Result.Cancel);
+                    break;
+                case Buttons.YesNo:
+                    AddButton("Yes", Result.Yes);
+                    AddButton("No", Result.No);
+                    break;
+                case Buttons.YesNoCancel:
+                    AddButton("Yes", Result.Yes);
+                    AddButton("No", Result.No);
+                    AddButton("Cancel", Result.Cancel);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(buttons), buttons, null);
             }
 
-            if (buttons == MessageBoxButtons.OkCancel || buttons == MessageBoxButtons.YesNoCancel)
-                AddButton("Cancel", MessageBoxResult.Cancel, true);
-
-
-            var tcs = new TaskCompletionSource<MessageBoxResult>();
-            msgbox.Closed += delegate { tcs.TrySetResult(res); };
-            if (parent != null)
-                msgbox.ShowDialog(parent);
-            else msgbox.Show();
-            return tcs.Task;
+            // Set output
+            var taskCompletionSource = new TaskCompletionSource<Result>();
+            msgBox.Closed += delegate { taskCompletionSource.TrySetResult(res); };
+            
+            msgBox.Show();
+            
+            return taskCompletionSource.Task;
         }
 
 

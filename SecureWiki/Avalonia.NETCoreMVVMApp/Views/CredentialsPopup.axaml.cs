@@ -1,16 +1,7 @@
-/*
-Code taken from https://stackoverflow.com/questions/55706291/how-to-show-a-message-box-in-avaloniaui-beta
-From answer by user 'kekekeks' Apr 16 '19 at 12:05
-*/
-
-using System;
-using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SecureWiki.Views
 {
@@ -19,14 +10,14 @@ namespace SecureWiki.Views
 
         public struct CredentialsResult
         {
-            public PopupButtonResult ButtonResult;
+            public Result ButtonResult;
             public string Username;
             public string Password;
             public bool SaveUsername;
             public bool SavePassword;
         }
 
-        public enum PopupButtonResult
+        public enum Result
         {
             Ok,
             Cancel,
@@ -39,16 +30,15 @@ namespace SecureWiki.Views
             Activate();
             Focus();
             WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            // Topmost = false;
         }
 
-        public Task<CredentialsResult> Show(Window parent, string text, string title, string? savedUsername)
+        public Task<CredentialsResult> Show(Window parent, string content, string title, string? savedUsername)
         {
-            var popupEnterCredentials = new CredentialsPopup()
-            {
-                Title = title
-            };
-            popupEnterCredentials.FindControl<TextBlock>("Text").Text = text;
+            // Set window title
+            var popupEnterCredentials = new CredentialsPopup {Title = title};
+
+            // Set content text
+            popupEnterCredentials.FindControl<TextBlock>("TextBlock").Text = content;
             var buttonPanel = popupEnterCredentials.FindControl<StackPanel>("Buttons");
             var textBoxUsername = popupEnterCredentials.FindControl<TextBox>("TextBoxUsername");
             var textBoxPassword = popupEnterCredentials.FindControl<TextBox>("TextBoxPassword");
@@ -68,7 +58,7 @@ namespace SecureWiki.Views
 
             // Set button click events
             buttonOkay.Click += (_, __) => { 
-                res.ButtonResult = PopupButtonResult.Ok;
+                res.ButtonResult = Result.Ok;
                 res.Username = textBoxUsername.Text;
                 res.Password = textBoxPassword.Text;
                 res.SaveUsername = checkBoxUsername.IsChecked == true;
@@ -76,16 +66,16 @@ namespace SecureWiki.Views
                 popupEnterCredentials.Close();
             };
             buttonCancel.Click += (_, __) => { 
-                res.ButtonResult = PopupButtonResult.Cancel;
+                res.ButtonResult = Result.Cancel;
                 popupEnterCredentials.Close();
             };
 
             // Return result when closing
-            var tcs = new TaskCompletionSource<CredentialsResult>();
-            popupEnterCredentials.Closed += delegate { tcs.TrySetResult(res); };
+            var taskCompletionSource = new TaskCompletionSource<CredentialsResult>();
+            popupEnterCredentials.Closed += delegate { taskCompletionSource.TrySetResult(res); };
             popupEnterCredentials.ShowDialog(parent);
             Topmost = false;
-            return tcs.Task;
+            return taskCompletionSource.Task;
         }
 
 

@@ -282,12 +282,14 @@ namespace SecureWiki.MediaWiki
                     // and add it to the list of revisions
                     foreach (var token in inputJObject.SelectTokens("query.pages[0].revisions[*]"))
                     {
-                        Revision tmp = new();
-                        tmp.revisionID = token.SelectToken("revid")?.ToString();
-                        tmp.flags = token.SelectToken("flags")?.ToString();
-                        tmp.timestamp = token.SelectToken("timestamp")?.ToString();
-                        tmp.user = token.SelectToken("user")?.ToString();
-                        tmp.size = token.SelectToken("size")?.ToString();
+                        Revision tmp = new()
+                        {
+                            revisionID = token.SelectToken("revid")?.ToString(),
+                            flags = token.SelectToken("flags")?.ToString(),
+                            timestamp = token.SelectToken("timestamp")?.ToString(),
+                            user = token.SelectToken("user")?.ToString(),
+                            size = token.SelectToken("size")?.ToString()
+                        };
 
                         revisionList.Add(tmp);
                     }

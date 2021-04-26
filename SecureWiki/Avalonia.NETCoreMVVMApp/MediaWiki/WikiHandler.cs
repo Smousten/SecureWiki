@@ -98,9 +98,9 @@ namespace SecureWiki.MediaWiki
                                        "\nBy user: " + rev.user +
                                        "\nContent size: " + rev.size;
 
-                var msgBoxOutput = _manager.ShowMessageBox("Warning!", warningString);
+                var msgBoxOutput = Manager.ShowMessageBox("Warning!", warningString);
 
-                if (msgBoxOutput == MessageBox.MessageBoxResult.Cancel)
+                if (msgBoxOutput == MessageBox.Result.Cancel)
                 {
                     Console.WriteLine("Upload cancelled");
                     return false;

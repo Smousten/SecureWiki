@@ -87,6 +87,10 @@ namespace SecureWiki
 
             // GUI can now proceed
             MainWindow.ManagerReadyEvent.Set();
+
+
+            // var res = ShowMessageBox("some very loooooooooooooooooooooooooong title", " and some very loooooooooooooooooooooooooong title", MessageBox.Buttons.YesNoCancel);
+            // Console.WriteLine(res.ToString());
         }
 
         public void PrintTestMethod(string input)
@@ -363,7 +367,7 @@ namespace SecureWiki
             CredentialsPopup.CredentialsResult credentialsResult =
                 ShowPopupEnterCredentials(title, content, savedUsername);
 
-            if (credentialsResult.ButtonResult == CredentialsPopup.PopupButtonResult.Cancel ||
+            if (credentialsResult.ButtonResult == CredentialsPopup.Result.Cancel ||
                 credentialsResult.Username.Equals("") || credentialsResult.Password.Equals(""))
             {
                 return null;
@@ -577,7 +581,7 @@ namespace SecureWiki
                     string loggerMsg = "Attempting to upload file to server '" + df!.serverLink + "'";
                     logger.Add(loggerMsg, filepath);
 
-                    wikiHandler?.Upload(df!, filepath);
+                    wikiHandler.Upload(df!, filepath);
                 }
                 else
                 {
@@ -1005,17 +1009,17 @@ namespace SecureWiki
 
 
         // Show popup window alerting the user about information. User can click confirm or cancel to exit
-        public MessageBox.MessageBoxResult ShowMessageBox(string title, string content,
-            MessageBox.MessageBoxButtons buttons = MessageBox.MessageBoxButtons.OkCancel)
+        public static MessageBox.Result ShowMessageBox(string title, string content,
+            MessageBox.Buttons buttons = MessageBox.Buttons.OkCancel)
         {
             // Invoke UI thread with highest priority
             var output = Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                MessageBox.MessageBoxResult result = MessageBox.MessageBoxResult.No;
+                var result = MessageBox.Result.No;
                 if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime
                     desktop)
                 {
-                    result = await MessageBox.Show(desktop.MainWindow, content, title,
+                    result = await MessageBox.ShowMessageBox(content, title,
                         buttons);
                 }
 
