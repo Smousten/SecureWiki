@@ -16,4 +16,8 @@
       <ProjectReference Include="..\Avalonia.NETCoreMVVMApp\SecureWiki.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="TestData\RevisionCache" />
+    </ItemGroup>
+
 </Project>
