@@ -407,9 +407,9 @@ namespace SecureWiki.MediaWiki
                         rev.content = token.SelectToken("slots.main.content")?.ToString();
 
                         revision = rev;
-                        if (revision.content != null)
-                            Console.WriteLine("Length of revision content, first 20 chars: {0}, {1}",
-                                revision.content.Length, revision.content.Substring(0, 20));
+                        // if (revision.content != null)
+                        //     Console.WriteLine("Length of revision content, first 20 chars: {0}, {1}",
+                        //         revision.content.Length, revision.content.Substring(0, 20));
                     }
 
                     //Console.WriteLine("revCount: " + revCount);

@@ -2,10 +2,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:ViewModels="clr-namespace:SecureWiki.ViewModels"
-        xmlns:Models="clr-namespace:SecureWiki.Model"
+        xmlns:viewModels="clr-namespace:SecureWiki.ViewModels"
+        xmlns:models="clr-namespace:SecureWiki.Model"
         xmlns:secureWiki="clr-namespace:SecureWiki"
-        xmlns:Utilities="clr-namespace:SecureWiki.Utilities"
+        xmlns:utilities="clr-namespace:SecureWiki.Utilities"
         xmlns:mediaWiki="clr-namespace:SecureWiki.MediaWiki"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="SecureWiki.Views.MainWindow"
@@ -19,9 +19,9 @@
     </Window.DataContext>
     -->
     <Window.Resources>
-        <Utilities:FillerTextBlockWidthConverterMulti x:Key="WidthConverterMulti" />
-        <Utilities:TreeViewItemColourConverter x:Key="TreeViewItemColourConverter" />
-        <DataTemplate x:Key="LoggerEntryTemplate" DataType="Utilities:LoggerEntry">
+        <utilities:FillerTextBlockWidthConverterMulti x:Key="WidthConverterMulti" />
+        <utilities:TreeViewItemColourConverter x:Key="TreeViewItemColourConverter" />
+        <DataTemplate x:Key="LoggerEntryTemplate" DataType="utilities:LoggerEntry">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -81,7 +81,7 @@
                                        TextAlignment="Center" />
                             <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding ShareContacts, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedShareContacts}">
                                 <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="Utilities:Contact">
+                                    <DataTemplate DataType="utilities:Contact">
                                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
                                             <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock>
                                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" />
@@ -132,7 +132,7 @@
                                        TextAlignment="Left" />
                             <ListBox Grid.Row="2" Grid.Column="0" Items="{Binding ExportContactsOwn, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedExportContactsOwn}">
                                 <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="Utilities:Contact">
+                                    <DataTemplate DataType="utilities:Contact">
                                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
                                             <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock>
                                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" />
@@ -147,7 +147,7 @@
                                        TextAlignment="Left" />
                             <ListBox Grid.Row="4" Grid.Column="0" Items="{Binding ExportContactsOther, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedExportContactsOther}">
                                 <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="Utilities:Contact">
+                                    <DataTemplate DataType="utilities:Contact">
                                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
                                             <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock>
                                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" />
@@ -201,7 +201,7 @@
             <StackPanel Orientation="Vertical">
                 <TreeView Items="{Binding rootKeyringCollection, Mode=TwoWay}" Name="TreeView1">
                     <TreeView.DataTemplates>
-                        <TreeDataTemplate DataType="Models:RootKeyring" ItemsSource="{Binding combinedList}">
+                        <TreeDataTemplate DataType="models:RootKeyring" ItemsSource="{Binding combinedList}">
                             <StackPanel Orientation="Horizontal">
                                 <!--IsChecked CheckBox-->
                                 <CheckBox IsChecked="{Binding isChecked}" MinWidth="20" Name="CheckBox"
@@ -216,7 +216,7 @@
                                 </Border>
                             </StackPanel>
                         </TreeDataTemplate>
-                        <TreeDataTemplate DataType="Models:Keyring" ItemsSource="{Binding combinedList}">
+                        <TreeDataTemplate DataType="models:Keyring" ItemsSource="{Binding combinedList}">
                             <StackPanel Orientation="Horizontal">
                                 <!--IsChecked CheckBox-->
                                 <CheckBox IsChecked="{Binding isChecked}" MinWidth="20" Name="CheckBox"
@@ -230,7 +230,7 @@
                                 </Border>
                             </StackPanel>
                         </TreeDataTemplate>
-                        <DataTemplate DataType="Models:DataFile">
+                        <DataTemplate DataType="models:DataFile">
                             <DockPanel LastChildFill="False" Name="DockPanel_DataFileEntry"
                                        MaxWidth="{Binding Bounds.Width, ElementName=ScrollViewerTreeView}">
                                 <!--IsChecked CheckBox-->
@@ -290,7 +290,7 @@
             <ContentControl Content="{Binding selectedFile, Mode=TwoWay}" Width="300" DockPanel.Dock="Top"
                             IsVisible="{Binding revisions, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <ContentControl.ContentTemplate>
-                    <DataTemplate DataType="Models:DataFile">
+                    <DataTemplate DataType="models:DataFile">
                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0" FontSize="20">Filename: </TextBlock>
                             <TextBlock Grid.Row="0" Grid.Column="1" FontSize="20" Text="{Binding filename}" />
@@ -326,7 +326,7 @@
                             
                             <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding RevokeContacts, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedRevokeContacts}">
                                 <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="Utilities:Contact">
+                                    <DataTemplate DataType="utilities:Contact">
                                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
                                             <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock>
                                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" />

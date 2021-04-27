@@ -148,21 +148,21 @@ namespace SecureWiki.Cryptography
         }
 
         // Returns signed plaintext using private key stored in datafile object
-        public static byte[] SignData(byte[] key, byte[] plainText)
+        public static byte[] SignData(byte[] key, byte[] data)
         {
             RSACryptoServiceProvider rsa = new();
             rsa.ImportRSAPrivateKey(key, out _);
-            return rsa.SignData(plainText, SHA256.Create());
+            return rsa.SignData(data, SHA256.Create());
         }
 
         // Verify the signature from signedData hash, plaintext and public key stored in datafile object
-        public static bool VerifyData(byte[] key, byte[] plainText, byte[] signedData)
+        public static bool VerifyData(byte[] key, byte[] data, byte[] signedData)
         {
             try
             {
                 RSACryptoServiceProvider rsa = new();
                 rsa.ImportRSAPublicKey(key, out _);
-                return rsa.VerifyData(plainText, SHA256.Create(), signedData);
+                return rsa.VerifyData(data, SHA256.Create(), signedData);
             }
             catch (CryptographicException e)
             {

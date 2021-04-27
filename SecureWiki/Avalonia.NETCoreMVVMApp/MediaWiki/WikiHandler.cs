@@ -110,17 +110,21 @@ namespace SecureWiki.MediaWiki
             // Find latest key in data file key list
             var key = dataFile.keyList.Last();
 
-            // Sign hash value of plain text
-            var signature = Crypto.SignData(key.PrivateKey!, plainText);
-
-            // Encrypt text and signature using key from key list
-            var encryptedContent = EncryptTextAndSignature(plainText, signature, key);
+            // Encrypt text using key from key list
+            var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey, key.IV);
             if (encryptedContent == null) return false;
+
+            // Sign hash value of cipher text
+            var signature = Crypto.SignData(key.PrivateKey!, encryptedContent);
+
+            // Combine encrypted content and signature, then convert to string
+            var uploadContentBytes = ByteArrayCombiner.Combine(encryptedContent, signature);
+            var uploadContentText = Convert.ToBase64String(uploadContentBytes);
 
             // Upload encrypted content
             MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
                 dataFile.pageName);
-            var httpResponse = uploadNewRevision.UploadContent(encryptedContent);
+            var httpResponse = uploadNewRevision.UploadContent(uploadContentText);
             _mwo.editToken ??= uploadNewRevision.editToken;
 
             // Check if upload was successful
@@ -169,25 +173,22 @@ namespace SecureWiki.MediaWiki
                     new(_mwo, dataFile.pageName, revid);
                 var pageContent = getPageContent.GetContent();
 
-                var decryptedBytes = DecryptPageContent(pageContent, key);
-
-                // If decryption fails, continue
-                if (decryptedBytes == null)
+                // Split downloaded page content into cipher text and signature
+                var splitPageContent = SplitPageContent(pageContent);
+                if (splitPageContent == null) return null;
+                
+                // Verify data using public key, ciphertext and signature
+                if (Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes, splitPageContent.Value.signBytes))
                 {
-                    continue;
-                }
-
-                // Split decrypted content into plaintext and signature
-                var textBytes = decryptedBytes.Value.textBytes;
-                var signBytes = decryptedBytes.Value.signBytes;
-
-                // Return plaintext if verification succeeds
-                if (Crypto.VerifyData(key.PublicKey, textBytes, signBytes))
-                {
+                    var decryptedBytes = Crypto.Decrypt(splitPageContent.Value.cipherBytes, key.SymmKey, key.IV);
+                    if (decryptedBytes == null)
+                    {
+                        continue;
+                    }
                     _manager.WriteToLogger(
                         $"Signature of revision '{revid}' verified. This is the latest valid revision.",
-                        dataFile.filename, LoggerEntry.LogPriority.Normal);
-                    return textBytes;
+                        dataFile.filename);
+                    return decryptedBytes;
                 }
             }
 
@@ -234,23 +235,15 @@ namespace SecureWiki.MediaWiki
                 var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
                 return GetLatestValidRevision(dataFile, revisions);
             }
-
-            // Decrypt and verify content, return latest valid revision if this fails
+            
             try
             {
-                var decryptedBytes = DecryptPageContent(pageContent, key);
-                if (decryptedBytes == null)
-                {
-                    var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
-                    return GetLatestValidRevision(dataFile, revisions);
-                }
-
-                // Split decrypted page content into plaintext and signature
-                var textBytes = decryptedBytes.Value.textBytes;
-                var signBytes = decryptedBytes.Value.signBytes;
+                // Split downloaded page content into cipher text and signature
+                var splitPageContent = SplitPageContent(pageContent);
+                if (splitPageContent == null) return null;
                 
-                // Attempt to verify signature
-                if (!Crypto.VerifyData(key.PublicKey, textBytes, signBytes))
+                // Verify data using public key, ciphertext and signature
+                if (!Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes, splitPageContent.Value.signBytes))
                 {
                     _manager.WriteToLogger(
                         $"Verifying signature of revision '{revid}'failed. " +
@@ -260,7 +253,14 @@ namespace SecureWiki.MediaWiki
                     return GetLatestValidRevision(dataFile, revisions);
                 }
 
-                return !(textBytes.Length > 0) ? null : textBytes;
+                var decryptedBytes = Crypto.Decrypt(splitPageContent.Value.cipherBytes, key.SymmKey, key.IV);
+                if (decryptedBytes == null)
+                {
+                    var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
+                    return GetLatestValidRevision(dataFile, revisions);
+                }
+                
+                return !(decryptedBytes.Length > 0) ? null : decryptedBytes;
             }
             catch (FormatException e)
             {
@@ -305,6 +305,14 @@ namespace SecureWiki.MediaWiki
             var textBytes = decryptedBytes.Take(decryptedBytes.Length - 256).ToArray();
             var signBytes = decryptedBytes.Skip(decryptedBytes.Length - 256).ToArray();
             return (textBytes, signBytes);
+        }
+        
+        private (byte[] cipherBytes, byte[] signBytes)? SplitPageContent(string pageContent)
+        {
+            var pageContentBytes = Convert.FromBase64String(pageContent);
+            var cipherBytes = pageContentBytes.Take(pageContentBytes.Length - 256).ToArray();
+            var signBytes = pageContentBytes.Skip(pageContentBytes.Length - 256).ToArray();
+            return (cipherBytes, signBytes);
         }
 
         public List<List<string>>? DownloadFromInboxPages()
