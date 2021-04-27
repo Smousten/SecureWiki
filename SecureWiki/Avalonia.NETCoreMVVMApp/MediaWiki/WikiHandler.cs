@@ -169,9 +169,7 @@ namespace SecureWiki.MediaWiki
                 }
 
                 // Get page content from server
-                MediaWikiObjects.PageQuery.PageContent getPageContent =
-                    new(_mwo, dataFile.pageName, revid);
-                var pageContent = getPageContent.GetContent();
+                var pageContent = GetPageContent(dataFile.pageName, revid);
 
                 // Split downloaded page content into cipher text and signature
                 var splitPageContent = SplitPageContent(pageContent);
@@ -228,8 +226,7 @@ namespace SecureWiki.MediaWiki
             }
 
             // Get page content from server
-            MediaWikiObjects.PageQuery.PageContent getPageContent = new(_mwo, dataFile.pageName, revid);
-            var pageContent = getPageContent.GetContent();
+            var pageContent = GetPageContent(dataFile.pageName, revid);
             if (pageContent.Equals("")) 
             {
                 var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
@@ -269,44 +266,6 @@ namespace SecureWiki.MediaWiki
             }
         }
 
-        private string? EncryptTextAndSignature(byte[] plainText, byte[] signature, DataFileKey key)
-        {
-            // Combine plaintext and signature
-            byte[] rv = new byte[plainText.Length + signature.Length];
-            Buffer.BlockCopy(plainText, 0, rv, 0, plainText.Length);
-            Buffer.BlockCopy(signature, 0, rv, plainText.Length, signature.Length);
-
-            // Encrypt message
-            var encryptedBytes = Crypto.Encrypt(
-                rv, key.SymmKey, key.IV);
-            if (encryptedBytes == null)
-            {
-                Console.WriteLine("Failed encryption");
-                return null;
-            }
-
-            // Convert to string and return
-            var encryptedText = Convert.ToBase64String(encryptedBytes);
-            return encryptedText;
-        }
-
-        private (byte[] textBytes, byte[] signBytes)? DecryptPageContent(string pageContent, DataFileKey key)
-        {
-            var pageContentBytes = Convert.FromBase64String(pageContent);
-            var decryptedBytes = Crypto.Decrypt(pageContentBytes,
-                key.SymmKey, key.IV);
-
-            if (decryptedBytes == null)
-            {
-                Console.WriteLine("Decryption failed");
-                return null;
-            }
-
-            var textBytes = decryptedBytes.Take(decryptedBytes.Length - 256).ToArray();
-            var signBytes = decryptedBytes.Skip(decryptedBytes.Length - 256).ToArray();
-            return (textBytes, signBytes);
-        }
-        
         private (byte[] cipherBytes, byte[] signBytes)? SplitPageContent(string pageContent)
         {
             var pageContentBytes = Convert.FromBase64String(pageContent);
@@ -417,8 +376,7 @@ namespace SecureWiki.MediaWiki
                 }
 
                 // Get page content from server
-                MediaWikiObjects.PageQuery.PageContent getPageContent = new(_mwo, contact.PageTitle, revid.ToString());
-                var pageContent = getPageContent.GetContent();
+                var pageContent = GetPageContent(contact.PageTitle, revid.ToString());
 
                 if (pageContent.Equals(""))
                 {

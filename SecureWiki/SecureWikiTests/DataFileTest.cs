@@ -71,6 +71,10 @@ namespace SecureWikiTests
                 oldKey.RevisionEnd = "1";
             }
 
+            var newKey = new DataFileKey();
+            newKey.RevisionStart = "2";
+            newKey.RevisionEnd = "3";
+
             var result = _dataFile.IsValidRevisionID("0", 0);
             Assert.True(result);
         }
