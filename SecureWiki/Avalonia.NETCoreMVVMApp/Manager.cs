@@ -598,10 +598,11 @@ namespace SecureWiki
             }
         }
 
-
-        public byte[]? Download(string filename)
+        // Get content for the file specified. Checks if a specific revision has been requested, if not gets newest
+        // valid revision. If revision content is not in cache, it is fetched from the server through the WikiHandler
+        public byte[]? GetContent(string filename)
         {
-            logger.Add($"Attempting read file '{filename}'");
+            logger.Add($"Attempting to read file '{filename}'");
             string? revid = null;
             
             var dataFile = GetDataFile(filename, rootKeyring);

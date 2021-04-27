@@ -240,6 +240,25 @@ namespace SecureWiki.MediaWiki
                     return revisionList;
                 }
 
+                public List<Revision> GetAllRevisionBefore(string revid)
+                {
+                    List<Revision> output = new();
+                    List<Revision> reverseList = revisionList.ToList();
+                    reverseList.Reverse();
+
+                    // Get all revisions older than revid
+                    foreach (var item in reverseList)
+                    {
+                        if (item.revisionID == null || item.revisionID.Equals(revid)) break;
+                        output.Add(item);
+                    }
+
+                    // Put output list back in correct order
+                    output.Reverse();
+                    
+                    return output;
+                }
+
                 public void PrintAllRevisions()
                 {
                     foreach (var rev in revisionList)
@@ -312,17 +331,6 @@ namespace SecureWiki.MediaWiki
                     revID = revisionID;
                 }
 
-                // public PageContent(MediaWikiObjects source, string pageTitle) : base(source)
-                // {
-                //     this.pageTitle = pageTitle;
-                // }
-                
-                public PageContent(string pageTitle, HttpClient client)
-                {
-                    this.pageTitle = pageTitle;
-                    httpClient = client;
-                }
-
                 public string GetContent()
                 {
                     PostRequest();
@@ -336,7 +344,7 @@ namespace SecureWiki.MediaWiki
                     {
                         throw new NotLoggedInException("PostRequest()");
                     }
-                    // URL does not allow + character, instead encode as hexadecimal
+                    // URL does not allow '+' character, instead encode as hexadecimal
                     var updatedPageTitle = pageTitle.Replace("+", "%2B");
 
                     string query = "?action=query";
@@ -351,7 +359,7 @@ namespace SecureWiki.MediaWiki
 
                 public override string BuildQuery()
                 {
-                    // URL does not allow + character, instead encode as hexadecimal
+                    // URL does not allow '+' character, instead encode as hexadecimal
                     var updatedPageTitle = pageTitle.Replace("+", "%2B");
                     
                     string queryBody = "?action=query";
@@ -362,15 +370,13 @@ namespace SecureWiki.MediaWiki
                     queryBody += "&rvprop=ids|flags|timestamp|user|size|content";
                     queryBody += "&formatversion=2";
                     queryBody += "&format=json";
-                    if (!revID.Equals("-1"))
+                    if (!revID.Equals("-1")) // If specific revision has been requested
                     {
                         queryBody += "&rvstartid=" + revID;
                         queryBody += "&rvendid=" + revID;
                     }
-
-                    string query = queryBody;
-
-                    return query;
+                    
+                    return queryBody;
                 }
 
                 public override void ParseJObject(JObject inputJObject)

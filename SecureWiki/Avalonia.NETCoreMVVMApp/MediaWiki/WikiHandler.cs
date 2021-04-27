@@ -206,24 +206,22 @@ namespace SecureWiki.MediaWiki
         // If revid is null, newest revision on server is starting point
         public byte[]? Download(DataFile dataFile, string? revid = null)
         {
-            
-            // Get id of newest revision, or set to default
+            // If revid is not set, get id of newest revision, or set to default
             revid ??= GetLatestRevisionID(dataFile.pageName) ?? "-1";
 
-            DataFileKey? key = null;
-            // Find key in data file key list with correct start revision ID and end revision ID
-            for (var i = 0; i < dataFile.keyList.Count; i++)
-            {
-                if (dataFile.IsValidRevisionID(revid, i))
-                {
-                    key = dataFile.keyList[i];
-                    break;
-                }
-            }
-
+            // If specific revision is requested, find key in data file key list with correct start revision ID and end revision ID.
+            // Otherwise get latest key
+            var key = revid.Equals("-1")
+                ? dataFile.keyList.LastOrDefault()
+                : dataFile.keyList.Where((t, i)
+                    => dataFile.IsValidRevisionID(revid, i)).FirstOrDefault();
+            
             // If no such key is found, return latest valid revision
             if (key == null)
             {
+                _manager.WriteToLogger(
+                    $"Could not find DataFileKey matching requested revision id '{revid}'. Attempting to get latest valid revision.",
+                    dataFile.filename, LoggerEntry.LogPriority.Warning);
                 var revisions = GetAllRevisions(dataFile.pageName).revisionList;
                 return GetLatestValidRevision(dataFile, revisions);
             }
@@ -231,10 +229,10 @@ namespace SecureWiki.MediaWiki
             // Get page content from server
             MediaWikiObjects.PageQuery.PageContent getPageContent = new(_mwo, dataFile.pageName, revid);
             var pageContent = getPageContent.GetContent();
-
-            if (pageContent.Equals(""))
+            if (pageContent.Equals("")) 
             {
-                return null;
+                var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
+                return GetLatestValidRevision(dataFile, revisions);
             }
 
             // Decrypt and verify content, return latest valid revision if this fails
@@ -243,29 +241,26 @@ namespace SecureWiki.MediaWiki
                 var decryptedBytes = DecryptPageContent(pageContent, key);
                 if (decryptedBytes == null)
                 {
-                    var revisions = GetAllRevisions(dataFile.pageName).revisionList;
+                    var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
                     return GetLatestValidRevision(dataFile, revisions);
                 }
 
                 // Split decrypted page content into plaintext and signature
                 var textBytes = decryptedBytes.Value.textBytes;
                 var signBytes = decryptedBytes.Value.signBytes;
+                
+                // Attempt to verify signature
                 if (!Crypto.VerifyData(key.PublicKey, textBytes, signBytes))
                 {
-                    Console.WriteLine("Verifying failed...");
                     _manager.WriteToLogger(
-                        $"Verifying signature of revision '{revid}'failed. Attempting to get latest valid revision.",
+                        $"Verifying signature of revision '{revid}'failed. " +
+                        $"Attempting to get latest valid revision older than requested revision.",
                         dataFile.filename, LoggerEntry.LogPriority.Warning);
-                    var revisions = GetAllRevisions(dataFile.pageName).revisionList;
+                    var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
                     return GetLatestValidRevision(dataFile, revisions);
                 }
 
-                if (!(textBytes.Length > 0))
-                {
-                    return null;
-                }
-
-                return textBytes;
+                return !(textBytes.Length > 0) ? null : textBytes;
             }
             catch (FormatException e)
             {
@@ -385,6 +380,7 @@ namespace SecureWiki.MediaWiki
 
         private List<string>? GetInboxPageContent(OwnContact contact)
         {
+            Console.WriteLine("Fetching updates from inbox page belonging to contact '{0}'.", contact.Nickname);
             List<string> encryptedContentList = new();
 
             // Get list of all revisions on 
@@ -409,7 +405,6 @@ namespace SecureWiki.MediaWiki
                 // If content has previously been parsed
                 if (revid <= contact.revidCounter)
                 {
-                    Console.WriteLine("revid too low, breaking");
                     break;
                 }
 

@@ -160,7 +160,7 @@ namespace SecureWiki.FuseCommunication
                   && filepath.Equals(previousFilepath)) 
                 || plaintext == null)
             {
-                plaintext = _manager.Download(filename) ?? Encoding.ASCII.GetBytes("Empty file.");
+                plaintext = _manager.GetContent(filename) ?? Encoding.ASCII.GetBytes("Empty file.");
                 previousFilename = filename;
                 previousFilepath = filepath;
             }
