@@ -11,7 +11,7 @@
         x:Class="SecureWiki.Views.MainWindow"
         Opened="MainWindow_Shown"
         Icon="/Assets/avalonia-logo.ico"
-        Title="Please find a better name"
+        Title="SecureWiki"
         Padding="10">
     <!--
     <Window.DataContext>

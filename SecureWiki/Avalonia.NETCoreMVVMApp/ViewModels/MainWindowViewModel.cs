@@ -1,17 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Linq;
-using Avalonia.Collections;
-using JetBrains.Annotations;
 using ReactiveUI;
-using SecureWiki.Cryptography;
 using SecureWiki.MediaWiki;
 using SecureWiki.Model;
 using SecureWiki.Utilities;
-using SecureWiki.Views;
 
 namespace SecureWiki.ViewModels
 {

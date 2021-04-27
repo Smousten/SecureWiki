@@ -26,7 +26,7 @@ namespace SecureWiki.Cryptography
             Directory.CreateDirectory(_dirpath);
         }
 
-        public void AddEntry(string pageTitle, Revision rev)
+        public void AddEntry(string pageTitle, string revid, string content)
         {
             // Get correct CacheEntry, or create a new if one isn't found
             CacheEntry ce;
@@ -41,14 +41,14 @@ namespace SecureWiki.Cryptography
             }
 
             // Verify properties relevant to new CacheEntry
-            if (rev.revisionID == null || rev.content == null)
+            if (revid == null || content == null)
             {
                 Console.WriteLine("CacheManager:- AddEntry: input revision has null properties, " +
-                                  "revisionID='{0}', content='{1}'", rev.revisionID, rev.content);
+                                  "revisionID='{0}', content='{1}'", revid, content);
                 return;
             }
             
-            ce.AddEntry(rev.revisionID, rev.content);
+            ce.AddEntry(revid, content);
         }
 
         // Return path to the latest entry in the cache (for that page title)

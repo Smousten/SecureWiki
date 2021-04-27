@@ -87,6 +87,10 @@ namespace SecureWiki
 
             // GUI can now proceed
             MainWindow.ManagerReadyEvent.Set();
+
+
+            // var res = ShowMessageBox("some very loooooooooooooooooooooooooong title", " and some very loooooooooooooooooooooooooong title", MessageBox.Buttons.YesNoCancel);
+            // Console.WriteLine(res.ToString());
         }
 
         public void PrintTestMethod(string input)
@@ -363,7 +367,7 @@ namespace SecureWiki
             CredentialsPopup.CredentialsResult credentialsResult =
                 ShowPopupEnterCredentials(title, content, savedUsername);
 
-            if (credentialsResult.ButtonResult == CredentialsPopup.PopupButtonResult.Cancel ||
+            if (credentialsResult.ButtonResult == CredentialsPopup.Result.Cancel ||
                 credentialsResult.Username.Equals("") || credentialsResult.Password.Equals(""))
             {
                 return null;
@@ -577,7 +581,7 @@ namespace SecureWiki
                     string loggerMsg = "Attempting to upload file to server '" + df!.serverLink + "'";
                     logger.Add(loggerMsg, filepath);
 
-                    wikiHandler?.Upload(df!, filepath);
+                    wikiHandler.Upload(df!, filepath);
                 }
                 else
                 {
@@ -594,19 +598,50 @@ namespace SecureWiki
             }
         }
 
-
-        public byte[]? Download(string filename)
+        // Get content for the file specified. Checks if a specific revision has been requested, if not gets newest
+        // valid revision. If revision content is not in cache, it is fetched from the server through the WikiHandler
+        public byte[]? GetContent(string filename)
         {
-            logger.Add($"Attempting read file '{filename}'");
+            logger.Add($"Attempting to read file '{filename}'");
+            string? revid = null;
+            
             var dataFile = GetDataFile(filename, rootKeyring);
-
             if (dataFile == null) return null;
+            
+            // Check if any specific revision has been requested
+            if (RequestedRevision.ContainsKey((dataFile.pageName, dataFile.serverLink)))
+            {
+                revid = RequestedRevision[(dataFile.pageName, dataFile.serverLink)];
+                
+                // Check if content already is in cache
+                var cacheResult = AttemptReadFileFromCache(dataFile.pageName, revid);
+                if (cacheResult != null) return Convert.FromBase64String(cacheResult);
+            }
 
+            // Get valid WikiHandler or return null
             var wikiHandler = GetWikiHandler(dataFile.serverLink);
+            if (wikiHandler == null) return null;
 
-            return RequestedRevision.ContainsKey((dataFile.pageName, dataFile.serverLink))
-                ? wikiHandler?.Download(dataFile, RequestedRevision[(dataFile.pageName, dataFile.serverLink)])
-                : wikiHandler?.Download(dataFile);
+            // If no specific revid has been requested, get newest revision id, if any exists
+            revid ??= wikiHandler.GetLatestRevisionID(dataFile.pageName);
+
+            // Check if content already is in cache
+            if (revid != null)
+            {
+                var cacheResult = AttemptReadFileFromCache(dataFile.pageName, revid);
+                if (cacheResult != null) return Convert.FromBase64String(cacheResult);
+            } 
+            
+            // Download page content from server
+            var textBytes = wikiHandler.Download(dataFile, revid);
+
+            // Add plaintext to cache
+            if (textBytes != null && revid != null)
+            {
+                AddEntryToCache(dataFile.pageName, revid, Convert.ToBase64String(textBytes)); 
+            }
+
+            return textBytes;
         }
 
         public void LoginToMediaWiki(string username, string password)
@@ -697,10 +732,9 @@ namespace SecureWiki
             return File.ReadAllText(cacheResult);
         }
 
-        public void AddEntryToCache(string pageTitle, Revision rev)
+        public void AddEntryToCache(string pageTitle, string revid, string content)
         {
-            Console.WriteLine("AddEntryToCache:- cacheManager.AddEntry('{0}', '{1}')", pageTitle, rev);
-            cacheManager.AddEntry(pageTitle, rev);
+            cacheManager.AddEntry(pageTitle, revid, content);
         }
 
         public void SerializeCacheManagerAndWriteToFile(string path)
@@ -1005,17 +1039,17 @@ namespace SecureWiki
 
 
         // Show popup window alerting the user about information. User can click confirm or cancel to exit
-        public MessageBox.MessageBoxResult ShowMessageBox(string title, string content,
-            MessageBox.MessageBoxButtons buttons = MessageBox.MessageBoxButtons.OkCancel)
+        public static MessageBox.Result ShowMessageBox(string title, string content,
+            MessageBox.Buttons buttons = MessageBox.Buttons.OkCancel)
         {
             // Invoke UI thread with highest priority
             var output = Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                MessageBox.MessageBoxResult result = MessageBox.MessageBoxResult.No;
+                var result = MessageBox.Result.No;
                 if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime
                     desktop)
                 {
-                    result = await MessageBox.Show(desktop.MainWindow, content, title,
+                    result = await MessageBox.ShowMessageBox(content, title,
                         buttons);
                 }
 

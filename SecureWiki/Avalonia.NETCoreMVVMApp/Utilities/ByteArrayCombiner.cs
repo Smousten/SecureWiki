@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SecureWiki.Utilities
 {
@@ -10,6 +12,23 @@ namespace SecureWiki.Utilities
             byte[] output = new byte[a.Length + b.Length];
             Buffer.BlockCopy(a, 0, output, 0, a.Length);
             Buffer.BlockCopy(b, 0, output, a.Length, b.Length);
+
+            return output;
+        }
+
+        // Combine a list of byte arrays to one byte array
+        public static byte[] Combine(List<byte[]> list)
+        {
+            var len = list.Sum(item => item.Length);
+            byte[] output = new byte[len];
+
+            var dstOffset = 0;
+            
+            foreach (var a in list)
+            {
+                Buffer.BlockCopy(a, 0, output, dstOffset, a.Length);
+                dstOffset += a.Length;
+            }
 
             return output;
         }

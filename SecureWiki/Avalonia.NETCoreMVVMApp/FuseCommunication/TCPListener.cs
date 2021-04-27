@@ -4,21 +4,32 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using SecureWiki.Utilities;
 
 namespace SecureWiki.FuseCommunication
 {
     public class TCPListener : IFuseInteraction
     {
+        private enum Operation
+        {
+            None,
+            Read,
+            Write,
+            Create,
+            Rename,
+            MakeDir
+        }
+        
+        
         private readonly Int32 _port;
         private readonly IPAddress _localAddr;
         private readonly Manager _manager;
         private NetworkStream? _stream;
         private Dictionary<string, List<string>> _queue = new();
-        private bool lastOperationWasRead;
-        private bool lastOperationWasWrite;
+        private Operation lastOperation = Operation.None;
         private string previousFilename = "";
         private string previousFilepath = "";
-        private byte[]? decryptedText;
+        private byte[]? plaintext;
 
         public TCPListener(int port, string localAddr, Manager manager)
         {
@@ -104,27 +115,24 @@ namespace SecureWiki.FuseCommunication
             {
                 case "create":
                     Create(filename, filepath);
-                    lastOperationWasRead = false;
-                    lastOperationWasWrite = false;
+                    lastOperation = Operation.Create;
                     break;
                 case "read":
-                    Read(filename, op[1]);
-                    lastOperationWasWrite = false;
+                    Read(filename, filepath);
+                    lastOperation = Operation.Read;
                     break;
                 case "write":
                     Write(filename, filepath);
-                    lastOperationWasRead = false;
+                    lastOperation = Operation.Write;
                     break;
                 case "rename":
                     var renamePathSplit = op[1].Split("%", 2);
                     Rename(filename, renamePathSplit);
-                    lastOperationWasRead = false;
-                    lastOperationWasWrite = false;
+                    lastOperation = Operation.Rename;
                     break;
                 case "mkdir":
                     Mkdir(filename, filepath);
-                    lastOperationWasRead = false;
-                    lastOperationWasWrite = false;
+                    lastOperation = Operation.MakeDir;
                     break;
             }
         }
@@ -143,31 +151,32 @@ namespace SecureWiki.FuseCommunication
         // Should return byte[] stored on server or in cache
         public void Read(string filename, string filepath)
         {
-            if (RealFileName(filename))
+            // if file is goutputstream or trash
+            if (!RealFileName(filename)) return;
+            
+            // If the previous operation was exactly the same, reuse decrypted text
+            if (!(lastOperation == Operation.Read 
+                  && filename.Equals(previousFilename) 
+                  && filepath.Equals(previousFilepath)) 
+                || plaintext == null)
             {
-                // If the previous operation was not exactly the same, otherwise reuse decrypted text
-                if (!(lastOperationWasRead && filename.Equals(previousFilename) && filepath.Equals(previousFilepath)) || 
-                    decryptedText == null)
-                {
-                    decryptedText = _manager.Download(filename) ?? Encoding.ASCII.GetBytes("Empty file.");
-                    lastOperationWasRead = true;
-                    previousFilename = filename;
-                    previousFilepath = filepath;
-                }
-                
-                byte[] byData = decryptedText;
-                byte[] byDataLen = BitConverter.GetBytes(byData.Length);
-                byte[] msgPath = Encoding.ASCII.GetBytes(filepath);
-                byte[] msgPathLen = BitConverter.GetBytes(msgPath.Length);
-
-                byte[] rv = new byte[msgPathLen.Length + byDataLen.Length + msgPath.Length + byData.Length];
-                Buffer.BlockCopy(msgPathLen, 0, rv, 0, msgPathLen.Length);
-                Buffer.BlockCopy(byDataLen, 0, rv, msgPathLen.Length, byDataLen.Length);
-                Buffer.BlockCopy(msgPath, 0, rv, msgPathLen.Length + byDataLen.Length, msgPath.Length);
-                Buffer.BlockCopy(byData, 0, rv, msgPathLen.Length + byDataLen.Length + msgPath.Length, byData.Length);
-                _stream?.Write(rv);
-                lastOperationWasRead = true;
+                plaintext = _manager.GetContent(filename) ?? Encoding.ASCII.GetBytes("Empty file.");
+                previousFilename = filename;
+                previousFilepath = filepath;
             }
+                
+            // Get message data
+            byte[] content = plaintext;
+            byte[] contentLen = BitConverter.GetBytes(content.Length);
+            byte[] msgPath = Encoding.ASCII.GetBytes(filepath);
+            byte[] msgPathLen = BitConverter.GetBytes(msgPath.Length);
+
+            // Efficiently copy message data to new array and write to socket
+            var dataList = new List<byte[]> {msgPathLen, contentLen, msgPath, content};
+            var rv = ByteArrayCombiner.Combine(dataList);
+            _stream?.Write(rv);
+                
+            lastOperation = Operation.Read;
         }
         
         // Received write operation from FUSE
@@ -175,13 +184,14 @@ namespace SecureWiki.FuseCommunication
         public void Write(string filename, string filepath)
         {
             if (RealFileName(filename) && 
-                !(lastOperationWasWrite && filename.Equals(previousFilename) && filepath.Equals(previousFilepath)))
+                !(lastOperation == Operation.Write && filename.Equals(previousFilename) && filepath.Equals(previousFilepath)))
             {
-                lastOperationWasWrite = true;
                 previousFilename = filename;
                 previousFilepath = filepath;
                 _manager.UploadNewVersion(filename, filepath);
             }
+
+            lastOperation = Operation.Write;
         }
 
         // Received rename operation from FUSE
@@ -230,8 +240,7 @@ namespace SecureWiki.FuseCommunication
         // Reset queue
         public void ResetQueue()
         {
-            lastOperationWasRead = false;
-            lastOperationWasWrite = false;
+            lastOperation = Operation.None;
         }
     }
 }
