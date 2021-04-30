@@ -13,7 +13,7 @@ namespace SecureWiki.MediaWiki
         public byte[]? GetLatestValidRevision(DataFile dataFile, List<Revision> revisions);
 
         // Returns all revisions stored on the server with the given pageTitle
-        public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle);
+        public MediaWikiObject.PageQuery.AllRevisions GetAllRevisions(string pageTitle);
         
         // Upload byte[] stored in file to server
         public bool Upload(DataFile dataFile, string filepath);

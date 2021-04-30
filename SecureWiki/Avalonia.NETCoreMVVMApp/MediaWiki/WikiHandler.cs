@@ -14,7 +14,7 @@ namespace SecureWiki.MediaWiki
     public class WikiHandler : IServerInteraction
     {
         private readonly Manager _manager;
-        private readonly MediaWikiObjects _mwo;
+        private readonly MediaWikiObject _mwo;
 
         public readonly bool LoggedIn;
         public string url;
@@ -22,7 +22,7 @@ namespace SecureWiki.MediaWiki
         public WikiHandler(string username, string password, HttpClient inputClient, Manager manager,
             string url = "http://localhost/mediawiki/api.php")
         {
-            _mwo = new MediaWikiObjects(inputClient, username, password, url);
+            _mwo = new MediaWikiObject(inputClient, username, password, url);
             _manager = manager;
             LoggedIn = _mwo.loggedIn;
             this.url = url;
@@ -38,43 +38,43 @@ namespace SecureWiki.MediaWiki
             return srcDir;
         }
 
-        public MediaWikiObjects.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
+        public MediaWikiObject.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
         {
-            MediaWikiObjects.PageQuery.AllRevisions allRevisions = new(_mwo, pageTitle);
+            MediaWikiObject.PageQuery.AllRevisions allRevisions = new(_mwo, pageTitle);
             allRevisions.GetAllRevisions();
             return allRevisions;
         }
 
         public Revision GetLatestRevision(DataFile dataFile)
         {
-            MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(_mwo, dataFile.pageName);
+            MediaWikiObject.PageQuery.LatestRevision latestRevision = new(_mwo, dataFile.pageName);
             latestRevision.GetLatestRevision();
             return latestRevision.revision;
         }
 
         public string GetPageContent(string pageTitle, string revID)
         {
-            MediaWikiObjects.PageQuery.PageContent pc = new(_mwo, pageTitle, revID);
+            MediaWikiObject.PageQuery.PageContent pc = new(_mwo, pageTitle, revID);
             string output = pc.GetContent();
             return output;
         }
 
         public bool PageAlreadyExists(string pageTitle, string revID)
         {
-            MediaWikiObjects.PageQuery.PageContent pc = new(_mwo, pageTitle, revID);
+            MediaWikiObject.PageQuery.PageContent pc = new(_mwo, pageTitle, revID);
             return pc.PageAlreadyExists();
         }
 
         public void UndoRevisionsByID(string pageTitle, string startID, string endID)
         {
-            MediaWikiObjects.PageAction.UndoRevisions undoRevisions =
+            MediaWikiObject.PageAction.UndoRevisions undoRevisions =
                 new(_mwo, pageTitle);
             undoRevisions.UndoRevisionsByID(startID, endID);
         }
 
         public void DeleteRevisionsByID(string pageTitle, string IDs)
         {
-            MediaWikiObjects.PageAction.DeleteRevisions deleteRevisions =
+            MediaWikiObject.PageAction.DeleteRevisions deleteRevisions =
                 new(_mwo, pageTitle);
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
@@ -128,7 +128,7 @@ namespace SecureWiki.MediaWiki
             var uploadContentText = Convert.ToBase64String(uploadContentBytes);
 
             // Upload encrypted content
-            MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
+            MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
                 dataFile.pageName);
             var httpResponse = uploadNewRevision.UploadContent(uploadContentText);
             _mwo.editToken ??= uploadNewRevision.editToken;
@@ -206,7 +206,7 @@ namespace SecureWiki.MediaWiki
         // Returns the id of the newest revision of a page on the server, or null if no revision is found
         public string? GetLatestRevisionID(string pageName)
         {
-            MediaWikiObjects.PageQuery.LatestRevision latestRevision = new(_mwo, pageName);
+            MediaWikiObject.PageQuery.LatestRevision latestRevision = new(_mwo, pageName);
             latestRevision.GetLatestRevision();
             return latestRevision.revision.revisionID;
         }
@@ -436,7 +436,7 @@ namespace SecureWiki.MediaWiki
             var pageContent = Convert.ToBase64String(pageContentBytes);
 
             // Upload encrypted content
-            MediaWikiObjects.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
+            MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
                 pageTitle);
             var httpResponse = uploadNewRevision.UploadContent(pageContent);
             _mwo.editToken ??= uploadNewRevision.editToken;

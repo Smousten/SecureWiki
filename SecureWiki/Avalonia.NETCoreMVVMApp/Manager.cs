@@ -75,14 +75,14 @@ namespace SecureWiki
 
             TCPListenerThread = new Thread(tcpListener.RunListener) {IsBackground = true};
             TCPListenerThread.Start();
-            logger.Add("Starting up TCPListener", null);
+            WriteToLogger("Starting up TCPListener", null);
 
             Thread.Sleep(1000);
 
             Thread fuseThread = new(Program.RunFuse) {IsBackground = true};
             fuseThread.Start();
 
-            logger.Add("Starting up FUSE", null);
+            WriteToLogger("Starting up FUSE", null);
             // TestUpload();
 
             // GUI can now proceed
@@ -241,7 +241,7 @@ namespace SecureWiki
             {
                 if (PageAlreadyExists(pageTitle, "-1", serverLink))
                 {
-                    logger.Add($"Auto generated page title ({pageTitle}) already exists on server. Retrying...");
+                    WriteToLogger($"Auto generated page title ({pageTitle}) already exists on server. Retrying...");
                     pageTitle = RandomString.GenerateRandomAlphanumericString();
                 }
                 else
@@ -507,7 +507,7 @@ namespace SecureWiki
             
         }
 
-        public MediaWikiObjects.PageQuery.AllRevisions? GetAllRevisions(string pageTitle, string url)
+        public MediaWikiObject.PageQuery.AllRevisions? GetAllRevisions(string pageTitle, string url)
         {
             var wikiHandler = GetWikiHandler(url);
             return wikiHandler?.GetAllRevisions(pageTitle);
@@ -530,9 +530,7 @@ namespace SecureWiki
         public string? GetPageContent(string pageTitle, string revID, string url)
         {
             // Write to logger
-            string loggerMsg =
-                $"Attempting to read file from page title '{pageTitle}', revision {revID} on server '{url}'";
-            logger.Add(loggerMsg);
+            WriteToLogger($"Attempting to read file from page title '{pageTitle}', revision {revID} on server '{url}'");
 
             var wikiHandler = GetWikiHandler(url);
             var output = wikiHandler?.GetPageContent(pageTitle, revID);
@@ -540,9 +538,10 @@ namespace SecureWiki
             // Write to logger if read fails
             if (output == null)
             {
-                logger.Add(wikiHandler == null
+                var loggerMsg = (wikiHandler == null
                     ? $"File read failed due to missing server credentials"
                     : $"Could not read file from server");
+                WriteToLogger(loggerMsg);
             }
 
             return output;
@@ -579,7 +578,7 @@ namespace SecureWiki
                 {
                     // Write to logger
                     string loggerMsg = "Attempting to upload file to server '" + df!.serverLink + "'";
-                    logger.Add(loggerMsg, filepath);
+                    WriteToLogger(loggerMsg, filepath);
 
                     wikiHandler.Upload(df!, filepath);
                 }
@@ -588,7 +587,7 @@ namespace SecureWiki
                     // Write to logger
                     string loggerMsg = $"File upload to server '{df!.serverLink}' " +
                                        $"failed due to missing server credentials";
-                    logger.Add(loggerMsg, null);
+                    WriteToLogger(loggerMsg, null);
                 }
             }
             else
@@ -602,7 +601,7 @@ namespace SecureWiki
         // valid revision. If revision content is not in cache, it is fetched from the server through the WikiHandler
         public byte[]? GetContent(string filename)
         {
-            logger.Add($"Attempting to read file '{filename}'");
+            WriteToLogger($"Attempting to read file '{filename}'", filename);
             string? revid = null;
             
             var dataFile = GetDataFile(filename, rootKeyring);
@@ -657,7 +656,7 @@ namespace SecureWiki
             {
                 if (PageAlreadyExists(pageTitle, "-1", configManager.DefaultServerLink))
                 {
-                    logger.Add($"Auto generated page title ({pageTitle}) already exists on server. Retrying...");
+                    WriteToLogger($"Auto generated page title ({pageTitle}) already exists on server. Retrying...");
                     pageTitle = RandomString.GenerateRandomAlphanumericString();
                 }
                 else
@@ -676,7 +675,7 @@ namespace SecureWiki
 
         public void RenameFile(string oldPath, string newPath)
         {
-            logger.Add($"Renaming '{oldPath}' to '{newPath}'.");
+            WriteToLogger($"Renaming '{oldPath}' to '{newPath}'.");
             _keyringManager.Rename(oldPath, newPath);
         }
 
@@ -694,14 +693,14 @@ namespace SecureWiki
         public void ExportKeyring()
         {
             // TODO: add export path
-            logger.Add("Exporting keyring");
+            WriteToLogger("Exporting keyring");
             _keyringManager.ExportRootKeyringBasedOnIsChecked();
         }
 
         public void ImportKeyring(string importPath)
         {
             Console.WriteLine("Manager:- ImportKeyring('{0}')", importPath);
-            logger.Add($"Importing keyring from '{importPath}'");
+            WriteToLogger($"Importing keyring from '{importPath}'");
             _keyringManager.ImportRootKeyring(importPath);
         }
 
@@ -828,7 +827,7 @@ namespace SecureWiki
         // will receive the new key in their inbox
         public void RevokeAccess(DataFile datafile, ObservableCollection<Contact> contacts)
         {
-            logger.Add($"Attempting to revoke access to file '{datafile.filename}'");
+            WriteToLogger($"Attempting to revoke access to file '{datafile.filename}'");
 
             var wikiHandler = GetWikiHandler(datafile.serverLink);
             var latestRevision = wikiHandler?.GetLatestRevision(datafile);
@@ -982,7 +981,7 @@ namespace SecureWiki
         public void ShareSelectedKeyring(List<Contact> contacts)
         {
             Console.WriteLine(contacts.Count);
-            logger.Add("Sharing specified parts of keyring");
+            WriteToLogger("Sharing specified parts of keyring");
 
             // create new keyring with all selected folder and files
             var keyringEntry = _keyringManager.CreateRootKeyringBasedOnIsChecked();
@@ -1023,7 +1022,7 @@ namespace SecureWiki
                 var keyringEntryString = JSONSerialization.SerializeObject(keyringEntryToExport);
 
                 var loggerMsg = $"Sharing {newDataFiles.Count} new files with contact '{contact.Nickname}'.";
-                logger.Add(loggerMsg);
+                WriteToLogger(loggerMsg);
 
                 var httpResponse = UploadToInboxPage(contact.ServerLink, contact.PageTitle,
                     keyringEntryString, contact.PublicKey);
