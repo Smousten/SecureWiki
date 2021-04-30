@@ -156,8 +156,8 @@ namespace SecureWikiTests
                 key.RevisionEnd = oldKey.RevisionEnd;
                 key.RevisionStart = oldKey.RevisionStart;
                 key.SymmKey = oldKey.SymmKey;
-                key.SignedPrivateKey = oldKey.SignedPrivateKey;
-                key.SignedPublicKey = oldKey.SignedPublicKey;
+                key.SignedWriteKey = oldKey.SignedWriteKey;
+                key.SignedReadKeys = oldKey.SignedReadKeys;
             }
             
             var newKey = new DataFileKey(_dataFile.ownerPrivateKey!);

@@ -131,8 +131,9 @@ namespace SecureWiki.Model
             {
                 if (ownerPublicKey == null || 
                     (key.PrivateKey != null && 
-                     !Crypto.VerifyData(ownerPublicKey, key.PrivateKey, key.SignedPrivateKey)) ||
-                    !Crypto.VerifyData(ownerPublicKey, key.PublicKey, key.SignedPublicKey))
+                     !Crypto.VerifyData(ownerPublicKey, key.PrivateKey, key.SignedWriteKey)) ||
+                    !Crypto.VerifyData(ownerPublicKey, 
+                        ByteArrayCombiner.Combine(key.SymmKey, key.PublicKey), key.SignedReadKeys))
                 {
                     return false;
                 }

@@ -14,9 +14,9 @@ namespace SecureWiki.Model
         [JsonProperty]
         public byte[] PublicKey { get; set; }
         [JsonProperty]
-        public byte[]? SignedPrivateKey { get; set; }
+        public byte[]? SignedWriteKey { get; set; }
         [JsonProperty]
-        public byte[] SignedPublicKey { get; set; }
+        public byte[] SignedReadKeys { get; set; }
         [JsonProperty]
         public string RevisionStart { get; set; }
         [JsonProperty]
@@ -37,19 +37,20 @@ namespace SecureWiki.Model
             RevisionEnd = "-1";
             
             // Sign private and public key with given owner private key
-            SignedPrivateKey = Crypto.SignData(ownerPrivateKey, PrivateKey!);
-            SignedPublicKey = Crypto.SignData(ownerPrivateKey, PublicKey);
+            SignedWriteKey = Crypto.SignData(ownerPrivateKey, PrivateKey!);
+            SignedReadKeys = Crypto.SignData(ownerPrivateKey, 
+                Utilities.ByteArrayCombiner.Combine(SymmKey,PublicKey));
         }
 
         public DataFileKey(byte[] symmKey, byte[] iv, 
-            byte[]? privateKey, byte[] publicKey, byte[]? signedPrivateKey, byte[] signedPublicKey,
+            byte[]? privateKey, byte[] publicKey, byte[]? signedWriteKey, byte[] signedReadKeys,
             string revisionStart, string revisionEnd)
         {
             SymmKey = symmKey;
             PrivateKey = privateKey;
             PublicKey = publicKey;
-            SignedPrivateKey = signedPrivateKey;
-            SignedPublicKey = signedPublicKey;
+            SignedWriteKey = signedWriteKey;
+            SignedReadKeys = signedReadKeys;
             RevisionStart = revisionStart;
             RevisionEnd = revisionEnd;
         }
