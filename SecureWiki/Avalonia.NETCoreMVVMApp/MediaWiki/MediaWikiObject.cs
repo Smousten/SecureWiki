@@ -101,7 +101,7 @@ namespace SecureWiki.MediaWiki
         }
     }
 
-    public class MediaWikiObjects
+    public class MediaWikiObject
     {
         private string URL;
         private string MWuserID;
@@ -114,11 +114,11 @@ namespace SecureWiki.MediaWiki
         private HttpClient httpClient;
         public bool loggedIn = false;
 
-        public MediaWikiObjects()
+        public MediaWikiObject()
         {
         }
 
-        public MediaWikiObjects(MediaWikiObjects source)
+        public MediaWikiObject(MediaWikiObject source)
         {
             URL = source.URL;
             MWuserID = source.MWuserID;
@@ -127,26 +127,26 @@ namespace SecureWiki.MediaWiki
             loggedIn = source.loggedIn;
         }
 
-        public MediaWikiObjects(HttpClient client, bool isClientLoggedIn)
+        public MediaWikiObject(HttpClient client, bool isClientLoggedIn)
         {
             httpClient = client;
             loggedIn = isClientLoggedIn;
         }
 
-        public MediaWikiObjects(HttpClient client, string username, string password)
+        public MediaWikiObject(HttpClient client, string username, string password)
         {
             httpClient = client;
             LoginMediaWiki(username, password);
         }
 
-        public MediaWikiObjects(HttpClient client, string username, string password, string url)
+        public MediaWikiObject(HttpClient client, string username, string password, string url)
         {
             URL = url;
             httpClient = client;
             LoginMediaWiki(username, password);
         }
 
-        public abstract class PageQuery : MediaWikiObjects
+        public abstract class PageQuery : MediaWikiObject
         {
             private string pageID;
             public string pageTitle;
@@ -158,7 +158,7 @@ namespace SecureWiki.MediaWiki
             {
             }
 
-            public PageQuery(MediaWikiObjects source) : base(source)
+            public PageQuery(MediaWikiObject source) : base(source)
             {
             }
 
@@ -166,7 +166,7 @@ namespace SecureWiki.MediaWiki
             {
                 public Revision revision = new();
 
-                public LatestRevision(MediaWikiObjects source, string pageTitle) : base(source)
+                public LatestRevision(MediaWikiObject source, string pageTitle) : base(source)
                 {
                     this.pageTitle = pageTitle;
                 }
@@ -222,7 +222,7 @@ namespace SecureWiki.MediaWiki
             {
                 public List<Revision> revisionList = new();
 
-                public AllRevisions(MediaWikiObjects source, string pageTitle) : base(source)
+                public AllRevisions(MediaWikiObject source, string pageTitle) : base(source)
                 {
                     this.pageTitle = pageTitle;
                 }
@@ -325,7 +325,7 @@ namespace SecureWiki.MediaWiki
                 public Revision revision = new();
                 private string revID = "-1";
                 
-                public PageContent(MediaWikiObjects source, string pageTitle, string revisionID) : base(source)
+                public PageContent(MediaWikiObject source, string pageTitle, string revisionID) : base(source)
                 {
                     this.pageTitle = pageTitle;
                     revID = revisionID;
@@ -436,7 +436,7 @@ namespace SecureWiki.MediaWiki
             }
         }
 
-        public abstract class PageAction : MediaWikiObjects
+        public abstract class PageAction : MediaWikiObject
         {
             public Action action = new();
 
@@ -446,7 +446,7 @@ namespace SecureWiki.MediaWiki
             {
             }
 
-            public PageAction(MediaWikiObjects source) : base(source)
+            public PageAction(MediaWikiObject source) : base(source)
             {
                 editToken = source.editToken;
             }
@@ -459,7 +459,7 @@ namespace SecureWiki.MediaWiki
 
                 private Revision revision = new();
 
-                public UploadNewRevision(MediaWikiObjects source, string pageTitle) : base(source)
+                public UploadNewRevision(MediaWikiObject source, string pageTitle) : base(source)
                 {
                     this.pageTitle = pageTitle;
                 }
@@ -521,7 +521,7 @@ namespace SecureWiki.MediaWiki
 
                 private Revision revision = new();
 
-                public UndoRevisions(MediaWikiObjects source, string pageTitle) : base(source)
+                public UndoRevisions(MediaWikiObject source, string pageTitle) : base(source)
                 {
                     this.pageTitle = pageTitle;
                 }
@@ -591,7 +591,7 @@ namespace SecureWiki.MediaWiki
 
                 private Revision revision = new();
 
-                public DeleteRevisions(MediaWikiObjects source, string pageTitle) : base(source)
+                public DeleteRevisions(MediaWikiObject source, string pageTitle) : base(source)
                 {
                     this.pageTitle = pageTitle;
                 }
