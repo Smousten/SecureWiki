@@ -138,15 +138,30 @@ namespace SecureWiki.Cryptography
             return (privateKey, publicKey);
         }
 
-        // Generate symmetric key and IV
-        public static (byte[] Key, byte[] IV) GenerateAESParams()
+        // Generate symmetric key
+        public static byte[] GenerateSymmKey()
+        {
+            Aes aes = Aes.Create();
+            aes.GenerateKey();
+            return aes.Key;
+        }
+        
+        // Generate IV
+        public static byte[] GenerateIV()
+        {
+            Aes aes = Aes.Create();
+            aes.GenerateIV();
+            return aes.IV;
+        }
+        
+        public static (byte[] key, byte[] iv) GenerateAESParams()
         {
             Aes aes = Aes.Create();
             aes.GenerateKey();
             aes.GenerateIV();
             return (aes.Key, aes.IV);
         }
-
+        
         // Returns signed plaintext using private key stored in datafile object
         public static byte[] SignData(byte[] key, byte[] data)
         {

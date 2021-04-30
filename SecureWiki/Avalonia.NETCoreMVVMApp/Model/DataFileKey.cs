@@ -10,8 +10,6 @@ namespace SecureWiki.Model
         [JsonProperty]
         public byte[] SymmKey { get; set; }
         [JsonProperty]
-        public byte[] IV { get; set; }
-        [JsonProperty]
         public byte[]? PrivateKey { get; set; }
         [JsonProperty]
         public byte[] PublicKey { get; set; }
@@ -29,11 +27,10 @@ namespace SecureWiki.Model
         public DataFileKey(byte[] ownerPrivateKey)
         {
             // Generate new symmetric key and new asymmetric key pair
-            var (newSymmKey, newIV) = Crypto.GenerateAESParams();
+            var newSymmKey = Crypto.GenerateSymmKey();
             var (newPrivateKey, newPublicKey) = Crypto.GenerateRSAParams();
             
             SymmKey = newSymmKey;
-            IV = newIV;
             PrivateKey = newPrivateKey;
             PublicKey = newPublicKey;
             RevisionStart = "-1";
@@ -49,7 +46,6 @@ namespace SecureWiki.Model
             string revisionStart, string revisionEnd)
         {
             SymmKey = symmKey;
-            IV = iv;
             PrivateKey = privateKey;
             PublicKey = publicKey;
             SignedPrivateKey = signedPrivateKey;
@@ -70,7 +66,6 @@ namespace SecureWiki.Model
             }
 
             PrivateKey ??= otherDFKey.PrivateKey;
-            IV ??= otherDFKey.IV;
 
             var revStart = int.Parse(RevisionStart);
             var revEnd = int.Parse(RevisionEnd);

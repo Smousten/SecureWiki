@@ -109,10 +109,16 @@ namespace SecureWiki.MediaWiki
 
             // Find latest key in data file key list
             var key = dataFile.keyList.Last();
+            
+            // Generate fresh IV
+            var iv = Crypto.GenerateIV();
 
             // Encrypt text using key from key list
-            var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey, key.IV);
+            var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey, iv);
             if (encryptedContent == null) return false;
+            
+            // Prepend IV to ciphertext
+            encryptedContent = ByteArrayCombiner.Combine(iv, encryptedContent);
 
             // Sign hash value of cipher text
             var signature = Crypto.SignData(key.PrivateKey!, encryptedContent);
@@ -178,7 +184,11 @@ namespace SecureWiki.MediaWiki
                 // Verify data using public key, ciphertext and signature
                 if (Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes, splitPageContent.Value.signBytes))
                 {
-                    var decryptedBytes = Crypto.Decrypt(splitPageContent.Value.cipherBytes, key.SymmKey, key.IV);
+                    // Split IV and ciphertext from pageContent
+                    var iv = splitPageContent.Value.cipherBytes.Take(16).ToArray();
+                    var cipherText = splitPageContent.Value.cipherBytes.Skip(16).ToArray();
+                    
+                    var decryptedBytes = Crypto.Decrypt(cipherText, key.SymmKey, iv);
                     if (decryptedBytes == null)
                     {
                         continue;
@@ -249,8 +259,12 @@ namespace SecureWiki.MediaWiki
                     var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
                     return GetLatestValidRevision(dataFile, revisions);
                 }
+                
+                // Split IV and ciphertext from pageContent
+                var iv = splitPageContent.Value.cipherBytes.Take(16).ToArray();
+                var cipherText = splitPageContent.Value.cipherBytes.Skip(16).ToArray();
 
-                var decryptedBytes = Crypto.Decrypt(splitPageContent.Value.cipherBytes, key.SymmKey, key.IV);
+                var decryptedBytes = Crypto.Decrypt(cipherText, key.SymmKey, iv);
                 if (decryptedBytes == null)
                 {
                     var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
