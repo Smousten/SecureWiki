@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using DynamicData;
 using NUnit.Framework;
@@ -83,8 +84,30 @@ namespace SecureWikiTests
         }
 
         [Test]
-        public void TestCopyFromOtherKeyring()
+        public void TestMergeAllEntriesFromOtherKeyring()
         {
+            var newKeyring1 = new Keyring("folder1");
+            var newKeyring2 = new Keyring("folder2");
+            
+            var newDataFile = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file1");
+            var newDataFile2 = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file2");
+            var fileList = new List<DataFile> {newDataFile, newDataFile2};
+            
+            newKeyring2.AddRangeDataFile(fileList);
+            var keyList = new List<Keyring> {newKeyring1, newKeyring2};
+            
+            _rootKeyring.AddRangeKeyring(keyList);
+
+            var newKeyring3 = new Keyring("folder2");
+            var newDataFile3 = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file3");
+            
+            var newKeyring = new Keyring();
+            newKeyring3.AddDataFile(newDataFile3);
+            newKeyring.AddKeyring(newKeyring3);
+            
+            _rootKeyring.MergeAllEntriesFromOtherKeyring(newKeyring);
+            var folder2 = _rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("folder2"));
+            Assert.True(folder2.dataFiles.Count.Equals(3));
         }
     }
 }

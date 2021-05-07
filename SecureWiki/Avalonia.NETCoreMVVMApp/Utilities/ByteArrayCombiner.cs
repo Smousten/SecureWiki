@@ -32,5 +32,14 @@ namespace SecureWiki.Utilities
 
             return output;
         }
+        
+        // Return subarray of data at start index with given length
+        public static byte[] SubArray(byte[] data, int start, int length)
+        {
+            byte[] result = new byte[length];
+            Array.Copy(data, start, result, 0, length);
+            return result;
+        }
+
     }
 }

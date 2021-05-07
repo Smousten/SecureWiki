@@ -6,6 +6,45 @@ namespace SecureWiki.Cryptography
 {
     public static class Crypto
     {
+        public static byte[]? EncryptGCM(byte[] plainText, byte[] key)
+        {
+            var tag = new byte[16];
+            var nonce = new byte[12];
+            var cipherText = new byte[plainText.Length];
+            // Use given symmetric key
+            using (AesGcm aesAlg = new(key))
+            {
+                aesAlg.Encrypt(nonce, plainText, cipherText, tag);
+            }
+
+            return Utilities.ByteArrayCombiner.Combine(tag, Utilities.ByteArrayCombiner.Combine(nonce, cipherText));
+        }
+
+        public static byte[]? DecryptGCM(byte[] ciphertext, byte[] key)
+        {
+            var tag = Utilities.ByteArrayCombiner.SubArray(ciphertext, 0, 16);
+            var nonce = Utilities.ByteArrayCombiner.SubArray(ciphertext, 16, 12);
+            var encryptedData =
+                Utilities.ByteArrayCombiner.SubArray(ciphertext, 16 + 12,
+                    ciphertext.Length - tag.Length - nonce.Length);
+            var plaintext = new byte[encryptedData.Length];
+            // Use given symmetric key
+            using (AesGcm aesAlg = new(key))
+            {
+                try
+                {
+                    aesAlg.Decrypt(nonce, encryptedData, tag, plaintext);
+                }
+                catch (CryptographicException e)
+                {
+                    Console.WriteLine(e.Message);
+                    return null;
+                }
+            }
+
+            return plaintext;
+        }
+
         // Encrypts plainText bytes using input key and iv.
         // Encryption algorithm is aes256 with PKCS7 padding
         public static byte[]? Encrypt(byte[] plainText, byte[] key, byte[] iv)
@@ -145,7 +184,7 @@ namespace SecureWiki.Cryptography
             aes.GenerateKey();
             return aes.Key;
         }
-        
+
         // Generate IV
         public static byte[] GenerateIV()
         {
@@ -153,7 +192,7 @@ namespace SecureWiki.Cryptography
             aes.GenerateIV();
             return aes.IV;
         }
-        
+
         public static (byte[] key, byte[] iv) GenerateAESParams()
         {
             Aes aes = Aes.Create();
@@ -161,7 +200,7 @@ namespace SecureWiki.Cryptography
             aes.GenerateIV();
             return (aes.Key, aes.IV);
         }
-        
+
         // Returns signed plaintext using private key stored in datafile object
         public static byte[] SignData(byte[] key, byte[] data)
         {
@@ -185,5 +224,7 @@ namespace SecureWiki.Cryptography
                 return false;
             }
         }
+
+        // Create HAM
     }
 }

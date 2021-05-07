@@ -115,6 +115,8 @@ namespace SecureWiki.MediaWiki
 
             // Encrypt text using key from key list
             var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey, iv);
+            // var encryptedContent = Crypto.EncryptGCM(plainText, key.SymmKey);
+            
             if (encryptedContent == null) return false;
             
             // Prepend IV to ciphertext
@@ -189,6 +191,8 @@ namespace SecureWiki.MediaWiki
                     var cipherText = splitPageContent.Value.cipherBytes.Skip(16).ToArray();
                     
                     var decryptedBytes = Crypto.Decrypt(cipherText, key.SymmKey, iv);
+
+                    // var decryptedBytes = Crypto.DecryptGCM(cipherText, key.SymmKey);
                     if (decryptedBytes == null)
                     {
                         continue;
@@ -265,6 +269,7 @@ namespace SecureWiki.MediaWiki
                 var cipherText = splitPageContent.Value.cipherBytes.Skip(16).ToArray();
 
                 var decryptedBytes = Crypto.Decrypt(cipherText, key.SymmKey, iv);
+                // var decryptedBytes = Crypto.DecryptGCM(cipherText, key.SymmKey);
                 if (decryptedBytes == null)
                 {
                     var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
@@ -335,7 +340,7 @@ namespace SecureWiki.MediaWiki
 
                     // Decrypt ciphertext
                     var decryptedContent = Crypto.Decrypt(encryptedContentBytes, symmKey, iv);
-
+                    // var decryptedContent = Crypto.DecryptGCM(encryptedContentBytes, symmKey);
                     if (decryptedContent == null)
                     {
                         Console.WriteLine("decryptedContent is null");
@@ -424,7 +429,9 @@ namespace SecureWiki.MediaWiki
             var contentBytes = Encoding.ASCII.GetBytes(content);
             var encryptedBytes = Crypto.Encrypt(
                 contentBytes, symmKey, IV);
-
+            // var encryptedBytes = Crypto.EncryptGCM(
+            //     contentBytes, symmKey);
+            
             if (encryptedBytes == null || encryptedSymmKeyData == null)
             {
                 Console.WriteLine("UploadToInboxPage: Failed encryption");

@@ -75,6 +75,40 @@ namespace SecureWikiTests
             Assert.AreEqual(null, decryptedBytes);
         }
         
+        // Test that crypto module correctly encrypts and decrypts random 20 byte array
+        // using symmetric algorithm
+        [Test]
+        public void TestEncryptDecryptAESGCM()
+        {
+            // Generate symmetric key 
+            (symmKey, _) = Crypto.GenerateAESParams();
+
+            // Encrypt random 20 byte array
+            var encryptedBytes = Crypto.EncryptGCM(plainText, symmKey);
+            
+            // Decrypt random 20 byte array
+            var decryptedBytes = Crypto.DecryptGCM(encryptedBytes!, symmKey);
+
+            Assert.AreEqual(plainText, decryptedBytes);
+        }
+        
+        // Test that crypto module fails to decrypt if wrong symmetric key is used.
+        // using symmetric algorithm
+        [Test]
+        public void TestEncryptDecryptAESGCMFail()
+        {
+            // Generate symmetric key 
+            (symmKey, _) = Crypto.GenerateAESParams();
+            var (newSymmKey, _) = Crypto.GenerateAESParams();
+
+            // Encrypt random 20 byte array
+            var encryptedBytes = Crypto.EncryptGCM(plainText, symmKey);
+            
+            // Decrypt random 20 byte array
+            var decryptedBytes = Crypto.DecryptGCM(encryptedBytes!, newSymmKey);
+            Assert.AreEqual(null, decryptedBytes);
+        }
+        
         // Test that crypto module correctly encrypts and decrypts random 20 byte array 
         // using asymmetric algorithm
         [Test]
