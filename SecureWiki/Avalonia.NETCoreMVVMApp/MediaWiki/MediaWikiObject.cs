@@ -325,7 +325,7 @@ namespace SecureWiki.MediaWiki
                 public Revision revision = new();
                 private string revID = "-1";
                 
-                public PageContent(MediaWikiObject source, string pageTitle, string revisionID) : base(source)
+                public PageContent(MediaWikiObject source, string pageTitle, string revisionID = "-1") : base(source)
                 {
                     this.pageTitle = pageTitle;
                     revID = revisionID;

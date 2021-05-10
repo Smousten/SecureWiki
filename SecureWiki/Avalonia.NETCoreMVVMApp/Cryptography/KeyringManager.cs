@@ -13,7 +13,7 @@ namespace SecureWiki.Cryptography
         private readonly RootKeyring _rootKeyring;
         private readonly Manager _manager;
         private DateTime _rootKeyringWriteTimestamp;
-        public byte[] masterKey { get; set; }
+        public Masterkey masterKey { get; set; }
 
         public KeyringManager(RootKeyring rk, Manager manager)
         {
@@ -38,25 +38,53 @@ namespace SecureWiki.Cryptography
 
             CreateFileStructureRecursion(_rootKeyring, GetRootDirPath());
         }
+
+        private Masterkey? GetMasterkey(string filepath)
+        {
+            // Deserialize master key
+            var deserialized = JSONSerialization.ReadFileAndDeserialize(
+                filepath, typeof(Masterkey)) as Masterkey;
+                
+            // If import file is not a keyring
+            if (deserialized == null)
+            {
+                var loggerMsg = "Import file cannot be parsed as a master key object.";
+                _manager.WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
+                Console.WriteLine(loggerMsg);
+            }
+
+            return deserialized;
+        }
         
         // Generate master key if it does not exist
-        private void InitMasterKey()
+        private void InitMasterKey(string serverLink)
         {
             var filepath = GetFilePath("MasterKey.json");
             
             // Check if MasterKey.json exists
             if (File.Exists(filepath))
             {
-                // Deserialize master key
-                masterKey = JSONSerialization.ReadFileAndDeserialize(
-                    filepath, typeof(byte[])) as byte[] ?? Array.Empty<byte>();
+                var getMasterkey = GetMasterkey(filepath);
+                if (getMasterkey != null) masterKey = getMasterkey;
+                
+                if (!masterKey.Dictionary.ContainsKey(serverLink))
+                {
+                    GenerateAndSerializeMasterkey(serverLink, filepath);
+                }
             }
             else
             {
-                // Generate master key and serialize
-                masterKey = Crypto.GenerateSymmKey();
-                JSONSerialization.SerializeAndWriteFile(filepath, masterKey);
+                GenerateAndSerializeMasterkey(serverLink, filepath);
             }
+        }
+
+        private void GenerateAndSerializeMasterkey(string serverLink, string? filepath)
+        {
+            // Generate master key and serialize
+            var newKey = Crypto.GenerateSymmKey();
+            var pageTitle = RandomString.GenerateRandomAlphanumericString();
+            masterKey.Dictionary.Add(serverLink, (pageTitle, newKey));
+            JSONSerialization.SerializeAndWriteFile(filepath, masterKey);
         }
 
         // Returns absolute file path to fuse rootdir as string

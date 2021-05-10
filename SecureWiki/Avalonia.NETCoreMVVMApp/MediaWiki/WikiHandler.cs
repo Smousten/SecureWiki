@@ -52,7 +52,7 @@ namespace SecureWiki.MediaWiki
             return latestRevision.revision;
         }
 
-        public string GetPageContent(string pageTitle, string revID)
+        public string GetPageContent(string pageTitle, string revID = "-1")
         {
             MediaWikiObject.PageQuery.PageContent pc = new(_mwo, pageTitle, revID);
             string output = pc.GetContent();
@@ -109,16 +109,16 @@ namespace SecureWiki.MediaWiki
 
             // Find latest key in data file key list
             var key = dataFile.keyList.Last();
-            
+
             // Generate fresh IV
             var iv = Crypto.GenerateIV();
 
             // Encrypt text using key from key list
             // var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey, iv);
             var encryptedContent = Crypto.EncryptGCM(plainText, key.SymmKey);
-            
+
             if (encryptedContent == null) return false;
-            
+
             // Prepend IV to ciphertext
             encryptedContent = ByteArrayCombiner.Combine(iv, encryptedContent);
 
@@ -182,9 +182,10 @@ namespace SecureWiki.MediaWiki
                 // Split downloaded page content into cipher text and signature
                 var splitPageContent = SplitPageContent(pageContent);
                 if (splitPageContent == null) return null;
-                
+
                 // Verify data using public key, ciphertext and signature
-                if (Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes, splitPageContent.Value.signBytes))
+                if (Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes,
+                    splitPageContent.Value.signBytes))
                 {
                     // // Split IV and ciphertext from pageContent
                     // var iv = splitPageContent.Value.cipherBytes.Take(16).ToArray();
@@ -197,6 +198,7 @@ namespace SecureWiki.MediaWiki
                     {
                         continue;
                     }
+
                     _manager.WriteToLogger(
                         $"Signature of revision '{revid}' verified. This is the latest valid revision.",
                         dataFile.filename);
@@ -228,7 +230,7 @@ namespace SecureWiki.MediaWiki
                 ? dataFile.keyList.LastOrDefault()
                 : dataFile.keyList.Where((t, i)
                     => dataFile.IsValidRevisionID(revid, i)).FirstOrDefault();
-            
+
             // If no such key is found, return latest valid revision
             if (key == null)
             {
@@ -241,20 +243,21 @@ namespace SecureWiki.MediaWiki
 
             // Get page content from server
             var pageContent = GetPageContent(dataFile.pageName, revid);
-            if (pageContent.Equals("")) 
+            if (pageContent.Equals(""))
             {
                 var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
                 return GetLatestValidRevision(dataFile, revisions);
             }
-            
+
             try
             {
                 // Split downloaded page content into cipher text and signature
                 var splitPageContent = SplitPageContent(pageContent);
                 if (splitPageContent == null) return null;
-                
+
                 // Verify data using public key, ciphertext and signature
-                if (!Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes, splitPageContent.Value.signBytes))
+                if (!Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes,
+                    splitPageContent.Value.signBytes))
                 {
                     _manager.WriteToLogger(
                         $"Verifying signature of revision '{revid}'failed. " +
@@ -263,7 +266,7 @@ namespace SecureWiki.MediaWiki
                     var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
                     return GetLatestValidRevision(dataFile, revisions);
                 }
-                
+
                 // // Split IV and ciphertext from pageContent
                 // var iv = splitPageContent.Value.cipherBytes.Take(16).ToArray();
                 // var cipherText = splitPageContent.Value.cipherBytes.Skip(16).ToArray();
@@ -275,7 +278,7 @@ namespace SecureWiki.MediaWiki
                     var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
                     return GetLatestValidRevision(dataFile, revisions);
                 }
-                
+
                 return !(decryptedBytes.Length > 0) ? null : decryptedBytes;
             }
             catch (FormatException e)
@@ -291,6 +294,52 @@ namespace SecureWiki.MediaWiki
             var cipherBytes = pageContentBytes.Take(pageContentBytes.Length - 256).ToArray();
             var signBytes = pageContentBytes.Skip(pageContentBytes.Length - 256).ToArray();
             return (cipherBytes, signBytes);
+        }
+
+        public void UploadRootKeyring(byte[] masterKey, string pageTitle, DataFile dataFile)
+        {
+            var dataFileString = JSONSerialization.SerializeObject(dataFile);
+            var dataFileBytes = Encoding.ASCII.GetBytes(dataFileString);
+
+            var cipherTextBytes = Crypto.EncryptGCM(dataFileBytes, masterKey);
+
+            MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
+                pageTitle);
+
+            if (cipherTextBytes != null)
+            {
+                var cipherText = Convert.ToBase64String(cipherTextBytes);
+                uploadNewRevision.UploadContent(cipherText);
+            }
+        }
+
+        public RootKeyring? DownloadRootKeyring(byte[] masterKey, string pageTitle)
+        {
+            // Download access file
+            var accessFileContent = GetPageContent(pageTitle);
+
+            var accessFileBytes = Convert.FromBase64String(accessFileContent);
+            var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, masterKey);
+            if (decryptedAccessFile == null) return null;
+
+            var decryptedAccessFileString = Encoding.ASCII.GetString(decryptedAccessFile);
+            var accessFile = JSONSerialization.DeserializeObject(
+                decryptedAccessFileString, typeof(DataFile)) as DataFile;
+
+            // Download master keyring - pagename stored in access File links to rootkeyring
+            if (accessFile != null)
+            {
+                var rootKeyringBytes = Download(accessFile);
+                if (rootKeyringBytes != null)
+                {
+                    var rootKeyringString = Encoding.ASCII.GetString(rootKeyringBytes);
+                    var rootKeyring = JSONSerialization.DeserializeObject(
+                        rootKeyringString, typeof(RootKeyring)) as RootKeyring;
+                    return rootKeyring;
+                }
+            }
+
+            return null;
         }
 
         public List<List<string>>? DownloadFromInboxPages()
@@ -424,14 +473,14 @@ namespace SecureWiki.MediaWiki
             // Encrypt symmetric key information with given public key
             var symmKeyData = ByteArrayCombiner.Combine(IV, symmKey);
             var encryptedSymmKeyData = Crypto.RSAEncryptWithPublicKey(symmKeyData, publicKey);
-            
+
             // Encrypt content with the symmetric key
             var contentBytes = Encoding.ASCII.GetBytes(content);
             var encryptedBytes = Crypto.Encrypt(
                 contentBytes, symmKey, IV);
             // var encryptedBytes = Crypto.EncryptGCM(
             //     contentBytes, symmKey);
-            
+
             if (encryptedBytes == null || encryptedSymmKeyData == null)
             {
                 Console.WriteLine("UploadToInboxPage: Failed encryption");
