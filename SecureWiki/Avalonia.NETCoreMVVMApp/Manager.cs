@@ -813,7 +813,7 @@ namespace SecureWiki
                 IsBodyHtml = true,
             };
             // TODO: send selected keyring and not all
-            var keyringPath = _keyringManager.GetKeyringFilePath();
+            var keyringPath = _keyringManager.GetFilePath("Keyring.json");
             var attachment = new Attachment(keyringPath,
                 MediaTypeNames.Application.Json);
             mailMessage.Attachments.Add(attachment);

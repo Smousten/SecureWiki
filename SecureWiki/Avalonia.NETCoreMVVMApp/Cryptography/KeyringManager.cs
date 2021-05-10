@@ -13,6 +13,7 @@ namespace SecureWiki.Cryptography
         private readonly RootKeyring _rootKeyring;
         private readonly Manager _manager;
         private DateTime _rootKeyringWriteTimestamp;
+        public byte[] masterKey { get; set; }
 
         public KeyringManager(RootKeyring rk, Manager manager)
         {
@@ -24,7 +25,7 @@ namespace SecureWiki.Cryptography
         // Creates the file structure in root directory with empty files
         public void InitKeyring()
         {
-            var filepath = GetKeyringFilePath();
+            var filepath = GetFilePath("Keyring.json");
             
             // Check if Keyring.json exists
             if (File.Exists(filepath))
@@ -36,6 +37,26 @@ namespace SecureWiki.Cryptography
             }
 
             CreateFileStructureRecursion(_rootKeyring, GetRootDirPath());
+        }
+        
+        // Generate master key if it does not exist
+        private void InitMasterKey()
+        {
+            var filepath = GetFilePath("MasterKey.json");
+            
+            // Check if MasterKey.json exists
+            if (File.Exists(filepath))
+            {
+                // Deserialize master key
+                masterKey = JSONSerialization.ReadFileAndDeserialize(
+                    filepath, typeof(byte[])) as byte[] ?? Array.Empty<byte>();
+            }
+            else
+            {
+                // Generate master key and serialize
+                masterKey = Crypto.GenerateSymmKey();
+                JSONSerialization.SerializeAndWriteFile(filepath, masterKey);
+            }
         }
 
         // Returns absolute file path to fuse rootdir as string
@@ -49,13 +70,11 @@ namespace SecureWiki.Cryptography
         }
 
         // Returns absolute file path to keyring jsonfile as string
-        public string GetKeyringFilePath()
+        public string GetFilePath(string file)
         {
-            const string? keyringFileName = "Keyring.json";
             var currentDir = Directory.GetCurrentDirectory();
             var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
-            var keyringFilePath = Path.Combine(path, keyringFileName);
-            return keyringFilePath;
+            return Path.Combine(path, file);
         }
 
         // Returns root keyring as deserialized json object
@@ -69,7 +88,7 @@ namespace SecureWiki.Cryptography
         // Returns root keyring as deserialized json object with no arguments
         public Keyring? ReadKeyRing()
         {
-            var keyringFilePath = GetKeyringFilePath();
+            var keyringFilePath = GetFilePath("Keyring.json");
             return GetRootKeyring(keyringFilePath);
         }
 
@@ -237,7 +256,7 @@ namespace SecureWiki.Cryptography
         public void SaveRootKeyring()
         {
             Console.WriteLine("Saving to Keyring.json");
-            var path = GetKeyringFilePath();
+            var path = GetFilePath("Keyring.json");
             JSONSerialization.SerializeAndWriteFile(path, _rootKeyring);
             _rootKeyringWriteTimestamp = DateTime.Now;
         }
