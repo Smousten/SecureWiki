@@ -8,6 +8,7 @@ using SecureWiki.Cryptography;
 using SecureWiki.Model;
 using SecureWiki.Utilities;
 using SecureWiki.Views;
+using Type = SecureWiki.Model.Type;
 
 namespace SecureWiki.MediaWiki
 {
@@ -362,17 +363,18 @@ namespace SecureWiki.MediaWiki
                 if (keyring != null)
                 {
                     rootKeyring.keyrings.Add(keyring);
-                    // todo: make symmetric reference class with type annotating either access file or keyring
-                    foreach (var childKeyring in keyring.keyrings)
+                    foreach (var symmRef in keyring.SymmetricReferences)
                     {
-                        var reference = DownloadAccessFile(childKeyring.symmKey, childKeyring.reference);
-                        if (reference != null) DownloadKeyringsRecursion(reference, rootKeyring);
-                    }
-
-                    foreach (var childDataFile in keyring.dataFiles)
-                    {
-                        // todo: add access file and not symmetric reference
-                        rootKeyring.AddDataFile(childDataFile);
+                        var accessFile = DownloadAccessFile(symmRef.symmKey, symmRef.reference);
+                        if (symmRef.type == Type.AccessFile)
+                        {
+                            if (accessFile != null) rootKeyring.AddDataFile(accessFile);
+                        }
+                        else
+                        {
+                            if (accessFile != null) DownloadKeyringsRecursion(accessFile, rootKeyring);
+                        }
+                        
                     }
                 }
             }

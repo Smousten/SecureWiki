@@ -54,8 +54,7 @@ namespace SecureWiki.Model
         }
 
         [JsonProperty] public string pageTitle;
-        [JsonProperty] public string reference;
-        [JsonProperty] public byte[] symmKey;
+        [JsonProperty] public List<SymmetricReference> SymmetricReferences;
 
         private Keyring? _parent;
         public Keyring? parent
