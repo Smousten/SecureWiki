@@ -8,6 +8,7 @@
     ".NETCoreApp,Version=v5.0": {
       "SecureWikiTests/1.0.0": {
         "dependencies": {
+          "Avalonia": "0.10.0",
           "Microsoft.NET.Test.Sdk": "16.5.0",
           "NUnit": "3.12.0",
           "NUnit3TestAdapter": "3.16.1",
