@@ -114,8 +114,8 @@ namespace SecureWiki.MediaWiki
             var iv = Crypto.GenerateIV();
 
             // Encrypt text using key from key list
-            var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey, iv);
-            // var encryptedContent = Crypto.EncryptGCM(plainText, key.SymmKey);
+            // var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey, iv);
+            var encryptedContent = Crypto.EncryptGCM(plainText, key.SymmKey);
             
             if (encryptedContent == null) return false;
             
@@ -186,13 +186,13 @@ namespace SecureWiki.MediaWiki
                 // Verify data using public key, ciphertext and signature
                 if (Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes, splitPageContent.Value.signBytes))
                 {
-                    // Split IV and ciphertext from pageContent
-                    var iv = splitPageContent.Value.cipherBytes.Take(16).ToArray();
-                    var cipherText = splitPageContent.Value.cipherBytes.Skip(16).ToArray();
-                    
-                    var decryptedBytes = Crypto.Decrypt(cipherText, key.SymmKey, iv);
+                    // // Split IV and ciphertext from pageContent
+                    // var iv = splitPageContent.Value.cipherBytes.Take(16).ToArray();
+                    // var cipherText = splitPageContent.Value.cipherBytes.Skip(16).ToArray();
+                    //
+                    // var decryptedBytes = Crypto.Decrypt(cipherText, key.SymmKey, iv);
 
-                    // var decryptedBytes = Crypto.DecryptGCM(cipherText, key.SymmKey);
+                    var decryptedBytes = Crypto.DecryptGCM(splitPageContent.Value.cipherBytes, key.SymmKey);
                     if (decryptedBytes == null)
                     {
                         continue;
@@ -264,12 +264,12 @@ namespace SecureWiki.MediaWiki
                     return GetLatestValidRevision(dataFile, revisions);
                 }
                 
-                // Split IV and ciphertext from pageContent
-                var iv = splitPageContent.Value.cipherBytes.Take(16).ToArray();
-                var cipherText = splitPageContent.Value.cipherBytes.Skip(16).ToArray();
-
-                var decryptedBytes = Crypto.Decrypt(cipherText, key.SymmKey, iv);
-                // var decryptedBytes = Crypto.DecryptGCM(cipherText, key.SymmKey);
+                // // Split IV and ciphertext from pageContent
+                // var iv = splitPageContent.Value.cipherBytes.Take(16).ToArray();
+                // var cipherText = splitPageContent.Value.cipherBytes.Skip(16).ToArray();
+                //
+                // var decryptedBytes = Crypto.Decrypt(cipherText, key.SymmKey, iv);
+                var decryptedBytes = Crypto.DecryptGCM(splitPageContent.Value.cipherBytes, key.SymmKey);
                 if (decryptedBytes == null)
                 {
                     var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
@@ -424,7 +424,7 @@ namespace SecureWiki.MediaWiki
             // Encrypt symmetric key information with given public key
             var symmKeyData = ByteArrayCombiner.Combine(IV, symmKey);
             var encryptedSymmKeyData = Crypto.RSAEncryptWithPublicKey(symmKeyData, publicKey);
-
+            
             // Encrypt content with the symmetric key
             var contentBytes = Encoding.ASCII.GetBytes(content);
             var encryptedBytes = Crypto.Encrypt(
