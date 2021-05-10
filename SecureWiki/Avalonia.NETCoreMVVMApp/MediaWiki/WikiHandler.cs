@@ -313,34 +313,71 @@ namespace SecureWiki.MediaWiki
             }
         }
 
-        public RootKeyring? DownloadRootKeyring(byte[] masterKey, string pageTitle)
+
+        public DataFile? DownloadAccessFile(byte[] key, string pageTitle)
         {
             // Download access file
             var accessFileContent = GetPageContent(pageTitle);
 
             var accessFileBytes = Convert.FromBase64String(accessFileContent);
-            var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, masterKey);
+            var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, key);
             if (decryptedAccessFile == null) return null;
 
             var decryptedAccessFileString = Encoding.ASCII.GetString(decryptedAccessFile);
             var accessFile = JSONSerialization.DeserializeObject(
                 decryptedAccessFileString, typeof(DataFile)) as DataFile;
+            return accessFile;
+        }
 
-            // Download master keyring - pagename stored in access File links to rootkeyring
+        public Keyring? DownloadKeyring(byte[] masterKey, string pageTitle)
+        {
+            // Download access file
+            var accessFile = DownloadAccessFile(masterKey, pageTitle);
+
+            // Download master keyring - pageTitle stored in access File links to rootkeyring
             if (accessFile != null)
             {
-                var rootKeyringBytes = Download(accessFile);
-                if (rootKeyringBytes != null)
+                var keyringBytes = Download(accessFile);
+                if (keyringBytes != null)
                 {
-                    var rootKeyringString = Encoding.ASCII.GetString(rootKeyringBytes);
-                    var rootKeyring = JSONSerialization.DeserializeObject(
-                        rootKeyringString, typeof(RootKeyring)) as RootKeyring;
-                    return rootKeyring;
+                    var keyringString = Encoding.ASCII.GetString(keyringBytes);
+                    var keyring = JSONSerialization.DeserializeObject(
+                        keyringString, typeof(Keyring)) as Keyring;
+                    return keyring;
                 }
             }
 
             return null;
         }
+
+        public void DownloadKeyringsRecursion(DataFile dataFile, RootKeyring rootKeyring)
+        {
+            var keyringBytes = Download(dataFile);
+            if (keyringBytes != null)
+            {
+                var keyringString = Encoding.ASCII.GetString(keyringBytes);
+                var keyring = JSONSerialization.DeserializeObject(
+                    keyringString, typeof(Keyring)) as Keyring;
+
+                if (keyring != null)
+                {
+                    rootKeyring.keyrings.Add(keyring);
+                    // todo: make symmetric reference class with type annotating either access file or keyring
+                    foreach (var childKeyring in keyring.keyrings)
+                    {
+                        var reference = DownloadAccessFile(childKeyring.symmKey, childKeyring.reference);
+                        if (reference != null) DownloadKeyringsRecursion(reference, rootKeyring);
+                    }
+
+                    foreach (var childDataFile in keyring.dataFiles)
+                    {
+                        // todo: add access file and not symmetric reference
+                        rootKeyring.AddDataFile(childDataFile);
+                    }
+                }
+            }
+        }
+
 
         public List<List<string>>? DownloadFromInboxPages()
         {
