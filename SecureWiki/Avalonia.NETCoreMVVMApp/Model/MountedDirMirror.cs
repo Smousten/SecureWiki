@@ -1,5 +1,9 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using DynamicData;
+using ReactiveUI;
 using SecureWiki.Utilities;
 
 namespace SecureWiki.Model
@@ -26,17 +30,49 @@ namespace SecureWiki.Model
         }
     }
 
-    public class MDFolder
+    public class MDFolder : IReactiveObject
     {
-        public string Name;
+        private string _name;
+        public string name
+        {
+            get => _name;
+            set
+            {
+                _name = value;
+                RaisePropertyChanged(nameof(name));
+            }
+        }
+        
         public MDFolder? Parent;
 
-        private List<MDFolder> Folders = new();
-        private List<MDFile> Files = new();
+        // private List<MDFolder> Folders = new();
+        // private List<MDFile> Files = new();
+
+        private ObservableCollection<MDFolder> Folders = new();
+        private ObservableCollection<MDFile> Files = new();
+        
+        public ObservableCollection<object> combinedList
+        {
+            get
+            {
+                var output = new ObservableCollection<object>();
+
+                foreach (var entry in Folders)
+                {
+                    output.Add(entry);
+                }
+                foreach (var entry in Files)
+                {
+                    output.Add(entry);
+                }
+                
+                return output;
+            }   
+        }
         
         public MDFolder(string name, MDFolder? parent)
         {
-            Name = name;
+            this.name = name;
             Parent = parent;
         }
 
@@ -52,6 +88,15 @@ namespace SecureWiki.Model
                 var index = Files.BinarySearch(mdFile, new MDFileComparer());
                 Files.Insert(index, mdFile);
             }
+            
+            RaisePropertiesChangedFiles();
+        }
+
+        public void AddRangeFiles(List<MDFile> mdFiles)
+        {
+            Files.AddRange(mdFiles);
+            
+            RaisePropertiesChangedFiles();
         }
         
         public void RemoveFile(MDFile mdFile)
@@ -60,8 +105,10 @@ namespace SecureWiki.Model
             {
                 Files.Remove(mdFile);
             }
+            
+            RaisePropertiesChangedFiles();
         }
-        
+
         public void AddFolder(MDFolder mdFolder)
         {
             if (!Folders.Contains(mdFolder))
@@ -69,6 +116,15 @@ namespace SecureWiki.Model
                 var index = Folders.BinarySearch(mdFolder, new MDFolderComparer());
                 Folders.Insert(index, mdFolder);
             }
+            
+            RaisePropertiesChangedFolders();
+        }
+        
+        public void AddRangeFolders(List<MDFolder> mdFolders)
+        {
+            Folders.AddRange(mdFolders);
+            
+            RaisePropertiesChangedFolders();
         }
 
         public void RemoveFolder(MDFolder mdFolder)
@@ -77,29 +133,49 @@ namespace SecureWiki.Model
             {
                 Folders.Remove(mdFolder);
             }
+            
+            RaisePropertiesChangedFolders();
+        }
+
+        private void ClearFiles()
+        {
+            Files.Clear();
+            
+            RaisePropertiesChangedFiles();
         }
         
+        private void ClearFolders()
+        {
+            Folders.Clear();
+            
+            RaisePropertiesChangedFolders();
+        }
+
         public void SortFiles()
         {
-            Files = Files.OrderBy(x => x.Name).ToList();
+            var sortedList = Files.OrderBy(x => x.name).ToList();
+            ClearFiles();
+            AddRangeFiles(sortedList);
         }
         
         public void SortFolders()
         {
-            Folders = Folders.OrderBy(x => x.Name).ToList();
+            var sortedList = Folders.OrderBy(x => x.name).ToList();
+            ClearFolders();
+            AddRangeFolders(sortedList);
         }
 
         public MDFile? FindFileRecursively(string[] path, int cnt)
         {
             if (path.Length - cnt <= 1)
             {
-                var index = Files.BinarySearch(new MDFile {Name = path[cnt]}, new MDFileComparer());
+                var index = Files.BinarySearch(new MDFile {name = path[cnt]}, new MDFileComparer());
                 if (index < 0) return null;
                 return Files[index];
             }
             else
             {
-                var index = Folders.BinarySearch(new MDFolder {Name = path[cnt]}, new MDFolderComparer());
+                var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
                 if (index < 0) return null;
                 cnt++;
                 return Folders[index].FindFileRecursively(path, cnt);
@@ -110,7 +186,7 @@ namespace SecureWiki.Model
         {
             if (path.Length - cnt <= 1)
             {
-                var index = Files.BinarySearch(new MDFile {Name = path[cnt]}, new MDFileComparer());
+                var index = Files.BinarySearch(new MDFile {name = path[cnt]}, new MDFileComparer());
                 if (index < 0)
                 {
                     var newMDFile = new MDFile(path[cnt], this, reference);
@@ -119,7 +195,7 @@ namespace SecureWiki.Model
             }
             else
             {
-                var index = Folders.BinarySearch(new MDFolder {Name = path[cnt]}, new MDFolderComparer());
+                var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
                 if (index < 0)
                 {
                     var newFolder = new MDFolder(path[cnt], this);
@@ -134,18 +210,59 @@ namespace SecureWiki.Model
                 }
             }
         }
+
+        // Events
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangingEventHandler? PropertyChanging;
+        public void RaisePropertyChanging(PropertyChangingEventArgs args)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void RaisePropertyChanged(PropertyChangedEventArgs args)
+        {
+            throw new System.NotImplementedException();
+        }
+        
+        public void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler? handler = PropertyChanged;
+            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        
+        public void RaisePropertiesChangedFiles()
+        {
+            RaisePropertyChanged(nameof(Files));
+            RaisePropertyChanged(nameof(combinedList));
+        }
+        
+        public void RaisePropertiesChangedFolders()
+        {
+            RaisePropertyChanged(nameof(Folders));
+            RaisePropertyChanged(nameof(combinedList));
+        }
     }
 
-    public class MDFile
+    public class MDFile : IReactiveObject
     {
-        public string Name;
+        private string _name;
+        public string name
+        {
+            get => _name;
+            set
+            {
+                _name = value;
+                RaisePropertyChanged(nameof(name));
+            }
+        }
+        
         public MDFolder Parent;
 
         public AccessFileReference Reference;
 
         public MDFile(string name, MDFolder parent, AccessFileReference reference)
         {
-            Name = name;
+            this.name = name;
             Parent = parent;
             Reference = reference;
         }
@@ -153,7 +270,24 @@ namespace SecureWiki.Model
         public MDFile()
         {
         }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangingEventHandler? PropertyChanging;
+        public void RaisePropertyChanging(PropertyChangingEventArgs args)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void RaisePropertyChanged(PropertyChangedEventArgs args)
+        {
+            throw new System.NotImplementedException();
+        }
         
+        public void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler? handler = PropertyChanged;
+            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
     
     
