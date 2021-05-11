@@ -41,5 +41,20 @@ namespace SecureWiki.MediaWiki
 
         // TODO
         public List<List<string>>? DownloadFromInboxPages();
+        
+        // TODO
+        public void UploadAccessFile(SymmetricReference symmetricReference, AccessFile accessFile);
+        
+        // TODO
+        public bool UploadKeyring(AccessFile accessFile, Keyring keyring);
+        
+        // TODO
+        public AccessFile? DownloadAccessFile(SymmetricReference symmetricReference);
+
+        // TODO
+        public Keyring? DownloadKeyring(SymmetricReference symmetricReference);
+
+        // TODO
+        public void DownloadKeyringsRecursion(AccessFile accessFile, RootKeyring rootKeyring);
     }
 }

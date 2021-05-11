@@ -651,25 +651,30 @@ namespace SecureWiki
         // Delegated Keyring functions
         public void AddNewFile(string filename, string filepath)
         {
-            var pageTitle = RandomString.GenerateRandomAlphanumericString();
+            var pageTitleGenericFile = RandomString.GenerateRandomAlphanumericString();
             while (true)
             {
-                if (PageAlreadyExists(pageTitle, "-1", configManager.DefaultServerLink))
+                if (PageAlreadyExists(pageTitleGenericFile, "-1", configManager.DefaultServerLink))
                 {
-                    WriteToLogger($"Auto generated page title ({pageTitle}) already exists on server. Retrying...");
-                    pageTitle = RandomString.GenerateRandomAlphanumericString();
+                    WriteToLogger($"Auto generated page title ({pageTitleGenericFile}) already exists on server. Retrying...");
+                    pageTitleGenericFile = RandomString.GenerateRandomAlphanumericString();
                 }
                 else
                 {
                     break;
                 }
             }
-
-            _keyringManager.AddNewFile(filename, filepath, configManager.DefaultServerLink, pageTitle);
+            // TODO: add symmetric reference to parent keyring, upload access file
+            AccessFile accessFile = new AccessFile(configManager.DefaultServerLink, pageTitleGenericFile, filename);
+            var wikiHandler = GetWikiHandler(accessFile!.serverLink);
+            
+            // wikiHandler.UploadAccessFile(accessFile);
+            _keyringManager.AddNewFile(filename, filepath, configManager.DefaultServerLink, pageTitleGenericFile);
         }
 
         public void AddNewKeyRing(string filename, string filepath)
         {
+            // TODO: update symmetric reference in parent keyring, upload keyring
             _keyringManager.AddNewKeyRing(filename, filepath);
         }
 
