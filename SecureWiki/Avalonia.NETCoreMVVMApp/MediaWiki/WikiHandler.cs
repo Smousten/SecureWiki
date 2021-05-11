@@ -8,7 +8,6 @@ using SecureWiki.Cryptography;
 using SecureWiki.Model;
 using SecureWiki.Utilities;
 using SecureWiki.Views;
-using Type = SecureWiki.Model.Type;
 
 namespace SecureWiki.MediaWiki
 {
@@ -288,7 +287,7 @@ namespace SecureWiki.MediaWiki
             var cipherTextBytes = Crypto.EncryptGCM(dataFileBytes, symmetricReference.symmKey);
 
             MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
-                symmetricReference.reference);
+                symmetricReference.pageName);
 
             if (cipherTextBytes != null)
             {
@@ -349,7 +348,7 @@ namespace SecureWiki.MediaWiki
         public DataFile? DownloadAccessFile(SymmetricReference symmetricReference)
         {
             // Download access file
-            var accessFileContent = GetPageContent(symmetricReference.reference);
+            var accessFileContent = GetPageContent(symmetricReference.pageName);
 
             var accessFileBytes = Convert.FromBase64String(accessFileContent);
             var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, symmetricReference.symmKey);
@@ -397,7 +396,7 @@ namespace SecureWiki.MediaWiki
                     foreach (var symmRef in keyring.SymmetricReferences)
                     {
                         var accessFile = DownloadAccessFile(symmRef);
-                        if (symmRef.type == Type.AccessFile)
+                        if (symmRef.type == SymmetricReference.Type.GenericFile)
                         {
                             if (accessFile != null) rootKeyring.AddDataFile(accessFile);
                         }
