@@ -338,7 +338,6 @@ namespace SecureWiki.MediaWiki
             var key = accessFile.keyList.Last();
 
             // Encrypt text using key from key list
-            // var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey, iv);
             var encryptedContent = Crypto.EncryptGCM(keyringBytes, key.SymmKey);
 
             if (encryptedContent == null) return false;
