@@ -729,14 +729,13 @@ namespace SecureWiki
                     break;
                 }
             }
-            
+
             // Create symmetric reference to access file
             SymmetricReference symmetricReference = new(pageNameAccessFile,
                 configManager.DefaultServerLink, SymmetricReference.Type.Keyring, pageNameKeyring);
 
             // Create inbox reference to inbox page
-            InboxReference inboxReference = new(pageNameInboxPage, configManager.DefaultServerLink,
-                InboxReference.AccessLevel.ReadWrite);
+            InboxReference inboxReference = new(pageNameInboxPage, configManager.DefaultServerLink);
             
             // Add symmetric reference to newEntries keyring
             var defaultKeyring = rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("newEntries"));
@@ -745,11 +744,12 @@ namespace SecureWiki
             // Create access file
             AccessFile accessFile = new(configManager.DefaultServerLink, pageNameKeyring, filename);
             
+            var newKeyring = new Keyring(filename);
+            newKeyring.InboxReference = inboxReference;
+
             // Upload new keyring to server
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
             wikiHandler?.UploadKeyring(accessFile, new Keyring(filename));
-
-            // _keyringManager.AddNewKeyRing(filename, filepath);
         }
 
         public void RenameFile(string oldPath, string newPath)

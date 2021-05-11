@@ -66,19 +66,18 @@ namespace SecureWiki.Model
         public byte[]? privateKey;
         public AccessLevel accessLevel;
 
-        public InboxReference(string pageName, string serverLink, AccessLevel accessLevel) : base(pageName,
+        public InboxReference(string pageName, string serverLink, byte[] publicKey) : base(pageName,
             serverLink)
         {
-            this.accessLevel = accessLevel;
-            
-            if (accessLevel == AccessLevel.Write)
-            {
-                (privateKey, publicKey) = Crypto.GenerateRSAParams();
-            }
-            else
-            {
-                (_, publicKey) = Crypto.GenerateRSAParams();
-            }
+            this.publicKey = publicKey;
+            accessLevel = AccessLevel.Write;
+        }
+        
+        public InboxReference(string pageName, string serverLink) : base(pageName,
+            serverLink)
+        {
+            (privateKey, publicKey) = Crypto.GenerateRSAParams();
+            accessLevel = AccessLevel.ReadWrite;
         }
     }
     
