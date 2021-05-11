@@ -1,3 +1,5 @@
+using SecureWiki.Cryptography;
+
 namespace SecureWiki.Model
 {
     public abstract class Reference
@@ -24,9 +26,9 @@ namespace SecureWiki.Model
         public byte[] symmKey;
         public string accessFileTarget;
 
-        public SymmetricReference(string pageName, string serverLink, byte[] symmKey, Type type, string accessFileTarget) : base(pageName, serverLink)
+        public SymmetricReference(string pageName, string serverLink, Type type, string accessFileTarget) : base(pageName, serverLink)
         {
-            this.symmKey = symmKey;
+            this.symmKey = Crypto.GenerateSymmKey();
             this.type = type;
             this.accessFileTarget = accessFileTarget;
         }
@@ -64,12 +66,19 @@ namespace SecureWiki.Model
         public byte[]? privateKey;
         public AccessLevel accessLevel;
 
-        public InboxReference(string pageName, string serverLink, AccessLevel accessLevel, byte[] publicKey, byte[]? privateKey = null) : base(pageName,
+        public InboxReference(string pageName, string serverLink, AccessLevel accessLevel) : base(pageName,
             serverLink)
         {
             this.accessLevel = accessLevel;
-            this.publicKey = publicKey;
-            this.privateKey = privateKey;
+            
+            if (accessLevel == AccessLevel.Write)
+            {
+                (privateKey, publicKey) = Crypto.GenerateRSAParams();
+            }
+            else
+            {
+                (_, publicKey) = Crypto.GenerateRSAParams();
+            }
         }
     }
     

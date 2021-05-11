@@ -296,6 +296,39 @@ namespace SecureWiki.MediaWiki
             }
         }
 
+        public bool UploadMasterKeyring(byte[] key, string pageName, Keyring masterKeyring)
+        {
+            var keyringString = JSONSerialization.SerializeObject(masterKeyring);
+            var keyringBytes = Encoding.ASCII.GetBytes(keyringString);
+            
+            // Encrypt text using key from key list
+            var encryptedContent = Crypto.EncryptGCM(keyringBytes, key);
+            if (encryptedContent == null) return false;
+
+            var encryptedContentString = Convert.ToBase64String(encryptedContent);
+            
+            // Upload encrypted content
+            MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
+                pageName);
+            var httpResponse = uploadNewRevision.UploadContent(encryptedContentString);
+            _mwo.editToken ??= uploadNewRevision.editToken;
+
+            // Check if upload was successful
+            if (httpResponse != null)
+            {
+                var response = new Response(httpResponse);
+                
+                // If upload was a success
+                if (response.Result == Response.ResultType.Success)
+                {
+                    return true;
+                }
+            }
+
+            return false;   
+        }
+        
+
         public bool UploadKeyring(AccessFile accessFile, Keyring keyring)
         {
             var keyringString = JSONSerialization.SerializeObject(keyring);

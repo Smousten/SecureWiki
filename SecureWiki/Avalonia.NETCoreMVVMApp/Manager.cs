@@ -206,7 +206,7 @@ namespace SecureWiki
             JSONSerialization.SerializeAndWriteFile(ownContactsPath, contactManager.OwnContacts);
         }
 
-        // Contacts in revoke popup list should only show contacts in data file
+        // Contacts in revoke popup list should only show contacts in access file
         public void GetFileContacts(ObservableCollection<Contact> revokeContacts, AccessFile accessFile)
         {
             revokeContacts.Clear();
@@ -402,7 +402,7 @@ namespace SecureWiki
         // Check inboxes of own contacts to update existing keyring with new updates
         private void UpdateFromInboxes(WikiHandler? wikiHandler)
         {
-            List<AccessFile> incomingDataFiles = new();
+            List<AccessFile> incomingAccessFiles = new();
             // Download from inbox - iterate through all new revisions for each contact
             var inboxContent = wikiHandler?.DownloadFromInboxPages();
             if (inboxContent != null)
@@ -414,57 +414,57 @@ namespace SecureWiki
                         if (JSONSerialization.DeserializeObject(revision, typeof(Keyring)) is Keyring
                             deserializeObject)
                         {
-                            incomingDataFiles.AddRange(deserializeObject.accessFiles);
+                            incomingAccessFiles.AddRange(deserializeObject.accessFiles);
                         }
                     }
                 }
             }
 
-            incomingDataFiles = incomingDataFiles.OrderBy(e => e.pageName).ToList();
+            incomingAccessFiles = incomingAccessFiles.OrderBy(e => e.pageName).ToList();
             List<AccessFile> intermediateList = new();
 
-            // Merge updates to same datafiles and remove duplicates 
+            // Merge updates to same access files and remove duplicates 
             int i = 0;
-            while (i < incomingDataFiles.Count)
+            while (i < incomingAccessFiles.Count)
             {
                 int cnt = 1;
 
-                while (i + cnt < incomingDataFiles.Count &&
-                       incomingDataFiles[i].pageName.SequenceEqual(incomingDataFiles[i + cnt].pageName))
+                while (i + cnt < incomingAccessFiles.Count &&
+                       incomingAccessFiles[i].pageName.SequenceEqual(incomingAccessFiles[i + cnt].pageName))
                 {
-                    if (incomingDataFiles[i].serverLink.Equals(incomingDataFiles[i + cnt].serverLink))
+                    if (incomingAccessFiles[i].serverLink.Equals(incomingAccessFiles[i + cnt].serverLink))
                     {
-                        incomingDataFiles[i].MergeWithOtherAccessFileEntry(incomingDataFiles[i + cnt]);
+                        incomingAccessFiles[i].MergeWithOtherAccessFileEntry(incomingAccessFiles[i + cnt]);
                     }
 
                     cnt++;
                 }
 
-                intermediateList.Add(incomingDataFiles[i]);
+                intermediateList.Add(incomingAccessFiles[i]);
                 i += cnt;
             }
 
-            // Get all existing datafiles in a list
-            List<AccessFile> newDataFiles = new();
-            var existingDataFiles = rootKeyring.GetAllAndDescendantAccessFileEntries();
-            existingDataFiles = existingDataFiles.OrderBy(entry => entry.pageName).ToList();
+            // Get all existing access files in a list
+            List<AccessFile> newAccessFiles = new();
+            var existingAccessFiles = rootKeyring.GetAllAndDescendantAccessFileEntries();
+            existingAccessFiles = existingAccessFiles.OrderBy(entry => entry.pageName).ToList();
 
-            // For each incoming datafile from inbox, merge with existing datafile or add to list of new files
-            foreach (var dataFile in intermediateList)
+            // For each incoming access file from inbox, merge with existing access file or add to list of new files
+            foreach (var accessFile in intermediateList)
             {
-                var existingDf = existingDataFiles.Find(e => e.pageName.Equals(dataFile.pageName));
-                if (existingDf != null)
+                var existingAf = existingAccessFiles.Find(e => e.pageName.Equals(accessFile.pageName));
+                if (existingAf != null)
                 {
-                    existingDf.MergeWithOtherAccessFileEntry(dataFile);
+                    existingAf.MergeWithOtherAccessFileEntry(accessFile);
                 }
                 else
                 {
-                    newDataFiles.Add(dataFile);
+                    newAccessFiles.Add(accessFile);
                 }
             }
 
-            // Add new datafiles to folder the same import folder
-            if (newDataFiles.Count > 0)
+            // Add new access files to folder the same import folder
+            if (newAccessFiles.Count > 0)
             {
                 if (!rootKeyring.keyrings.Any(e => e.name.Equals("ImportedFromContacts")))
                 {
@@ -472,7 +472,7 @@ namespace SecureWiki
                 }
 
                 var importFolder = rootKeyring.keyrings.First(e => e.name.Equals("ImportedFromContacts"));
-                importFolder.AddRangeAccessFile(newDataFiles);
+                importFolder.AddRangeAccessFile(newAccessFiles);
             }
             
             _keyringManager.SortAndUpdatePeripherals();
@@ -568,31 +568,31 @@ namespace SecureWiki
 
         public void UploadNewVersion(string filename, string filepath)
         {
-            AccessFile? df = GetDataFile(filename, rootKeyring);
-            var keyList = df?.keyList.Last();
+            AccessFile? af = GetAccessFile(filename, rootKeyring);
+            var keyList = af?.keyList.Last();
             if (keyList?.PrivateKey != null)
             {
-                var wikiHandler = GetWikiHandler(df!.serverLink);
+                var wikiHandler = GetWikiHandler(af!.serverLink);
 
                 if (wikiHandler != null)
                 {
                     // Write to logger
-                    string loggerMsg = "Attempting to upload file to server '" + df!.serverLink + "'";
+                    string loggerMsg = "Attempting to upload file to server '" + af!.serverLink + "'";
                     WriteToLogger(loggerMsg, filepath);
 
-                    wikiHandler.Upload(df!, filepath);
+                    wikiHandler.Upload(af!, filepath);
                 }
                 else
                 {
                     // Write to logger
-                    string loggerMsg = $"File upload to server '{df!.serverLink}' " +
+                    string loggerMsg = $"File upload to server '{af!.serverLink}' " +
                                        $"failed due to missing server credentials";
                     WriteToLogger(loggerMsg, null);
                 }
             }
             else
             {
-                Console.WriteLine("{0}: the corresponding DataFileEntry does not contain" +
+                Console.WriteLine("{0}: the corresponding AccessFileEntry does not contain" +
                                   " a private key, upload cancelled", filepath);
             }
         }
@@ -604,54 +604,62 @@ namespace SecureWiki
             WriteToLogger($"Attempting to read file '{filename}'", filename);
             string? revid = null;
             
-            var dataFile = GetDataFile(filename, rootKeyring);
-            if (dataFile == null) return null;
+            var accessFile = GetAccessFile(filename, rootKeyring);
+            if (accessFile == null) return null;
             
             // Check if any specific revision has been requested
-            if (RequestedRevision.ContainsKey((dataFile.pageName, dataFile.serverLink)))
+            if (RequestedRevision.ContainsKey((accessFile.pageName, accessFile.serverLink)))
             {
-                revid = RequestedRevision[(dataFile.pageName, dataFile.serverLink)];
+                revid = RequestedRevision[(accessFile.pageName, accessFile.serverLink)];
                 
                 // Check if content already is in cache
-                var cacheResult = AttemptReadFileFromCache(dataFile.pageName, revid);
+                var cacheResult = AttemptReadFileFromCache(accessFile.pageName, revid);
                 if (cacheResult != null) return Convert.FromBase64String(cacheResult);
             }
 
             // Get valid WikiHandler or return null
-            var wikiHandler = GetWikiHandler(dataFile.serverLink);
+            var wikiHandler = GetWikiHandler(accessFile.serverLink);
             if (wikiHandler == null) return null;
 
             // If no specific revid has been requested, get newest revision id, if any exists
-            revid ??= wikiHandler.GetLatestRevisionID(dataFile.pageName);
+            revid ??= wikiHandler.GetLatestRevisionID(accessFile.pageName);
 
             // Check if content already is in cache
             if (revid != null)
             {
-                var cacheResult = AttemptReadFileFromCache(dataFile.pageName, revid);
+                var cacheResult = AttemptReadFileFromCache(accessFile.pageName, revid);
                 if (cacheResult != null) return Convert.FromBase64String(cacheResult);
             } 
             
             // Download page content from server
-            var textBytes = wikiHandler.Download(dataFile, revid);
+            var textBytes = wikiHandler.Download(accessFile, revid);
 
             // Add plaintext to cache
             if (textBytes != null && revid != null)
             {
-                AddEntryToCache(dataFile.pageName, revid, Convert.ToBase64String(textBytes)); 
+                AddEntryToCache(accessFile.pageName, revid, Convert.ToBase64String(textBytes)); 
             }
 
             return textBytes;
         }
 
-        public void LoginToMediaWiki(string username, string password)
+        public void UploadMasterKeyring()
         {
-            throw new NotImplementedException();
+            if (!PageAlreadyExists(_keyringManager.masterKey.pageTitle, "-1", 
+                configManager.DefaultServerLink))
+            {
+                var wikiHandler = GetWikiHandler(configManager.DefaultServerLink);
+                wikiHandler?.UploadMasterKeyring(_keyringManager.masterKey.symmKey, 
+                    _keyringManager.masterKey.pageTitle,
+                    rootKeyring);
+            }
         }
 
         // Delegated Keyring functions
         public void AddNewFile(string filename, string filepath)
         {
             var pageTitleGenericFile = RandomString.GenerateRandomAlphanumericString();
+            var pageTitleAccessFile = RandomString.GenerateRandomAlphanumericString();
             while (true)
             {
                 if (PageAlreadyExists(pageTitleGenericFile, "-1", configManager.DefaultServerLink))
@@ -659,17 +667,28 @@ namespace SecureWiki
                     WriteToLogger($"Auto generated page title ({pageTitleGenericFile}) already exists on server. Retrying...");
                     pageTitleGenericFile = RandomString.GenerateRandomAlphanumericString();
                 }
+                else if (PageAlreadyExists(pageTitleAccessFile, "-1", configManager.DefaultServerLink))
+                {
+                    WriteToLogger(
+                        $"Auto generated page title ({pageTitleAccessFile}) already exists on server. Retrying...");
+                    pageTitleAccessFile = RandomString.GenerateRandomAlphanumericString();
+                }
                 else
                 {
                     break;
                 }
             }
             // TODO: add symmetric reference to parent keyring, upload access file
+            SymmetricReference symmetricReference = new SymmetricReference(pageTitleAccessFile,
+                configManager.DefaultServerLink, SymmetricReference.Type.GenericFile, pageTitleGenericFile);
+            
+            
+            
             AccessFile accessFile = new AccessFile(configManager.DefaultServerLink, pageTitleGenericFile, filename);
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
             
             // wikiHandler.UploadAccessFile(accessFile);
-            _keyringManager.AddNewFile(filename, filepath, configManager.DefaultServerLink, pageTitleGenericFile);
+            // _keyringManager.AddNewFile(filename, filepath, configManager.DefaultServerLink, pageTitleGenericFile);
         }
 
         public void AddNewKeyRing(string filename, string filepath)
@@ -790,9 +809,9 @@ namespace SecureWiki
         }
 
         // Delegated Crypto functions
-        public AccessFile? GetDataFile(string filename, Keyring keyring)
+        public AccessFile? GetAccessFile(string filename, Keyring keyring)
         {
-            return _keyringManager.GetDataFile(filename, keyring);
+            return _keyringManager.GetAccessFile(filename, keyring);
         }
 
         public void SendEmail(string recipientEmail)
@@ -828,28 +847,28 @@ namespace SecureWiki
             smtpClient.Send(mailMessage);
         }
 
-        // Revoke access to the selected data file. Create new cryptographic keys and the given contacts
+        // Revoke access to the selected access file. Create new cryptographic keys and the given contacts
         // will receive the new key in their inbox
-        public void RevokeAccess(AccessFile datafile, ObservableCollection<Contact> contacts)
+        public void RevokeAccess(AccessFile accessFile, ObservableCollection<Contact> contacts)
         {
-            WriteToLogger($"Attempting to revoke access to file '{datafile.filename}'");
+            WriteToLogger($"Attempting to revoke access to file '{accessFile.filename}'");
 
-            var wikiHandler = GetWikiHandler(datafile.serverLink);
-            var latestRevision = wikiHandler?.GetLatestRevision(datafile);
+            var wikiHandler = GetWikiHandler(accessFile.serverLink);
+            var latestRevision = wikiHandler?.GetLatestRevision(accessFile);
 
-            // Create new cryptographic keys for datafile
-            if (latestRevision?.revisionID != null && datafile.ownerPrivateKey != null)
+            // Create new cryptographic keys for access file
+            if (latestRevision?.revisionID != null && accessFile.ownerPrivateKey != null)
             {
-                _keyringManager.RevokeAccess(datafile, latestRevision.revisionID);
+                _keyringManager.RevokeAccess(accessFile, latestRevision.revisionID);
             }
 
-            // Send new cryptographic keys as a keyring with one datafile containing latest key
+            // Send new cryptographic keys as a keyring with one access file containing latest key
             // to selected contacts
             var uploadObject = new Keyring("revocation");
-            var datafileCopy = datafile.Copy();
-            var latestKey = datafile.keyList.Last();
-            datafileCopy.keyList = new List<AccessFileKey> {latestKey};
-            uploadObject.accessFiles.Add(datafileCopy);
+            var accessFileCopy = accessFile.Copy();
+            var latestKey = accessFile.keyList.Last();
+            accessFileCopy.keyList = new List<AccessFileKey> {latestKey};
+            uploadObject.accessFiles.Add(accessFileCopy);
             uploadObject.PrepareForExportRecursively();
 
             var serializeObject = JSONSerialization.SerializeObject(uploadObject);
@@ -858,16 +877,16 @@ namespace SecureWiki
                 UploadToInboxPage(contact.ServerLink, contact.PageTitle, serializeObject, contact.PublicKey);
             }
 
-            // Remove non-selected contacts from data file contact list
-            foreach (var dfContact in datafile.contactList.ToList())
+            // Remove non-selected contacts from access file contact list
+            foreach (var afContact in accessFile.contactList.ToList())
             {
                 var contact =
-                    contactManager.GetContactByPageTitleAndServerLink(dfContact.Item1,
-                        dfContact.Item2 ?? datafile.serverLink);
+                    contactManager.GetContactByPageTitleAndServerLink(afContact.Item1,
+                        afContact.Item2 ?? accessFile.serverLink);
                 if (contact == null) continue;
                 if (!contacts.Contains(contact))
                 {
-                    datafile.contactList.Remove(dfContact);
+                    accessFile.contactList.Remove(afContact);
                 }
             }
         }
@@ -904,14 +923,14 @@ namespace SecureWiki
 
             var pubKeyBytes = contact.PublicKey;
 
-            var df = rootKeyring.accessFiles.First();
+            var af = rootKeyring.accessFiles.First();
 
-            var dfString = JSONSerialization.SerializeObject(df);
+            var afString = JSONSerialization.SerializeObject(af);
 
-            Console.WriteLine("dfString");
-            Console.WriteLine(dfString);
+            Console.WriteLine("afString");
+            Console.WriteLine(afString);
 
-            string content = dfString;
+            string content = afString;
 
             UploadToInboxPage(contact.ServerLink, contact.PageTitle, content, pubKeyBytes);
         }
@@ -966,7 +985,7 @@ namespace SecureWiki
             }
         }
 
-        // create new keyring containing all data files selected by user in GUI
+        // create new keyring containing all access files selected by user in GUI
         // send new Keyring to the selected contacts inbox page
         public void ShareSelectedKeyring(List<Contact> contacts)
         {
@@ -976,42 +995,42 @@ namespace SecureWiki
             // create new keyring with all selected folder and files
             var keyringEntry = _keyringManager.CreateRootKeyringBasedOnIsChecked();
             
-            // get the list of all the data files in the new keyring
-            var dataFileList = keyringEntry.GetAllAndDescendantAccessFileEntries();
+            // get the list of all the access files in the new keyring
+            var accessFileList = keyringEntry.GetAllAndDescendantAccessFileEntries();
 
-            // for each contact create a new list with data files not previously received
+            // for each contact create a new list with access files not previously received
             foreach (var contact in contacts)
             {
-                var newDataFiles = new List<AccessFile>();
+                var newAccessFiles = new List<AccessFile>();
 
-                foreach (var df in dataFileList)
+                foreach (var af in accessFileList)
                 {
-                    var contactInfo = df.GetContactInfo
+                    var contactInfo = af.GetContactInfo
                         (contact.PageTitle, contact.ServerLink);
 
                     if (contactInfo == null)
                     {
-                        df.AddContactInfo(contact.PageTitle, contact.ServerLink);
-                        newDataFiles.Add(df);
+                        af.AddContactInfo(contact.PageTitle, contact.ServerLink);
+                        newAccessFiles.Add(af);
                     }
                 }
 
-                if (newDataFiles.Count == 0)
+                if (newAccessFiles.Count == 0)
                 {
                     continue;
                 }
 
-                // Create new keyring containing copies of the datafiles to be shared
+                // Create new keyring containing copies of the access files to be shared
                 var intermediateKeyringEntry = new Keyring(keyringEntry.name);
                 var keyringEntryToExport = new Keyring(intermediateKeyringEntry.name);
 
-                intermediateKeyringEntry.accessFiles.AddRange(newDataFiles);
+                intermediateKeyringEntry.accessFiles.AddRange(newAccessFiles);
                 intermediateKeyringEntry.AddCopiesToOtherKeyringRecursively(keyringEntryToExport);
                 keyringEntryToExport.PrepareForExportRecursively();
 
                 var keyringEntryString = JSONSerialization.SerializeObject(keyringEntryToExport);
 
-                var loggerMsg = $"Sharing {newDataFiles.Count} new files with contact '{contact.Nickname}'.";
+                var loggerMsg = $"Sharing {newAccessFiles.Count} new files with contact '{contact.Nickname}'.";
                 WriteToLogger(loggerMsg);
 
                 var httpResponse = UploadToInboxPage(contact.ServerLink, contact.PageTitle,

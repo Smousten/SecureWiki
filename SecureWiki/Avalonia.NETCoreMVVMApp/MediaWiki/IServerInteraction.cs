@@ -49,6 +49,9 @@ namespace SecureWiki.MediaWiki
         public bool UploadKeyring(AccessFile accessFile, Keyring keyring);
         
         // TODO
+        public bool UploadMasterKeyring(byte[] key, string pageName, Keyring masterKeyring);
+        
+        // TODO
         public AccessFile? DownloadAccessFile(SymmetricReference symmetricReference);
 
         // TODO

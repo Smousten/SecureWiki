@@ -261,17 +261,6 @@ namespace SecureWiki.Views
             manager.SetDefaultServerLink(ip);
         }
 
-        private void ButtonLogin_Click(object? sender, RoutedEventArgs e)
-        {
-            var textBoxUser = this.FindControl<TextBox>("TextBoxUser");
-            var username = textBoxUser.Text;
-
-            var textBoxPass = this.FindControl<TextBox>("TextBoxPass");
-            var password = textBoxPass.Text;
-
-            manager.LoginToMediaWiki(username, password);
-        }
-
         private void ButtonMail(object? sender, RoutedEventArgs e)
         {
             var textBoxMail = this.FindControl<TextBox>("TextBoxMail");
