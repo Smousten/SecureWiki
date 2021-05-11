@@ -49,9 +49,9 @@ namespace SecureWiki.Model
         {
             if (!Files.Contains(mdFile))
             {
-                Files.Add(mdFile);
+                var index = Files.BinarySearch(mdFile, new MDFileComparer());
+                Files.Insert(index, mdFile);
             }
-            SortFiles();
         }
         
         public void RemoveFile(MDFile mdFile)
@@ -60,16 +60,15 @@ namespace SecureWiki.Model
             {
                 Files.Remove(mdFile);
             }
-            SortFiles();
         }
         
         public void AddFolder(MDFolder mdFolder)
         {
             if (!Folders.Contains(mdFolder))
             {
-                Folders.Add(mdFolder);
+                var index = Folders.BinarySearch(mdFolder, new MDFolderComparer());
+                Folders.Insert(index, mdFolder);
             }
-            SortFolders();
         }
 
         public void RemoveFolder(MDFolder mdFolder)
@@ -78,7 +77,6 @@ namespace SecureWiki.Model
             {
                 Folders.Remove(mdFolder);
             }
-            SortFolders();
         }
         
         public void SortFiles()

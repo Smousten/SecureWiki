@@ -966,21 +966,6 @@ namespace SecureWiki
             }
         }
 
-        public void TestIfPageExists()
-        {
-            var pageTitle = "fdafadssfd";
-            var wikiHandler = GetWikiHandler("http://192.168.1.7/mediawiki/api.php");
-            var content = wikiHandler.PageAlreadyExists(pageTitle, "-1");
-            if (content)
-            {
-                Console.WriteLine("Page exists with pageTitle: " + pageTitle);
-            }
-            else
-            {
-                Console.WriteLine("Page does not exist with pageTitle: " + pageTitle);
-            }
-        }
-
         // create new keyring containing all data files selected by user in GUI
         // send new Keyring to the selected contacts inbox page
         public void ShareSelectedKeyring(List<Contact> contacts)
