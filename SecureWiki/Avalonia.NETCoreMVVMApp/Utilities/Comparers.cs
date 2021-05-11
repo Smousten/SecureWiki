@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using SecureWiki.Model;
 
 namespace SecureWiki.Utilities
 {
@@ -34,6 +35,28 @@ namespace SecureWiki.Utilities
             }
 
             return 0;
+        }
+    }
+    
+    public class MDFileComparer : IComparer<MDFile>
+    {
+        public int Compare(MDFile? x, MDFile? y)
+            {
+                if (ReferenceEquals(x, y)) return 0;
+                if (ReferenceEquals(null, y)) return 1;
+                if (ReferenceEquals(null, x)) return -1;
+                return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
+            }
+    }
+    
+    public class MDFolderComparer : IComparer<MDFolder>
+    {
+        public int Compare(MDFolder? x, MDFolder? y)
+        {
+            if (ReferenceEquals(x, y)) return 0;
+            if (ReferenceEquals(null, y)) return 1;
+            if (ReferenceEquals(null, x)) return -1;
+            return string.Compare(x.Name, y.Name, StringComparison.Ordinal);
         }
     }
 }
