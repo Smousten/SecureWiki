@@ -291,15 +291,15 @@ namespace SecureWiki.MediaWiki
             return (cipherBytes, signBytes);
         }
 
-        public void UploadAccessFile(byte[] key, string pageTitle, DataFile dataFile)
+        public void UploadAccessFile(SymmetricReference symmetricReference, DataFile dataFile)
         {
             var dataFileString = JSONSerialization.SerializeObject(dataFile);
             var dataFileBytes = Encoding.ASCII.GetBytes(dataFileString);
 
-            var cipherTextBytes = Crypto.EncryptGCM(dataFileBytes, key);
+            var cipherTextBytes = Crypto.EncryptGCM(dataFileBytes, symmetricReference.symmKey);
 
             MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
-                pageTitle);
+                symmetricReference.reference);
 
             if (cipherTextBytes != null)
             {
@@ -356,8 +356,7 @@ namespace SecureWiki.MediaWiki
 
             return false;
         }
-
-
+        
         public DataFile? DownloadAccessFile(SymmetricReference symmetricReference)
         {
             // Download access file

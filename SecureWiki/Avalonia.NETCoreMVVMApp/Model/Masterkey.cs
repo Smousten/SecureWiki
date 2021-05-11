@@ -11,6 +11,7 @@ namespace SecureWiki.Model
         public Dictionary<string, (string, byte[])> Dictionary { get; set; }
         
         [JsonProperty] public string mappingPage { get; set; }
+        
         public Masterkey() {}
     }
 }
