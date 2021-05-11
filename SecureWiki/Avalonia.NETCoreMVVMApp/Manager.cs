@@ -38,6 +38,7 @@ namespace SecureWiki
         public ConfigManager configManager;
         public ContactManager contactManager;
 
+        public MountedDirMirror mountedDirMirror = new();
         public Logger logger;
         public RootKeyring rootKeyring;
         private Dictionary<(string, string), string> RequestedRevision = new();
@@ -658,43 +659,49 @@ namespace SecureWiki
         // Delegated Keyring functions
         public void AddNewFile(string filename, string filepath)
         {
-            var pageNameGenericFile = RandomString.GenerateRandomAlphanumericString();
-            var pageNameAccessFile = RandomString.GenerateRandomAlphanumericString();
-            
-            // Check page name of generic file and access file does not already exist on server
-            while (true)
+            List<string> freshPageNames = new();
+            const int pageCnt = 2;
+
+            while (freshPageNames.Count < pageCnt)
             {
-                if (PageAlreadyExists(pageNameGenericFile, "-1", configManager.DefaultServerLink))
+                var tmp = RandomString.GenerateRandomAlphanumericString();
+                if (!PageAlreadyExists(tmp, "-1", configManager.DefaultServerLink))
                 {
-                    WriteToLogger($"Auto generated page title ({pageNameGenericFile}) already exists on server. Retrying...");
-                    pageNameGenericFile = RandomString.GenerateRandomAlphanumericString();
-                }
-                else if (PageAlreadyExists(pageNameAccessFile, "-1", configManager.DefaultServerLink))
-                {
-                    WriteToLogger(
-                        $"Auto generated page title ({pageNameAccessFile}) already exists on server. Retrying...");
-                    pageNameAccessFile = RandomString.GenerateRandomAlphanumericString();
-                }
-                else
-                {
-                    break;
+                    freshPageNames.Add(tmp);
                 }
             }
+
+            var pageNameFile = freshPageNames[0];
+            var pageNameAccessFile = freshPageNames[1];
+            
+            // Create access file and reference
+            AccessFile accessFile = new(configManager.DefaultServerLink, pageNameFile);
+            AccessFileReference accessFileReference = new(pageNameFile, configManager.DefaultServerLink, 
+                accessFile, AccessFileReference.Type.GenericFile);
     
             // Create symmetric reference to access file
             SymmetricReference symmetricReference = new(pageNameAccessFile,
-                configManager.DefaultServerLink, SymmetricReference.Type.GenericFile, pageNameGenericFile);
+                configManager.DefaultServerLink, SymmetricReference.Type.GenericFile, pageNameFile);
 
             // Add symmetric reference to newEntries keyring
             var defaultKeyring = rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("newEntries"));
-            defaultKeyring?.SymmetricReferences.Add(symmetricReference);
+            if (defaultKeyring == null)
+            {
+                rootKeyring.AddKeyring(new Keyring("NewEntries"));
+                defaultKeyring = rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("newEntries"));
+            }
+            defaultKeyring!.SymmetricReferences.Add(symmetricReference);
             
-            // Create access file and upload to server
-            AccessFile accessFile = new(configManager.DefaultServerLink, pageNameGenericFile, filename);
+            // Create new entry in md mirror
+            mountedDirMirror.AddFile(filepath, accessFileReference);
+            
+            // Upload new files to server
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
             wikiHandler?.UploadAccessFile(symmetricReference, accessFile);
+            wikiHandler?.Upload(accessFile, filepath);
             
-            // _keyringManager.AddNewFile(filename, filepath, configManager.DefaultServerLink, pageTitleGenericFile);
+            // Upload updated keyring
+            wikiHandler?.UploadKeyring(defaultKeyring.accessFileReferenceToSelf.AccessFileParent, defaultKeyring);
         }
 
         public void AddNewKeyRing(string filename, string filepath)

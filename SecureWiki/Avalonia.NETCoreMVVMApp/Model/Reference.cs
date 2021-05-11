@@ -44,11 +44,11 @@ namespace SecureWiki.Model
         }
 
         public Type type;
-        public AccessFile AccessFile;
+        public AccessFile AccessFileParent;
 
-        public AccessFileReference(string pageName, string serverLink, AccessFile accessFile, Type type) : base(pageName, serverLink)
+        public AccessFileReference(string pageName, string serverLink, AccessFile accessFileParent, Type type) : base(pageName, serverLink)
         {
-            this.AccessFile = accessFile;
+            this.AccessFileParent = accessFileParent;
             this.type = type;
         }
         
