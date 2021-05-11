@@ -182,12 +182,6 @@ namespace SecureWiki.MediaWiki
                 if (Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes,
                     splitPageContent.Value.signBytes))
                 {
-                    // // Split IV and ciphertext from pageContent
-                    // var iv = splitPageContent.Value.cipherBytes.Take(16).ToArray();
-                    // var cipherText = splitPageContent.Value.cipherBytes.Skip(16).ToArray();
-                    //
-                    // var decryptedBytes = Crypto.Decrypt(cipherText, key.SymmKey, iv);
-
                     var decryptedBytes = Crypto.DecryptGCM(splitPageContent.Value.cipherBytes, key.SymmKey);
                     if (decryptedBytes == null)
                     {
@@ -261,12 +255,7 @@ namespace SecureWiki.MediaWiki
                     var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
                     return GetLatestValidRevision(dataFile, revisions);
                 }
-
-                // // Split IV and ciphertext from pageContent
-                // var iv = splitPageContent.Value.cipherBytes.Take(16).ToArray();
-                // var cipherText = splitPageContent.Value.cipherBytes.Skip(16).ToArray();
-                //
-                // var decryptedBytes = Crypto.Decrypt(cipherText, key.SymmKey, iv);
+                
                 var decryptedBytes = Crypto.DecryptGCM(splitPageContent.Value.cipherBytes, key.SymmKey);
                 if (decryptedBytes == null)
                 {
