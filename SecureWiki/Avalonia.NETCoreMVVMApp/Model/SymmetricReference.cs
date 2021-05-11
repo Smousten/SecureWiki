@@ -5,7 +5,7 @@ namespace SecureWiki.Model
         public string reference;
         public byte[] symmKey;
         public Type type;
-        
+
 
         public SymmetricReference(string reference, byte[] symmKey)
         {
@@ -13,6 +13,7 @@ namespace SecureWiki.Model
             this.symmKey = symmKey;
         }
     }
+
     public enum Type
     {
         AccessFile,
