@@ -5,7 +5,7 @@ using SecureWiki.Cryptography;
 namespace SecureWiki.Model
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class DataFileKey
+    public class AccessFileKey
     {
         [JsonProperty]
         public byte[] SymmKey { get; set; }
@@ -22,9 +22,9 @@ namespace SecureWiki.Model
         [JsonProperty]
         public string RevisionEnd { get; set; }
         
-        public DataFileKey() {}
+        public AccessFileKey() {}
 
-        public DataFileKey(byte[] ownerPrivateKey)
+        public AccessFileKey(byte[] ownerPrivateKey)
         {
             // Generate new symmetric key and new asymmetric key pair
             var newSymmKey = Crypto.GenerateSymmKey();
@@ -42,7 +42,7 @@ namespace SecureWiki.Model
                 Utilities.ByteArrayCombiner.Combine(SymmKey,PublicKey));
         }
 
-        public DataFileKey(byte[] symmKey, byte[] iv, 
+        public AccessFileKey(byte[] symmKey, byte[] iv, 
             byte[]? privateKey, byte[] publicKey, byte[]? signedWriteKey, byte[] signedReadKeys,
             string revisionStart, string revisionEnd)
         {
@@ -55,32 +55,32 @@ namespace SecureWiki.Model
             RevisionEnd = revisionEnd;
         }
 
-        public bool MergeWithOtherKey(DataFileKey otherDFKey)
+        public bool MergeWithOtherKey(AccessFileKey otherAFKey)
         {
-            if (!SymmKey.SequenceEqual(otherDFKey.SymmKey) ||
-                // !iv.SequenceEqual(otherDFKey.iv) ||
-                !PublicKey.SequenceEqual(otherDFKey.PublicKey) ||
-                (PrivateKey != null && otherDFKey.PrivateKey != null && !PrivateKey.SequenceEqual(otherDFKey.PrivateKey))
+            if (!SymmKey.SequenceEqual(otherAFKey.SymmKey) ||
+                // !iv.SequenceEqual(otherAFKey.iv) ||
+                !PublicKey.SequenceEqual(otherAFKey.PublicKey) ||
+                (PrivateKey != null && otherAFKey.PrivateKey != null && !PrivateKey.SequenceEqual(otherAFKey.PrivateKey))
                 )
             {
                 return false;
             }
 
-            PrivateKey ??= otherDFKey.PrivateKey;
+            PrivateKey ??= otherAFKey.PrivateKey;
 
             var revStart = int.Parse(RevisionStart);
             var revEnd = int.Parse(RevisionEnd);
-            var revStartOther = int.Parse(otherDFKey.RevisionStart);
-            var revEndOther = int.Parse(otherDFKey.RevisionEnd);
+            var revStartOther = int.Parse(otherAFKey.RevisionStart);
+            var revEndOther = int.Parse(otherAFKey.RevisionEnd);
 
             if (revStart > revStartOther)
             {
-                RevisionStart = otherDFKey.RevisionStart;
+                RevisionStart = otherAFKey.RevisionStart;
             }
 
             if (revEnd < revEndOther)
             {
-                RevisionEnd = otherDFKey.RevisionEnd;
+                RevisionEnd = otherAFKey.RevisionEnd;
             }
 
             return true;

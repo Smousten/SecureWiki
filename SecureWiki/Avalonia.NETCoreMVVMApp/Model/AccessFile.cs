@@ -13,7 +13,7 @@ using SecureWiki.Utilities;
 namespace SecureWiki.Model
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class DataFile : IReactiveObject
+    public class AccessFile : IReactiveObject
     {
         [JsonProperty]
         public string filename { get; set; }
@@ -30,9 +30,9 @@ namespace SecureWiki.Model
         [JsonProperty] 
         public List<(string, string?)> contactList { get; set; }
 
-        // DataFileKey is a tuple of (private key, public key and information relevant to their use)
+        // AccessFileKey is a tuple of (private key, public key and information relevant to their use)
         [JsonProperty] 
-        public List<DataFileKey> keyList { get; set; }
+        public List<AccessFileKey> keyList { get; set; }
 
         private Keyring? _parent;
         public Keyring? parent
@@ -99,12 +99,12 @@ namespace SecureWiki.Model
             }
         }
 
-        private DataFile()
+        private AccessFile()
         {
             
         }
         
-        public DataFile(string serverLink, string pageName, string filename = "unnamed")
+        public AccessFile(string serverLink, string pageName, string filename = "unnamed")
         {
             this.filename = filename;
             this.serverLink = serverLink;
@@ -117,8 +117,8 @@ namespace SecureWiki.Model
 
             contactList = new List<(string, string?)>();
             
-            // Create a new DataFileKey and sign it with the owner private key 
-            keyList = new List<DataFileKey> {new(ownerPrivateKey)};
+            // Create a new AccessFileKey and sign it with the owner private key 
+            keyList = new List<AccessFileKey> {new(ownerPrivateKey)};
 
             // Set event handlers
             CheckedChanged -= CheckedChangedUpdateParent;
@@ -182,20 +182,20 @@ namespace SecureWiki.Model
             parent?.UpdateIsCheckedBasedOnChildren();
         }
 
-        public bool IsEqual(DataFile reference)
+        public bool IsEqual(AccessFile reference)
         {
             return CompareAllPropertiesExcept(reference, null);
         }
 
-        public bool HasSameStaticProperties(DataFile reference)
+        public bool HasSameStaticProperties(AccessFile reference)
         {
             List<PropertyInfo?> staticPropertyList = new();
             List<PropertyInfo> compareList = new();
             
             // Add relevant static properties
-            staticPropertyList.Add(typeof(DataFile).GetProperty(nameof(pageName)));
-            staticPropertyList.Add(typeof(DataFile).GetProperty(nameof(serverLink)));
-            staticPropertyList.Add(typeof(DataFile).GetProperty(nameof(ownerPublicKey)));
+            staticPropertyList.Add(typeof(AccessFile).GetProperty(nameof(pageName)));
+            staticPropertyList.Add(typeof(AccessFile).GetProperty(nameof(serverLink)));
+            staticPropertyList.Add(typeof(AccessFile).GetProperty(nameof(ownerPublicKey)));
 
             // Check properties are not null
             foreach (var item in staticPropertyList)
@@ -209,9 +209,9 @@ namespace SecureWiki.Model
             return CompareProperties(reference, compareList);
         }
 
-        public bool CompareAllPropertiesExcept(DataFile reference, List<PropertyInfo>? ignoreList)
+        public bool CompareAllPropertiesExcept(AccessFile reference, List<PropertyInfo>? ignoreList)
         {
-            PropertyInfo[] properties = typeof(DataFile).GetProperties();
+            PropertyInfo[] properties = typeof(AccessFile).GetProperties();
 
             List<PropertyInfo> propertiesToBeCompared = new();
 
@@ -228,12 +228,12 @@ namespace SecureWiki.Model
             return CompareProperties(reference, propertiesToBeCompared);
         }
 
-        private bool CompareProperties(DataFile reference, List<PropertyInfo> propertiesToBeCompared)
+        private bool CompareProperties(AccessFile reference, List<PropertyInfo> propertiesToBeCompared)
         {
             foreach (PropertyInfo prop in propertiesToBeCompared)
             {
-                var ownValue = typeof(DataFile).GetProperty(prop.Name)?.GetValue(this, null);
-                var refValue = typeof(DataFile).GetProperty(prop.Name)?.GetValue(reference, null);
+                var ownValue = typeof(AccessFile).GetProperty(prop.Name)?.GetValue(this, null);
+                var refValue = typeof(AccessFile).GetProperty(prop.Name)?.GetValue(reference, null);
 
                 // Console.WriteLine("Testing property: '{0}'='{1}'", prop, ownValue);
                 
@@ -284,15 +284,15 @@ namespace SecureWiki.Model
             return revStart <= rev && (revEnd >= rev || revEndNotSet);
         }
 
-        public DataFileKey? GetDataFileKeyByRevisionID(string revid)
+        public AccessFileKey? GetAccessFileKeyByRevisionID(string revid)
         {
             int rev = int.Parse(revid);
 
             // Find first key where revid is in range
-            foreach (DataFileKey dataFileKey in keyList)
+            foreach (AccessFileKey accessFileKey in keyList)
             {
-                int revStart = int.Parse(dataFileKey.RevisionStart);
-                int revEnd = int.Parse(dataFileKey.RevisionEnd);
+                int revStart = int.Parse(accessFileKey.RevisionStart);
+                int revEnd = int.Parse(accessFileKey.RevisionEnd);
 
                 if (revStart > rev)
                 {
@@ -301,37 +301,37 @@ namespace SecureWiki.Model
 
                 if (revEnd > rev || revEnd == -1)
                 {
-                    return dataFileKey;
+                    return accessFileKey;
                 }
             }
 
-            // If no valid DataFileKey is found
+            // If no valid AccessFileKey is found
             return null;
         }
 
-        public void MergeWithOtherDataFileEntry(DataFile df)
+        public void MergeWithOtherAccessFileEntry(AccessFile af)
         {
             // Abort if any of the static information does not match
-            if (!filename.Equals(df.filename) ||
-                !serverLink.Equals(df.serverLink) ||
-                !pageName.Equals(df.pageName) ||
-                (ownerPrivateKey != null && df.ownerPrivateKey != null && !ownerPrivateKey.SequenceEqual(df.ownerPrivateKey)) ||
-                (ownerPublicKey != null && df.ownerPublicKey != null && !ownerPublicKey.SequenceEqual(df.ownerPublicKey))
+            if (!filename.Equals(af.filename) ||
+                !serverLink.Equals(af.serverLink) ||
+                !pageName.Equals(af.pageName) ||
+                (ownerPrivateKey != null && af.ownerPrivateKey != null && !ownerPrivateKey.SequenceEqual(af.ownerPrivateKey)) ||
+                (ownerPublicKey != null && af.ownerPublicKey != null && !ownerPublicKey.SequenceEqual(af.ownerPublicKey))
                 )
             {
                 return;
             }
 
             // Keep highest level of information
-            ownerPrivateKey ??= df.ownerPrivateKey;
-            ownerPublicKey ??= df.ownerPublicKey;
+            ownerPrivateKey ??= af.ownerPrivateKey;
+            ownerPublicKey ??= af.ownerPublicKey;
 
-            List<DataFileKey> combinedKeyList = new();
-            List<DataFileKey> resultingKeyList = new();
+            List<AccessFileKey> combinedKeyList = new();
+            List<AccessFileKey> resultingKeyList = new();
             
             // Create and sort combined list of keys
             combinedKeyList.AddRange(keyList);
-            combinedKeyList.AddRange(df.keyList);
+            combinedKeyList.AddRange(af.keyList);
             combinedKeyList = combinedKeyList.OrderBy(
                 entry => entry.PublicKey, new ByteArrayComparer()).ToList();
 
@@ -369,7 +369,7 @@ namespace SecureWiki.Model
             (string, string?) output;
             
             // Check if contactList contains any entries with the given page title and server link
-            // Serverlink is not saved to file if it matches that of the DataFileEntry
+            // Serverlink is not saved to file if it matches that of the AccessFileEntry
             if (serverlink.Equals(serverLink))
             {
                 output = contactList.FirstOrDefault
@@ -393,7 +393,7 @@ namespace SecureWiki.Model
             (string, string?) existingContactInfo;
             
             // Check if contact with same pageTitle already is in contactList
-            // Serverlink is not saved to file if it matches that of the DataFileEntry
+            // Serverlink is not saved to file if it matches that of the AccessFileEntry
             if (serverlink.Equals(serverLink))
             {
                 existingContactInfo = contactList.FirstOrDefault
@@ -425,21 +425,21 @@ namespace SecureWiki.Model
             }
         }
 
-        // Creates a new DataFileEntry and copies most of own properties over
-        public DataFile Copy()
+        // Creates a new AccessFileEntry and copies most of own properties over
+        public AccessFile Copy()
         {
-            // var copy = new DataFileEntry();
+            // var copy = new AccessFileEntry();
             // copy.filename = filename;
             // copy.serverLink = serverLink;
             // copy.pageName = pageName;
             // copy.ownerPrivateKey = ownerPrivateKey;
             // copy.ownerPublicKey = ownerPublicKey;
             // copy.contactList = contactList;
-            // copy.keyList = new List<DataFileKey>();
+            // copy.keyList = new List<AccessFileKey>();
 
             var jsonData = JSONSerialization.SerializeObject(this);
 
-            DataFile copy = (JSONSerialization.DeserializeObject(jsonData, typeof(DataFile)) as DataFile)!;
+            AccessFile copy = (JSONSerialization.DeserializeObject(jsonData, typeof(AccessFile)) as AccessFile)!;
 
             copy.isChecked = isChecked;
             copy.isCheckedWrite = isCheckedWrite;
@@ -449,7 +449,7 @@ namespace SecureWiki.Model
 
         public void PrintInfo()
         {
-            Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}'", 
+            Console.WriteLine("AccessFile: filename='{0}', Checked='{1}', Parent.Name='{2}'", 
                 filename, isChecked, parent?.name ?? "null");
         }
     }

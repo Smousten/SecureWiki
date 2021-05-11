@@ -42,11 +42,11 @@ namespace SecureWiki.Model
         }
 
         public Type type;
-        public DataFile dataFile;
+        public AccessFile AccessFile;
 
-        public AccessFileReference(string pageName, string serverLink, DataFile dataFile, Type type) : base(pageName, serverLink)
+        public AccessFileReference(string pageName, string serverLink, AccessFile accessFile, Type type) : base(pageName, serverLink)
         {
-            this.dataFile = dataFile;
+            this.AccessFile = accessFile;
             this.type = type;
         }
         

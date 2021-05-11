@@ -52,7 +52,7 @@ namespace SecureWikiTests
             Assert.NotNull(intermediate!.keyrings.FirstOrDefault(e => e.name.Equals("nested")));
         }
 
-        // Test that a new datafile is added to the rootkeyring
+        // Test that a new access file is added to the rootkeyring
         [Test]
         public void AddNewFileTest()
         {
@@ -63,7 +63,7 @@ namespace SecureWikiTests
 
             _keyringManager.AddNewFile(filename, filepath, serverLink, pageTitle);
             
-            Assert.NotNull(_rootKeyring.dataFiles.FirstOrDefault(e => e.filename.Equals("file")));
+            Assert.NotNull(_rootKeyring.accessFiles.FirstOrDefault(e => e.filename.Equals("file")));
         }
     }
 }

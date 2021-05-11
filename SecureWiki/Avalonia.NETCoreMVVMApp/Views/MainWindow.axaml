@@ -230,7 +230,7 @@
                                 </Border>
                             </StackPanel>
                         </TreeDataTemplate>
-                        <DataTemplate DataType="models:DataFile">
+                        <DataTemplate DataType="models:AccessFile">
                             <DockPanel LastChildFill="False" Name="DockPanel_DataFileEntry"
                                        MaxWidth="{Binding Bounds.Width, ElementName=ScrollViewerTreeView}">
                                 <!--IsChecked CheckBox-->
@@ -290,7 +290,7 @@
             <ContentControl Content="{Binding selectedFile, Mode=TwoWay}" Width="300" DockPanel.Dock="Top"
                             IsVisible="{Binding revisions, Converter={x:Static ObjectConverters.IsNotNull}}">
                 <ContentControl.ContentTemplate>
-                    <DataTemplate DataType="models:DataFile">
+                    <DataTemplate DataType="models:AccessFile">
                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto">
                             <TextBlock Grid.Row="0" Grid.Column="0" FontSize="20">Filename: </TextBlock>
                             <TextBlock Grid.Row="0" Grid.Column="1" FontSize="20" Text="{Binding filename}" />

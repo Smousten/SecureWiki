@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using DynamicData;
 using NUnit.Framework;
 using SecureWiki.Model;
@@ -43,20 +42,20 @@ namespace SecureWikiTests
         }
 
         [Test]
-        public void TestAddRemoveDataFile()
+        public void TestAddRemoveAccessFile()
         {
-            var newDataFile = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file1");
-            var newDataFile2 = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file2");
+            var newAccessFile = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file1");
+            var newAccessFile2 = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file2");
             
-            _rootKeyring.AddDataFile(newDataFile);
-            Assert.True(_rootKeyring.dataFiles.Count.Equals(1));
+            _rootKeyring.AddAccessFile(newAccessFile);
+            Assert.True(_rootKeyring.accessFiles.Count.Equals(1));
             
-            _rootKeyring.RemoveDataFile(newDataFile);
-            Assert.True(_rootKeyring.dataFiles.Count.Equals(0));
+            _rootKeyring.RemoveAccessFile(newAccessFile);
+            Assert.True(_rootKeyring.accessFiles.Count.Equals(0));
 
-            var list = new List<DataFile> {newDataFile, newDataFile2};
-            _rootKeyring.AddRangeDataFile(list);
-            Assert.True(_rootKeyring.dataFiles.Count.Equals(2));
+            var list = new List<AccessFile> {newAccessFile, newAccessFile2};
+            _rootKeyring.AddRangeAccessFile(list);
+            Assert.True(_rootKeyring.accessFiles.Count.Equals(2));
         }
 
         [Test]
@@ -66,21 +65,21 @@ namespace SecureWikiTests
             var newKeyring2 = new Keyring("folder2");
             var keyList = new List<Keyring> {newKeyring, newKeyring2};
             
-            var newDataFile = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file1");
-            var newDataFile2 = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file2");
-            var fileList = new List<DataFile> {newDataFile, newDataFile2};
+            var newAccessFile = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file1");
+            var newAccessFile2 = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file2");
+            var fileList = new List<AccessFile> {newAccessFile, newAccessFile2};
             
             _rootKeyring.keyrings.AddRange(keyList);
-            _rootKeyring.dataFiles.AddRange(fileList);
+            _rootKeyring.accessFiles.AddRange(fileList);
             
             Assert.True(_rootKeyring.keyrings.Count.Equals(2));
-            Assert.True(_rootKeyring.dataFiles.Count.Equals(2));
+            Assert.True(_rootKeyring.accessFiles.Count.Equals(2));
             
             _rootKeyring.ClearKeyrings();
-            _rootKeyring.ClearDataFiles();
+            _rootKeyring.ClearAccessFiles();
             
             Assert.True(_rootKeyring.keyrings.Count.Equals(0));
-            Assert.True(_rootKeyring.dataFiles.Count.Equals(0));
+            Assert.True(_rootKeyring.accessFiles.Count.Equals(0));
         }
 
         [Test]
@@ -89,25 +88,25 @@ namespace SecureWikiTests
             var newKeyring1 = new Keyring("folder1");
             var newKeyring2 = new Keyring("folder2");
             
-            var newDataFile = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file1");
-            var newDataFile2 = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file2");
-            var fileList = new List<DataFile> {newDataFile, newDataFile2};
+            var newAccessFile = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file1");
+            var newAccessFile2 = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file2");
+            var fileList = new List<AccessFile> {newAccessFile, newAccessFile2};
             
-            newKeyring2.AddRangeDataFile(fileList);
+            newKeyring2.AddRangeAccessFile(fileList);
             var keyList = new List<Keyring> {newKeyring1, newKeyring2};
             
             _rootKeyring.AddRangeKeyring(keyList);
 
             var newKeyring3 = new Keyring("folder2");
-            var newDataFile3 = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file3");
+            var newAccessFile3 = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file3");
             
             var newKeyring = new Keyring();
-            newKeyring3.AddDataFile(newDataFile3);
+            newKeyring3.AddAccessFile(newAccessFile3);
             newKeyring.AddKeyring(newKeyring3);
             
             _rootKeyring.MergeAllEntriesFromOtherKeyring(newKeyring);
             var folder2 = _rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("folder2"));
-            Assert.True(folder2.dataFiles.Count.Equals(3));
+            Assert.True(folder2.accessFiles.Count.Equals(3));
         }
     }
 }

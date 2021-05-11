@@ -301,15 +301,15 @@ namespace SecureWiki.Views
         {
             if (sender is TextBlock tb)
             {
-                DataFile dataFile = tb.DataContext as DataFile ?? throw new InvalidOperationException();
-                _viewModel.selectedFile = dataFile;
+                AccessFile accessFile = tb.DataContext as AccessFile ?? throw new InvalidOperationException();
+                _viewModel.selectedFile = accessFile;
 
                 Thread localThread = new(() =>
-                    manager.UpdateAllRevisionsAsync(dataFile.pageName, dataFile.serverLink, _viewModel.revisions));
+                    manager.UpdateAllRevisionsAsync(accessFile.pageName, accessFile.serverLink, _viewModel.revisions));
                 localThread.Start();
 
                 // Get requested revision, if any
-                _viewModel.selectedFileRevision = manager.GetRequestedRevision(dataFile.pageName, dataFile.serverLink) ?? "Newest";
+                _viewModel.selectedFileRevision = manager.GetRequestedRevision(accessFile.pageName, accessFile.serverLink) ?? "Newest";
             }
         }
 

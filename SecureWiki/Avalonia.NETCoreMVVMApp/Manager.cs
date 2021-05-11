@@ -207,13 +207,13 @@ namespace SecureWiki
         }
 
         // Contacts in revoke popup list should only show contacts in data file
-        public void GetFileContacts(ObservableCollection<Contact> revokeContacts, DataFile dataFile)
+        public void GetFileContacts(ObservableCollection<Contact> revokeContacts, AccessFile accessFile)
         {
             revokeContacts.Clear();
-            foreach (var (pageTitle, serverLink) in dataFile.contactList)
+            foreach (var (pageTitle, serverLink) in accessFile.contactList)
             {
                 var contact =
-                    contactManager.GetContactByPageTitleAndServerLink(pageTitle, serverLink ?? dataFile.serverLink);
+                    contactManager.GetContactByPageTitleAndServerLink(pageTitle, serverLink ?? accessFile.serverLink);
                 if (contact != null) revokeContacts.Add(contact);
             }
         }
@@ -402,7 +402,7 @@ namespace SecureWiki
         // Check inboxes of own contacts to update existing keyring with new updates
         private void UpdateFromInboxes(WikiHandler? wikiHandler)
         {
-            List<DataFile> incomingDataFiles = new();
+            List<AccessFile> incomingDataFiles = new();
             // Download from inbox - iterate through all new revisions for each contact
             var inboxContent = wikiHandler?.DownloadFromInboxPages();
             if (inboxContent != null)
@@ -414,14 +414,14 @@ namespace SecureWiki
                         if (JSONSerialization.DeserializeObject(revision, typeof(Keyring)) is Keyring
                             deserializeObject)
                         {
-                            incomingDataFiles.AddRange(deserializeObject.dataFiles);
+                            incomingDataFiles.AddRange(deserializeObject.accessFiles);
                         }
                     }
                 }
             }
 
             incomingDataFiles = incomingDataFiles.OrderBy(e => e.pageName).ToList();
-            List<DataFile> intermediateList = new();
+            List<AccessFile> intermediateList = new();
 
             // Merge updates to same datafiles and remove duplicates 
             int i = 0;
@@ -434,7 +434,7 @@ namespace SecureWiki
                 {
                     if (incomingDataFiles[i].serverLink.Equals(incomingDataFiles[i + cnt].serverLink))
                     {
-                        incomingDataFiles[i].MergeWithOtherDataFileEntry(incomingDataFiles[i + cnt]);
+                        incomingDataFiles[i].MergeWithOtherAccessFileEntry(incomingDataFiles[i + cnt]);
                     }
 
                     cnt++;
@@ -445,8 +445,8 @@ namespace SecureWiki
             }
 
             // Get all existing datafiles in a list
-            List<DataFile> newDataFiles = new();
-            var existingDataFiles = rootKeyring.GetAllAndDescendantDataFileEntries();
+            List<AccessFile> newDataFiles = new();
+            var existingDataFiles = rootKeyring.GetAllAndDescendantAccessFileEntries();
             existingDataFiles = existingDataFiles.OrderBy(entry => entry.pageName).ToList();
 
             // For each incoming datafile from inbox, merge with existing datafile or add to list of new files
@@ -455,7 +455,7 @@ namespace SecureWiki
                 var existingDf = existingDataFiles.Find(e => e.pageName.Equals(dataFile.pageName));
                 if (existingDf != null)
                 {
-                    existingDf.MergeWithOtherDataFileEntry(dataFile);
+                    existingDf.MergeWithOtherAccessFileEntry(dataFile);
                 }
                 else
                 {
@@ -472,7 +472,7 @@ namespace SecureWiki
                 }
 
                 var importFolder = rootKeyring.keyrings.First(e => e.name.Equals("ImportedFromContacts"));
-                importFolder.AddRangeDataFile(newDataFiles);
+                importFolder.AddRangeAccessFile(newDataFiles);
             }
             
             _keyringManager.SortAndUpdatePeripherals();
@@ -568,7 +568,7 @@ namespace SecureWiki
 
         public void UploadNewVersion(string filename, string filepath)
         {
-            DataFile? df = GetDataFile(filename, rootKeyring);
+            AccessFile? df = GetDataFile(filename, rootKeyring);
             var keyList = df?.keyList.Last();
             if (keyList?.PrivateKey != null)
             {
@@ -785,7 +785,7 @@ namespace SecureWiki
         }
 
         // Delegated Crypto functions
-        public DataFile? GetDataFile(string filename, Keyring keyring)
+        public AccessFile? GetDataFile(string filename, Keyring keyring)
         {
             return _keyringManager.GetDataFile(filename, keyring);
         }
@@ -825,7 +825,7 @@ namespace SecureWiki
 
         // Revoke access to the selected data file. Create new cryptographic keys and the given contacts
         // will receive the new key in their inbox
-        public void RevokeAccess(DataFile datafile, ObservableCollection<Contact> contacts)
+        public void RevokeAccess(AccessFile datafile, ObservableCollection<Contact> contacts)
         {
             WriteToLogger($"Attempting to revoke access to file '{datafile.filename}'");
 
@@ -843,8 +843,8 @@ namespace SecureWiki
             var uploadObject = new Keyring("revocation");
             var datafileCopy = datafile.Copy();
             var latestKey = datafile.keyList.Last();
-            datafileCopy.keyList = new List<DataFileKey> {latestKey};
-            uploadObject.dataFiles.Add(datafileCopy);
+            datafileCopy.keyList = new List<AccessFileKey> {latestKey};
+            uploadObject.accessFiles.Add(datafileCopy);
             uploadObject.PrepareForExportRecursively();
 
             var serializeObject = JSONSerialization.SerializeObject(uploadObject);
@@ -899,7 +899,7 @@ namespace SecureWiki
 
             var pubKeyBytes = contact.PublicKey;
 
-            var df = rootKeyring.dataFiles.First();
+            var df = rootKeyring.accessFiles.First();
 
             var dfString = JSONSerialization.SerializeObject(df);
 
@@ -987,12 +987,12 @@ namespace SecureWiki
             var keyringEntry = _keyringManager.CreateRootKeyringBasedOnIsChecked();
             
             // get the list of all the data files in the new keyring
-            var dataFileList = keyringEntry.GetAllAndDescendantDataFileEntries();
+            var dataFileList = keyringEntry.GetAllAndDescendantAccessFileEntries();
 
             // for each contact create a new list with data files not previously received
             foreach (var contact in contacts)
             {
-                var newDataFiles = new List<DataFile>();
+                var newDataFiles = new List<AccessFile>();
 
                 foreach (var df in dataFileList)
                 {
@@ -1015,7 +1015,7 @@ namespace SecureWiki
                 var intermediateKeyringEntry = new Keyring(keyringEntry.name);
                 var keyringEntryToExport = new Keyring(intermediateKeyringEntry.name);
 
-                intermediateKeyringEntry.dataFiles.AddRange(newDataFiles);
+                intermediateKeyringEntry.accessFiles.AddRange(newDataFiles);
                 intermediateKeyringEntry.AddCopiesToOtherKeyringRecursively(keyringEntryToExport);
                 keyringEntryToExport.PrepareForExportRecursively();
 

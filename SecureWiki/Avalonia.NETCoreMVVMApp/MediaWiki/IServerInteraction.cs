@@ -6,20 +6,20 @@ namespace SecureWiki.MediaWiki
     public interface IServerInteraction
     {
         // Returns latest revision stored on server of data file
-        public Revision GetLatestRevision(DataFile dataFile);
+        public Revision GetLatestRevision(AccessFile accessFile);
 
         // Returns latest revision stored on server of data file,
         // where the data file entry contains decryption key
-        public byte[]? GetLatestValidRevision(DataFile dataFile, List<Revision> revisions);
+        public byte[]? GetLatestValidRevision(AccessFile accessFile, List<Revision> revisions);
 
         // Returns all revisions stored on the server with the given pageTitle
         public MediaWikiObject.PageQuery.AllRevisions GetAllRevisions(string pageTitle);
         
         // Upload byte[] stored in file to server
-        public bool Upload(DataFile dataFile, string filepath);
+        public bool Upload(AccessFile accessFile, string filepath);
 
         // Returns decrypted data stored on server of data file with given revID
-        public byte[]? Download(DataFile dataFile, string? revID = null);
+        public byte[]? Download(AccessFile accessFile, string? revID = null);
 
         // Returns the id of the newest revision of a page on the server, or null if no revision is found
         public string? GetLatestRevisionID(string pageName);

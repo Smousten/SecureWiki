@@ -70,7 +70,7 @@ namespace SecureWiki.Model
         [JsonProperty]
         public ObservableCollection<Keyring> keyrings { get; set; } = new();
         [JsonProperty]
-        public ObservableCollection<DataFile> dataFiles { get; set; } = new();
+        public ObservableCollection<AccessFile> accessFiles { get; set; } = new();
 
         public ObservableCollection<object> combinedList
         {
@@ -82,7 +82,7 @@ namespace SecureWiki.Model
                 {
                     output.Add(entry);
                 }
-                foreach (DataFile entry in dataFiles)
+                foreach (AccessFile entry in accessFiles)
                 {
                     output.Add(entry);
                 }
@@ -121,24 +121,24 @@ namespace SecureWiki.Model
             RaisePropertyChanged(nameof(combinedList));
         }
         
-        public void AddDataFile(DataFile dataFile)
+        public void AddAccessFile(AccessFile accessFile)
         {
-            dataFiles.Add(dataFile);
-            RaisePropertyChanged(nameof(dataFiles));
+            accessFiles.Add(accessFile);
+            RaisePropertyChanged(nameof(accessFiles));
             RaisePropertyChanged(nameof(combinedList));
         }
         
-        public void AddRangeDataFile(List<DataFile> dataFileEntries)
+        public void AddRangeAccessFile(List<AccessFile> accessFileEntries)
         {
-            dataFiles.AddRange(dataFileEntries);
-            RaisePropertyChanged(nameof(dataFileEntries));
+            accessFiles.AddRange(accessFileEntries);
+            RaisePropertyChanged(nameof(accessFileEntries));
             RaisePropertyChanged(nameof(combinedList));
         }
         
-        public void RemoveDataFile(DataFile dataFile)
+        public void RemoveAccessFile(AccessFile accessFile)
         {
-            dataFiles.Remove(dataFile);
-            RaisePropertyChanged(nameof(dataFiles));
+            accessFiles.Remove(accessFile);
+            RaisePropertyChanged(nameof(accessFiles));
             RaisePropertyChanged(nameof(combinedList));
         }
 
@@ -149,9 +149,9 @@ namespace SecureWiki.Model
             RaisePropertyChanged(nameof(combinedList));
         }
 
-        public void ClearDataFiles() {
-            dataFiles.Clear();
-            RaisePropertyChanged(nameof(dataFiles));
+        public void ClearAccessFiles() {
+            accessFiles.Clear();
+            RaisePropertyChanged(nameof(accessFiles));
             RaisePropertyChanged(nameof(combinedList));
         }
         
@@ -212,7 +212,7 @@ namespace SecureWiki.Model
                 child.CheckedChanged += child.CheckedChangedUpdateParent;
             }
             
-            foreach (DataFile child in dataFiles)
+            foreach (AccessFile child in accessFiles)
             {
                 child.CheckedChanged -= child.CheckedChangedUpdateParent;
                 child.isChecked = isChecked;
@@ -228,7 +228,7 @@ namespace SecureWiki.Model
                 child.isCheckedWrite = isCheckedWrite;
             }
             
-            foreach (DataFile child in dataFiles)
+            foreach (AccessFile child in accessFiles)
             {
                 child.isCheckedWrite = isCheckedWrite;
             }
@@ -260,7 +260,7 @@ namespace SecureWiki.Model
                 }
             }
             
-            foreach (DataFile child in dataFiles)
+            foreach (AccessFile child in accessFiles)
             {
                 if (child.isChecked == true)
                 {
@@ -330,7 +330,7 @@ namespace SecureWiki.Model
         public void CopyFromOtherKeyring(Keyring ke)
         {
             keyrings.Clear();
-            dataFiles.Clear();
+            accessFiles.Clear();
             
             name = ke.name;
             
@@ -361,35 +361,35 @@ namespace SecureWiki.Model
                 }
             }
             
-            foreach (DataFile otherDF in ke.dataFiles)
+            foreach (AccessFile otherAF in ke.accessFiles)
             {
-                // Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Checking", 
+                // Console.WriteLine("AccessFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Checking", 
                 //     item.filename, isChecked, parent?.name ?? "null");
 
                 bool nameAlreadyInUse = false;
                 bool fileAlreadyExists = false;
-                foreach (DataFile ownDF in dataFiles)
+                foreach (AccessFile ownAF in accessFiles)
                 {
                     
-                    if (otherDF.filename.Equals(ownDF.filename))
+                    if (otherAF.filename.Equals(ownAF.filename))
                     {
-                        // Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Filename match", 
+                        // Console.WriteLine("AccessFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Filename match", 
                         //     item.filename, isChecked, parent?.name ?? "null");
-                        if (ownDF.IsEqual(otherDF))
+                        if (ownAF.IsEqual(otherAF))
                         {
-                            // Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Exact copy already exists", 
+                            // Console.WriteLine("AccessFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Exact copy already exists", 
                             //     item.filename, isChecked, parent?.name ?? "null");
                             fileAlreadyExists = true;
                         }
                         // If they point to the exact same page
-                        else if (ownDF.HasSameStaticProperties(otherDF))
+                        else if (ownAF.HasSameStaticProperties(otherAF))
                         {
-                            ownDF.MergeWithOtherDataFileEntry(otherDF);
+                            ownAF.MergeWithOtherAccessFileEntry(otherAF);
                             fileAlreadyExists = true;
                         }
                         else
                         {
-                            // Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Name is used by existing file", 
+                            // Console.WriteLine("AccessFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Name is used by existing file", 
                             //     item.filename, isChecked, parent?.name ?? "null");
                             nameAlreadyInUse = true;
                         }
@@ -398,7 +398,7 @@ namespace SecureWiki.Model
                     }
                 }
                 
-                // Rename new datafile if name is already in use
+                // Rename new accessfile if name is already in use
                 if (nameAlreadyInUse)
                 {
                     int cnt = 1;
@@ -407,18 +407,18 @@ namespace SecureWiki.Model
                     // Check new names until either an identical copy or no match is found 
                     while (newNameInUse)
                     {
-                        string newName = otherDF.filename + "(" + cnt + ")";
+                        string newName = otherAF.filename + "(" + cnt + ")";
                         
-                        // Find any DataFileEntry with the same filename
-                        newNameInUse = dataFiles.Any(x => x.filename.Equals(newName));
+                        // Find any AccessFileEntry with the same filename
+                        newNameInUse = accessFiles.Any(x => x.filename.Equals(newName));
                         if (newNameInUse)
                         {
-                            DataFile df = dataFiles.First(x => x.filename.Equals(newName));
+                            AccessFile af = accessFiles.First(x => x.filename.Equals(newName));
 
                             // If they point to the exact same page
-                            if (df.HasSameStaticProperties(otherDF))
+                            if (af.HasSameStaticProperties(otherAF))
                             {
-                                df.MergeWithOtherDataFileEntry(otherDF);
+                                af.MergeWithOtherAccessFileEntry(otherAF);
                                 fileAlreadyExists = true;
                                 break;
                             }
@@ -427,7 +427,7 @@ namespace SecureWiki.Model
                         }
                         else
                         {
-                            otherDF.filename = newName;
+                            otherAF.filename = newName;
                             break;
                         }
                     }
@@ -435,9 +435,9 @@ namespace SecureWiki.Model
 
                 if (fileAlreadyExists == false)
                 {
-                    // Console.WriteLine("DataFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Adding file", 
+                    // Console.WriteLine("AccessFile: filename='{0}', Checked='{1}', Parent.Name='{2}': Adding file", 
                     //     item.filename, isChecked, parent?.name ?? "null");
-                    AddDataFile(otherDF);
+                    AddAccessFile(otherAF);
                 }
             }
         }
@@ -453,11 +453,11 @@ namespace SecureWiki.Model
                 ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
             }
             
-            foreach (DataFile dataFileEntry in dataFiles)
+            foreach (AccessFile accessFileEntry in accessFiles)
             {
-                if (dataFileEntry.isChecked == true)
+                if (accessFileEntry.isChecked == true)
                 {
-                    outputKeyring.AddDataFile(dataFileEntry);                    
+                    outputKeyring.AddAccessFile(accessFileEntry);                    
                 }
             }
         }
@@ -473,13 +473,13 @@ namespace SecureWiki.Model
                 ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
             }
             
-            foreach (DataFile dataFileEntry in dataFiles)
+            foreach (AccessFile accessFileEntry in accessFiles)
             {
-                if (dataFileEntry.isChecked == true)
+                if (accessFileEntry.isChecked == true)
                 {
-                    var dfCopy = dataFileEntry.Copy();
+                    var afCopy = accessFileEntry.Copy();
                     
-                    outputKeyring.AddDataFile(dfCopy);                    
+                    outputKeyring.AddAccessFile(afCopy);                    
                 }
             }
         }
@@ -495,11 +495,11 @@ namespace SecureWiki.Model
                 ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
             }
             
-            foreach (DataFile dataFileEntry in dataFiles)
+            foreach (AccessFile accessFileEntry in accessFiles)
             {
-                var dfCopy = dataFileEntry.Copy();
+                var afCopy = accessFileEntry.Copy();
                     
-                outputKeyring.AddDataFile(dfCopy);     
+                outputKeyring.AddAccessFile(afCopy);     
             }
         }
 
@@ -510,23 +510,23 @@ namespace SecureWiki.Model
                 ke.PrepareForExportRecursively();
             }
 
-            // Remove private keys from DataFileEntries if they do not have write access checked
-            foreach (DataFile dataFileEntry in dataFiles)
+            // Remove private keys from AccessFileEntries if they do not have write access checked
+            foreach (AccessFile accessFileEntry in accessFiles)
             {
-                dataFileEntry.PrepareForExport();
+                accessFileEntry.PrepareForExport();
                 
-                if (dataFileEntry.isCheckedWrite != true)
+                if (accessFileEntry.isCheckedWrite != true)
                 {
-                    dataFileEntry.keyList.ForEach(e => e.PrivateKey = null);
-                    // dataFileEntry.privateKey = null;
+                    accessFileEntry.keyList.ForEach(e => e.PrivateKey = null);
+                    // AccessFileEntry.privateKey = null;
                 }
             }
         }
 
-        // Return true if this or any descendant keyring has at least one DataFileEntry
-        public bool HasDataFileEntryDescendant()
+        // Return true if this or any descendant keyring has at least one AccessFileEntry
+        public bool HasAccessFileEntryDescendant()
         {
-            return dataFiles.Count > 0 || keyrings.Any(ke => ke.HasDataFileEntryDescendant());
+            return accessFiles.Count > 0 || keyrings.Any(ke => ke.HasAccessFileEntryDescendant());
         }
 
         public void RemoveEmptyDescendantsRecursively()
@@ -534,7 +534,7 @@ namespace SecureWiki.Model
             List<Keyring> removeList = new();
             foreach (Keyring ke in keyrings)
             {
-                if (ke.HasDataFileEntryDescendant() == false)
+                if (ke.HasAccessFileEntryDescendant() == false)
                 {
                     removeList.Add(ke);
                 }
@@ -552,7 +552,7 @@ namespace SecureWiki.Model
         public void SortAllRecursively()
         {
             SortKeyrings();
-            SortDataFiles();
+            SortAccessFiles();
 
             foreach (var item in keyrings)
             {
@@ -567,22 +567,22 @@ namespace SecureWiki.Model
             AddRangeKeyring(sortedList);
         }
         
-        public void SortDataFiles()
+        public void SortAccessFiles()
         {
-            var sortedList = dataFiles.OrderBy(entry => entry.filename).ToList();
-            ClearDataFiles();
-            AddRangeDataFile(sortedList);
+            var sortedList = accessFiles.OrderBy(entry => entry.filename).ToList();
+            ClearAccessFiles();
+            AddRangeAccessFile(sortedList);
         }
 
-        public List<DataFile> GetAllAndDescendantDataFileEntries()
+        public List<AccessFile> GetAllAndDescendantAccessFileEntries()
         {
-            var outputList = new List<DataFile>();
+            var outputList = new List<AccessFile>();
 
-            outputList.AddRange(dataFiles);
+            outputList.AddRange(accessFiles);
 
             foreach (var keyring in keyrings)
             {
-                outputList.AddRange(keyring.GetAllAndDescendantDataFileEntries());
+                outputList.AddRange(keyring.GetAllAndDescendantAccessFileEntries());
             }
 
             return outputList;
@@ -592,7 +592,7 @@ namespace SecureWiki.Model
         {
             Console.WriteLine("KeyRing: Name='{0}', Checked='{1}', Parent.Name='{2}'", 
                 name, isChecked, parent?.name ?? "null");
-            foreach (DataFile item in dataFiles)
+            foreach (AccessFile item in accessFiles)
             {
                 item.PrintInfo();
             }

@@ -45,9 +45,9 @@ namespace SecureWiki.MediaWiki
             return allRevisions;
         }
 
-        public Revision GetLatestRevision(DataFile dataFile)
+        public Revision GetLatestRevision(AccessFile accessFile)
         {
-            MediaWikiObject.PageQuery.LatestRevision latestRevision = new(_mwo, dataFile.pageName);
+            MediaWikiObject.PageQuery.LatestRevision latestRevision = new(_mwo, accessFile.pageName);
             latestRevision.GetLatestRevision();
             return latestRevision.revision;
         }
@@ -79,16 +79,16 @@ namespace SecureWiki.MediaWiki
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
-        public bool Upload(DataFile dataFile, string filepath)
+        public bool Upload(AccessFile accessFile, string filepath)
         {
             var srcDir = GetRootDir(filepath);
             var plainText = File.ReadAllBytes(srcDir);
-            string pageTitle = dataFile.pageName;
+            string pageTitle = accessFile.pageName;
 
             if (plainText.Length <= 0) return false;
 
             var latestRevIDInCache = _manager.cacheManager.GetLatestRevisionID(pageTitle);
-            var rev = GetLatestRevision(dataFile);
+            var rev = GetLatestRevision(accessFile);
 
             if (rev.revisionID != null && !rev.revisionID.Equals(latestRevIDInCache))
             {
@@ -108,7 +108,7 @@ namespace SecureWiki.MediaWiki
             }
 
             // Find latest key in data file key list
-            var key = dataFile.keyList.Last();
+            var key = accessFile.keyList.Last();
 
             // Encrypt text using key from key list
             // var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey, iv);
@@ -125,7 +125,7 @@ namespace SecureWiki.MediaWiki
 
             // Upload encrypted content
             MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
-                dataFile.pageName);
+                accessFile.pageName);
             var httpResponse = uploadNewRevision.UploadContent(uploadContentText);
             _mwo.editToken ??= uploadNewRevision.editToken;
 
@@ -138,7 +138,7 @@ namespace SecureWiki.MediaWiki
                 // information for key if not set  
                 if (key.RevisionStart.Equals("-1") && response.newrevidString != null)
                 {
-                    dataFile.keyList.Last().RevisionStart = response.newrevidString;
+                    accessFile.keyList.Last().RevisionStart = response.newrevidString;
                 }
 
                 // If upload was a success
@@ -152,7 +152,7 @@ namespace SecureWiki.MediaWiki
         }
 
         // Get latest valid revision of wiki page
-        public byte[]? GetLatestValidRevision(DataFile dataFile, List<Revision> revisions)
+        public byte[]? GetLatestValidRevision(AccessFile accessFile, List<Revision> revisions)
         {
             for (var i = 0; i < revisions.Count; i++)
             {
@@ -164,14 +164,14 @@ namespace SecureWiki.MediaWiki
                 }
 
                 // If no valid key is found, continue
-                var key = dataFile.GetDataFileKeyByRevisionID(revid);
+                var key = accessFile.GetAccessFileKeyByRevisionID(revid);
                 if (key == null)
                 {
                     continue;
                 }
 
                 // Get page content from server
-                var pageContent = GetPageContent(dataFile.pageName, revid);
+                var pageContent = GetPageContent(accessFile.pageName, revid);
 
                 // Split downloaded page content into cipher text and signature
                 var splitPageContent = SplitPageContent(pageContent);
@@ -189,7 +189,7 @@ namespace SecureWiki.MediaWiki
 
                     _manager.WriteToLogger(
                         $"Signature of revision '{revid}' verified. This is the latest valid revision.",
-                        dataFile.filename);
+                        accessFile.filename);
                     return decryptedBytes;
                 }
             }
@@ -207,34 +207,34 @@ namespace SecureWiki.MediaWiki
 
         // Download latest valid revision starting from given revid.
         // If revid is null, newest revision on server is starting point
-        public byte[]? Download(DataFile dataFile, string? revid = null)
+        public byte[]? Download(AccessFile accessFile, string? revid = null)
         {
             // If revid is not set, get id of newest revision, or set to default
-            revid ??= GetLatestRevisionID(dataFile.pageName) ?? "-1";
+            revid ??= GetLatestRevisionID(accessFile.pageName) ?? "-1";
 
             // If specific revision is requested, find key in data file key list with correct start revision ID and end revision ID.
             // Otherwise get latest key
             var key = revid.Equals("-1")
-                ? dataFile.keyList.LastOrDefault()
-                : dataFile.keyList.Where((t, i)
-                    => dataFile.IsValidRevisionID(revid, i)).FirstOrDefault();
+                ? accessFile.keyList.LastOrDefault()
+                : accessFile.keyList.Where((t, i)
+                    => accessFile.IsValidRevisionID(revid, i)).FirstOrDefault();
 
             // If no such key is found, return latest valid revision
             if (key == null)
             {
                 _manager.WriteToLogger(
                     $"Could not find DataFileKey matching requested revision id '{revid}'. Attempting to get latest valid revision.",
-                    dataFile.filename, LoggerEntry.LogPriority.Warning);
-                var revisions = GetAllRevisions(dataFile.pageName).revisionList;
-                return GetLatestValidRevision(dataFile, revisions);
+                    accessFile.filename, LoggerEntry.LogPriority.Warning);
+                var revisions = GetAllRevisions(accessFile.pageName).revisionList;
+                return GetLatestValidRevision(accessFile, revisions);
             }
 
             // Get page content from server
-            var pageContent = GetPageContent(dataFile.pageName, revid);
+            var pageContent = GetPageContent(accessFile.pageName, revid);
             if (pageContent.Equals(""))
             {
-                var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
-                return GetLatestValidRevision(dataFile, revisions);
+                var revisions = GetAllRevisions(accessFile.pageName).GetAllRevisionBefore(revid);
+                return GetLatestValidRevision(accessFile, revisions);
             }
 
             try
@@ -250,16 +250,16 @@ namespace SecureWiki.MediaWiki
                     _manager.WriteToLogger(
                         $"Verifying signature of revision '{revid}'failed. " +
                         $"Attempting to get latest valid revision older than requested revision.",
-                        dataFile.filename, LoggerEntry.LogPriority.Warning);
-                    var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
-                    return GetLatestValidRevision(dataFile, revisions);
+                        accessFile.filename, LoggerEntry.LogPriority.Warning);
+                    var revisions = GetAllRevisions(accessFile.pageName).GetAllRevisionBefore(revid);
+                    return GetLatestValidRevision(accessFile, revisions);
                 }
                 
                 var decryptedBytes = Crypto.DecryptGCM(splitPageContent.Value.cipherBytes, key.SymmKey);
                 if (decryptedBytes == null)
                 {
-                    var revisions = GetAllRevisions(dataFile.pageName).GetAllRevisionBefore(revid);
-                    return GetLatestValidRevision(dataFile, revisions);
+                    var revisions = GetAllRevisions(accessFile.pageName).GetAllRevisionBefore(revid);
+                    return GetLatestValidRevision(accessFile, revisions);
                 }
 
                 return !(decryptedBytes.Length > 0) ? null : decryptedBytes;
@@ -279,9 +279,9 @@ namespace SecureWiki.MediaWiki
             return (cipherBytes, signBytes);
         }
 
-        public void UploadAccessFile(SymmetricReference symmetricReference, DataFile dataFile)
+        public void UploadAccessFile(SymmetricReference symmetricReference, AccessFile accessFile)
         {
-            var dataFileString = JSONSerialization.SerializeObject(dataFile);
+            var dataFileString = JSONSerialization.SerializeObject(accessFile);
             var dataFileBytes = Encoding.ASCII.GetBytes(dataFileString);
 
             var cipherTextBytes = Crypto.EncryptGCM(dataFileBytes, symmetricReference.symmKey);
@@ -296,13 +296,13 @@ namespace SecureWiki.MediaWiki
             }
         }
 
-        public bool UploadKeyring(DataFile dataFile, Keyring keyring)
+        public bool UploadKeyring(AccessFile accessFile, Keyring keyring)
         {
             var keyringString = JSONSerialization.SerializeObject(keyring);
             var keyringBytes = Encoding.ASCII.GetBytes(keyringString);
 
             // Find latest key in data file key list
-            var key = dataFile.keyList.Last();
+            var key = accessFile.keyList.Last();
 
             // Encrypt text using key from key list
             // var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey, iv);
@@ -319,7 +319,7 @@ namespace SecureWiki.MediaWiki
 
             // Upload encrypted content
             MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
-                dataFile.pageName);
+                accessFile.pageName);
             var httpResponse = uploadNewRevision.UploadContent(uploadContentText);
             _mwo.editToken ??= uploadNewRevision.editToken;
 
@@ -332,7 +332,7 @@ namespace SecureWiki.MediaWiki
                 // information for key if not set  
                 if (key.RevisionStart.Equals("-1") && response.newrevidString != null)
                 {
-                    dataFile.keyList.Last().RevisionStart = response.newrevidString;
+                    accessFile.keyList.Last().RevisionStart = response.newrevidString;
                 }
 
                 // If upload was a success
@@ -345,7 +345,7 @@ namespace SecureWiki.MediaWiki
             return false;
         }
         
-        public DataFile? DownloadAccessFile(SymmetricReference symmetricReference)
+        public AccessFile? DownloadAccessFile(SymmetricReference symmetricReference)
         {
             // Download access file
             var accessFileContent = GetPageContent(symmetricReference.pageName);
@@ -356,7 +356,7 @@ namespace SecureWiki.MediaWiki
 
             var decryptedAccessFileString = Encoding.ASCII.GetString(decryptedAccessFile);
             var accessFile = JSONSerialization.DeserializeObject(
-                decryptedAccessFileString, typeof(DataFile)) as DataFile;
+                decryptedAccessFileString, typeof(AccessFile)) as AccessFile;
             return accessFile;
         }
 
@@ -381,9 +381,9 @@ namespace SecureWiki.MediaWiki
             return null;
         }
 
-        public void DownloadKeyringsRecursion(DataFile dataFile, RootKeyring rootKeyring)
+        public void DownloadKeyringsRecursion(AccessFile accessFile, RootKeyring rootKeyring)
         {
-            var keyringBytes = Download(dataFile);
+            var keyringBytes = Download(accessFile);
             if (keyringBytes != null)
             {
                 var keyringString = Encoding.ASCII.GetString(keyringBytes);
@@ -395,14 +395,14 @@ namespace SecureWiki.MediaWiki
                     rootKeyring.keyrings.Add(keyring);
                     foreach (var symmRef in keyring.SymmetricReferences)
                     {
-                        var accessFile = DownloadAccessFile(symmRef);
+                        var targetAccessFile = DownloadAccessFile(symmRef);
                         if (symmRef.type == SymmetricReference.Type.GenericFile)
                         {
-                            if (accessFile != null) rootKeyring.AddDataFile(accessFile);
+                            if (targetAccessFile != null) rootKeyring.AddAccessFile(targetAccessFile);
                         }
                         else
                         {
-                            if (accessFile != null) DownloadKeyringsRecursion(accessFile, rootKeyring);
+                            if (targetAccessFile != null) DownloadKeyringsRecursion(targetAccessFile, rootKeyring);
                         }
                     }
                 }
