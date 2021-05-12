@@ -23,10 +23,10 @@ namespace SecureWiki.Model
             return RootFolder.FindFileRecursively(pathArr, 0);
         }
 
-        public void AddFile(string path, AccessFileReference reference)
+        public MDFile? AddFile(string path, AccessFileReference reference)
         {
             var pathArr = path.Split('/');
-            RootFolder.AddFileRecursively(pathArr, 0, reference);
+            return RootFolder.AddFileRecursively(pathArr, 0, reference);
         }
     }
 
@@ -85,8 +85,9 @@ namespace SecureWiki.Model
         {
             if (!Files.Contains(mdFile))
             {
-                var index = Files.BinarySearch(mdFile, new MDFileComparer());
-                Files.Insert(index, mdFile);
+                // var index = Files.BinarySearch(mdFile, new MDFileComparer());
+                // Files.Insert(index, mdFile);
+                Files.Add(mdFile);
             }
             
             RaisePropertiesChangedFiles();
@@ -182,7 +183,7 @@ namespace SecureWiki.Model
             }
         }
 
-        public void AddFileRecursively(string[] path, int cnt, AccessFileReference reference)
+        public MDFile? AddFileRecursively(string[] path, int cnt, AccessFileReference reference)
         {
             if (path.Length - cnt <= 1)
             {
@@ -191,6 +192,7 @@ namespace SecureWiki.Model
                 {
                     var newMDFile = new MDFile(path[cnt], this, reference);
                     AddFile(newMDFile);
+                    return newMDFile;
                 }
             }
             else
@@ -209,6 +211,8 @@ namespace SecureWiki.Model
                     Folders[index].AddFileRecursively(path, cnt, reference);
                 }
             }
+
+            return null;
         }
 
         // Events

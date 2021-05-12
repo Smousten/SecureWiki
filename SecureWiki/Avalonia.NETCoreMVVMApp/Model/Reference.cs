@@ -1,3 +1,5 @@
+using Avalonia.Input;
+using Newtonsoft.Json;
 using SecureWiki.Cryptography;
 
 namespace SecureWiki.Model
@@ -14,6 +16,7 @@ namespace SecureWiki.Model
         }
     }
     
+    [JsonObject(MemberSerialization.OptIn)]
     public class SymmetricReference : Reference
     {
         public enum Type
@@ -22,9 +25,11 @@ namespace SecureWiki.Model
             Keyring
         }
         
-        public Type type;
-        public byte[] symmKey;
-        public string accessFileTarget;
+        [JsonProperty] public Type type; 
+        [JsonProperty] public byte[] symmKey;
+        [JsonProperty] public string accessFileTarget;
+
+        public Keyring? keyringParent;
 
         public SymmetricReference(string pageName, string serverLink, Type type, string accessFileTarget) : base(pageName, serverLink)
         {
@@ -51,7 +56,6 @@ namespace SecureWiki.Model
             this.AccessFileParent = accessFileParent;
             this.type = type;
         }
-        
     }
 
     public class InboxReference : Reference

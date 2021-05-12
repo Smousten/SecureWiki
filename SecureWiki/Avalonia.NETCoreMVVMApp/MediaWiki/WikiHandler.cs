@@ -79,10 +79,11 @@ namespace SecureWiki.MediaWiki
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
-        public bool Upload(AccessFile accessFile, string filepath)
+        public bool Upload(AccessFile accessFile, byte[] content)
         {
-            var srcDir = GetRootDir(filepath);
-            var plainText = File.ReadAllBytes(srcDir);
+            // var srcDir = GetRootDir(filepath);
+            // var plainText = File.ReadAllBytes(srcDir);
+            var plainText = content;
             string pageTitle = accessFile.pageName;
 
             if (plainText.Length <= 0) return false;
@@ -279,7 +280,7 @@ namespace SecureWiki.MediaWiki
             return (cipherBytes, signBytes);
         }
 
-        public void UploadAccessFile(SymmetricReference symmetricReference, AccessFile accessFile)
+        public bool UploadAccessFile(SymmetricReference symmetricReference, AccessFile accessFile)
         {
             var dataFileString = JSONSerialization.SerializeObject(accessFile);
             var dataFileBytes = Encoding.ASCII.GetBytes(dataFileString);
@@ -292,8 +293,23 @@ namespace SecureWiki.MediaWiki
             if (cipherTextBytes != null)
             {
                 var cipherText = Convert.ToBase64String(cipherTextBytes);
-                uploadNewRevision.UploadContent(cipherText);
+                var httpResponse = uploadNewRevision.UploadContent(cipherText);
+                _mwo.editToken ??= uploadNewRevision.editToken;
+
+                // Check if upload was successful
+                if (httpResponse != null)
+                {
+                    var response = new Response(httpResponse);
+                
+                    // If upload was a success
+                    if (response.Result == Response.ResultType.Success)
+                    {
+                        return true;
+                    }
+                }
             }
+
+            return false;
         }
 
         public bool UploadMasterKeyring(byte[] key, string pageName, Keyring masterKeyring)

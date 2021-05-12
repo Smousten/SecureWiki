@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Mail;
 using System.Net.Mime;
+using System.Text;
 using System.Threading;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -581,7 +582,8 @@ namespace SecureWiki
                     string loggerMsg = "Attempting to upload file to server '" + af!.serverLink + "'";
                     WriteToLogger(loggerMsg, filepath);
 
-                    wikiHandler.Upload(af!, filepath);
+                    var fileContent = File.ReadAllBytes(GetRootDir(filepath));
+                    wikiHandler.Upload(af!, fileContent);
                 }
                 else
                 {
@@ -659,22 +661,14 @@ namespace SecureWiki
         // Delegated Keyring functions
         public void AddNewFile(string filename, string filepath)
         {
-            List<string> freshPageNames = new();
-            const int pageCnt = 2;
+            var pageNameFile = GetFreshPageName();
+            var pageNameAccessFile = GetFreshPageName();
 
-            while (freshPageNames.Count < pageCnt)
-            {
-                var tmp = RandomString.GenerateRandomAlphanumericString();
-                if (!PageAlreadyExists(tmp, "-1", configManager.DefaultServerLink))
-                {
-                    freshPageNames.Add(tmp);
-                }
-            }
-
-            var pageNameFile = freshPageNames[0];
-            var pageNameAccessFile = freshPageNames[1];
+            Console.WriteLine("fresh pageNames:");
+            Console.WriteLine(pageNameFile);
+            Console.WriteLine(pageNameAccessFile);
             
-            // Create access file and reference
+            // Create access file and reference for file
             AccessFile accessFile = new(configManager.DefaultServerLink, pageNameFile);
             AccessFileReference accessFileReference = new(pageNameFile, configManager.DefaultServerLink, 
                 accessFile, AccessFileReference.Type.GenericFile);
@@ -687,21 +681,53 @@ namespace SecureWiki
             var defaultKeyring = rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("newEntries"));
             if (defaultKeyring == null)
             {
-                rootKeyring.AddKeyring(new Keyring("NewEntries"));
+                // Create access file and reference for keyring
+                var pageNameKeyring = GetFreshPageName();
+                var pageNameAccessFileKeyring = GetFreshPageName();
+                AccessFile accessFileKeyring = new(configManager.DefaultServerLink, pageNameAccessFileKeyring);
+                AccessFileReference accessFileReferenceKeyring = new(pageNameKeyring, configManager.DefaultServerLink, 
+                    accessFileKeyring, AccessFileReference.Type.GenericFile);
+                
+                rootKeyring.AddKeyring(new Keyring(accessFileReferenceKeyring, "newEntries"));
                 defaultKeyring = rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("newEntries"));
             }
-            defaultKeyring!.SymmetricReferences.Add(symmetricReference);
+            defaultKeyring!.AddSymmetricReference(symmetricReference);
             
             // Create new entry in md mirror
-            mountedDirMirror.AddFile(filepath, accessFileReference);
-            
+            var mdFile = mountedDirMirror.AddFile(filepath, accessFileReference);
+            if (mdFile == null)
+            {
+                WriteToLogger("File could not be added to MDMirror, upload failed");
+                return;
+            }
+
             // Upload new files to server
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
-            wikiHandler?.UploadAccessFile(symmetricReference, accessFile);
-            wikiHandler?.Upload(accessFile, filepath);
+            var uploadResAF = wikiHandler?.UploadAccessFile(symmetricReference, accessFile);
+            Console.WriteLine("uploadResAF:" + uploadResAF);
+            
+            // var fileContent = File.ReadAllBytes(GetRootDir(filepath));
+            var fileContent = Encoding.ASCII.GetBytes("This is the first revision");
+            var uploadResFile = wikiHandler?.Upload(accessFile, fileContent);
+            Console.WriteLine("uploadResFile:" + uploadResFile);
             
             // Upload updated keyring
-            wikiHandler?.UploadKeyring(defaultKeyring.accessFileReferenceToSelf.AccessFileParent, defaultKeyring);
+            var uploadResKR = wikiHandler?.UploadKeyring(
+                defaultKeyring.accessFileReferenceToSelf.AccessFileParent, defaultKeyring);
+            Console.WriteLine("uploadResKR:" + uploadResKR);
+        }
+
+        public string GetFreshPageName(string? serverLink = null)
+        {
+            serverLink ??= configManager.DefaultServerLink; 
+            while (true)
+            {
+                var tmp = RandomString.GenerateRandomAlphanumericString();
+                if (!PageAlreadyExists(tmp, "-1", serverLink))
+                {
+                    return tmp;
+                }
+            }
         }
 
         public void AddNewKeyRing(string filename, string filepath)
@@ -752,7 +778,7 @@ namespace SecureWiki
             AccessFile accessFile = new(configManager.DefaultServerLink, pageNameKeyring, filename);
             
             var newKeyring = new Keyring(filename);
-            newKeyring.InboxReference = inboxReference;
+            newKeyring.InboxReferenceToSelf = inboxReference;
 
             // Upload new keyring to server
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
@@ -1188,6 +1214,16 @@ namespace SecureWiki
             var output = RequestedRevision[(pageName, serverLink)];
 
             return output;
+        }
+        
+        // Return absolute path to fuse root directory
+        public static string GetRootDir(string relativeFilepath)
+        {
+            var filepath = "fuse/directories/rootdir/" + relativeFilepath;
+            var currentDir = Directory.GetCurrentDirectory();
+            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
+            var srcDir = Path.Combine(projectDir, filepath);
+            return srcDir;
         }
     }
 }

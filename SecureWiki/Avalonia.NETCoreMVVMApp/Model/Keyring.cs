@@ -54,8 +54,8 @@ namespace SecureWiki.Model
         }
 
         [JsonProperty] public string pageTitle;
-        [JsonProperty] public List<SymmetricReference> SymmetricReferences;
-        [JsonProperty] public InboxReference InboxReference;
+        [JsonProperty] public List<SymmetricReference> SymmetricReferences = new();
+        [JsonProperty] public InboxReference InboxReferenceToSelf;
         public AccessFileReference accessFileReferenceToSelf;
 
         private Keyring? _parent;
@@ -93,6 +93,17 @@ namespace SecureWiki.Model
             }   
         }
 
+        public Keyring(AccessFileReference accessFileReferenceToSelf, string name = "unnamed")
+        {
+            _name = name;
+            this.accessFileReferenceToSelf = accessFileReferenceToSelf;
+            
+            
+            CheckedChanged += CheckedChangedUpdateParent;
+            CheckedChanged += CheckedChangedUpdateChildren;
+            CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
+        }
+        
         public Keyring(string name = "unnamed")
         {
             _name = name;
@@ -100,6 +111,13 @@ namespace SecureWiki.Model
             CheckedChanged += CheckedChangedUpdateParent;
             CheckedChanged += CheckedChangedUpdateChildren;
             CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
+        }
+
+        // Add a symmetric reference and update it accordingly
+        public void AddSymmetricReference(SymmetricReference symmetricReference)
+        {
+            SymmetricReferences.Add(symmetricReference);
+            symmetricReference.keyringParent = this;
         }
         
         public void AddKeyring(Keyring keyring)
@@ -449,7 +467,7 @@ namespace SecureWiki.Model
         {
             foreach (Keyring ke in keyrings)
             {
-                Keyring keCopy = new(ke.name);
+                Keyring keCopy = new(ke.accessFileReferenceToSelf, ke.name);
                 outputKeyring.AddKeyring(keCopy);
                 
                 ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
@@ -469,7 +487,7 @@ namespace SecureWiki.Model
         {
             foreach (Keyring ke in keyrings)
             {
-                Keyring keCopy = new(ke.name);
+                Keyring keCopy = new(ke.accessFileReferenceToSelf, ke.name);
                 outputKeyring.AddKeyring(keCopy);
                 
                 ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
@@ -491,7 +509,7 @@ namespace SecureWiki.Model
         {
             foreach (Keyring ke in keyrings)
             {
-                Keyring keCopy = new(ke.name);
+                Keyring keCopy = new(ke.accessFileReferenceToSelf, ke.name);
                 outputKeyring.AddKeyring(keCopy);
                 
                 ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);

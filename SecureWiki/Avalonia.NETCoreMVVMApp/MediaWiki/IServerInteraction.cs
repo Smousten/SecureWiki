@@ -16,7 +16,8 @@ namespace SecureWiki.MediaWiki
         public MediaWikiObject.PageQuery.AllRevisions GetAllRevisions(string pageTitle);
         
         // Upload byte[] stored in file to server
-        public bool Upload(AccessFile accessFile, string filepath);
+        // public bool Upload(AccessFile accessFile, string filepath);
+        public bool Upload(AccessFile accessFile, byte[] content);
 
         // Returns decrypted data stored on server of data file with given revID
         public byte[]? Download(AccessFile accessFile, string? revID = null);
@@ -43,7 +44,7 @@ namespace SecureWiki.MediaWiki
         public List<List<string>>? DownloadFromInboxPages();
         
         // TODO
-        public void UploadAccessFile(SymmetricReference symmetricReference, AccessFile accessFile);
+        public bool UploadAccessFile(SymmetricReference symmetricReference, AccessFile accessFile);
         
         // TODO
         public bool UploadKeyring(AccessFile accessFile, Keyring keyring);
