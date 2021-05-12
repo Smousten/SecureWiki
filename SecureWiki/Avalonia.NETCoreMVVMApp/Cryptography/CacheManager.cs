@@ -117,7 +117,7 @@ namespace SecureWiki.Cryptography
         {
             if (_dict.ContainsKey(pageTitle) == false)
             {
-                Console.WriteLine("GetFilePath:- Dict does not contain key '{0}'", pageTitle);
+                Console.WriteLine("GetLatestRevisionID:- Dict does not contain key '{0}'", pageTitle);
                 return null;
             }
             

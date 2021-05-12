@@ -40,6 +40,7 @@ namespace SecureWiki.Model
         
     }
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class AccessFileReference : Reference
     {
         public enum Type
@@ -48,13 +49,15 @@ namespace SecureWiki.Model
             Keyring
         }
 
-        public Type type;
+        [JsonProperty] public Type type;
         public AccessFile AccessFileParent;
+        [JsonProperty] public Keyring? KeyringTarget;
 
-        public AccessFileReference(string pageName, string serverLink, AccessFile accessFileParent, Type type) : base(pageName, serverLink)
+        public AccessFileReference(string pageName, string serverLink, AccessFile accessFileParent, Type type, Keyring? keyringTarget = null) : base(pageName, serverLink)
         {
             this.AccessFileParent = accessFileParent;
             this.type = type;
+            this.KeyringTarget = keyringTarget;
         }
     }
 
