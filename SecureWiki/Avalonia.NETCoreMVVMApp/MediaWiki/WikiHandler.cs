@@ -288,7 +288,7 @@ namespace SecureWiki.MediaWiki
             var cipherTextBytes = Crypto.EncryptGCM(dataFileBytes, symmetricReference.symmKey);
 
             MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
-                symmetricReference.pageName);
+                symmetricReference.targetPageName);
 
             if (cipherTextBytes != null)
             {
@@ -396,7 +396,7 @@ namespace SecureWiki.MediaWiki
         public AccessFile? DownloadAccessFile(SymmetricReference symmetricReference)
         {
             // Download access file
-            var accessFileContent = GetPageContent(symmetricReference.pageName);
+            var accessFileContent = GetPageContent(symmetricReference.targetPageName);
 
             var accessFileBytes = Convert.FromBase64String(accessFileContent);
             var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, symmetricReference.symmKey);

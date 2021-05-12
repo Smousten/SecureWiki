@@ -34,6 +34,8 @@ namespace SecureWiki.Model
         [JsonProperty] 
         public List<AccessFileKey> keyList { get; set; }
 
+        [JsonProperty] public AccessFileReference? accessFileReference;
+
         private Keyring? _parent;
         public Keyring? parent
         {

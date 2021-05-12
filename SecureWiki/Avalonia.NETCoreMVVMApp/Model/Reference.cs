@@ -6,12 +6,12 @@ namespace SecureWiki.Model
 {
     public abstract class Reference
     {
-        public string pageName;
+        public string targetPageName;
         public string serverLink;
 
-        public Reference(string pageName, string serverLink)
+        public Reference(string targetPageName, string serverLink)
         {
-            this.pageName = pageName;
+            this.targetPageName = targetPageName;
             this.serverLink = serverLink;
         }
     }
@@ -27,15 +27,18 @@ namespace SecureWiki.Model
         
         [JsonProperty] public Type type; 
         [JsonProperty] public byte[] symmKey;
-        [JsonProperty] public string accessFileTarget;
+        [JsonProperty] public string accessFileTargetPageName;
+        [JsonProperty] public AccessFile targetAccessFile;
 
         public Keyring? keyringParent;
 
-        public SymmetricReference(string pageName, string serverLink, Type type, string accessFileTarget) : base(pageName, serverLink)
+        public SymmetricReference(string targetPageName, string serverLink, Type type, 
+            string accessFileTargetPageName, AccessFile targetAccessFile) : base(targetPageName, serverLink)
         {
             this.symmKey = Crypto.GenerateSymmKey();
             this.type = type;
-            this.accessFileTarget = accessFileTarget;
+            this.accessFileTargetPageName = accessFileTargetPageName;
+            this.targetAccessFile = targetAccessFile;
         }
         
     }
@@ -50,10 +53,16 @@ namespace SecureWiki.Model
         }
 
         [JsonProperty] public Type type;
-        public AccessFile AccessFileParent;
+        public AccessFile? AccessFileParent;
         [JsonProperty] public Keyring? KeyringTarget;
 
-        public AccessFileReference(string pageName, string serverLink, AccessFile accessFileParent, Type type, Keyring? keyringTarget = null) : base(pageName, serverLink)
+        public AccessFileReference(string targetPageName, string serverLink, Type type, Keyring? keyringTarget = null) : base(targetPageName, serverLink)
+        {
+            this.type = type;
+            this.KeyringTarget = keyringTarget;
+        }
+        
+        public AccessFileReference(string targetPageName, string serverLink, AccessFile accessFileParent, Type type, Keyring? keyringTarget = null) : base(targetPageName, serverLink)
         {
             this.AccessFileParent = accessFileParent;
             this.type = type;
@@ -73,14 +82,14 @@ namespace SecureWiki.Model
         public byte[]? privateKey;
         public AccessLevel accessLevel;
 
-        public InboxReference(string pageName, string serverLink, byte[] publicKey) : base(pageName,
+        public InboxReference(string targetPageName, string serverLink, byte[] publicKey) : base(targetPageName,
             serverLink)
         {
             this.publicKey = publicKey;
             accessLevel = AccessLevel.Write;
         }
         
-        public InboxReference(string pageName, string serverLink) : base(pageName,
+        public InboxReference(string targetPageName, string serverLink) : base(targetPageName,
             serverLink)
         {
             (privateKey, publicKey) = Crypto.GenerateRSAParams();

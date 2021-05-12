@@ -675,23 +675,39 @@ namespace SecureWiki
     
             // Create symmetric reference to access file
             SymmetricReference symmetricReference = new(pageNameAccessFile,
-                configManager.DefaultServerLink, SymmetricReference.Type.GenericFile, pageNameFile);
+                configManager.DefaultServerLink, SymmetricReference.Type.GenericFile, pageNameFile, accessFile);
 
             // Add symmetric reference to newEntries keyring
-            var defaultKeyring = rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("newEntries"));
+            var defaultKeyring = rootKeyring.SymmetricReferences.FirstOrDefault(
+                e => e.type == SymmetricReference.Type.Keyring 
+                && e.targetAccessFile.accessFileReference?.KeyringTarget!.name.Equals("newEntries") == true)?.keyringParent;
             if (defaultKeyring == null)
             {
-                // Create access file and reference for keyring
                 var pageNameKeyring = GetFreshPageName();
                 var pageNameAccessFileKeyring = GetFreshPageName();
-                AccessFile accessFileKeyring = new(configManager.DefaultServerLink, pageNameAccessFileKeyring);
+                
+                // Create access file and reference for keyring
+                AccessFile accessFileKeyring = new(configManager.DefaultServerLink, pageNameKeyring);
                 AccessFileReference accessFileReferenceKeyring = new(pageNameKeyring, configManager.DefaultServerLink, 
                     accessFileKeyring, AccessFileReference.Type.GenericFile);
+                accessFileKeyring.accessFileReference = accessFileReferenceKeyring;
                 
-                rootKeyring.AddKeyring(new Keyring(accessFileReferenceKeyring, "newEntries"));
-                defaultKeyring = rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("newEntries"));
+                // Create symmetric reference to access keyring
+                SymmetricReference symmetricReferenceToDefaultKeyring = new(pageNameAccessFileKeyring,
+                    configManager.DefaultServerLink, SymmetricReference.Type.Keyring, pageNameKeyring, accessFileKeyring);
+
+                // Create new keyring
+                defaultKeyring = new Keyring(accessFileReferenceKeyring, "newEntries");
+                rootKeyring.AddSymmetricReference(symmetricReferenceToDefaultKeyring);
+                
+                // rootKeyring.AddKeyring(new Keyring(accessFileReferenceKeyring, "newEntries"));
+                // defaultKeyring = rootKeyring.SymmetricReferences.FirstOrDefault(
+                //     e => e.type == SymmetricReference.Type.Keyring
+                //     && e.targetAccessFile.accessFileReference?.KeyringTarget!.name.Equals("newEntries") == true)?.keyringParent;
+                //
+                // defaultKeyring!.accessFileReferenceToSelf = accessFileReferenceKeyring;
             }
-            defaultKeyring!.AddSymmetricReference(symmetricReference);
+            defaultKeyring.AddSymmetricReference(symmetricReference);
             
             // Create new entry in md mirror
             var mdFile = mountedDirMirror.AddFile(filepath, accessFileReference);
@@ -762,10 +778,14 @@ namespace SecureWiki
                     break;
                 }
             }
+            
+            // Create access file
+            AccessFile accessFile = new(configManager.DefaultServerLink, pageNameKeyring, filename);
 
             // Create symmetric reference to access file
             SymmetricReference symmetricReference = new(pageNameAccessFile,
-                configManager.DefaultServerLink, SymmetricReference.Type.Keyring, pageNameKeyring);
+                configManager.DefaultServerLink, SymmetricReference.Type.Keyring, 
+                pageNameKeyring, accessFile);
 
             // Create inbox reference to inbox page
             InboxReference inboxReference = new(pageNameInboxPage, configManager.DefaultServerLink);
@@ -774,8 +794,6 @@ namespace SecureWiki
             var defaultKeyring = rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("newEntries"));
             defaultKeyring?.SymmetricReferences.Add(symmetricReference);
             
-            // Create access file
-            AccessFile accessFile = new(configManager.DefaultServerLink, pageNameKeyring, filename);
             
             var newKeyring = new Keyring(filename);
             newKeyring.InboxReferenceToSelf = inboxReference;

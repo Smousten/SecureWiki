@@ -97,6 +97,7 @@ namespace SecureWiki.Model
         {
             _name = name;
             this.accessFileReferenceToSelf = accessFileReferenceToSelf;
+            accessFileReferenceToSelf.KeyringTarget = this;
             
             
             CheckedChanged += CheckedChangedUpdateParent;
