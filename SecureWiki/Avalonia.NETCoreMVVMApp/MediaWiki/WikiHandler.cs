@@ -477,7 +477,7 @@ namespace SecureWiki.MediaWiki
                     symmRef.targetAccessFile = accessFile;
                 }
                 
-                if (symmRef.type == SymmetricReference.Type.GenericFile)
+                if (symmRef.type == PageType.GenericFile)
                 {
                     rootKeyring.AddAccessFile(symmRef.targetAccessFile!);
                 }

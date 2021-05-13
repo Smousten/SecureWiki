@@ -25,20 +25,15 @@ namespace SecureWiki.Model
     [JsonObject(MemberSerialization.OptIn)]
     public class SymmetricReference : Reference
     {
-        public enum Type
-        {
-            GenericFile,
-            Keyring
-        }
-        
-        [JsonProperty] public Type type; 
+
+        [JsonProperty] public PageType type; 
         [JsonProperty] public byte[] symmKey;
         [JsonProperty] public string accessFileTargetPageName;
         [JsonProperty(Order = 99)] public AccessFile? targetAccessFile;
 
         public Keyring? keyringParent;
 
-        public SymmetricReference(string targetPageName, string serverLink, Type type, 
+        public SymmetricReference(string targetPageName, string serverLink, PageType type, 
             string accessFileTargetPageName, AccessFile targetAccessFile) : base(targetPageName, serverLink)
         {
             this.symmKey = Crypto.GenerateSymmKey();
@@ -52,17 +47,11 @@ namespace SecureWiki.Model
     [JsonObject(MemberSerialization.OptIn)]
     public class AccessFileReference : Reference
     {
-        public enum Type
-        {
-            GenericFile,
-            Keyring
-        }
-
-        [JsonProperty] public Type type;
+        [JsonProperty] public PageType type;
         public AccessFile? AccessFileParent;
         [JsonProperty(Order = 99)] public Keyring? KeyringTarget;
 
-        public AccessFileReference(string targetPageName, string serverLink, Type type, Keyring? keyringTarget = null) : base(targetPageName, serverLink)
+        public AccessFileReference(string targetPageName, string serverLink, PageType type, Keyring? keyringTarget = null) : base(targetPageName, serverLink)
         {
             this.type = type;
             this.KeyringTarget = keyringTarget;
@@ -73,7 +62,7 @@ namespace SecureWiki.Model
             
         }
         
-        public AccessFileReference(string targetPageName, string serverLink, AccessFile accessFileParent, Type type, Keyring? keyringTarget = null) : base(targetPageName, serverLink)
+        public AccessFileReference(string targetPageName, string serverLink, AccessFile accessFileParent, PageType type, Keyring? keyringTarget = null) : base(targetPageName, serverLink)
         {
             this.AccessFileParent = accessFileParent;
             this.type = type;
@@ -109,7 +98,9 @@ namespace SecureWiki.Model
         }
     }
     
-
-
-
+    public enum PageType
+    {
+        GenericFile,
+        Keyring
+    }
 }
