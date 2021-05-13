@@ -25,6 +25,7 @@ namespace SecureWiki.Views
     public class MainWindow : Window
     {
         private MasterKeyring _masterKeyring = new();
+        private MountedDirMirror _mountedDirMirror = new();
         private Manager manager;
         public MainWindowViewModel _viewModel;
         public Logger logger = new();
@@ -35,13 +36,13 @@ namespace SecureWiki.Views
         public MainWindow()
         {
             InitializeComponent();
-            _viewModel = new MainWindowViewModel(_masterKeyring, logger);
+            _viewModel = new MainWindowViewModel(_masterKeyring, logger, _mountedDirMirror);
             DataContext = _viewModel;
             
             // Check if fuse is already running, if yes then unmount
             IsFuseRunning();
             
-            manager = new Manager(Thread.CurrentThread, _masterKeyring, logger);
+            manager = new Manager(Thread.CurrentThread, _masterKeyring, logger, _mountedDirMirror);
             Thread managerThread = new(manager.Run) {IsBackground = true, Name = "ManagerThread"};
             managerThread.Start();
 

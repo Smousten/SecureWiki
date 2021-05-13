@@ -14,11 +14,13 @@ namespace SecureWikiTests
         private MasterKeyring _masterKeyring;
         private Manager _manager;
         private Logger _logger = new();
+        private MountedDirMirror _mountedDirMirror;
 
         [SetUp]
         public void SetUp()
         {
-            _manager = new Manager(Thread.CurrentThread, _masterKeyring, _logger);
+            _mountedDirMirror = new MountedDirMirror();
+            _manager = new Manager(Thread.CurrentThread, _masterKeyring, _logger, _mountedDirMirror);
             _masterKeyring = new MasterKeyring();
             _keyringManager = new KeyringManager(_masterKeyring, _manager);
         }

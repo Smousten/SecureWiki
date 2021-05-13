@@ -410,6 +410,10 @@ namespace SecureWiki.MediaWiki
             var decryptedAccessFileString = Encoding.ASCII.GetString(decryptedAccessFile);
             var accessFile = JSONSerialization.DeserializeObject(
                 decryptedAccessFileString, typeof(AccessFile)) as AccessFile;
+
+            if (accessFile == null) return null;
+            
+            accessFile.accessFileReference = new AccessFileReference(accessFile, symmetricReference.type);
             return accessFile;
         }
 
@@ -431,7 +435,11 @@ namespace SecureWiki.MediaWiki
                     var keyringString = Encoding.ASCII.GetString(keyringBytes);
                     var keyring = JSONSerialization.DeserializeObject(
                         keyringString, typeof(Keyring)) as Keyring;
-                    return keyring;
+                    if (keyring != null)
+                    {
+                        keyring.accessFileReferenceToSelf = symmetricReference.targetAccessFile.accessFileReference!;
+                        return keyring;
+                    }
                 }
             }
 

@@ -53,10 +53,10 @@ namespace SecureWiki.Model
             RootFolder.PrintInfoRecursively();
         }
     }
-
-    public class MDFolder : IReactiveObject
+    
+    public abstract class MDItem : IReactiveObject
     {
-        private string _name;
+        protected string _name;
         public string name
         {
             get => _name;
@@ -67,6 +67,63 @@ namespace SecureWiki.Model
             }
         }
         
+        protected bool? _isChecked = false;
+        public bool? isChecked
+        {
+            get => (_isChecked ?? false);
+            set
+            {
+                _isChecked = value;
+                RaisePropertyChanged(nameof(isChecked));
+                RaisePropertyChanged(nameof(isCheckedWriteEnabled));
+            }
+        }
+        
+        protected bool? _isCheckedWrite = false;
+        public bool? isCheckedWrite
+        {
+            get => (_isCheckedWrite ?? false);
+            set
+            {
+                _isCheckedWrite = value;
+                RaisePropertyChanged(nameof(isCheckedWrite));
+            }
+        }
+      
+        public bool isCheckedWriteEnabled => isChecked ?? false;
+        
+
+        public MDItem(string name)
+        {
+            this.name = name;
+        }
+
+        protected MDItem()
+        {
+            
+        }
+        
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangingEventHandler? PropertyChanging;
+        public void RaisePropertyChanging(PropertyChangingEventArgs args)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void RaisePropertyChanged(PropertyChangedEventArgs args)
+        {
+            throw new System.NotImplementedException();
+        }
+        
+        public void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler? handler = PropertyChanged;
+            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public class MDFolder : MDItem
+    {
         public MDFolder? Parent;
 
         // private List<MDFolder> Folders = new();
@@ -94,9 +151,8 @@ namespace SecureWiki.Model
             }   
         }
         
-        public MDFolder(string name, MDFolder? parent)
+        public MDFolder(string name, MDFolder? parent) : base(name)
         {
-            this.name = name;
             Parent = parent;
         }
 
@@ -336,16 +392,34 @@ namespace SecureWiki.Model
         }
     }
 
-    public class MDFile : IReactiveObject
+    public class MDFile : MDItem
     {
-        private string _name;
-        public string name
+        public new bool? isCheckedWrite
         {
-            get => _name;
+            get
+            {
+                if (symmetricReference.targetAccessFile?.keyList.TrueForAll(e => e.PrivateKey == null) == true)
+                {
+                    return false;
+                }
+                return (_isCheckedWrite ?? false);
+            }
             set
             {
-                _name = value;
-                RaisePropertyChanged(nameof(name));
+                _isCheckedWrite = value;
+                RaisePropertyChanged(nameof(isCheckedWrite));
+            }
+        }
+        
+        public new bool isCheckedWriteEnabled
+        {
+            get
+            {
+                if (symmetricReference.targetAccessFile?.keyList.TrueForAll(e => e.PrivateKey == null) == true)
+                {
+                    return false;
+                }
+                return isChecked ?? false;
             }
         }
         
@@ -354,9 +428,8 @@ namespace SecureWiki.Model
         // public AccessFileReference accessFileReference;
         public SymmetricReference symmetricReference;
 
-        public MDFile(string name, MDFolder parent, SymmetricReference reference)
+        public MDFile(string filename, MDFolder parent, SymmetricReference reference) : base(filename)
         {
-            this.name = name;
             Parent = parent;
             symmetricReference = reference;
         }

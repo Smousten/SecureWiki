@@ -62,6 +62,12 @@ namespace SecureWiki.Model
             
         }
         
+        public AccessFileReference(AccessFile accessFile, PageType type, Keyring? keyringTarget = null) : base(accessFile.pageName, accessFile.serverLink)
+        {
+            this.type = type;
+            this.KeyringTarget = keyringTarget;
+        }
+        
         public AccessFileReference(string targetPageName, string serverLink, AccessFile accessFileParent, PageType type, Keyring? keyringTarget = null) : base(targetPageName, serverLink)
         {
             this.AccessFileParent = accessFileParent;

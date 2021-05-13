@@ -39,7 +39,7 @@ namespace SecureWiki
         public ConfigManager configManager;
         public ContactManager contactManager;
 
-        public MountedDirMirror mountedDirMirror = new();
+        public MountedDirMirror mountedDirMirror;
         public Logger logger;
         public MasterKeyring MasterKeyring;
         private Dictionary<(string, string), string> RequestedRevision = new();
@@ -52,12 +52,13 @@ namespace SecureWiki
 
         public PrintTest printTest;
 
-        public Manager(Thread createrThread, MasterKeyring rk, Logger logger)
+        public Manager(Thread createrThread, MasterKeyring rk, Logger logger, MountedDirMirror mountedDirMirror)
         {
             GUIThread = createrThread;
             printTest = PrintTestMethod;
             MasterKeyring = rk;
             this.logger = logger;
+            this.mountedDirMirror = mountedDirMirror;
         }
 
         public void Run()
@@ -786,8 +787,8 @@ namespace SecureWiki
             out SymmetricReference symmetricReference, out AccessFile accessFile)
         {
             // Create access file and reference for folder
-            accessFile = new(configManager.DefaultServerLink, pageNameKeyring) {filename = filename};
-            accessFileReference = new(pageNameKeyring, configManager.DefaultServerLink,
+            accessFile = new AccessFile(configManager.DefaultServerLink, pageNameKeyring) {filename = filename};
+            accessFileReference = new AccessFileReference(pageNameKeyring, configManager.DefaultServerLink,
                 accessFile, type);
             accessFile.accessFileReference = accessFileReference;
             
@@ -798,14 +799,16 @@ namespace SecureWiki
         
         private void AddToDefaultKeyring(SymmetricReference symmetricReference)
         {
+            AccessFile? accessFile;
+            
             // Add symmetric reference to newEntries keyring
             var symmRef = MasterKeyring.SymmetricReferences.FirstOrDefault(
                 e => e.type == PageType.Keyring 
                      && e.targetAccessFile?.accessFileReference?.KeyringTarget!.name.Equals("newEntries") == true);
             var defaultKeyring = symmRef?.targetAccessFile?.accessFileReference?.KeyringTarget;
-            AccessFile? accessFile = defaultKeyring?.accessFileReferenceToSelf.AccessFileParent;
             if (defaultKeyring == null)
             {
+                Console.WriteLine("defaultkeyring is null");
                 var pageNameKeyring = GetFreshPageName();
                 var pageNameAccessFileKeyring = GetFreshPageName();
 
@@ -814,9 +817,24 @@ namespace SecureWiki
                     out AccessFileReference accessFileReferenceKeyring, out SymmetricReference symmetricReferenceToDefaultKeyring,
                     out accessFile);
                 
+                
                 // Create new keyring
                 defaultKeyring = new Keyring(accessFileReferenceKeyring, "newEntries");
                 MasterKeyring.AddSymmetricReference(symmetricReferenceToDefaultKeyring);
+            }
+            else
+            {
+                if (defaultKeyring.accessFileReferenceToSelf == null)
+                {
+                    Console.WriteLine("defaultKeyring.accessFileReferenceToSelf is null");
+                    Console.WriteLine("defaultKeyring.name = " + defaultKeyring.name);
+                }
+                accessFile = defaultKeyring.accessFileReferenceToSelf.AccessFileParent;
+            }
+
+            if (accessFile == null)
+            {
+                Console.WriteLine("accessFile is null");
             }
 
             defaultKeyring.AddSymmetricReference(symmetricReference);
@@ -824,7 +842,7 @@ namespace SecureWiki
             // Upload updated keyring
             var wikiHandler = GetWikiHandler(configManager.DefaultServerLink);
             var uploadResKR = wikiHandler?.UploadKeyring(
-                accessFile!, defaultKeyring);
+                accessFile, defaultKeyring);
             Console.WriteLine("uploadResKR:" + uploadResKR);
         }
 
@@ -914,7 +932,7 @@ namespace SecureWiki
 
         public void SaveKeyringToFile()
         {
-            _keyringManager.SaveRootKeyring();
+            // _keyringManager.SaveRootKeyring();
         }
 
         public string? AttemptReadFileFromCache(string pageTitle, string revid)
