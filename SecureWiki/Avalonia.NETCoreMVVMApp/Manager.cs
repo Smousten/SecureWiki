@@ -43,6 +43,7 @@ namespace SecureWiki
         public Logger logger;
         public RootKeyring rootKeyring;
         private Dictionary<(string, string), string> RequestedRevision = new();
+        public SymmetricReference symRefToMasterKeyring;
 
         private readonly string _smtpClientEmail = "SecureWikiMails@gmail.com";
         private readonly string _smtpClientPassword = "SecureWiki";
@@ -89,7 +90,9 @@ namespace SecureWiki
 
             // GUI can now proceed
             MainWindow.ManagerReadyEvent.Set();
-
+            
+            InitializeSymRefMasterKeyring();
+            symRefToMasterKeyring.targetAccessFile.accessFileReference.KeyringTarget = rootKeyring;
 
             // var res = ShowMessageBox("some very loooooooooooooooooooooooooong title", " and some very loooooooooooooooooooooooooong title", MessageBox.Buttons.YesNoCancel);
             // Console.WriteLine(res.ToString());
@@ -99,6 +102,71 @@ namespace SecureWiki
         {
             Console.WriteLine("ManagerThread printing: " + input + " from thread:" +
                               Thread.CurrentThread.Name);
+        }
+        
+        public string GetSymRefMasterKeyringFilePath()
+        {
+            const string filename = "SymRefMasterKeyring.json";
+            var currentDir = Directory.GetCurrentDirectory();
+            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../"));
+            var path = Path.Combine(projectDir, filename);
+
+            return path;
+        }
+
+        public void InitializeSymRefMasterKeyring()
+        {
+            Console.WriteLine("InitializeSymRefMasterKeyring entered");
+            var path = GetSymRefMasterKeyringFilePath();
+
+            if (File.Exists(path))
+            {
+                symRefToMasterKeyring = (SymmetricReference) JSONSerialization.ReadFileAndDeserialize(path, typeof(SymmetricReference));
+                var wikihandler = GetWikiHandler(symRefToMasterKeyring.serverLink);
+
+                Console.WriteLine("download af from " + symRefToMasterKeyring.targetPageName);
+                var af = wikihandler?.DownloadAccessFile(symRefToMasterKeyring);
+
+                if (af == null)
+                {
+                    Console.WriteLine("af null");
+                    return;
+                }
+                
+                Console.WriteLine("af not null");
+
+                var afr = new AccessFileReference(af.pageName, af.serverLink, af, AccessFileReference.Type.Keyring);
+                af.accessFileReference = afr;
+                
+                symRefToMasterKeyring.targetAccessFile = af;
+            }
+            else
+            {
+                Console.WriteLine("creating new master sym ref");
+                var accessFileToMasterKeyring = new AccessFile(configManager.DefaultServerLink, GetFreshPageName());
+                var accessFileRefToMasterKeyring = new AccessFileReference(accessFileToMasterKeyring.pageName,
+                    configManager.DefaultServerLink, accessFileToMasterKeyring, AccessFileReference.Type.Keyring);
+                accessFileToMasterKeyring.accessFileReference = accessFileRefToMasterKeyring;
+                symRefToMasterKeyring = new SymmetricReference(GetFreshPageName(), configManager.DefaultServerLink,
+                    SymmetricReference.Type.Keyring, accessFileRefToMasterKeyring.targetPageName,
+                    accessFileToMasterKeyring);
+            }
+        }
+
+        public void SaveSymRefMasterKeyringToFile()
+        {
+            var path = GetSymRefMasterKeyringFilePath();
+
+            JSONSerialization.SerializeAndWriteFile(path, symRefToMasterKeyring);
+
+            Console.WriteLine("Upload access file to: " + symRefToMasterKeyring.targetPageName);
+            Console.WriteLine("Upload keyring file to: " + symRefToMasterKeyring.accessFileTargetPageName);
+            
+            var wikihandler = GetWikiHandler(symRefToMasterKeyring.serverLink);
+            var res1 = wikihandler?.UploadAccessFile(symRefToMasterKeyring, symRefToMasterKeyring.targetAccessFile);
+            var res2 = wikihandler?.UploadKeyring(symRefToMasterKeyring.targetAccessFile, rootKeyring);
+
+            Console.WriteLine("res1, res2: {0}, {1}", res1, res2);
         }
 
         public string GetConfigManagerFilePath()

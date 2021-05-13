@@ -78,7 +78,8 @@ namespace SecureWiki.Views
             manager.SaveKeyringToFile();
             Console.WriteLine("Saving contacts to file");
             manager.SaveContactManagerToFile();
-
+            Console.WriteLine("Saving master symref to file and uploading");
+            manager.SaveSymRefMasterKeyringToFile();
             // Unmount mounted directory
             Unmount();
 

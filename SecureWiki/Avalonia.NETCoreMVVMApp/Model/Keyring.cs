@@ -113,6 +113,15 @@ namespace SecureWiki.Model
             CheckedChanged += CheckedChangedUpdateChildren;
             CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
         }
+        
+        public Keyring()
+        {
+            _name = "unnamed";
+            
+            CheckedChanged += CheckedChangedUpdateParent;
+            CheckedChanged += CheckedChangedUpdateChildren;
+            CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
+        }
 
         // Add a symmetric reference and update it accordingly
         public void AddSymmetricReference(SymmetricReference symmetricReference)

@@ -4,15 +4,21 @@ using SecureWiki.Cryptography;
 
 namespace SecureWiki.Model
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public abstract class Reference
     {
-        public string targetPageName;
-        public string serverLink;
+        [JsonProperty] public string targetPageName;
+        [JsonProperty] public string serverLink;
 
         public Reference(string targetPageName, string serverLink)
         {
             this.targetPageName = targetPageName;
             this.serverLink = serverLink;
+        }
+
+        public Reference()
+        {
+            
         }
     }
     
@@ -60,6 +66,11 @@ namespace SecureWiki.Model
         {
             this.type = type;
             this.KeyringTarget = keyringTarget;
+        }
+
+        public AccessFileReference()
+        {
+            
         }
         
         public AccessFileReference(string targetPageName, string serverLink, AccessFile accessFileParent, Type type, Keyring? keyringTarget = null) : base(targetPageName, serverLink)
