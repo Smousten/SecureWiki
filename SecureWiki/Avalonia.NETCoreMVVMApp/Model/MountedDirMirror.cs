@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using DynamicData;
 using ReactiveUI;
@@ -51,6 +52,20 @@ namespace SecureWiki.Model
         public void PrintInfo()
         {
             RootFolder.PrintInfoRecursively();
+        }
+
+        public void CreateFileStructureRecursion(MDFolder folder, string path)
+        {
+            foreach (var file in folder.Files)
+            {
+                File.Create(Path.Combine(path, file.name)).Dispose();
+            }
+
+            foreach (var childFolder in folder.Folders)
+            {
+                Directory.CreateDirectory(Path.Combine(path, childFolder.name));
+                CreateFileStructureRecursion(childFolder, Path.Combine(path, childFolder.name));
+            }
         }
     }
     
@@ -129,8 +144,8 @@ namespace SecureWiki.Model
         // private List<MDFolder> Folders = new();
         // private List<MDFile> Files = new();
 
-        private ObservableCollection<MDFolder> Folders = new();
-        private ObservableCollection<MDFile> Files = new();
+        public ObservableCollection<MDFolder> Folders = new();
+        public ObservableCollection<MDFile> Files = new();
         
         public ObservableCollection<object> combinedList
         {

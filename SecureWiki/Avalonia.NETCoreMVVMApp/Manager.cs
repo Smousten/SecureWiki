@@ -112,6 +112,7 @@ namespace SecureWiki
             }
             
             PopulateMountedDirMirror(MasterKeyring);
+            mountedDirMirror.CreateFileStructureRecursion(mountedDirMirror.RootFolder, GetRootDir(""));
             mountedDirMirror.PrintInfo();
 
             // var res = ShowMessageBox("some very loooooooooooooooooooooooooong title", " and some very loooooooooooooooooooooooooong title", MessageBox.Buttons.YesNoCancel);
@@ -801,6 +802,8 @@ namespace SecureWiki
         {
             AccessFile? accessFile;
             
+            var wikiHandler = GetWikiHandler(configManager.DefaultServerLink);
+            
             // Add symmetric reference to newEntries keyring
             var symmRef = MasterKeyring.SymmetricReferences.FirstOrDefault(
                 e => e.type == PageType.Keyring 
@@ -821,6 +824,15 @@ namespace SecureWiki
                 // Create new keyring
                 defaultKeyring = new Keyring(accessFileReferenceKeyring, "newEntries");
                 MasterKeyring.AddSymmetricReference(symmetricReferenceToDefaultKeyring);
+
+                
+                // TODO: create inbox page for default keyring? 
+                
+                
+                // Upload updated masterKeyring? 
+                // var uploadResMaster = wikiHandler?.UploadKeyring(
+                //     accessFile!, MasterKeyring);
+                // Console.WriteLine("uploadResKR:" + uploadResMaster);
             }
             else
             {
@@ -840,7 +852,6 @@ namespace SecureWiki
             defaultKeyring.AddSymmetricReference(symmetricReference);
             
             // Upload updated keyring
-            var wikiHandler = GetWikiHandler(configManager.DefaultServerLink);
             var uploadResKR = wikiHandler?.UploadKeyring(
                 accessFile, defaultKeyring);
             Console.WriteLine("uploadResKR:" + uploadResKR);

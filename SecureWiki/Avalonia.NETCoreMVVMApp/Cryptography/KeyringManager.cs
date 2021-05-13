@@ -199,28 +199,58 @@ namespace SecureWiki.Cryptography
         }
 
         // Find the access file with the given name -- better performance if whole filepath is given
+        // public AccessFile? GetAccessFile(string filename, Keyring keyring)
+        // {
+        //     var accessFile = keyring.accessFiles.FirstOrDefault(f => f.filename.Equals(filename));
+        //     if (accessFile != null)
+        //     {
+        //         return accessFile;
+        //     }
+        //
+        //     foreach (var childKeyring in keyring.keyrings)
+        //     {
+        //         var result = GetAccessFile(filename, childKeyring);
+        //         if (result != null)
+        //         {
+        //             return result;
+        //         }
+        //     }
+        //
+        //     return null;
+        //
+        //     // Linq one-line
+        //     // return accessFile ?? keyring.keyrings.Select(childKeyRing => GetAccessFile(filename, childKeyRing)).FirstOrDefault(entry => entry != null);
+        // }
+        
         public AccessFile? GetAccessFile(string filename, Keyring keyring)
         {
-            var accessFile = keyring.accessFiles.FirstOrDefault(f => f.filename.Equals(filename));
-            if (accessFile != null)
+            foreach (var symRef in keyring.SymmetricReferences)
             {
-                return accessFile;
-            }
+                if (symRef.targetAccessFile != null && symRef.targetAccessFile.filename.Equals(filename))
+                {
+                    return symRef.targetAccessFile;
+                }
 
-            foreach (var childKeyring in keyring.keyrings)
-            {
-                var result = GetAccessFile(filename, childKeyring);
+                if (symRef.type == PageType.GenericFile)
+                {
+                    continue;
+                }
+
+                var kr = symRef.targetAccessFile?.accessFileReference?.KeyringTarget;
+                if (kr == null) continue;
+                var result = GetAccessFile(filename, kr);
                 if (result != null)
                 {
                     return result;
                 }
             }
-
+        
             return null;
-
+        
             // Linq one-line
             // return accessFile ?? keyring.keyrings.Select(childKeyRing => GetAccessFile(filename, childKeyRing)).FirstOrDefault(entry => entry != null);
         }
+
 
         // Rename or change location of access file/keyring in root keyringEntry 
         public void Rename(string oldPath, string newPath)
