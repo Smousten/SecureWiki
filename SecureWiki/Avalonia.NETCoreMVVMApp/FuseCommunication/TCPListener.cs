@@ -228,7 +228,7 @@ namespace SecureWiki.FuseCommunication
         // Should make new keyring object in keyring json file
         public void Mkdir(string filename, string filepath)
         {
-            _manager.AddNewKeyRing(filename, filepath);
+            _manager.AddNewFolder(filename, filepath);
         }
         
         // Check if file is not goutputstream or trash

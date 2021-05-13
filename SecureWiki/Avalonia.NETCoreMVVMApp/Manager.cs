@@ -814,7 +814,18 @@ namespace SecureWiki
             }
         }
 
-        public void AddNewKeyRing(string filename, string filepath)
+        public void AddNewFolder(string filename, string filepath)
+        {
+            // Create new entry in md mirror
+            var mdFolder = mountedDirMirror.AddFolder(filepath);
+            if (mdFolder == null)
+            {
+                WriteToLogger("Keyring could not be added to MDMirror, upload failed");
+                return;
+            }
+        }
+
+        public void AddNewKeyRing(string filename)
         {
             var pageNameKeyring = GetFreshPageName();
             var pageNameAccessFile = GetFreshPageName();
@@ -862,14 +873,6 @@ namespace SecureWiki
             }
             defaultKeyring.AddSymmetricReference(symmetricReference);
             
-            // Create new entry in md mirror
-            var mdFolder = mountedDirMirror.AddFolder(filepath);
-            if (mdFolder == null)
-            {
-                WriteToLogger("Keyring could not be added to MDMirror, upload failed");
-                return;
-            }
-
             // Upload new files to server
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
             var uploadResAF = wikiHandler?.UploadAccessFile(symmetricReference, accessFile);
