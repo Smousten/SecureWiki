@@ -757,7 +757,7 @@ namespace SecureWiki
                 // Create access file and reference for keyring
                 AccessFile accessFileKeyring = new(configManager.DefaultServerLink, pageNameKeyring);
                 AccessFileReference accessFileReferenceKeyring = new(pageNameKeyring, configManager.DefaultServerLink, 
-                    accessFileKeyring, AccessFileReference.Type.GenericFile);
+                    accessFileKeyring, AccessFileReference.Type.Keyring);
                 accessFileKeyring.accessFileReference = accessFileReferenceKeyring;
                 
                 // Create symmetric reference to access keyring
@@ -816,59 +816,73 @@ namespace SecureWiki
 
         public void AddNewKeyRing(string filename, string filepath)
         {
-            // TODO: update symmetric reference in parent keyring, upload keyring
-            var pageNameKeyring = RandomString.GenerateRandomAlphanumericString();
-            var pageNameAccessFile = RandomString.GenerateRandomAlphanumericString();
-            var pageNameInboxPage = RandomString.GenerateRandomAlphanumericString();
-            
-            // Check that none of the page names already exist on server
-            while (true)
-            {
-                if (PageAlreadyExists(pageNameKeyring, "-1", configManager.DefaultServerLink))
-                {
-                    WriteToLogger($"Auto generated page title ({pageNameKeyring}) already exists on server. Retrying...");
-                    pageNameKeyring = RandomString.GenerateRandomAlphanumericString();
-                }
-                else if (PageAlreadyExists(pageNameAccessFile, "-1", configManager.DefaultServerLink))
-                {
-                    WriteToLogger(
-                        $"Auto generated page title ({pageNameAccessFile}) already exists on server. Retrying...");
-                    pageNameAccessFile = RandomString.GenerateRandomAlphanumericString();
-                } 
-                else if (PageAlreadyExists(pageNameInboxPage, "-1", configManager.DefaultServerLink))
-                {
-                    WriteToLogger(
-                        $"Auto generated page title ({pageNameInboxPage}) already exists on server. Retrying...");
-                    pageNameInboxPage = RandomString.GenerateRandomAlphanumericString();
-                } 
-                else
-                {
-                    break;
-                }
-            }
-            
-            // Create access file
-            AccessFile accessFile = new(configManager.DefaultServerLink, pageNameKeyring, filename);
+            var pageNameKeyring = GetFreshPageName();
+            var pageNameAccessFile = GetFreshPageName();
+            var pageNameInboxPage = GetFreshPageName();
 
+            // Create access file and reference for folder
+            AccessFile accessFile = new(configManager.DefaultServerLink, pageNameKeyring);
+            AccessFileReference accessFileReference = new(pageNameKeyring, configManager.DefaultServerLink, 
+                accessFile, AccessFileReference.Type.Keyring);
+            
+            // Create new keyring object
+            var newKeyring = new Keyring(accessFileReference, filename);
+    
             // Create symmetric reference to access file
             SymmetricReference symmetricReference = new(pageNameAccessFile,
-                configManager.DefaultServerLink, SymmetricReference.Type.Keyring, 
-                pageNameKeyring, accessFile);
-
+                configManager.DefaultServerLink, SymmetricReference.Type.Keyring, pageNameKeyring, accessFile);
+            
             // Create inbox reference to inbox page
             InboxReference inboxReference = new(pageNameInboxPage, configManager.DefaultServerLink);
-            
-            // Add symmetric reference to newEntries keyring
-            var defaultKeyring = rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("newEntries"));
-            defaultKeyring?.SymmetricReferences.Add(symmetricReference);
-            
-            
-            var newKeyring = new Keyring(filename);
             newKeyring.InboxReferenceToSelf = inboxReference;
 
-            // Upload new keyring to server
+            // Add symmetric reference to newEntries keyring
+            var defaultKeyring = rootKeyring.SymmetricReferences.FirstOrDefault(
+                e => e.type == SymmetricReference.Type.Keyring 
+                && e.targetAccessFile.accessFileReference?.KeyringTarget!.name.Equals("newEntries") == true)?.keyringParent;
+            if (defaultKeyring == null)
+            {
+                var pageNameKeyringIntermediate = GetFreshPageName();
+                var pageNameAccessFileKeyring = GetFreshPageName();
+                
+                // Create access file and reference for keyring
+                AccessFile accessFileKeyring = new(configManager.DefaultServerLink, pageNameKeyringIntermediate);
+                AccessFileReference accessFileReferenceKeyring = new(pageNameKeyringIntermediate, configManager.DefaultServerLink, 
+                    accessFileKeyring, AccessFileReference.Type.Keyring);
+                accessFileKeyring.accessFileReference = accessFileReferenceKeyring;
+                
+                // Create symmetric reference to access keyring
+                SymmetricReference symmetricReferenceToDefaultKeyring = new(pageNameAccessFileKeyring,
+                    configManager.DefaultServerLink, SymmetricReference.Type.Keyring, pageNameKeyringIntermediate, accessFileKeyring);
+
+                // Create new keyring
+                defaultKeyring = new Keyring(accessFileReferenceKeyring, "newEntries");
+                rootKeyring.AddSymmetricReference(symmetricReferenceToDefaultKeyring);
+                
+            }
+            defaultKeyring.AddSymmetricReference(symmetricReference);
+            
+            // Create new entry in md mirror
+            var mdFolder = mountedDirMirror.AddFolder(filepath);
+            if (mdFolder == null)
+            {
+                WriteToLogger("Keyring could not be added to MDMirror, upload failed");
+                return;
+            }
+
+            // Upload new files to server
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
-            wikiHandler?.UploadKeyring(accessFile, new Keyring(filename));
+            var uploadResAF = wikiHandler?.UploadAccessFile(symmetricReference, accessFile);
+            Console.WriteLine("uploadResAF:" + uploadResAF);
+            
+            // Upload new keyring to server
+            var uploadResNewKeyring = wikiHandler?.UploadKeyring(accessFile, newKeyring);
+            Console.WriteLine("upload result of new keyring: " + uploadResNewKeyring);
+            
+            // Upload updated keyring
+            var uploadResKR = wikiHandler?.UploadKeyring(
+                defaultKeyring.accessFileReferenceToSelf.AccessFileParent, defaultKeyring);
+            Console.WriteLine("uploadResKR:" + uploadResKR);
         }
 
         public void RenameFile(string oldPath, string newPath)

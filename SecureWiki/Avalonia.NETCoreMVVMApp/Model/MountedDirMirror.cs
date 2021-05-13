@@ -28,6 +28,18 @@ namespace SecureWiki.Model
             var pathArr = path.Split('/');
             return RootFolder.AddFileRecursively(pathArr, 0, reference);
         }
+
+        public MDFolder? GetMDFolder(string path)
+        {
+            var pathArr = path.Split('/');
+            return RootFolder.FindFolderRecursively(pathArr, 0);
+        }
+
+        public MDFolder? AddFolder(string path)
+        {
+            var pathArr = path.Split('/');
+            return RootFolder.AddFolderRecursively(pathArr, 0);
+        }
     }
 
     public class MDFolder : IReactiveObject
@@ -209,6 +221,57 @@ namespace SecureWiki.Model
                 {
                     cnt++;
                     Folders[index].AddFileRecursively(path, cnt, reference);
+                }
+            }
+
+            return null;
+        }
+        
+        // TODO: refactor - make common function for file/folder
+        public MDFolder? FindFolderRecursively(string[] path, int cnt)
+        {
+            if (path.Length - cnt <= 1)
+            {
+                var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
+                if (index < 0) return null;
+                return Folders[index];
+            }
+            else
+            {
+                var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
+                if (index < 0) return null;
+                cnt++;
+                return Folders[index].FindFolderRecursively(path, cnt);
+            }
+        }
+
+        // TODO: refactor - make common function for file/folder
+        public MDFolder? AddFolderRecursively(string[] path, int cnt)
+        {
+            if (path.Length - cnt <= 1)
+            {
+                var index = Folders.BinarySearch(new MDFolder() {name = path[cnt]}, new MDFolderComparer());
+                if (index < 0)
+                {
+                    var newMDFolder = new MDFolder(path[cnt], this);
+                    AddFolder(newMDFolder);
+                    return newMDFolder;
+                }
+            }
+            else
+            {
+                var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
+                if (index < 0)
+                {
+                    var newFolder = new MDFolder(path[cnt], this);
+                    AddFolder(newFolder);
+                    cnt++;
+                    newFolder.AddFolderRecursively(path, cnt);
+                }
+                else
+                {
+                    cnt++;
+                    Folders[index].AddFolderRecursively(path, cnt);
                 }
             }
 

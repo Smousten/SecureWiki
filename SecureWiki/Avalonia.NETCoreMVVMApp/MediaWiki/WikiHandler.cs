@@ -213,7 +213,7 @@ namespace SecureWiki.MediaWiki
             // If revid is not set, get id of newest revision, or set to default
             revid ??= GetLatestRevisionID(accessFile.pageName) ?? "-1";
 
-            // If specific revision is requested, find key in data file key list with correct start revision ID and end revision ID.
+            // If specific revision is requested, find key in access file key list with correct start revision ID and end revision ID.
             // Otherwise get latest key
             var key = revid.Equals("-1")
                 ? accessFile.keyList.LastOrDefault()
@@ -224,7 +224,7 @@ namespace SecureWiki.MediaWiki
             if (key == null)
             {
                 _manager.WriteToLogger(
-                    $"Could not find DataFileKey matching requested revision id '{revid}'. Attempting to get latest valid revision.",
+                    $"Could not find AccessFileKey matching requested revision id '{revid}'. Attempting to get latest valid revision.",
                     accessFile.filename, LoggerEntry.LogPriority.Warning);
                 var revisions = GetAllRevisions(accessFile.pageName).revisionList;
                 return GetLatestValidRevision(accessFile, revisions);
@@ -282,10 +282,10 @@ namespace SecureWiki.MediaWiki
 
         public bool UploadAccessFile(SymmetricReference symmetricReference, AccessFile accessFile)
         {
-            var dataFileString = JSONSerialization.SerializeObject(accessFile);
-            var dataFileBytes = Encoding.ASCII.GetBytes(dataFileString);
+            var accessFileString = JSONSerialization.SerializeObject(accessFile);
+            var accessFileBytes = Encoding.ASCII.GetBytes(accessFileString);
 
-            var cipherTextBytes = Crypto.EncryptGCM(dataFileBytes, symmetricReference.symmKey);
+            var cipherTextBytes = Crypto.EncryptGCM(accessFileBytes, symmetricReference.symmKey);
 
             MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
                 symmetricReference.targetPageName);
@@ -350,12 +350,11 @@ namespace SecureWiki.MediaWiki
             var keyringString = JSONSerialization.SerializeObject(keyring);
             var keyringBytes = Encoding.ASCII.GetBytes(keyringString);
 
-            // Find latest key in data file key list
+            // Find latest key in access file key list
             var key = accessFile.keyList.Last();
 
             // Encrypt text using key from key list
             var encryptedContent = Crypto.EncryptGCM(keyringBytes, key.SymmKey);
-
             if (encryptedContent == null) return false;
 
             // Sign hash value of cipher text
@@ -376,7 +375,7 @@ namespace SecureWiki.MediaWiki
             {
                 var response = new Response(httpResponse);
 
-                // Get revision ID of the revision that was just uploaded and update DataFileEntry revision start
+                // Get revision ID of the revision that was just uploaded and update AccessFileEntry revision start
                 // information for key if not set  
                 if (key.RevisionStart.Equals("-1") && response.newrevidString != null)
                 {
