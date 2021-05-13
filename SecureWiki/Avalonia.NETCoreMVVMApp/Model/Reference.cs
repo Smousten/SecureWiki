@@ -34,7 +34,7 @@ namespace SecureWiki.Model
         [JsonProperty] public Type type; 
         [JsonProperty] public byte[] symmKey;
         [JsonProperty] public string accessFileTargetPageName;
-        [JsonProperty] public AccessFile targetAccessFile;
+        [JsonProperty(Order = 99)] public AccessFile? targetAccessFile;
 
         public Keyring? keyringParent;
 
@@ -60,7 +60,7 @@ namespace SecureWiki.Model
 
         [JsonProperty] public Type type;
         public AccessFile? AccessFileParent;
-        [JsonProperty] public Keyring? KeyringTarget;
+        [JsonProperty(Order = 99)] public Keyring? KeyringTarget;
 
         public AccessFileReference(string targetPageName, string serverLink, Type type, Keyring? keyringTarget = null) : base(targetPageName, serverLink)
         {
@@ -81,6 +81,7 @@ namespace SecureWiki.Model
         }
     }
 
+    [JsonObject(MemberSerialization.OptIn)]
     public class InboxReference : Reference
     {
         public enum AccessLevel
@@ -89,9 +90,9 @@ namespace SecureWiki.Model
             ReadWrite
         }
         
-        public byte[] publicKey;
-        public byte[]? privateKey;
-        public AccessLevel accessLevel;
+        [JsonProperty] public byte[] publicKey;
+        [JsonProperty] public byte[]? privateKey;
+        [JsonProperty(Order = -2)] public AccessLevel accessLevel;
 
         public InboxReference(string targetPageName, string serverLink, byte[] publicKey) : base(targetPageName,
             serverLink)

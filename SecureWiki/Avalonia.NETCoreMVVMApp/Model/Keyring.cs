@@ -42,7 +42,7 @@ namespace SecureWiki.Model
         public bool isCheckedWriteEnabled => isChecked ?? false;
 
         private string _name;
-        [JsonProperty]
+        [JsonProperty(Order = -4)]
         public string name
         {
             get => _name;
@@ -53,8 +53,8 @@ namespace SecureWiki.Model
             }
         }
 
-        [JsonProperty] public string pageTitle;
-        [JsonProperty] public List<SymmetricReference> SymmetricReferences = new();
+        [JsonProperty(Order = -3)] public string pageTitle;
+        [JsonProperty(Order = 99)] public List<SymmetricReference> SymmetricReferences = new();
         [JsonProperty] public InboxReference InboxReferenceToSelf;
         public AccessFileReference accessFileReferenceToSelf;
 
@@ -69,9 +69,9 @@ namespace SecureWiki.Model
             }
         }
         
-        [JsonProperty]
+        // [JsonProperty]
         public ObservableCollection<Keyring> keyrings { get; set; } = new();
-        [JsonProperty]
+        // [JsonProperty]
         public ObservableCollection<AccessFile> accessFiles { get; set; } = new();
 
         public ObservableCollection<object> combinedList
@@ -363,6 +363,11 @@ namespace SecureWiki.Model
             accessFiles.Clear();
             
             name = ke.name;
+            pageTitle = ke.pageTitle;
+            InboxReferenceToSelf = ke.InboxReferenceToSelf;
+            accessFileReferenceToSelf = ke.accessFileReferenceToSelf;
+            parent = ke.parent;
+            SymmetricReferences = ke.SymmetricReferences;
             
             MergeAllEntriesFromOtherKeyring(ke);
         }

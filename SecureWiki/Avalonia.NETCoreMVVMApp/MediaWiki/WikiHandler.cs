@@ -396,6 +396,12 @@ namespace SecureWiki.MediaWiki
         {
             // Download access file
             var accessFileContent = GetPageContent(symmetricReference.targetPageName);
+            
+            if (accessFileContent.Length < 2)
+            {
+                Console.WriteLine("DownloadAccessFile:- accessFileContent is null");
+                return null;
+            }
 
             var accessFileBytes = Convert.FromBase64String(accessFileContent);
             var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, symmetricReference.symmKey);
@@ -409,13 +415,17 @@ namespace SecureWiki.MediaWiki
 
         public Keyring? DownloadKeyring(SymmetricReference symmetricReference)
         {
-            // Download access file
-            var accessFile = DownloadAccessFile(symmetricReference);
+            if (symmetricReference.targetAccessFile == null)
+            {
+                // Download access file
+                var accessFile = DownloadAccessFile(symmetricReference);
+                symmetricReference.targetAccessFile = accessFile;
+            }
 
             // Download master keyring - pageTitle stored in access File links to rootkeyring
-            if (accessFile != null)
+            if (symmetricReference.targetAccessFile != null)
             {
-                var keyringBytes = Download(accessFile);
+                var keyringBytes = Download(symmetricReference.targetAccessFile);
                 if (keyringBytes != null)
                 {
                     var keyringString = Encoding.ASCII.GetString(keyringBytes);
@@ -428,29 +438,62 @@ namespace SecureWiki.MediaWiki
             return null;
         }
 
-        public void DownloadKeyringsRecursion(AccessFile accessFile, RootKeyring rootKeyring)
+        public RootKeyring? DownloadMasterKeyring(SymmetricReference symmetricReference)
         {
-            var keyringBytes = Download(accessFile);
-            if (keyringBytes != null)
+            if (symmetricReference.targetAccessFile == null)
             {
-                var keyringString = Encoding.ASCII.GetString(keyringBytes);
-                var keyring = JSONSerialization.DeserializeObject(
-                    keyringString, typeof(Keyring)) as Keyring;
+                // Download access file
+                var accessFile = DownloadAccessFile(symmetricReference);
+                symmetricReference.targetAccessFile = accessFile;
+            }
 
-                if (keyring != null)
+            // Download master keyring - pageTitle stored in access File links to rootkeyring
+            if (symmetricReference.targetAccessFile != null)
+            {
+                var keyringBytes = Download(symmetricReference.targetAccessFile);
+                if (keyringBytes != null)
                 {
-                    rootKeyring.keyrings.Add(keyring);
-                    foreach (var symmRef in keyring.SymmetricReferences)
+                    var keyringString = Encoding.ASCII.GetString(keyringBytes);
+                    var keyring = JSONSerialization.DeserializeObject(
+                        keyringString, typeof(RootKeyring)) as RootKeyring;
+                    return keyring;
+                }
+            }
+
+            return null;
+        }
+
+        public void DownloadKeyringsRecursion(Keyring rootKeyring)
+        {
+            Console.WriteLine("Checking keyring.name='{0}'", rootKeyring.name);
+            foreach (var symmRef in rootKeyring.SymmetricReferences)
+            {
+                Console.WriteLine("Checking symmRef.targetPageName='{0}'", symmRef.targetPageName);
+                if (symmRef.targetAccessFile == null)
+                {
+                    // Download access file
+                    Console.WriteLine("downloading access file");
+                    var accessFile = DownloadAccessFile(symmRef);
+                    symmRef.targetAccessFile = accessFile;
+                }
+                
+                if (symmRef.type == SymmetricReference.Type.GenericFile)
+                {
+                    rootKeyring.AddAccessFile(symmRef.targetAccessFile!);
+                }
+                else
+                {
+                    var kr = symmRef.targetAccessFile!.accessFileReference!.KeyringTarget == null 
+                        ? DownloadKeyring(symmRef) : symmRef.targetAccessFile.accessFileReference.KeyringTarget;
+
+                    if (kr != null)
                     {
-                        var targetAccessFile = DownloadAccessFile(symmRef);
-                        if (symmRef.type == SymmetricReference.Type.GenericFile)
-                        {
-                            if (targetAccessFile != null) rootKeyring.AddAccessFile(targetAccessFile);
-                        }
-                        else
-                        {
-                            if (targetAccessFile != null) DownloadKeyringsRecursion(targetAccessFile, rootKeyring);
-                        }
+                        rootKeyring.AddKeyring(kr);
+                        DownloadKeyringsRecursion(kr);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Download keyring failed");
                     }
                 }
             }

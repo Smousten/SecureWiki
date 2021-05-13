@@ -92,7 +92,25 @@ namespace SecureWiki
             MainWindow.ManagerReadyEvent.Set();
             
             InitializeSymRefMasterKeyring();
-            symRefToMasterKeyring.targetAccessFile.accessFileReference.KeyringTarget = rootKeyring;
+
+            var wh = GetWikiHandler(symRefToMasterKeyring.serverLink);
+            var newRootKR = wh?.DownloadMasterKeyring(symRefToMasterKeyring);
+
+            if (newRootKR == null)
+            {
+                Console.WriteLine("root keyring from server is null");
+                symRefToMasterKeyring.targetAccessFile.accessFileReference.KeyringTarget = rootKeyring;
+            }
+            else
+            {
+                Console.WriteLine("root keyring from server is not null");
+                newRootKR.name = "root from server";
+                rootKeyring.CopyFromOtherKeyring(newRootKR);
+                symRefToMasterKeyring.targetAccessFile.accessFileReference.KeyringTarget = rootKeyring;
+                wh!.DownloadKeyringsRecursion(rootKeyring);
+            }
+            
+            
 
             // var res = ShowMessageBox("some very loooooooooooooooooooooooooong title", " and some very loooooooooooooooooooooooooong title", MessageBox.Buttons.YesNoCancel);
             // Console.WriteLine(res.ToString());
@@ -737,7 +755,7 @@ namespace SecureWiki
             Console.WriteLine(pageNameAccessFile);
             
             // Create access file and reference for file
-            AccessFile accessFile = new(configManager.DefaultServerLink, pageNameFile);
+            AccessFile accessFile = new(configManager.DefaultServerLink, pageNameFile) {filename = filename};
             AccessFileReference accessFileReference = new(pageNameFile, configManager.DefaultServerLink, 
                 accessFile, AccessFileReference.Type.GenericFile);
     
@@ -746,9 +764,10 @@ namespace SecureWiki
                 configManager.DefaultServerLink, SymmetricReference.Type.GenericFile, pageNameFile, accessFile);
 
             // Add symmetric reference to newEntries keyring
-            var defaultKeyring = rootKeyring.SymmetricReferences.FirstOrDefault(
+            var symmRef = rootKeyring.SymmetricReferences.FirstOrDefault(
                 e => e.type == SymmetricReference.Type.Keyring 
-                && e.targetAccessFile.accessFileReference?.KeyringTarget!.name.Equals("newEntries") == true)?.keyringParent;
+                && e.targetAccessFile?.accessFileReference?.KeyringTarget!.name.Equals("newEntries") == true);
+            var defaultKeyring = symmRef?.targetAccessFile?.accessFileReference?.KeyringTarget;
             if (defaultKeyring == null)
             {
                 var pageNameKeyring = GetFreshPageName();
