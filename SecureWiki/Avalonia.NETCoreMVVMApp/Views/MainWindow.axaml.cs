@@ -24,7 +24,7 @@ namespace SecureWiki.Views
 {
     public class MainWindow : Window
     {
-        private RootKeyring _rootKeyring = new();
+        private MasterKeyring _masterKeyring = new();
         private Manager manager;
         public MainWindowViewModel _viewModel;
         public Logger logger = new();
@@ -35,13 +35,13 @@ namespace SecureWiki.Views
         public MainWindow()
         {
             InitializeComponent();
-            _viewModel = new MainWindowViewModel(_rootKeyring, logger);
+            _viewModel = new MainWindowViewModel(_masterKeyring, logger);
             DataContext = _viewModel;
             
             // Check if fuse is already running, if yes then unmount
             IsFuseRunning();
             
-            manager = new Manager(Thread.CurrentThread, _rootKeyring, logger);
+            manager = new Manager(Thread.CurrentThread, _masterKeyring, logger);
             Thread managerThread = new(manager.Run) {IsBackground = true, Name = "ManagerThread"};
             managerThread.Start();
 
@@ -159,7 +159,7 @@ namespace SecureWiki.Views
 
         private void Button2_Click(object? sender, RoutedEventArgs e)
         {
-            _rootKeyring.PrintInfoRecursively();
+            _masterKeyring.PrintInfoRecursively();
         }
 
         private void ButtonExport_Click(object? sender, RoutedEventArgs e)

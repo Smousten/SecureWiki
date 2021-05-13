@@ -10,14 +10,14 @@ namespace SecureWiki.Cryptography
 {
     public class KeyringManager
     {
-        private readonly RootKeyring _rootKeyring;
+        private readonly MasterKeyring _masterKeyring;
         private readonly Manager _manager;
         private DateTime _rootKeyringWriteTimestamp;
         public Masterkey masterKey { get; set; }
 
-        public KeyringManager(RootKeyring rk, Manager manager)
+        public KeyringManager(MasterKeyring rk, Manager manager)
         {
-            _rootKeyring = rk;
+            _masterKeyring = rk;
             _manager = manager;
         }
 
@@ -31,12 +31,12 @@ namespace SecureWiki.Cryptography
             if (File.Exists(filepath))
             {
                 // Read Keyring.json into rootKeyring
-                ReadIntoKeyring(_rootKeyring);
-                _rootKeyring.SortAllRecursively();
-                UpdateKeyringParentPropertyRecursively(_rootKeyring);
+                ReadIntoKeyring(_masterKeyring);
+                _masterKeyring.SortAllRecursively();
+                UpdateKeyringParentPropertyRecursively(_masterKeyring);
             }
 
-            CreateFileStructureRecursion(_rootKeyring, GetRootDirPath());
+            CreateFileStructureRecursion(_masterKeyring, GetRootDirPath());
         }
 
         private Masterkey? GetMasterkey(string filepath)
@@ -100,10 +100,10 @@ namespace SecureWiki.Cryptography
         }
 
         // Returns root keyring as deserialized json object
-        private RootKeyring? GetRootKeyring(string keyringFilePath)
+        private MasterKeyring? GetRootKeyring(string keyringFilePath)
         {
             var existingKeyRing = JSONSerialization.ReadFileAndDeserialize(
-                keyringFilePath, typeof(RootKeyring)) as RootKeyring;
+                keyringFilePath, typeof(MasterKeyring)) as MasterKeyring;
             return existingKeyRing;
         }
 
@@ -115,7 +115,7 @@ namespace SecureWiki.Cryptography
         }
 
         // Copies all data from json object into root keyring object
-        private void ReadIntoKeyring(RootKeyring rk)
+        private void ReadIntoKeyring(MasterKeyring rk)
         {
             var readKeyring = ReadKeyRing();
             if (readKeyring != null) rk.CopyFromOtherKeyring(readKeyring);
@@ -172,7 +172,7 @@ namespace SecureWiki.Cryptography
             AccessFile accessFile = new(serverLink, pageTitle, filename);
             
             // Find the keyring where the new access file is inserted
-            var foundKeyring = FindKeyringPath(_rootKeyring, filepath);
+            var foundKeyring = FindKeyringPath(_masterKeyring, filepath);
             foundKeyring.AddAccessFile(accessFile);
 
             AttemptSaveRootKeyring();
@@ -189,7 +189,7 @@ namespace SecureWiki.Cryptography
             };
 
             // Find the keyring where the new keyring is inserted
-            var foundKeyring = FindKeyringPath(_rootKeyring, filepath);
+            var foundKeyring = FindKeyringPath(_masterKeyring, filepath);
             foundKeyring.AddKeyring(newKeyring);
 
             // JsonSerializerOptions options = new() {WriteIndented = true};
@@ -225,8 +225,8 @@ namespace SecureWiki.Cryptography
         // Rename or change location of access file/keyring in root keyringEntry 
         public void Rename(string oldPath, string newPath)
         {
-            var oldKeyring = FindKeyringPath(_rootKeyring, oldPath);
-            var newKeyring = FindKeyringPath(_rootKeyring, newPath);
+            var oldKeyring = FindKeyringPath(_masterKeyring, oldPath);
+            var newKeyring = FindKeyringPath(_masterKeyring, newPath);
 
             var oldNameSplit = oldPath.Split("/", 2);
             var oldName = oldNameSplit[^1];
@@ -262,7 +262,7 @@ namespace SecureWiki.Cryptography
         public void RemoveFile(string filePath, string filename)
         {
             // Find the keyring where the access file is located
-            var foundKeyring = FindKeyringPath(_rootKeyring, filePath);
+            var foundKeyring = FindKeyringPath(_masterKeyring, filePath);
 
             // Remove file or keyring from parent keyring
             var fileToRemove = foundKeyring.accessFiles.FirstOrDefault(f => f.filename.Equals(filename));
@@ -279,7 +279,7 @@ namespace SecureWiki.Cryptography
         {
             Console.WriteLine("Saving to Keyring.json");
             var path = GetFilePath("Keyring.json");
-            JSONSerialization.SerializeAndWriteFile(path, _rootKeyring);
+            JSONSerialization.SerializeAndWriteFile(path, _masterKeyring);
             _rootKeyringWriteTimestamp = DateTime.Now;
         }
 
@@ -315,40 +315,40 @@ namespace SecureWiki.Cryptography
         }
 
         // Create and return a root keyring containing only all checked entries
-        public RootKeyring CreateRootKeyringBasedOnIsChecked()
+        public MasterKeyring CreateRootKeyringBasedOnIsChecked()
         {
-            RootKeyring outputRootKeyring = new();
+            MasterKeyring outputMasterKeyring = new();
 
-            _rootKeyring.AddToOtherKeyringRecursivelyBasedOnIsChecked(outputRootKeyring);
-            outputRootKeyring.RemoveEmptyDescendantsRecursively();
+            _masterKeyring.AddToOtherKeyringRecursivelyBasedOnIsChecked(outputMasterKeyring);
+            outputMasterKeyring.RemoveEmptyDescendantsRecursively();
 
-            return outputRootKeyring;
+            return outputMasterKeyring;
         }
 
         // Same as CreateRootKeyringBasedOnIsChecked() but uses deep copies instead
-        private RootKeyring CreateCopyRootKeyringBasedOnIsChecked()
+        private MasterKeyring CreateCopyRootKeyringBasedOnIsChecked()
         {
-            RootKeyring outputRootKeyring = new();
+            MasterKeyring outputMasterKeyring = new();
 
-            _rootKeyring.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(outputRootKeyring);
-            outputRootKeyring.RemoveEmptyDescendantsRecursively();
+            _masterKeyring.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(outputMasterKeyring);
+            outputMasterKeyring.RemoveEmptyDescendantsRecursively();
 
-            return outputRootKeyring;
+            return outputMasterKeyring;
         }
         
-        public RootKeyring CreateCopyRootKeyring()
+        public MasterKeyring CreateCopyRootKeyring()
         {
-            RootKeyring outputRootKeyring = new();
+            MasterKeyring outputMasterKeyring = new();
 
-            _rootKeyring.AddCopiesToOtherKeyringRecursively(outputRootKeyring);
-            outputRootKeyring.RemoveEmptyDescendantsRecursively();
+            _masterKeyring.AddCopiesToOtherKeyringRecursively(outputMasterKeyring);
+            outputMasterKeyring.RemoveEmptyDescendantsRecursively();
 
-            return outputRootKeyring;
+            return outputMasterKeyring;
         }
 
         public void ExportRootKeyringBasedOnIsChecked()
         {
-            RootKeyring rk = CreateCopyRootKeyringBasedOnIsChecked();
+            MasterKeyring rk = CreateCopyRootKeyringBasedOnIsChecked();
 
             // Remove information that should not be shared
             rk.PrepareForExportRecursively();
@@ -396,15 +396,15 @@ namespace SecureWiki.Cryptography
             
             // Merge imported RootKeyring into current RootKeyring
             Console.WriteLine("Merging existing RootKeyring and imported Keyring");
-            _rootKeyring.MergeAllEntriesFromOtherKeyring(rk);
+            _masterKeyring.MergeAllEntriesFromOtherKeyring(rk);
             SortAndUpdatePeripherals();
         }
 
         public void SortAndUpdatePeripherals()
         {
-            _rootKeyring.SortAllRecursively();
+            _masterKeyring.SortAllRecursively();
             Console.WriteLine("Updating mounted directory to reflect changes in RootKeyring");
-            CreateFileStructureRecursion(_rootKeyring, GetRootDirPath());
+            CreateFileStructureRecursion(_masterKeyring, GetRootDirPath());
 
             // Write changes to Keyring.json
             SaveRootKeyring();

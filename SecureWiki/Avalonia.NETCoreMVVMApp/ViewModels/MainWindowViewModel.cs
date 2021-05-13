@@ -9,9 +9,9 @@ namespace SecureWiki.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private ObservableCollection<RootKeyring> _rootKeyringCollection;
+        private ObservableCollection<MasterKeyring> _rootKeyringCollection;
 
-        public ObservableCollection<RootKeyring> rootKeyringCollection
+        public ObservableCollection<MasterKeyring> rootKeyringCollection
         {
             get { return _rootKeyringCollection; }
             set
@@ -54,7 +54,7 @@ namespace SecureWiki.ViewModels
 
         public object MailRecipient { get; set; }
 
-        public RootKeyring rootKeyring;
+        public MasterKeyring MasterKeyring;
         private Logger _logger;
 
         public Logger logger
@@ -192,11 +192,11 @@ namespace SecureWiki.ViewModels
         public ObservableCollection<Contact> SelectedShareContacts { get; } = new();
 
         
-        public MainWindowViewModel(RootKeyring rk, Logger logger)
+        public MainWindowViewModel(MasterKeyring rk, Logger logger)
         {
-            rootKeyring = rk;
-            rootKeyringCollection = new ObservableCollection<RootKeyring>();
-            rootKeyringCollection.Add(rootKeyring);
+            MasterKeyring = rk;
+            rootKeyringCollection = new ObservableCollection<MasterKeyring>();
+            rootKeyringCollection.Add(MasterKeyring);
 
             this.logger = logger;
             loggerCollection = new ObservableCollection<Logger>();
@@ -207,7 +207,7 @@ namespace SecureWiki.ViewModels
 
         public MainWindowViewModel()
         {
-            rootKeyringCollection = new ObservableCollection<RootKeyring>();
+            rootKeyringCollection = new ObservableCollection<MasterKeyring>();
             revisions = new ObservableCollection<Revision>();
         }
     }

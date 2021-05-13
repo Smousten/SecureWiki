@@ -201,7 +201,7 @@
             <StackPanel Orientation="Vertical">
                 <TreeView Items="{Binding rootKeyringCollection, Mode=TwoWay}" Name="TreeView1">
                     <TreeView.DataTemplates>
-                        <TreeDataTemplate DataType="models:RootKeyring" ItemsSource="{Binding combinedList}">
+                        <TreeDataTemplate DataType="models:MasterKeyring" ItemsSource="{Binding combinedList}">
                             <StackPanel Orientation="Horizontal">
                                 <!--IsChecked CheckBox-->
                                 <CheckBox IsChecked="{Binding isChecked}" MinWidth="20" Name="CheckBox"

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -23,7 +24,7 @@ namespace SecureWiki.Model
             return RootFolder.FindFileRecursively(pathArr, 0);
         }
 
-        public MDFile? AddFile(string path, AccessFileReference reference)
+        public MDFile? AddFile(string path, SymmetricReference reference)
         {
             var pathArr = path.Split('/');
             return RootFolder.AddFileRecursively(pathArr, 0, reference);
@@ -39,6 +40,17 @@ namespace SecureWiki.Model
         {
             var pathArr = path.Split('/');
             return RootFolder.AddFolderRecursively(pathArr, 0);
+        }
+
+        public void Clear()
+        {
+            RootFolder.ClearFiles();
+            RootFolder.ClearFolders();
+        }
+
+        public void PrintInfo()
+        {
+            RootFolder.PrintInfoRecursively();
         }
     }
 
@@ -126,8 +138,9 @@ namespace SecureWiki.Model
         {
             if (!Folders.Contains(mdFolder))
             {
-                var index = Folders.BinarySearch(mdFolder, new MDFolderComparer());
-                Folders.Insert(index, mdFolder);
+                // var index = Folders.BinarySearch(mdFolder, new MDFolderComparer());
+                // Folders.Insert(index, mdFolder);
+                Folders.Add(mdFolder);
             }
             
             RaisePropertiesChangedFolders();
@@ -150,14 +163,14 @@ namespace SecureWiki.Model
             RaisePropertiesChangedFolders();
         }
 
-        private void ClearFiles()
+        public void ClearFiles()
         {
             Files.Clear();
             
             RaisePropertiesChangedFiles();
         }
         
-        private void ClearFolders()
+        public void ClearFolders()
         {
             Folders.Clear();
             
@@ -195,7 +208,7 @@ namespace SecureWiki.Model
             }
         }
 
-        public MDFile? AddFileRecursively(string[] path, int cnt, AccessFileReference reference)
+        public MDFile? AddFileRecursively(string[] path, int cnt, SymmetricReference reference)
         {
             if (path.Length - cnt <= 1)
             {
@@ -278,6 +291,19 @@ namespace SecureWiki.Model
             return null;
         }
 
+        public void PrintInfoRecursively()
+        {
+            Console.WriteLine("MDFolder '{0}':", name);
+            foreach (var mdfolder in Folders)
+            {
+                mdfolder.PrintInfoRecursively();
+            }
+            foreach (var mdfile in Files)
+            {
+                mdfile.PrintInfo();
+            }
+        }
+
         // Events
         public event PropertyChangedEventHandler? PropertyChanged;
         public event PropertyChangingEventHandler? PropertyChanging;
@@ -325,17 +351,23 @@ namespace SecureWiki.Model
         
         public MDFolder Parent;
 
-        public AccessFileReference Reference;
+        // public AccessFileReference accessFileReference;
+        public SymmetricReference symmetricReference;
 
-        public MDFile(string name, MDFolder parent, AccessFileReference reference)
+        public MDFile(string name, MDFolder parent, SymmetricReference reference)
         {
             this.name = name;
             Parent = parent;
-            Reference = reference;
+            symmetricReference = reference;
         }
 
         public MDFile()
         {
+        }
+
+        public void PrintInfo()
+        {
+            Console.WriteLine("MDFile '{0}'", name);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

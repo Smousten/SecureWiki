@@ -59,7 +59,7 @@ namespace SecureWiki.MediaWiki
         public Keyring? DownloadKeyring(SymmetricReference symmetricReference);
 
         // TODO
-        public RootKeyring? DownloadMasterKeyring(SymmetricReference symmetricReference);
+        public MasterKeyring? DownloadMasterKeyring(SymmetricReference symmetricReference);
         
         // TODO
         public void DownloadKeyringsRecursion(Keyring rootKeyring);

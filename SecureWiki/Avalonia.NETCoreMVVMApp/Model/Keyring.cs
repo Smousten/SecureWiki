@@ -623,6 +623,35 @@ namespace SecureWiki.Model
             return outputList;
         }
         
+        public List<SymmetricReference> GetAllAndDescendantSymmetricReferencesToGenericFiles(List<Keyring> visitedKeyrings)
+        {
+            Console.WriteLine("GetAllAndDescendantSymmetricReferencesToGenericFiles entered, visitedKeyrings.count = " + visitedKeyrings.Count);
+            var outputList = new List<SymmetricReference>();
+            visitedKeyrings.Add(this);
+
+            foreach (var symmRef in SymmetricReferences)
+            {
+                Console.WriteLine("getting descendants from symmRef.target = " + symmRef.accessFileTargetPageName);
+                if (symmRef.type == PageType.GenericFile)
+                {
+                    outputList.Add(symmRef);
+                }
+                else
+                {
+                    var kr = symmRef.targetAccessFile.accessFileReference.KeyringTarget;
+                    if (visitedKeyrings.Contains(kr))
+                    {
+                        Console.WriteLine("keyring already visited, name = " + this.name);
+                        continue;
+                    }
+                    var res = kr.GetAllAndDescendantSymmetricReferencesToGenericFiles(visitedKeyrings);
+                    outputList.AddRange(res);
+                }
+            }
+
+            return outputList;
+        }
+        
         public void PrintInfoRecursively()
         {
             Console.WriteLine("KeyRing: Name='{0}', Checked='{1}', Parent.Name='{2}'", 

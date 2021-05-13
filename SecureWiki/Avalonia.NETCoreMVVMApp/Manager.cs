@@ -41,7 +41,7 @@ namespace SecureWiki
 
         public MountedDirMirror mountedDirMirror = new();
         public Logger logger;
-        public RootKeyring rootKeyring;
+        public MasterKeyring MasterKeyring;
         private Dictionary<(string, string), string> RequestedRevision = new();
         public SymmetricReference symRefToMasterKeyring;
 
@@ -52,11 +52,11 @@ namespace SecureWiki
 
         public PrintTest printTest;
 
-        public Manager(Thread createrThread, RootKeyring rk, Logger logger)
+        public Manager(Thread createrThread, MasterKeyring rk, Logger logger)
         {
             GUIThread = createrThread;
             printTest = PrintTestMethod;
-            rootKeyring = rk;
+            MasterKeyring = rk;
             this.logger = logger;
         }
 
@@ -69,7 +69,7 @@ namespace SecureWiki
             //     "THISpasswordSHOULDbeCHANGED", httpClient, this, "http://localhost/mediawiki/api.php");
             // wikiHandlers.Add("http://localhost/mediawiki/api.php", localhostWikiHandler);
 
-            _keyringManager = new KeyringManager(rootKeyring, this);
+            _keyringManager = new KeyringManager(MasterKeyring, this);
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
 
             _keyringManager.InitKeyring();
@@ -99,18 +99,19 @@ namespace SecureWiki
             if (newRootKR == null)
             {
                 Console.WriteLine("root keyring from server is null");
-                symRefToMasterKeyring.targetAccessFile.accessFileReference.KeyringTarget = rootKeyring;
+                symRefToMasterKeyring.targetAccessFile.accessFileReference.KeyringTarget = MasterKeyring;
             }
             else
             {
                 Console.WriteLine("root keyring from server is not null");
                 newRootKR.name = "root from server";
-                rootKeyring.CopyFromOtherKeyring(newRootKR);
-                symRefToMasterKeyring.targetAccessFile.accessFileReference.KeyringTarget = rootKeyring;
-                wh!.DownloadKeyringsRecursion(rootKeyring);
+                MasterKeyring.CopyFromOtherKeyring(newRootKR);
+                symRefToMasterKeyring.targetAccessFile.accessFileReference.KeyringTarget = MasterKeyring;
+                wh!.DownloadKeyringsRecursion(MasterKeyring);
             }
             
-            
+            PopulateMountedDirMirror(MasterKeyring);
+            mountedDirMirror.PrintInfo();
 
             // var res = ShowMessageBox("some very loooooooooooooooooooooooooong title", " and some very loooooooooooooooooooooooooong title", MessageBox.Buttons.YesNoCancel);
             // Console.WriteLine(res.ToString());
@@ -182,7 +183,7 @@ namespace SecureWiki
             
             var wikihandler = GetWikiHandler(symRefToMasterKeyring.serverLink);
             var res1 = wikihandler?.UploadAccessFile(symRefToMasterKeyring, symRefToMasterKeyring.targetAccessFile);
-            var res2 = wikihandler?.UploadKeyring(symRefToMasterKeyring.targetAccessFile, rootKeyring);
+            var res2 = wikihandler?.UploadKeyring(symRefToMasterKeyring.targetAccessFile, MasterKeyring);
 
             Console.WriteLine("res1, res2: {0}, {1}", res1, res2);
         }
@@ -534,7 +535,7 @@ namespace SecureWiki
 
             // Get all existing access files in a list
             List<AccessFile> newAccessFiles = new();
-            var existingAccessFiles = rootKeyring.GetAllAndDescendantAccessFileEntries();
+            var existingAccessFiles = MasterKeyring.GetAllAndDescendantAccessFileEntries();
             existingAccessFiles = existingAccessFiles.OrderBy(entry => entry.pageName).ToList();
 
             // For each incoming access file from inbox, merge with existing access file or add to list of new files
@@ -554,12 +555,12 @@ namespace SecureWiki
             // Add new access files to folder the same import folder
             if (newAccessFiles.Count > 0)
             {
-                if (!rootKeyring.keyrings.Any(e => e.name.Equals("ImportedFromContacts")))
+                if (!MasterKeyring.keyrings.Any(e => e.name.Equals("ImportedFromContacts")))
                 {
-                    rootKeyring.AddKeyring(new Keyring("ImportedFromContacts"));
+                    MasterKeyring.AddKeyring(new Keyring("ImportedFromContacts"));
                 }
 
-                var importFolder = rootKeyring.keyrings.First(e => e.name.Equals("ImportedFromContacts"));
+                var importFolder = MasterKeyring.keyrings.First(e => e.name.Equals("ImportedFromContacts"));
                 importFolder.AddRangeAccessFile(newAccessFiles);
             }
             
@@ -656,7 +657,7 @@ namespace SecureWiki
 
         public void UploadNewVersion(string filename, string filepath)
         {
-            AccessFile? af = GetAccessFile(filename, rootKeyring);
+            AccessFile? af = GetAccessFile(filename, MasterKeyring);
             var keyList = af?.keyList.Last();
             if (keyList?.PrivateKey != null)
             {
@@ -693,7 +694,7 @@ namespace SecureWiki
             WriteToLogger($"Attempting to read file '{filename}'", filename);
             string? revid = null;
             
-            var accessFile = GetAccessFile(filename, rootKeyring);
+            var accessFile = GetAccessFile(filename, MasterKeyring);
             if (accessFile == null) return null;
             
             // Check if any specific revision has been requested
@@ -740,7 +741,7 @@ namespace SecureWiki
                 var wikiHandler = GetWikiHandler(configManager.DefaultServerLink);
                 wikiHandler?.UploadMasterKeyring(_keyringManager.masterKey.symmKey, 
                     _keyringManager.masterKey.pageTitle,
-                    rootKeyring);
+                    MasterKeyring);
             }
         }
 
@@ -762,7 +763,7 @@ namespace SecureWiki
             AddToDefaultKeyring(symmetricReference);
 
             // Create new entry in md mirror
-            var mdFile = mountedDirMirror.AddFile(filepath, accessFileReference);
+            var mdFile = mountedDirMirror.AddFile(filepath, symmetricReference);
             if (mdFile == null)
             {
                 WriteToLogger("File could not be added to MDMirror, upload failed");
@@ -798,7 +799,7 @@ namespace SecureWiki
         private void AddToDefaultKeyring(SymmetricReference symmetricReference)
         {
             // Add symmetric reference to newEntries keyring
-            var symmRef = rootKeyring.SymmetricReferences.FirstOrDefault(
+            var symmRef = MasterKeyring.SymmetricReferences.FirstOrDefault(
                 e => e.type == PageType.Keyring 
                      && e.targetAccessFile?.accessFileReference?.KeyringTarget!.name.Equals("newEntries") == true);
             var defaultKeyring = symmRef?.targetAccessFile?.accessFileReference?.KeyringTarget;
@@ -815,7 +816,7 @@ namespace SecureWiki
                 
                 // Create new keyring
                 defaultKeyring = new Keyring(accessFileReferenceKeyring, "newEntries");
-                rootKeyring.AddSymmetricReference(symmetricReferenceToDefaultKeyring);
+                MasterKeyring.AddSymmetricReference(symmetricReferenceToDefaultKeyring);
             }
 
             defaultKeyring.AddSymmetricReference(symmetricReference);
@@ -1106,7 +1107,7 @@ namespace SecureWiki
 
             var pubKeyBytes = contact.PublicKey;
 
-            var af = rootKeyring.accessFiles.First();
+            var af = MasterKeyring.accessFiles.First();
 
             var afString = JSONSerialization.SerializeObject(af);
 
@@ -1320,5 +1321,34 @@ namespace SecureWiki
             var srcDir = Path.Combine(projectDir, filepath);
             return srcDir;
         }
+
+        public void PopulateMountedDirMirror(MasterKeyring rk)
+        {
+            Console.WriteLine("PopulateMountedDirMirror entered");
+            var symmRefList = rk.GetAllAndDescendantSymmetricReferencesToGenericFiles(new List<Keyring>());
+            mountedDirMirror.Clear();
+            Console.WriteLine("symmRefList.count = " + symmRefList.Count);
+
+            var defaultPath = "Unmapped_files/Unmapped_file_";
+            var unmappedCnt = 0;
+            
+            foreach (var symmRef in symmRefList)
+            {
+                Console.WriteLine("adding symmRef '{0}' to MDMirror", symmRef.accessFileTargetPageName);
+                var mapping = rk.GetMountedDirMapping(symmRef.accessFileTargetPageName);
+
+                if (mapping != null)
+                {
+                    mountedDirMirror.AddFile(mapping, symmRef);
+                }
+                else
+                {
+                    Console.WriteLine("no mapping exists");
+                    mountedDirMirror.AddFile(defaultPath + unmappedCnt, symmRef);
+                    unmappedCnt++;
+                }
+            }
+        }
+        
     }
 }

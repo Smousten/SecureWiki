@@ -11,23 +11,23 @@ namespace SecureWikiTests
     public class KeyringManagerTest
     {
         private KeyringManager _keyringManager;
-        private RootKeyring _rootKeyring;
+        private MasterKeyring _masterKeyring;
         private Manager _manager;
         private Logger _logger = new();
 
         [SetUp]
         public void SetUp()
         {
-            _manager = new Manager(Thread.CurrentThread, _rootKeyring, _logger);
-            _rootKeyring = new RootKeyring();
-            _keyringManager = new KeyringManager(_rootKeyring, _manager);
+            _manager = new Manager(Thread.CurrentThread, _masterKeyring, _logger);
+            _masterKeyring = new MasterKeyring();
+            _keyringManager = new KeyringManager(_masterKeyring, _manager);
         }
 
         [TearDown]
         public void Teardown()
         {
             _manager = null;
-            _rootKeyring = null;
+            _masterKeyring = null;
             _keyringManager = null;
         }
 
@@ -37,17 +37,17 @@ namespace SecureWikiTests
         {
             // Add keyring with name 'folder' and path 'folder', assert that keyring is inserted
             _keyringManager.AddNewKeyRing("folder", "folder");
-            Assert.NotNull(_rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("folder")));
+            Assert.NotNull(_masterKeyring.keyrings.FirstOrDefault(e => e.name.Equals("folder")));
 
             // Add keyring with name 'folderA' and path 'folder/folderA', assert that keyring is added to child
             _keyringManager.AddNewKeyRing("folderA", "folder/folderA");
-            var keyring = _rootKeyring.keyrings.FirstOrDefault();
+            var keyring = _masterKeyring.keyrings.FirstOrDefault();
             Assert.NotNull(keyring!.keyrings.FirstOrDefault(e => e.name.Equals("folderA")));
 
             // Add keyring with name 'nested' and path 'intermediate/nested', 
             // assert that an intermediate keyring is added to the rootkeyring
             _keyringManager.AddNewKeyRing("nested", "intermediate/nested");
-            var intermediate = _rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("intermediate"));
+            var intermediate = _masterKeyring.keyrings.FirstOrDefault(e => e.name.Equals("intermediate"));
             Assert.NotNull(intermediate);
             Assert.NotNull(intermediate!.keyrings.FirstOrDefault(e => e.name.Equals("nested")));
         }
@@ -63,7 +63,7 @@ namespace SecureWikiTests
 
             _keyringManager.AddNewFile(filename, filepath, serverLink, pageTitle);
             
-            Assert.NotNull(_rootKeyring.accessFiles.FirstOrDefault(e => e.filename.Equals("file")));
+            Assert.NotNull(_masterKeyring.accessFiles.FirstOrDefault(e => e.filename.Equals("file")));
         }
     }
 }

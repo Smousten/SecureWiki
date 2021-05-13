@@ -438,7 +438,7 @@ namespace SecureWiki.MediaWiki
             return null;
         }
 
-        public RootKeyring? DownloadMasterKeyring(SymmetricReference symmetricReference)
+        public MasterKeyring? DownloadMasterKeyring(SymmetricReference symmetricReference)
         {
             if (symmetricReference.targetAccessFile == null)
             {
@@ -455,7 +455,7 @@ namespace SecureWiki.MediaWiki
                 {
                     var keyringString = Encoding.ASCII.GetString(keyringBytes);
                     var keyring = JSONSerialization.DeserializeObject(
-                        keyringString, typeof(RootKeyring)) as RootKeyring;
+                        keyringString, typeof(MasterKeyring)) as MasterKeyring;
                     return keyring;
                 }
             }
