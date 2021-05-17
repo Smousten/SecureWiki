@@ -120,22 +120,25 @@ namespace SecureWiki.Cryptography
             var readKeyring = ReadKeyRing();
             if (readKeyring != null) rk.CopyFromOtherKeyring(readKeyring);
         }
-
+        
         // Recursively creates all files and folders from root keyring
-        private void CreateFileStructureRecursion(Keyring keyring, string path)
+        public void CreateFileStructureRecursion(Keyring keyring, string path)
         {
-            foreach (var file in keyring.accessFiles)
+            foreach (var reference in keyring.SymmetricReferences)
             {
-                File.Create(Path.Combine(path, file.filename)).Dispose();
-            }
-
-            foreach (var childKeyRing in keyring.keyrings)
-            {
-                Directory.CreateDirectory(Path.Combine(path, childKeyRing.name));
-                CreateFileStructureRecursion(childKeyRing, Path.Combine(path, childKeyRing.name));
+                if (reference.type == PageType.GenericFile)
+                {
+                    File.Create(Path.Combine(path, reference.targetAccessFile.filename)).Dispose();
+                }
+                else if (reference.type == PageType.Keyring)
+                {
+                    Directory.CreateDirectory(Path.Combine(path, reference.targetAccessFile.filename));
+                    CreateFileStructureRecursion(reference.targetAccessFile.accessFileReference.KeyringTarget, 
+                        Path.Combine(path, reference.targetAccessFile.filename));
+                }
             }
         }
-
+        
         // Returns the keyringEntry where the new keyring/access file should be inserted
         private Keyring FindKeyringPath(Keyring keyring, string filePath)
         {
