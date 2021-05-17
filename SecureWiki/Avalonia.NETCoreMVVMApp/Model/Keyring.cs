@@ -638,7 +638,13 @@ namespace SecureWiki.Model
                 }
                 else
                 {
-                    var kr = symmRef.targetAccessFile.accessFileReference.KeyringTarget;
+                    var kr = symmRef.targetAccessFile?.accessFileReference?.KeyringTarget;
+                    if (kr == null)
+                    {
+                        Console.WriteLine("GetAllAndDescendantSymmetricReferencesToGenericFiles:- Keyring is null");
+                        continue;
+                    }
+                    
                     if (visitedKeyrings.Contains(kr))
                     {
                         Console.WriteLine("keyring already visited, name = " + this.name);
