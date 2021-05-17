@@ -10,7 +10,7 @@ namespace SecureWiki.Model
         // Maps pageNames to filepaths
         [JsonProperty] private Dictionary<string, string> MountedDirMapping = new();
         
-        public MasterKeyring()
+        public MasterKeyring() : base()
         {
             name = "Root";
             isChecked = false;
@@ -31,6 +31,12 @@ namespace SecureWiki.Model
             {
                 return null;
             }
+        }
+
+        public void CopyFromOtherKeyringNonRecursively(MasterKeyring ke)
+        {
+            base.CopyFromOtherKeyringNonRecursively(ke);
+            MountedDirMapping = ke.MountedDirMapping;
         }
     }
 }

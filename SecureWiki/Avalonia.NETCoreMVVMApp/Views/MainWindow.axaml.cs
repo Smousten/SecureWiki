@@ -151,11 +151,16 @@ namespace SecureWiki.Views
 
         public void Button1_Click(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("nothing happened");
+            // Console.WriteLine("nothing happened");
             logger.Add("loka", "connetent");
-            manager.TestDownload();
+            // manager.TestDownload();
             // manager.TestDownloadInboxes();
             // manager.TestIfPageExists();
+            Console.WriteLine("_mountedDirMirror.PrintInfo();");
+            _mountedDirMirror.PrintInfo();
+            
+            Console.WriteLine("_masterKeyring.PrintInfoRecursively();");
+            _masterKeyring.PrintInfoRecursively();
         }
 
         private void Button2_Click(object? sender, RoutedEventArgs e)
@@ -284,6 +289,7 @@ namespace SecureWiki.Views
         {
             // Remove pageName from dictionary of requested revisions
             manager.UpdateRequestedRevision(_viewModel.selectedFile.pageName, _viewModel.selectedFile.serverLink, null);
+            _viewModel.selectedFileRevision = "Newest";
 
             _viewModel.selectedFile.newestRevisionSelected = true;
         }
@@ -292,7 +298,7 @@ namespace SecureWiki.Views
         {
             if (sender is TextBlock tb)
             {
-                AccessFile accessFile = tb.DataContext as AccessFile ?? throw new InvalidOperationException();
+                AccessFile accessFile = (tb.DataContext as MDFile)?.symmetricReference.targetAccessFile ?? throw new InvalidOperationException();
                 _viewModel.selectedFile = accessFile;
 
                 Thread localThread = new(() =>

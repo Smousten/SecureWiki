@@ -11,13 +11,13 @@ namespace SecureWiki.ViewModels
     {
         private ObservableCollection<MDFolder> _rootMountedDirFolderCollection;
 
-        public ObservableCollection<MDFolder> RootMountedDirFolderCollection
+        public ObservableCollection<MDFolder> rootMountedDirFolderCollection
         {
             get { return _rootMountedDirFolderCollection; }
             set
             {
                 _rootMountedDirFolderCollection = value;
-                this.RaisePropertyChanged(nameof(RootMountedDirFolderCollection));
+                this.RaisePropertyChanged(nameof(rootMountedDirFolderCollection));
                 Console.WriteLine("MountedDirMirrorCollection set");
             }
         }
@@ -67,7 +67,12 @@ namespace SecureWiki.ViewModels
 
         public object MailRecipient { get; set; }
 
-        public MountedDirMirror MountedDirMirror;
+        private MountedDirMirror _mountedDirMirror;
+        public MountedDirMirror MountedDirMirror
+        {
+            get => _mountedDirMirror;
+            set => this.RaiseAndSetIfChanged(ref _mountedDirMirror, value);
+        }
         public MasterKeyring MasterKeyring;
         private Logger _logger;
 
@@ -216,9 +221,9 @@ namespace SecureWiki.ViewModels
             loggerCollection = new ObservableCollection<Logger>();
             loggerCollection.Add(this.logger);
 
-            MountedDirMirror = mountedDirMirror;
-            RootMountedDirFolderCollection = new ObservableCollection<MDFolder>();
-            RootMountedDirFolderCollection.Add(MountedDirMirror.RootFolder);
+            this.MountedDirMirror = mountedDirMirror;
+            rootMountedDirFolderCollection = new ObservableCollection<MDFolder>();
+            rootMountedDirFolderCollection.Add(MountedDirMirror.RootFolder);
 
             revisions = new ObservableCollection<Revision>();
         }

@@ -107,15 +107,15 @@ namespace SecureWiki
                 Console.WriteLine("root keyring from server is not null");
                 newRootKR.name = "root from server";
                 // MasterKeyring.CopyFromOtherKeyring(newRootKR);
-                MasterKeyring = newRootKR;
+                // MasterKeyring = newRootKR;
+                MasterKeyring.CopyFromOtherKeyringNonRecursively(newRootKR);
                 symRefToMasterKeyring.targetAccessFile.accessFileReference.KeyringTarget = MasterKeyring;
                 wh!.DownloadKeyringsRecursion(MasterKeyring);
             }
             
             PopulateMountedDirMirror(MasterKeyring);
-            // mountedDirMirror.CreateFileStructureRecursion(mountedDirMirror.RootFolder, GetRootDir(""));
-            // Directory.CreateDirectory(Path.Combine(GetRootDir(""), "Keyrings"));
-            _keyringManager.CreateFileStructureRecursion(MasterKeyring, GetRootDir(""));
+            mountedDirMirror.CreateFileStructureRecursion(GetRootDir(""));
+            Directory.CreateDirectory(Path.Combine(GetRootDir(""), "Keyrings"));
             mountedDirMirror.PrintInfo();
 
             // var res = ShowMessageBox("some very loooooooooooooooooooooooooong title", " and some very loooooooooooooooooooooooooong title", MessageBox.Buttons.YesNoCancel);
@@ -811,7 +811,7 @@ namespace SecureWiki
             // Add symmetric reference to newEntries keyring
             var symmRef = MasterKeyring.SymmetricReferences.FirstOrDefault(
                 e => e.type == PageType.Keyring 
-                     && e.targetAccessFile?.accessFileReference?.KeyringTarget!.name.Equals("NewEntries") == true);
+                     && e.targetAccessFile?.accessFileReference?.KeyringTarget!.name.Equals("newEntries") == true);
             var defaultKeyring = symmRef?.targetAccessFile?.accessFileReference?.KeyringTarget;
             if (defaultKeyring == null)
             {
@@ -829,7 +829,7 @@ namespace SecureWiki
                 Console.WriteLine("uploadResAF:" + uploadResAF);
                 
                 // Create new keyring
-                defaultKeyring = new Keyring(accessFileReferenceKeyring, "NewEntries");
+                defaultKeyring = new Keyring(accessFileReferenceKeyring, "newEntries");
                 MasterKeyring.AddSymmetricReference(symmetricReferenceToDefaultKeyring);
             }
             else
@@ -845,9 +845,7 @@ namespace SecureWiki
                     Console.WriteLine("defaultKeyring.accessFileReferenceToSelf?.AccessFileParent is null");
                     Console.WriteLine("defaultKeyring.name = " + defaultKeyring.name);
                 }
-
-                defaultKeyring.accessFileReferenceToSelf = symmRef.targetAccessFile.accessFileReference;
-                accessFile = symmRef.targetAccessFile;
+                accessFile = defaultKeyring.accessFileReferenceToSelf.AccessFileParent;
             }
 
             if (accessFile == null)

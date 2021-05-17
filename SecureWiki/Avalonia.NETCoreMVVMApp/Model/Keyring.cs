@@ -372,6 +372,21 @@ namespace SecureWiki.Model
             MergeAllEntriesFromOtherKeyring(ke);
         }
         
+        public void CopyFromOtherKeyringNonRecursively(Keyring ke)
+        {
+            ClearKeyrings();
+            AddRangeKeyring(ke.keyrings.ToList());
+            ClearAccessFiles();
+            AddRangeAccessFile(ke.accessFiles.ToList());
+            
+            name = ke.name;
+            pageTitle = ke.pageTitle;
+            InboxReferenceToSelf = ke.InboxReferenceToSelf;
+            accessFileReferenceToSelf = ke.accessFileReferenceToSelf;
+            parent = ke.parent;
+            SymmetricReferences = ke.SymmetricReferences;
+        }
+        
         public void MergeAllEntriesFromOtherKeyring(Keyring ke)
         {
             // Add all KeyringEntries to own and merge recursively if name conflicts are found
