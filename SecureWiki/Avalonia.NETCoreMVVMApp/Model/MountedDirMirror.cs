@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using DynamicData;
+using JetBrains.Annotations;
 using ReactiveUI;
 using SecureWiki.Utilities;
 
@@ -54,18 +56,9 @@ namespace SecureWiki.Model
             RootFolder.PrintInfoRecursively();
         }
 
-        public void CreateFileStructureRecursion(MDFolder folder, string path)
+        public void CreateFileStructureRecursion(string path)
         {
-            foreach (var file in folder.Files)
-            {
-                File.Create(Path.Combine(path, file.name)).Dispose();
-            }
-
-            foreach (var childFolder in folder.Folders)
-            {
-                Directory.CreateDirectory(Path.Combine(path, childFolder.name));
-                CreateFileStructureRecursion(childFolder, Path.Combine(path, childFolder.name));
-            }
+            RootFolder.CreateFileStructureRecursion(path);
         }
     }
     
@@ -135,6 +128,12 @@ namespace SecureWiki.Model
             PropertyChangedEventHandler? handler = PropertyChanged;
             handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        
+        [NotifyPropertyChangedInvocator]
+        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null!)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     public class MDFolder : MDItem
@@ -144,8 +143,8 @@ namespace SecureWiki.Model
         // private List<MDFolder> Folders = new();
         // private List<MDFile> Files = new();
 
-        public ObservableCollection<MDFolder> Folders = new();
-        public ObservableCollection<MDFile> Files = new();
+        private ObservableCollection<MDFolder> Folders = new();
+        private ObservableCollection<MDFile> Files = new();
         
         public ObservableCollection<object> combinedList
         {
@@ -174,6 +173,20 @@ namespace SecureWiki.Model
         private MDFolder()
         {
             
+        }
+
+        public void CreateFileStructureRecursion(string path)
+        {
+            foreach (var file in Files)
+            {
+                File.Create(Path.Combine(path, file.name)).Dispose();
+            }
+
+            foreach (var childFolder in Folders)
+            {
+                Directory.CreateDirectory(Path.Combine(path, childFolder.name));
+                childFolder.CreateFileStructureRecursion(Path.Combine(path, childFolder.name));
+            }
         }
 
         public void AddFile(MDFile mdFile)
@@ -398,12 +411,14 @@ namespace SecureWiki.Model
         {
             RaisePropertyChanged(nameof(Files));
             RaisePropertyChanged(nameof(combinedList));
+            OnPropertyChanged(nameof(combinedList));
         }
         
         public void RaisePropertiesChangedFolders()
         {
             RaisePropertyChanged(nameof(Folders));
             RaisePropertyChanged(nameof(combinedList));
+            OnPropertyChanged(nameof(combinedList));
         }
     }
 
@@ -441,7 +456,7 @@ namespace SecureWiki.Model
         public MDFolder Parent;
 
         // public AccessFileReference accessFileReference;
-        public SymmetricReference symmetricReference;
+        public SymmetricReference symmetricReference { get; set; }
 
         public MDFile(string filename, MDFolder parent, SymmetricReference reference) : base(filename)
         {

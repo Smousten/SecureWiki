@@ -199,7 +199,7 @@
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                       Name="ScrollViewerTreeView">
             <StackPanel Orientation="Vertical">
-                <TreeView Items="{Binding RootMountedDirFolderCollection, Mode=TwoWay}" Name="TreeView1">
+                <TreeView Items="{Binding rootMountedDirFolderCollection, Mode=TwoWay}" Name="TreeView1">
                     <TreeView.DataTemplates>
                         <TreeDataTemplate DataType="models:MDFolder" ItemsSource="{Binding combinedList}">
                             <StackPanel Orientation="Horizontal">
@@ -224,8 +224,9 @@
                                 <!--IsCheckedWrite CheckBox-->
                                 <CheckBox IsChecked="{Binding isCheckedWrite}" DockPanel.Dock="Left" MinWidth="20"
                                           Name="CheckBoxWrite" IsEnabled="{Binding isCheckedWriteEnabled}" />
+                                
                                 <DockPanel DockPanel.Dock="Left"
-                                           Background="{Binding newestRevisionSelected, Converter={StaticResource TreeViewItemColourConverter}}">
+                                           Background="{Binding symmetricReference.targetAccessFile.newestRevisionSelected, Converter={StaticResource TreeViewItemColourConverter}}">
                                     <!--DataFile -->
                                     <TextBlock Foreground="Blue" Name="TextBlockDataFileEntry"
                                                VerticalAlignment="Center"
@@ -234,7 +235,7 @@
                                     <TextBlock Foreground="Blue" Name="TextBlockFillDataFileEntry"
                                                VerticalAlignment="Center"
                                                PointerPressed="InputElement_OnPointerPressed"
-                                               Text="                                                                                     
+                                               Text="
                                                                                                                              ">
                                         <TextBlock.Width>
                                             <MultiBinding Converter="{StaticResource WidthConverterMulti}">

@@ -30,7 +30,7 @@ namespace SecureWiki.Model
         [JsonProperty] public byte[] symmKey;
         [JsonProperty] public string accessFileTargetPageName;
         // [JsonProperty(Order = 99)] 
-        public AccessFile? targetAccessFile;
+        public AccessFile? targetAccessFile { get; set; }
 
         public Keyring? keyringParent;
 

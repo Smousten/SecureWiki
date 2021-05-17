@@ -107,13 +107,14 @@ namespace SecureWiki
                 Console.WriteLine("root keyring from server is not null");
                 newRootKR.name = "root from server";
                 // MasterKeyring.CopyFromOtherKeyring(newRootKR);
-                MasterKeyring = newRootKR;
+                // MasterKeyring = newRootKR;
+                MasterKeyring.CopyFromOtherKeyringNonRecursively(newRootKR);
                 symRefToMasterKeyring.targetAccessFile.accessFileReference.KeyringTarget = MasterKeyring;
                 wh!.DownloadKeyringsRecursion(MasterKeyring);
             }
             
             PopulateMountedDirMirror(MasterKeyring);
-            mountedDirMirror.CreateFileStructureRecursion(mountedDirMirror.RootFolder, GetRootDir(""));
+            mountedDirMirror.CreateFileStructureRecursion(GetRootDir(""));
             Directory.CreateDirectory(Path.Combine(GetRootDir(""), "Keyrings"));
             mountedDirMirror.PrintInfo();
 
@@ -1397,6 +1398,8 @@ namespace SecureWiki
             mountedDirMirror.Clear();
             Console.WriteLine("symmRefList.count = " + symmRefList.Count);
 
+            mountedDirMirror.RootFolder.name = rk.name;
+            
             var defaultPath = "Unmapped_files/Unmapped_file_";
             var unmappedCnt = 0;
             
