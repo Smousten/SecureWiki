@@ -783,6 +783,8 @@ namespace SecureWiki
             var fileContent = Encoding.ASCII.GetBytes("This is the first revision");
             var uploadResFile = wikiHandler?.Upload(accessFile, fileContent);
             Console.WriteLine("uploadResFile:" + uploadResFile);
+
+            MasterKeyring.SetMountedDirMapping(accessFile.pageName, "NewEntries/" + filename);
         }
         
         private void CreateAccessFileAndReferences(string filename, string pageNameKeyring, string pageNameAccessFile, 
@@ -835,6 +837,11 @@ namespace SecureWiki
                 if (defaultKeyring.accessFileReferenceToSelf == null)
                 {
                     Console.WriteLine("defaultKeyring.accessFileReferenceToSelf is null");
+                    Console.WriteLine("defaultKeyring.name = " + defaultKeyring.name);
+                }
+                if (defaultKeyring.accessFileReferenceToSelf?.AccessFileParent == null)
+                {
+                    Console.WriteLine("defaultKeyring.accessFileReferenceToSelf?.AccessFileParent is null");
                     Console.WriteLine("defaultKeyring.name = " + defaultKeyring.name);
                 }
                 accessFile = defaultKeyring.accessFileReferenceToSelf.AccessFileParent;
