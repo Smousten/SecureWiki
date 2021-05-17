@@ -106,7 +106,8 @@ namespace SecureWiki
             {
                 Console.WriteLine("root keyring from server is not null");
                 newRootKR.name = "root from server";
-                MasterKeyring.CopyFromOtherKeyring(newRootKR);
+                // MasterKeyring.CopyFromOtherKeyring(newRootKR);
+                MasterKeyring = newRootKR;
                 symRefToMasterKeyring.targetAccessFile.accessFileReference.KeyringTarget = MasterKeyring;
                 wh!.DownloadKeyringsRecursion(MasterKeyring);
             }
@@ -793,12 +794,13 @@ namespace SecureWiki
             accessFile.accessFileReference = accessFileReference;
             
             // Create symmetric reference to access file
-            symmetricReference = new(pageNameAccessFile,
+            symmetricReference = new SymmetricReference(pageNameAccessFile,
                 configManager.DefaultServerLink, type, pageNameKeyring, accessFile);
         }
         
         private void AddToDefaultKeyring(SymmetricReference symmetricReference)
         {
+            Console.WriteLine("AddToDefaultKeyring entered");
             AccessFile? accessFile;
             
             // Add symmetric reference to newEntries keyring
@@ -817,6 +819,9 @@ namespace SecureWiki
                     out AccessFileReference accessFileReferenceKeyring, out SymmetricReference symmetricReferenceToDefaultKeyring,
                     out accessFile);
                 
+                var wh = GetWikiHandler(configManager.DefaultServerLink);
+                var uploadResAF = wh?.UploadAccessFile(symmetricReferenceToDefaultKeyring, accessFile);
+                Console.WriteLine("uploadResAF:" + uploadResAF);
                 
                 // Create new keyring
                 defaultKeyring = new Keyring(accessFileReferenceKeyring, "newEntries");
@@ -824,6 +829,7 @@ namespace SecureWiki
             }
             else
             {
+                Console.WriteLine("defaultkeyring is not null");
                 if (defaultKeyring.accessFileReferenceToSelf == null)
                 {
                     Console.WriteLine("defaultKeyring.accessFileReferenceToSelf is null");
@@ -841,6 +847,7 @@ namespace SecureWiki
             
             // Upload updated keyring
             var wikiHandler = GetWikiHandler(configManager.DefaultServerLink);
+            
             var uploadResKR = wikiHandler?.UploadKeyring(
                 accessFile, defaultKeyring);
             Console.WriteLine("uploadResKR:" + uploadResKR);
@@ -852,6 +859,7 @@ namespace SecureWiki
             while (true)
             {
                 var tmp = RandomString.GenerateRandomAlphanumericString();
+                tmp = char.ToUpper(tmp[0]) + tmp.Substring(1);
                 if (!PageAlreadyExists(tmp, "-1", serverLink))
                 {
                     return tmp;

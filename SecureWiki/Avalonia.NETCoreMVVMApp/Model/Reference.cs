@@ -29,7 +29,8 @@ namespace SecureWiki.Model
         [JsonProperty] public PageType type; 
         [JsonProperty] public byte[] symmKey;
         [JsonProperty] public string accessFileTargetPageName;
-        [JsonProperty(Order = 99)] public AccessFile? targetAccessFile;
+        // [JsonProperty(Order = 99)] 
+        public AccessFile? targetAccessFile;
 
         public Keyring? keyringParent;
 
