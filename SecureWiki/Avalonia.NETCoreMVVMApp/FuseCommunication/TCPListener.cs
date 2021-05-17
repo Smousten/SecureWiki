@@ -202,7 +202,14 @@ namespace SecureWiki.FuseCommunication
             var oldPath = filepaths[0].Substring(1);
             var newPath = filepaths[1].Substring(1);
             newPath = newPath.Trim('\0');
-
+            
+            // Check if the file should be added to new server keyring
+            var newPathSplit = newPath.Split('/');
+            if (newPathSplit[0].Equals("Keyrings"))
+            {
+                _manager.AddFiletoKeyring(filename, newPath);
+            }
+            
             // Remove if file is moved to trash folder
             if (newPath.Contains(".Trash"))
             {

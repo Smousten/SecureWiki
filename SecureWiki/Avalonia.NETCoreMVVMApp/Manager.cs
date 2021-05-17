@@ -915,6 +915,39 @@ namespace SecureWiki
             var uploadResNewKeyring = wikiHandler?.UploadKeyring(accessFile, newKeyring);
             Console.WriteLine("upload result of new keyring: " + uploadResNewKeyring);
         }
+        
+        public void AddFiletoKeyring(string filename, string newPath)
+        {
+            // TODO: find existing pagename for file, create new access file and references to generic file, add symmetric reference to keyring
+
+            AccessFile? genericAccessFile = GetAccessFile(filename, MasterKeyring);
+
+            var pageNameGenericFile = genericAccessFile.pageName;
+            var pageNameAccessFile = GetFreshPageName();
+            
+            CreateAccessFileAndReferences(filename, pageNameGenericFile, pageNameAccessFile, PageType.GenericFile, 
+                out AccessFileReference accessFileReference, out SymmetricReference symmetricReference,
+                out AccessFile accessFile);
+
+            // fix
+            AccessFile? keyringAccessFile = GetAccessFile(newPath, MasterKeyring);
+            var newKeyring = keyringAccessFile?.accessFileReference?.KeyringTarget;
+
+            if (newKeyring == null)
+            {
+                
+            }
+            
+            newKeyring.AddSymmetricReference(symmetricReference);
+            
+
+
+
+
+
+
+
+        }
 
         public void RenameFile(string oldPath, string newPath)
         {
@@ -1384,6 +1417,5 @@ namespace SecureWiki
                 }
             }
         }
-        
     }
 }

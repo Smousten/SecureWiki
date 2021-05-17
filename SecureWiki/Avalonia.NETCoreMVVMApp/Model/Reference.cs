@@ -104,6 +104,8 @@ namespace SecureWiki.Model
             (privateKey, publicKey) = Crypto.GenerateRSAParams();
             accessLevel = AccessLevel.ReadWrite;
         }
+        
+        public InboxReference() {}
     }
     
     public enum PageType
