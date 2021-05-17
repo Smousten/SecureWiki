@@ -160,7 +160,7 @@ namespace SecureWiki.FuseCommunication
                   && filepath.Equals(previousFilepath)) 
                 || plaintext == null)
             {
-                plaintext = _manager.GetContent(filename) ?? Encoding.ASCII.GetBytes("Empty file.");
+                plaintext = _manager.GetContent(filepath) ?? Encoding.ASCII.GetBytes("Empty file.");
                 previousFilename = filename;
                 previousFilepath = filepath;
             }
@@ -207,7 +207,7 @@ namespace SecureWiki.FuseCommunication
             var newPathSplit = newPath.Split('/');
             if (newPathSplit[0].Equals("Keyrings"))
             {
-                _manager.AddFiletoKeyring(filename, newPath);
+                _manager.AddFileToKeyring(filename, newPath);
             }
             
             // Remove if file is moved to trash folder

@@ -662,7 +662,7 @@ namespace SecureWiki
 
         public void UploadNewVersion(string filename, string filepath)
         {
-            AccessFile? af = GetAccessFile(filename, MasterKeyring);
+            AccessFile? af = GetAccessFile(filepath);
             var keyList = af?.keyList.Last();
             if (keyList?.PrivateKey != null)
             {
@@ -692,14 +692,32 @@ namespace SecureWiki
             }
         }
 
+        public AccessFile? GetAccessFile(string filepath)
+        {
+            var symmRef = mountedDirMirror.GetMDFile(filepath)?.symmetricReference;
+
+            if (symmRef == null) return null;
+
+            if (symmRef.targetAccessFile != null)
+            {
+                return symmRef.targetAccessFile;
+            }
+
+            // Attempt to download access file from server
+            var wh = GetWikiHandler(symmRef.serverLink);
+            var af = wh?.DownloadAccessFile(symmRef);
+
+            return af;
+        }
+
         // Get content for the file specified. Checks if a specific revision has been requested, if not gets newest
         // valid revision. If revision content is not in cache, it is fetched from the server through the WikiHandler
-        public byte[]? GetContent(string filename)
+        public byte[]? GetContent(string filepath)
         {
-            WriteToLogger($"Attempting to read file '{filename}'", filename);
+            WriteToLogger($"Attempting to read file '{filepath}'", filepath);
             string? revid = null;
             
-            var accessFile = GetAccessFile(filename, MasterKeyring);
+            var accessFile = GetAccessFile(filepath);
             if (accessFile == null) return null;
             
             // Check if any specific revision has been requested
@@ -760,7 +778,7 @@ namespace SecureWiki
             Console.WriteLine(pageNameFile);
             Console.WriteLine(pageNameAccessFile);
             
-            CreateAccessFileAndReferences(filename, pageNameFile, pageNameAccessFile, PageType.GenericFile, 
+            CreateAccessFileAndReferences(pageNameFile, pageNameAccessFile, PageType.GenericFile, 
                 out AccessFileReference accessFileReference, out SymmetricReference symmetricReference,
                 out AccessFile accessFile);
             
@@ -788,12 +806,12 @@ namespace SecureWiki
             MasterKeyring.SetMountedDirMapping(accessFile.pageName, "NewEntries/" + filename);
         }
         
-        private void CreateAccessFileAndReferences(string filename, string pageNameKeyring, string pageNameAccessFile, 
+        private void CreateAccessFileAndReferences(string pageNameKeyring, string pageNameAccessFile, 
             PageType type, out AccessFileReference accessFileReference, 
             out SymmetricReference symmetricReference, out AccessFile accessFile)
         {
             // Create access file and reference for folder
-            accessFile = new AccessFile(configManager.DefaultServerLink, pageNameKeyring) {filename = filename};
+            accessFile = new AccessFile(configManager.DefaultServerLink, pageNameKeyring) {filename = "placeholder"};
             accessFileReference = new AccessFileReference(pageNameKeyring, configManager.DefaultServerLink,
                 accessFile, type);
             accessFile.accessFileReference = accessFileReference;
@@ -820,7 +838,7 @@ namespace SecureWiki
                 var pageNameAccessFileKeyring = GetFreshPageName();
 
                 // Create access file and reference for keyring
-                CreateAccessFileAndReferences("NewEntries", pageNameKeyring, pageNameAccessFileKeyring, PageType.Keyring, 
+                CreateAccessFileAndReferences(pageNameKeyring, pageNameAccessFileKeyring, PageType.Keyring, 
                     out AccessFileReference accessFileReferenceKeyring, out SymmetricReference symmetricReferenceToDefaultKeyring,
                     out accessFile);
                 
@@ -893,7 +911,7 @@ namespace SecureWiki
             var pageNameAccessFile = GetFreshPageName();
             var pageNameInboxPage = GetFreshPageName();
             
-            CreateAccessFileAndReferences(filename, pageNameKeyring, pageNameAccessFile, PageType.Keyring, 
+            CreateAccessFileAndReferences(pageNameKeyring, pageNameAccessFile, PageType.Keyring, 
                 out AccessFileReference accessFileReference, out SymmetricReference symmetricReference,
                 out AccessFile accessFile);
 
@@ -917,21 +935,21 @@ namespace SecureWiki
             Console.WriteLine("upload result of new keyring: " + uploadResNewKeyring);
         }
         
-        public void AddFiletoKeyring(string filename, string newPath)
+        public void AddFileToKeyring(string filepath, string newPath)
         {
             // TODO: find existing pagename for file, create new access file and references to generic file, add symmetric reference to keyring
 
-            AccessFile? genericAccessFile = GetAccessFile(filename, MasterKeyring);
-
+            // AccessFile? genericAccessFile = GetAccessFile(filename, MasterKeyring);
+            AccessFile? genericAccessFile = GetAccessFile(filepath);
             var pageNameGenericFile = genericAccessFile.pageName;
             var pageNameAccessFile = GetFreshPageName();
             
-            CreateAccessFileAndReferences(filename, pageNameGenericFile, pageNameAccessFile, PageType.GenericFile, 
+            CreateAccessFileAndReferences(pageNameGenericFile, pageNameAccessFile, PageType.GenericFile, 
                 out AccessFileReference accessFileReference, out SymmetricReference symmetricReference,
                 out AccessFile accessFile);
 
             // fix
-            AccessFile? keyringAccessFile = GetAccessFile(newPath, MasterKeyring);
+            AccessFile? keyringAccessFile = GetAccessFile(newPath);
             var newKeyring = keyringAccessFile?.accessFileReference?.KeyringTarget;
 
             if (newKeyring == null)
