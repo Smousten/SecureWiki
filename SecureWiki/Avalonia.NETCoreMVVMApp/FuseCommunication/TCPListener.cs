@@ -225,9 +225,15 @@ namespace SecureWiki.FuseCommunication
         }
 
         // Received mkdir operation from FUSE
-        // Should make new keyring object in keyring json file
+        // If the folder is placed in 'Keyrings' then upload new keyring object on server
+        // else make local folder
         public void Mkdir(string filename, string filepath)
         {
+            var filePathSplit = filepath.Split("/");
+            if (filePathSplit[0].Equals("Keyrings"))
+            {
+                _manager.AddNewKeyRing(filename);
+            }
             _manager.AddNewFolder(filename, filepath);
         }
         

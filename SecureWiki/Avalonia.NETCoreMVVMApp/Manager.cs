@@ -113,6 +113,7 @@ namespace SecureWiki
             
             PopulateMountedDirMirror(MasterKeyring);
             mountedDirMirror.CreateFileStructureRecursion(mountedDirMirror.RootFolder, GetRootDir(""));
+            Directory.CreateDirectory(Path.Combine(GetRootDir(""), "Keyrings"));
             mountedDirMirror.PrintInfo();
 
             // var res = ShowMessageBox("some very loooooooooooooooooooooooooong title", " and some very loooooooooooooooooooooooooong title", MessageBox.Buttons.YesNoCancel);
