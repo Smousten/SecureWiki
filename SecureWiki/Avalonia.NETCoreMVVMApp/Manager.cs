@@ -115,7 +115,6 @@ namespace SecureWiki
             
             PopulateMountedDirMirror(MasterKeyring);
             mountedDirMirror.CreateFileStructureRecursion(GetRootDir(""));
-            Directory.CreateDirectory(Path.Combine(GetRootDir(""), "Keyrings"));
             mountedDirMirror.PrintInfo();
 
             // var res = ShowMessageBox("some very loooooooooooooooooooooooooong title", " and some very loooooooooooooooooooooooooong title", MessageBox.Buttons.YesNoCancel);
@@ -1423,6 +1422,25 @@ namespace SecureWiki
                     unmappedCnt++;
                 }
             }
+
+            var symRefKeyrings = rk.GetAllAndDescendantSymmetricReferencesToKeyrings(new List<Keyring>());
+            var keyringPath = "Keyrings/";
+            foreach (var symmRef in symRefKeyrings)
+            {
+                Console.WriteLine("adding symmRef '{0}' to MDMirror", symmRef.accessFileTargetPageName);
+                var mapping = rk.GetMountedDirMapping(symmRef.accessFileTargetPageName);
+                
+                if (mapping != null)
+                {
+                    mountedDirMirror.AddFolder(keyringPath);
+                }
+                else
+                {
+                    Console.WriteLine("no mapping exists");
+                    mountedDirMirror.AddFolder(keyringPath + symmRef.targetAccessFile?.filename);
+                }
+            }
+
         }
     }
 }
