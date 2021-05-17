@@ -408,13 +408,21 @@ namespace SecureWiki.MediaWiki
 
             var accessFileBytes = Convert.FromBase64String(accessFileContent);
             var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, symmetricReference.symmKey);
-            if (decryptedAccessFile == null) return null;
+            if (decryptedAccessFile == null)
+            {
+                Console.WriteLine("decryptedAccessFile is null");
+                return null;
+            }
 
             var decryptedAccessFileString = Encoding.ASCII.GetString(decryptedAccessFile);
             var accessFile = JSONSerialization.DeserializeObject(
                 decryptedAccessFileString, typeof(AccessFile)) as AccessFile;
 
-            if (accessFile == null) return null;
+            if (accessFile == null)
+            {
+                Console.WriteLine("accessFile is null");
+                return null;
+            }
             
             accessFile.accessFileReference = new AccessFileReference(accessFile, symmetricReference.type);
             return accessFile;
@@ -453,6 +461,8 @@ namespace SecureWiki.MediaWiki
                 Console.WriteLine("DownloadKeyring:- symmetricReference.targetAccessFile.accessFileReference is not null");
                 keyring.accessFileReferenceToSelf = symmetricReference.targetAccessFile.accessFileReference;
             }
+
+            symmetricReference.targetAccessFile.accessFileReference.KeyringTarget = keyring;
             return keyring;
         }
 
@@ -507,7 +517,9 @@ namespace SecureWiki.MediaWiki
                     }
                     symmRef.targetAccessFile = accessFile;
                 }
-                
+
+                Console.WriteLine("symmRef.targetPageName='{0}', symmRef.type.ToString()='{1}'", symmRef.targetPageName, symmRef.type.ToString());
+
                 if (symmRef.type == PageType.GenericFile)
                 {
                     rootKeyring.AddAccessFile(symmRef.targetAccessFile!);

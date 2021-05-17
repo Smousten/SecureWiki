@@ -631,7 +631,8 @@ namespace SecureWiki.Model
 
             foreach (var symmRef in SymmetricReferences)
             {
-                Console.WriteLine("getting descendants from symmRef.target = " + symmRef.accessFileTargetPageName);
+                Console.WriteLine("getting descendants from symmRef.target='{0}', type=='{1}'", 
+                    symmRef.accessFileTargetPageName, symmRef.type.ToString());
                 if (symmRef.type == PageType.GenericFile)
                 {
                     outputList.Add(symmRef);
