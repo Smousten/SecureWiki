@@ -768,7 +768,7 @@ namespace SecureWiki
         }
 
         // Delegated Keyring functions
-        public void AddNewFile(string filename, string filepath)
+        public void AddNewFile(string filepath)
         {
             var pageNameFile = GetFreshPageName();
             var pageNameAccessFile = GetFreshPageName();
@@ -785,7 +785,7 @@ namespace SecureWiki
             AddToDefaultKeyring(symmetricReference);
 
             // Create new entry in md mirror
-            var mdFile = mountedDirMirror.AddFile(filepath, symmetricReference);
+            var mdFile = mountedDirMirror.CreateFile(filepath, symmetricReference);
             if (mdFile == null)
             {
                 WriteToLogger("File could not be added to MDMirror, upload failed");
@@ -802,6 +802,7 @@ namespace SecureWiki
             var uploadResFile = wikiHandler?.Upload(accessFile, fileContent);
             Console.WriteLine("uploadResFile:" + uploadResFile);
 
+            var filename = filepath.Split('/').Last();
             MasterKeyring.SetMountedDirMapping(accessFile.pageName, "NewEntries/" + filename);
         }
         
@@ -1003,7 +1004,17 @@ namespace SecureWiki
         public void RenameFile(string oldPath, string newPath)
         {
             WriteToLogger($"Renaming '{oldPath}' to '{newPath}'.");
-            _keyringManager.Rename(oldPath, newPath);
+            // _keyringManager.Rename(oldPath, newPath);
+            var mdFile = mountedDirMirror.Move(oldPath, newPath);
+            if (mdFile == null)
+            {
+                Console.WriteLine($"Renaming '{oldPath}' to '{newPath}' failed, creating new file instead");
+                AddNewFile(newPath);
+            }
+            else
+            {
+                MasterKeyring.SetMountedDirMapping(mdFile.symmetricReference.accessFileTargetPageName, newPath);
+            }
         }
 
         public Keyring? ReadKeyRing()
@@ -1033,7 +1044,7 @@ namespace SecureWiki
 
         public void SaveKeyringToFile()
         {
-            // _keyringManager.SaveRootKeyring();
+            _keyringManager.SaveRootKeyring();
         }
 
         public string? AttemptReadFileFromCache(string pageTitle, string revid)
@@ -1460,12 +1471,12 @@ namespace SecureWiki
 
                 if (mapping != null)
                 {
-                    mountedDirMirror.AddFile(mapping, symmRef);
+                    mountedDirMirror.CreateFile(mapping, symmRef);
                 }
                 else
                 {
                     Console.WriteLine("no mapping exists");
-                    mountedDirMirror.AddFile(defaultPath + unmappedCnt, symmRef);
+                    mountedDirMirror.CreateFile(defaultPath + unmappedCnt, symmRef);
                     unmappedCnt++;
                 }
             }

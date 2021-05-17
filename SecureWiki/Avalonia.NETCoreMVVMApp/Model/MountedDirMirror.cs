@@ -24,13 +24,28 @@ namespace SecureWiki.Model
         public MDFile? GetMDFile(string path)
         {
             var pathArr = path.Split('/');
+            var cnt = 0;
+
+            Console.WriteLine(pathArr[cnt]);
+            while (pathArr[cnt].Length < 1)
+            {
+                Console.WriteLine(pathArr[cnt]);
+                cnt++;
+            }
+            
             return RootFolder.FindFileRecursively(pathArr, 0);
         }
 
-        public MDFile? AddFile(string path, SymmetricReference reference)
+        public MDFile? CreateFile(string path, SymmetricReference reference)
         {
             var pathArr = path.Split('/');
-            return RootFolder.AddFileRecursively(pathArr, 0, reference);
+            return RootFolder.CreateFileRecursively(pathArr, 0, reference);
+        }
+        
+        public void AddFile(string path, MDFile mdFile)
+        {
+            var pathArr = path.Split('/');
+            RootFolder.AddFileRecursively(pathArr, 0, mdFile);
         }
 
         public MDFolder? GetMDFolder(string path)
@@ -59,6 +74,21 @@ namespace SecureWiki.Model
         public void CreateFileStructureRecursion(string path)
         {
             RootFolder.CreateFileStructureRecursion(path);
+        }
+
+        public MDFile? Move(string oldPath, string newPath)
+        {
+            var mdFile = GetMDFile(oldPath);
+
+            if (mdFile == null)
+            {
+                Console.WriteLine("Move:- could not find file at oldPath='{0}'", oldPath);
+                return null;
+            }
+            
+            mdFile.Parent.RemoveFile(mdFile);
+            AddFile(newPath, mdFile);
+            return mdFile;
         }
     }
     
@@ -196,6 +226,7 @@ namespace SecureWiki.Model
                 // var index = Files.BinarySearch(mdFile, new MDFileComparer());
                 // Files.Insert(index, mdFile);
                 Files.Add(mdFile);
+                SortFiles();
             }
             
             RaisePropertiesChangedFiles();
@@ -204,6 +235,7 @@ namespace SecureWiki.Model
         public void AddRangeFiles(List<MDFile> mdFiles)
         {
             Files.AddRange(mdFiles);
+            SortFiles();
             
             RaisePropertiesChangedFiles();
         }
@@ -213,6 +245,7 @@ namespace SecureWiki.Model
             if (Files.Contains(mdFile))
             {
                 Files.Remove(mdFile);
+                SortFiles();
             }
             
             RaisePropertiesChangedFiles();
@@ -225,6 +258,7 @@ namespace SecureWiki.Model
                 // var index = Folders.BinarySearch(mdFolder, new MDFolderComparer());
                 // Folders.Insert(index, mdFolder);
                 Folders.Add(mdFolder);
+                SortFolders();
             }
             
             RaisePropertiesChangedFolders();
@@ -233,6 +267,7 @@ namespace SecureWiki.Model
         public void AddRangeFolders(List<MDFolder> mdFolders)
         {
             Folders.AddRange(mdFolders);
+            SortFolders();
             
             RaisePropertiesChangedFolders();
         }
@@ -242,6 +277,7 @@ namespace SecureWiki.Model
             if (Folders.Contains(mdFolder))
             {
                 Folders.Remove(mdFolder);
+                SortFolders();
             }
             
             RaisePropertiesChangedFolders();
@@ -264,35 +300,51 @@ namespace SecureWiki.Model
         public void SortFiles()
         {
             var sortedList = Files.OrderBy(x => x.name).ToList();
-            ClearFiles();
-            AddRangeFiles(sortedList);
+            Files.Clear();
+            Files.AddRange(sortedList);
+            RaisePropertiesChangedFiles();
         }
         
         public void SortFolders()
         {
             var sortedList = Folders.OrderBy(x => x.name).ToList();
-            ClearFolders();
-            AddRangeFolders(sortedList);
+            Folders.Clear();
+            Folders.AddRange(sortedList);
+            RaisePropertiesChangedFolders();
         }
 
         public MDFile? FindFileRecursively(string[] path, int cnt)
         {
+            Console.WriteLine("path[cnt]='{0}'", path[cnt]);
             if (path.Length - cnt <= 1)
             {
                 var index = Files.BinarySearch(new MDFile {name = path[cnt]}, new MDFileComparer());
-                if (index < 0) return null;
+                Console.WriteLine("index=" + index);
+                if (index < 0)
+                {
+                    Console.WriteLine("File not found, printing all files and returning null");
+                    PrintInfoRecursively();
+                    var asd = Files.FirstOrDefault(e => e.name.Equals(path[cnt]));
+                    Console.WriteLine(asd?.name ?? "null");
+                    
+                    return null;
+                }
                 return Files[index];
             }
             else
             {
                 var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
-                if (index < 0) return null;
+                if (index < 0)
+                {
+                    Console.WriteLine("Folder not found, returning null");
+                    return null;
+                }
                 cnt++;
                 return Folders[index].FindFileRecursively(path, cnt);
             }
         }
 
-        public MDFile? AddFileRecursively(string[] path, int cnt, SymmetricReference reference)
+        public MDFile? CreateFileRecursively(string[] path, int cnt, SymmetricReference reference)
         {
             if (path.Length - cnt <= 1)
             {
@@ -312,16 +364,47 @@ namespace SecureWiki.Model
                     var newFolder = new MDFolder(path[cnt], this);
                     AddFolder(newFolder);
                     cnt++;
-                    newFolder.AddFileRecursively(path, cnt, reference);
+                    newFolder.CreateFileRecursively(path, cnt, reference);
                 }
                 else
                 {
                     cnt++;
-                    Folders[index].AddFileRecursively(path, cnt, reference);
+                    Folders[index].CreateFileRecursively(path, cnt, reference);
                 }
             }
 
             return null;
+        }
+        
+        public void AddFileRecursively(string[] path, int cnt, MDFile mdFile)
+        {
+            if (path.Length - cnt <= 1)
+            {
+                var index = Files.BinarySearch(new MDFile {name = path[cnt]}, new MDFileComparer());
+                if (index < 0)
+                {
+                    AddFile(mdFile);
+                    return;
+                }
+            }
+            else
+            {
+                var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
+                if (index < 0)
+                {
+                    var newFolder = new MDFolder(path[cnt], this);
+                    AddFolder(newFolder);
+                    cnt++;
+                    newFolder.AddFileRecursively(path, cnt, mdFile);
+                }
+                else
+                {
+                    cnt++;
+                    Folders[index].AddFileRecursively(path, cnt, mdFile);
+                }
+            }
+
+            return;
         }
         
         // TODO: refactor - make common function for file/folder

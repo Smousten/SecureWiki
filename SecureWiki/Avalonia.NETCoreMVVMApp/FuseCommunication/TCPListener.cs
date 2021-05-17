@@ -143,7 +143,7 @@ namespace SecureWiki.FuseCommunication
         {
             if (RealFileName(filename))
             {
-                _manager.AddNewFile(filename, filepath);
+                _manager.AddNewFile(filepath);
             }
         }
 
