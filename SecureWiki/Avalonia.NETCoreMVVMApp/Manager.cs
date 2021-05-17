@@ -941,22 +941,26 @@ namespace SecureWiki
         {
             // TODO: find existing pagename for file, create new access file and references to generic file, add symmetric reference to keyring
 
-            // AccessFile? genericAccessFile = GetAccessFile(filename, MasterKeyring);
             AccessFile? genericAccessFile = GetAccessFile(filepath);
+            if (genericAccessFile == null) return;
             var pageNameGenericFile = genericAccessFile.pageName;
             var pageNameAccessFile = GetFreshPageName();
-            
+        
             CreateAccessFileAndReferences(pageNameGenericFile, pageNameAccessFile, PageType.GenericFile, 
                 out AccessFileReference accessFileReference, out SymmetricReference symmetricReference,
                 out AccessFile accessFile);
-
+            
             // fix
-            AccessFile? keyringAccessFile = GetAccessFile(newPath);
-            var newKeyring = keyringAccessFile?.accessFileReference?.KeyringTarget;
+            var newPathSplit = newPath.Split('/');
+            var keyringName = newPathSplit[^2];
+
+            var symmRef = GetKeyringReference(keyringName, MasterKeyring);
+            var newKeyring = symmRef?.targetAccessFile?.accessFileReference?.KeyringTarget;
 
             if (newKeyring == null)
             {
-                
+                Console.WriteLine("Keyring does not exist");
+                return;
             }
             
             newKeyring.AddSymmetricReference(symmetricReference);
@@ -966,8 +970,34 @@ namespace SecureWiki
             var uploadResAF = wikiHandler?.UploadAccessFile(symmetricReference, accessFile);
             Console.WriteLine("uploadResAF:" + uploadResAF);
             
-            var uploadResKR = wikiHandler?.UploadKeyring(keyringAccessFile, newKeyring);
+            var uploadResKR = wikiHandler?.UploadKeyring(symmRef.targetAccessFile, newKeyring);
             Console.WriteLine("uploadResKR:" + uploadResKR);
+        }
+
+        private SymmetricReference? GetKeyringReference(string name, Keyring keyring)
+        {
+            foreach (var symmRef in keyring.SymmetricReferences)
+            {
+                if (symmRef.targetAccessFile?.accessFileReference?.KeyringTarget != null 
+                    && symmRef.type == PageType.Keyring && 
+                    symmRef.targetAccessFile.accessFileReference.KeyringTarget.name.Equals(name))
+                {
+                    return symmRef;
+                }
+
+                var kr = symmRef.targetAccessFile?.accessFileReference?.KeyringTarget;
+                if (kr == null)
+                { 
+                    continue;
+                }
+                var res = GetKeyringReference(name, kr);
+                if (res != null)
+                {
+                    return res;
+                }
+            }
+
+            return null;
         }
 
         public void RenameFile(string oldPath, string newPath)

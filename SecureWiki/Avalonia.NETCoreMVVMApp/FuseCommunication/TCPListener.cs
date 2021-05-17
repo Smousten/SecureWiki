@@ -203,13 +203,8 @@ namespace SecureWiki.FuseCommunication
             var newPath = filepaths[1].Substring(1);
             newPath = newPath.Trim('\0');
             
-            // Check if the file should be added to new server keyring
             var newPathSplit = newPath.Split('/');
-            if (newPathSplit[0].Equals("Keyrings"))
-            {
-                _manager.AddFileToKeyring(filename, newPath);
-            }
-            
+
             // Remove if file is moved to trash folder
             if (newPath.Contains(".Trash"))
             {
@@ -224,6 +219,13 @@ namespace SecureWiki.FuseCommunication
                 var newFilename = newFilePathSplit[^1];
                 _manager.UploadNewVersion(newFilename, newPath);
             }
+            
+            // Check if the file should be added to new server keyring
+            else if (newPathSplit[0].Equals("Keyrings"))
+            {
+                _manager.AddFileToKeyring(filename, newPath);
+            }
+            
             // Else if the new filename is not goutputstream or .trash then rename
             else if (RealFileName(filename))
             {
