@@ -183,15 +183,21 @@ namespace SecureWiki.FuseCommunication
         // Should upload new version to server
         public void Write(string filename, string filepath)
         {
-            if (RealFileName(filename) && 
+            var filepathSplit = filepath.Split('/');
+            
+            // Check if the file should be added to new server keyring
+            if (filepathSplit[0].Equals("Keyrings"))
+            {
+                _manager.AddFileToKeyring(filename, filepath);
+            }
+            else if (RealFileName(filename) && 
                 !(lastOperation == Operation.Write && filename.Equals(previousFilename) && filepath.Equals(previousFilepath)))
             {
                 previousFilename = filename;
                 previousFilepath = filepath;
                 _manager.UploadNewVersion(filename, filepath);
+                lastOperation = Operation.Write;
             }
-
-            lastOperation = Operation.Write;
         }
 
         // Received rename operation from FUSE
@@ -202,15 +208,13 @@ namespace SecureWiki.FuseCommunication
             var oldPath = filepaths[0].Substring(1);
             var newPath = filepaths[1].Substring(1);
             newPath = newPath.Trim('\0');
-            
-            var newPathSplit = newPath.Split('/');
 
             // Remove if file is moved to trash folder
             if (newPath.Contains(".Trash"))
             {
                 var oldFilePathSplit = oldPath.Split("/");
                 var oldFilename = oldFilePathSplit[^1];
-                _manager.RemoveFile(oldPath, oldFilename);
+                // _manager.RemoveFile(oldPath, oldFilename);
             }
             // Else if the file is renamed from goutputstream then upload new version
             else if (oldPath.Contains(".goutputstream"))
@@ -219,13 +223,6 @@ namespace SecureWiki.FuseCommunication
                 var newFilename = newFilePathSplit[^1];
                 _manager.UploadNewVersion(newFilename, newPath);
             }
-            
-            // Check if the file should be added to new server keyring
-            else if (newPathSplit[0].Equals("Keyrings"))
-            {
-                _manager.AddFileToKeyring(filename, newPath);
-            }
-            
             // Else if the new filename is not goutputstream or .trash then rename
             else if (RealFileName(filename))
             {

@@ -76,7 +76,7 @@ namespace SecureWiki.Views
             Console.WriteLine("Saving config manager to file");
             manager.SaveConfigManagerToFile();
             Console.WriteLine("Saving keyring to file");
-            manager.SaveKeyringToFile();
+            // manager.SaveKeyringToFile();
             Console.WriteLine("Saving contacts to file");
             manager.SaveContactManagerToFile();
             Console.WriteLine("Saving master symref to file and uploading");
@@ -170,14 +170,14 @@ namespace SecureWiki.Views
 
         private void ButtonExport_Click(object? sender, RoutedEventArgs e)
         {
-            manager.ExportKeyring();
+            // manager.ExportKeyring();
         }
         
         private void ButtonShareKeyring_Click(object? sender, RoutedEventArgs e)
         {
-            Thread localThread = new(() =>
-                manager.ShareSelectedKeyring(_viewModel.SelectedShareContacts.ToList()));
-            localThread.Start();
+            // Thread localThread = new(() =>
+            //     manager.ShareSelectedKeyring(_viewModel.SelectedShareContacts.ToList()));
+            // localThread.Start();
             
             var popup = this.FindControl<Popup>("ShareKeyringPopup");
             popup.IsOpen = false;
@@ -194,7 +194,7 @@ namespace SecureWiki.Views
 
             if (path != null)
             {
-                manager.ImportKeyring(path);
+                // manager.ImportKeyring(path);
             }
             else
             {
@@ -267,14 +267,7 @@ namespace SecureWiki.Views
             // var url = $"http://{ip}/mediawiki/api.php";
             manager.SetDefaultServerLink(ip);
         }
-
-        private void ButtonMail(object? sender, RoutedEventArgs e)
-        {
-            var textBoxMail = this.FindControl<TextBox>("TextBoxMail");
-            var recipientEmail = textBoxMail.Text;
-            manager.SendEmail(recipientEmail);
-        }
-
+        
         private void SelectedRevisionButton_OnClick(object? sender, RoutedEventArgs e)
         {
             if (_viewModel.selectedRevision.revisionID == null) return;
@@ -383,9 +376,9 @@ namespace SecureWiki.Views
         {
             var datafile = _viewModel.selectedFile;
 
-            Thread localThread = new(() =>
-                manager.RevokeAccess(datafile, _viewModel.SelectedRevokeContacts));
-            localThread.Start();
+            // Thread localThread = new(() =>
+            //     manager.RevokeAccess(datafile, _viewModel.SelectedRevokeContacts));
+            // localThread.Start();
 
             var popup = this.FindControl<Popup>("RevokeAccessPopup");
             popup.IsOpen = false;

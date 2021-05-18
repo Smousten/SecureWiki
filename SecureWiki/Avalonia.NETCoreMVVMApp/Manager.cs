@@ -568,7 +568,7 @@ namespace SecureWiki
                 importFolder.AddRangeAccessFile(newAccessFiles);
             }
             
-            _keyringManager.SortAndUpdatePeripherals();
+            // _keyringManager.SortAndUpdatePeripherals();
         }
 
         public void ForceUpdateFromAllInboxPages()
@@ -873,7 +873,7 @@ namespace SecureWiki
             Console.WriteLine("upload result of new keyring: " + uploadResNewKeyring);
         }
         
-        public void AddFileToKeyring(string filepath, string newPath)
+        public void AddFileToKeyring(string filename, string filepath)
         {
             // TODO: find existing pagename for file, create new access file and references to generic file, add symmetric reference to keyring
 
@@ -886,8 +886,8 @@ namespace SecureWiki
                 out SymmetricReference symmetricReference, out AccessFile accessFile, out AccessFileReference accessFileReference);
             
             // fix
-            var newPathSplit = newPath.Split('/');
-            var keyringName = newPathSplit[^2];
+            var filepathSplit = filepath.Split('/');
+            var keyringName = filepathSplit[^2];
 
             var symmRef = GetKeyringReference(keyringName, MasterKeyring);
             var newKeyring = symmRef?.targetAccessFile?.AccessFileReference?.KeyringTarget;
@@ -954,35 +954,35 @@ namespace SecureWiki
             }
         }
 
-        public Keyring? ReadKeyRing()
-        {
-            return _keyringManager.ReadKeyRing();
-        }
-
-        public void RemoveFile(string filePath, string filename)
-        {
-            WriteToLogger($"Removing file '{filename}'", filePath);
-            _keyringManager.RemoveFile(filePath, filename);
-        }
-
-        public void ExportKeyring()
-        {
-            // TODO: add export path
-            WriteToLogger("Exporting keyring");
-            _keyringManager.ExportRootKeyringBasedOnIsChecked();
-        }
-
-        public void ImportKeyring(string importPath)
-        {
-            Console.WriteLine("Manager:- ImportKeyring('{0}')", importPath);
-            WriteToLogger($"Importing keyring from '{importPath}'");
-            _keyringManager.ImportRootKeyring(importPath);
-        }
-
-        public void SaveKeyringToFile()
-        {
-            _keyringManager.SaveRootKeyring();
-        }
+        // public Keyring? ReadKeyRing()
+        // {
+        //     return _keyringManager.ReadKeyRing();
+        // }
+        //
+        // public void RemoveFile(string filePath, string filename)
+        // {
+        //     WriteToLogger($"Removing file '{filename}'", filePath);
+        //     _keyringManager.RemoveFile(filePath, filename);
+        // }
+        //
+        // public void ExportKeyring()
+        // {
+        //     // TODO: add export path
+        //     WriteToLogger("Exporting keyring");
+        //     _keyringManager.ExportRootKeyringBasedOnIsChecked();
+        // }
+        //
+        // public void ImportKeyring(string importPath)
+        // {
+        //     Console.WriteLine("Manager:- ImportKeyring('{0}')", importPath);
+        //     WriteToLogger($"Importing keyring from '{importPath}'");
+        //     _keyringManager.ImportRootKeyring(importPath);
+        // }
+        //
+        // public void SaveKeyringToFile()
+        // {
+        //     _keyringManager.SaveRootKeyring();
+        // }
 
         public string? AttemptReadFileFromCache(string pageTitle, string revid)
         {
@@ -1060,87 +1060,55 @@ namespace SecureWiki
         }
 
         // Delegated Crypto functions
-        public AccessFile? GetAccessFile(string filename, Keyring keyring)
-        {
-            return _keyringManager.GetAccessFile(filename, keyring);
-        }
+        // public AccessFile? GetAccessFile(string filename, Keyring keyring)
+        // {
+        //     return _keyringManager.GetAccessFile(filename, keyring);
+        // }
+        
 
-        public void SendEmail(string recipientEmail)
-        {
-            var smtpClient = new SmtpClient("smtp.gmail.com")
-            {
-                Port = 587,
-                Credentials = new NetworkCredential(_smtpClientEmail, _smtpClientPassword),
-                EnableSsl = true,
-            };
-
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress(_smtpClientEmail),
-                Subject = "SecureWiki file sharing",
-                Body = "<h1>Hello</h1>" +
-                       "<br />You have received a new keyring" +
-                       "<p>Sincerely,<br />" +
-                       "<br />" +
-                       "<br />" +
-                       "Kevin Sanders<br />" +
-                       "<i>Vice President</i></p>",
-                IsBodyHtml = true,
-            };
-            // TODO: send selected keyring and not all
-            var keyringPath = _keyringManager.GetFilePath("Keyring.json");
-            var attachment = new Attachment(keyringPath,
-                MediaTypeNames.Application.Json);
-            mailMessage.Attachments.Add(attachment);
-            mailMessage.To.Add(recipientEmail);
-
-            Console.WriteLine(recipientEmail);
-            smtpClient.Send(mailMessage);
-        }
-
-        // Revoke access to the selected access file. Create new cryptographic keys and the given contacts
-        // will receive the new key in their inbox
-        public void RevokeAccess(AccessFile accessFile, ObservableCollection<Contact> contacts)
-        {
-            WriteToLogger($"Attempting to revoke access to file '{accessFile.filename}'");
-
-            var wikiHandler = GetWikiHandler(accessFile.serverLink);
-            var latestRevision = wikiHandler?.GetLatestRevision(accessFile);
-
-            // Create new cryptographic keys for access file
-            if (latestRevision?.revisionID != null && accessFile.ownerPrivateKey != null)
-            {
-                _keyringManager.RevokeAccess(accessFile, latestRevision.revisionID);
-            }
-
-            // Send new cryptographic keys as a keyring with one access file containing latest key
-            // to selected contacts
-            var uploadObject = new Keyring("revocation");
-            var accessFileCopy = accessFile.Copy();
-            var latestKey = accessFile.keyList.Last();
-            accessFileCopy.keyList = new List<AccessFileKey> {latestKey};
-            uploadObject.accessFiles.Add(accessFileCopy);
-            uploadObject.PrepareForExportRecursively();
-
-            var serializeObject = JSONSerialization.SerializeObject(uploadObject);
-            foreach (var contact in contacts)
-            {
-                UploadToInboxPage(contact.ServerLink, contact.PageTitle, serializeObject, contact.PublicKey);
-            }
-
-            // Remove non-selected contacts from access file contact list
-            foreach (var afContact in accessFile.contactList.ToList())
-            {
-                var contact =
-                    contactManager.GetContactByPageTitleAndServerLink(afContact.Item1,
-                        afContact.Item2 ?? accessFile.serverLink);
-                if (contact == null) continue;
-                if (!contacts.Contains(contact))
-                {
-                    accessFile.contactList.Remove(afContact);
-                }
-            }
-        }
+        // // Revoke access to the selected access file. Create new cryptographic keys and the given contacts
+        // // will receive the new key in their inbox
+        // public void RevokeAccess(AccessFile accessFile, ObservableCollection<Contact> contacts)
+        // {
+        //     WriteToLogger($"Attempting to revoke access to file '{accessFile.filename}'");
+        //
+        //     var wikiHandler = GetWikiHandler(accessFile.serverLink);
+        //     var latestRevision = wikiHandler?.GetLatestRevision(accessFile);
+        //
+        //     // Create new cryptographic keys for access file
+        //     if (latestRevision?.revisionID != null && accessFile.ownerPrivateKey != null)
+        //     {
+        //         _keyringManager.RevokeAccess(accessFile, latestRevision.revisionID);
+        //     }
+        //
+        //     // Send new cryptographic keys as a keyring with one access file containing latest key
+        //     // to selected contacts
+        //     var uploadObject = new Keyring("revocation");
+        //     var accessFileCopy = accessFile.Copy();
+        //     var latestKey = accessFile.keyList.Last();
+        //     accessFileCopy.keyList = new List<AccessFileKey> {latestKey};
+        //     uploadObject.accessFiles.Add(accessFileCopy);
+        //     uploadObject.PrepareForExportRecursively();
+        //
+        //     var serializeObject = JSONSerialization.SerializeObject(uploadObject);
+        //     foreach (var contact in contacts)
+        //     {
+        //         UploadToInboxPage(contact.ServerLink, contact.PageTitle, serializeObject, contact.PublicKey);
+        //     }
+        //
+        //     // Remove non-selected contacts from access file contact list
+        //     foreach (var afContact in accessFile.contactList.ToList())
+        //     {
+        //         var contact =
+        //             contactManager.GetContactByPageTitleAndServerLink(afContact.Item1,
+        //                 afContact.Item2 ?? accessFile.serverLink);
+        //         if (contact == null) continue;
+        //         if (!contacts.Contains(contact))
+        //         {
+        //             accessFile.contactList.Remove(afContact);
+        //         }
+        //     }
+        // }
 
         // write to logger with normal as default priority 
         public void WriteToLogger(string content, string? location = null,
@@ -1236,65 +1204,65 @@ namespace SecureWiki
             }
         }
 
-        // create new keyring containing all access files selected by user in GUI
-        // send new Keyring to the selected contacts inbox page
-        public void ShareSelectedKeyring(List<Contact> contacts)
-        {
-            Console.WriteLine(contacts.Count);
-            WriteToLogger("Sharing specified parts of keyring");
-
-            // create new keyring with all selected folder and files
-            var keyringEntry = _keyringManager.CreateRootKeyringBasedOnIsChecked();
-            
-            // get the list of all the access files in the new keyring
-            var accessFileList = keyringEntry.GetAllAndDescendantAccessFileEntries();
-
-            // for each contact create a new list with access files not previously received
-            foreach (var contact in contacts)
-            {
-                var newAccessFiles = new List<AccessFile>();
-
-                foreach (var af in accessFileList)
-                {
-                    var contactInfo = af.GetContactInfo
-                        (contact.PageTitle, contact.ServerLink);
-
-                    if (contactInfo == null)
-                    {
-                        af.AddContactInfo(contact.PageTitle, contact.ServerLink);
-                        newAccessFiles.Add(af);
-                    }
-                }
-
-                if (newAccessFiles.Count == 0)
-                {
-                    continue;
-                }
-
-                // Create new keyring containing copies of the access files to be shared
-                var intermediateKeyringEntry = new Keyring(keyringEntry.name);
-                var keyringEntryToExport = new Keyring(intermediateKeyringEntry.name);
-
-                intermediateKeyringEntry.accessFiles.AddRange(newAccessFiles);
-                intermediateKeyringEntry.AddCopiesToOtherKeyringRecursively(keyringEntryToExport);
-                keyringEntryToExport.PrepareForExportRecursively();
-
-                var keyringEntryString = JSONSerialization.SerializeObject(keyringEntryToExport);
-
-                var loggerMsg = $"Sharing {newAccessFiles.Count} new files with contact '{contact.Nickname}'.";
-                WriteToLogger(loggerMsg);
-
-                var httpResponse = UploadToInboxPage(contact.ServerLink, contact.PageTitle,
-                    keyringEntryString, contact.PublicKey);
-
-                // Write result to logger
-                WriteToLogger(
-                    httpResponse
-                        ? $"Upload to inbox page belonging to contact '{contact.Nickname}' complete."
-                        : $"Upload to inbox page belonging to contact '{contact.Nickname}' failed.",
-                    null, LoggerEntry.LogPriority.Low);
-            }
-        }
+        // // create new keyring containing all access files selected by user in GUI
+        // // send new Keyring to the selected contacts inbox page
+        // public void ShareSelectedKeyring(List<Contact> contacts)
+        // {
+        //     Console.WriteLine(contacts.Count);
+        //     WriteToLogger("Sharing specified parts of keyring");
+        //
+        //     // create new keyring with all selected folder and files
+        //     var keyringEntry = _keyringManager.CreateRootKeyringBasedOnIsChecked();
+        //     
+        //     // get the list of all the access files in the new keyring
+        //     var accessFileList = keyringEntry.GetAllAndDescendantAccessFileEntries();
+        //
+        //     // for each contact create a new list with access files not previously received
+        //     foreach (var contact in contacts)
+        //     {
+        //         var newAccessFiles = new List<AccessFile>();
+        //
+        //         foreach (var af in accessFileList)
+        //         {
+        //             var contactInfo = af.GetContactInfo
+        //                 (contact.PageTitle, contact.ServerLink);
+        //
+        //             if (contactInfo == null)
+        //             {
+        //                 af.AddContactInfo(contact.PageTitle, contact.ServerLink);
+        //                 newAccessFiles.Add(af);
+        //             }
+        //         }
+        //
+        //         if (newAccessFiles.Count == 0)
+        //         {
+        //             continue;
+        //         }
+        //
+        //         // Create new keyring containing copies of the access files to be shared
+        //         var intermediateKeyringEntry = new Keyring(keyringEntry.name);
+        //         var keyringEntryToExport = new Keyring(intermediateKeyringEntry.name);
+        //
+        //         intermediateKeyringEntry.accessFiles.AddRange(newAccessFiles);
+        //         intermediateKeyringEntry.AddCopiesToOtherKeyringRecursively(keyringEntryToExport);
+        //         keyringEntryToExport.PrepareForExportRecursively();
+        //
+        //         var keyringEntryString = JSONSerialization.SerializeObject(keyringEntryToExport);
+        //
+        //         var loggerMsg = $"Sharing {newAccessFiles.Count} new files with contact '{contact.Nickname}'.";
+        //         WriteToLogger(loggerMsg);
+        //
+        //         var httpResponse = UploadToInboxPage(contact.ServerLink, contact.PageTitle,
+        //             keyringEntryString, contact.PublicKey);
+        //
+        //         // Write result to logger
+        //         WriteToLogger(
+        //             httpResponse
+        //                 ? $"Upload to inbox page belonging to contact '{contact.Nickname}' complete."
+        //                 : $"Upload to inbox page belonging to contact '{contact.Nickname}' failed.",
+        //             null, LoggerEntry.LogPriority.Low);
+        //     }
+        // }
 
 
         // Show popup window alerting the user about information. User can click confirm or cancel to exit
