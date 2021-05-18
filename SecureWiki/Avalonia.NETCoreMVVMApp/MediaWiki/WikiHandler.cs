@@ -280,9 +280,11 @@ namespace SecureWiki.MediaWiki
             return (cipherBytes, signBytes);
         }
 
-        public bool UploadAccessFile(SymmetricReference symmetricReference, AccessFile accessFile)
+        public bool UploadAccessFile(AccessFile accessFile)
         {
+            var symmetricReference = accessFile.SymmetricReferenceToSelf;
             Console.WriteLine("UploadAccessFile entered, target pagename=" + symmetricReference.targetPageName);
+
             var accessFileString = JSONSerialization.SerializeObject(accessFile);
             var accessFileBytes = Encoding.ASCII.GetBytes(accessFileString);
 
@@ -305,6 +307,7 @@ namespace SecureWiki.MediaWiki
                     // If upload was a success
                     if (response.Result == Response.ResultType.Success)
                     {
+                        accessFile.HasBeenChanged = false;
                         return true;
                     }
                 }
@@ -338,6 +341,7 @@ namespace SecureWiki.MediaWiki
                 // If upload was a success
                 if (response.Result == Response.ResultType.Success)
                 {
+                    masterKeyring.HasBeenChanged = false;
                     return true;
                 }
             }
@@ -386,6 +390,7 @@ namespace SecureWiki.MediaWiki
                 // If upload was a success
                 if (response.Result == Response.ResultType.Success)
                 {
+                    keyring.HasBeenChanged = false;
                     return true;
                 }
             }
@@ -424,7 +429,8 @@ namespace SecureWiki.MediaWiki
                 return null;
             }
             
-            accessFile.accessFileReference = new AccessFileReference(accessFile, symmetricReference.type);
+            accessFile.AccessFileReference = new AccessFileReference(accessFile, symmetricReference.type);
+            accessFile.SymmetricReferenceToSelf = symmetricReference;
             return accessFile;
         }
 
@@ -452,17 +458,17 @@ namespace SecureWiki.MediaWiki
             Console.WriteLine("keyring of name '{0}' downloaded.", keyring.name);
 
             
-            if (symmetricReference.targetAccessFile.accessFileReference == null)
+            if (symmetricReference.targetAccessFile.AccessFileReference == null)
             {
                 Console.WriteLine("DownloadKeyring:- symmetricReference.targetAccessFile.accessFileReference is null");
             }
             else
             {
                 Console.WriteLine("DownloadKeyring:- symmetricReference.targetAccessFile.accessFileReference is not null");
-                keyring.accessFileReferenceToSelf = symmetricReference.targetAccessFile.accessFileReference;
+                keyring.accessFileReferenceToSelf = symmetricReference.targetAccessFile.AccessFileReference;
             }
 
-            symmetricReference.targetAccessFile.accessFileReference.KeyringTarget = keyring;
+            symmetricReference.targetAccessFile.AccessFileReference.KeyringTarget = keyring;
             return keyring;
         }
 
@@ -487,7 +493,7 @@ namespace SecureWiki.MediaWiki
                     var keyring = JSONSerialization.DeserializeObject(
                         keyringString, typeof(MasterKeyring)) as MasterKeyring;
 
-                    keyring.accessFileReferenceToSelf = symmetricReference.targetAccessFile.accessFileReference;
+                    keyring.accessFileReferenceToSelf = symmetricReference.targetAccessFile.AccessFileReference;
                     
                     return keyring;
                 }
@@ -526,11 +532,11 @@ namespace SecureWiki.MediaWiki
                 }
                 else
                 {
-                    Console.WriteLine("symmRef.targetAccessFile!.accessFileReference == null: {0}", symmRef.targetAccessFile!.accessFileReference == null);
-                    Console.WriteLine("symmRef.targetAccessFile!.accessFileReference!.KeyringTarget == null: {0}", symmRef.targetAccessFile!.accessFileReference!.KeyringTarget == null);
-                    Console.WriteLine(symmRef.targetAccessFile!.accessFileReference!.KeyringTarget?.name);
-                    var kr = symmRef.targetAccessFile!.accessFileReference!.KeyringTarget == null 
-                        ? DownloadKeyring(symmRef) : symmRef.targetAccessFile.accessFileReference.KeyringTarget;
+                    Console.WriteLine("symmRef.targetAccessFile!.accessFileReference == null: {0}", symmRef.targetAccessFile!.AccessFileReference == null);
+                    Console.WriteLine("symmRef.targetAccessFile!.accessFileReference!.KeyringTarget == null: {0}", symmRef.targetAccessFile!.AccessFileReference!.KeyringTarget == null);
+                    Console.WriteLine(symmRef.targetAccessFile!.AccessFileReference!.KeyringTarget?.name);
+                    var kr = symmRef.targetAccessFile!.AccessFileReference!.KeyringTarget == null 
+                        ? DownloadKeyring(symmRef) : symmRef.targetAccessFile.AccessFileReference.KeyringTarget;
 
                     if (kr != null)
                     {

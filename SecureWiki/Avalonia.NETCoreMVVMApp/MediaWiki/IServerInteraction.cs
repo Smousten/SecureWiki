@@ -44,7 +44,7 @@ namespace SecureWiki.MediaWiki
         public List<List<string>>? DownloadFromInboxPages();
         
         // TODO
-        public bool UploadAccessFile(SymmetricReference symmetricReference, AccessFile accessFile);
+        public bool UploadAccessFile(AccessFile accessFile);
         
         // TODO
         public bool UploadKeyring(AccessFile accessFile, Keyring keyring);

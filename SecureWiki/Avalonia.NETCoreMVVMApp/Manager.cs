@@ -100,7 +100,7 @@ namespace SecureWiki
             if (newRootKR == null)
             {
                 Console.WriteLine("root keyring from server is null");
-                symRefToMasterKeyring.targetAccessFile.accessFileReference.KeyringTarget = MasterKeyring;
+                symRefToMasterKeyring.targetAccessFile.AccessFileReference.KeyringTarget = MasterKeyring;
             }
             else
             {
@@ -109,7 +109,7 @@ namespace SecureWiki
                 // MasterKeyring.CopyFromOtherKeyring(newRootKR);
                 // MasterKeyring = newRootKR;
                 MasterKeyring.CopyFromOtherKeyringNonRecursively(newRootKR);
-                symRefToMasterKeyring.targetAccessFile.accessFileReference.KeyringTarget = MasterKeyring;
+                symRefToMasterKeyring.targetAccessFile.AccessFileReference.KeyringTarget = MasterKeyring;
                 wh!.DownloadKeyringsRecursion(MasterKeyring);
             }
             
@@ -159,7 +159,7 @@ namespace SecureWiki
                 Console.WriteLine("af not null");
 
                 var afr = new AccessFileReference(af.pageName, af.serverLink, af, PageType.Keyring);
-                af.accessFileReference = afr;
+                af.AccessFileReference = afr;
                 
                 symRefToMasterKeyring.targetAccessFile = af;
             }
@@ -169,7 +169,7 @@ namespace SecureWiki
                 var accessFileToMasterKeyring = new AccessFile(configManager.DefaultServerLink, GetFreshPageName());
                 var accessFileRefToMasterKeyring = new AccessFileReference(accessFileToMasterKeyring.pageName,
                     configManager.DefaultServerLink, accessFileToMasterKeyring, PageType.Keyring);
-                accessFileToMasterKeyring.accessFileReference = accessFileRefToMasterKeyring;
+                accessFileToMasterKeyring.AccessFileReference = accessFileRefToMasterKeyring;
                 symRefToMasterKeyring = new SymmetricReference(GetFreshPageName(), configManager.DefaultServerLink,
                     PageType.Keyring, accessFileRefToMasterKeyring.targetPageName,
                     accessFileToMasterKeyring);
@@ -186,7 +186,7 @@ namespace SecureWiki
             Console.WriteLine("Upload keyring file to: " + symRefToMasterKeyring.accessFileTargetPageName);
             
             var wikihandler = GetWikiHandler(symRefToMasterKeyring.serverLink);
-            var res1 = wikihandler?.UploadAccessFile(symRefToMasterKeyring, symRefToMasterKeyring.targetAccessFile);
+            var res1 = wikihandler?.UploadAccessFile(symRefToMasterKeyring.targetAccessFile);
             var res2 = wikihandler?.UploadKeyring(symRefToMasterKeyring.targetAccessFile, MasterKeyring);
 
             Console.WriteLine("res1, res2: {0}, {1}", res1, res2);
@@ -777,9 +777,10 @@ namespace SecureWiki
             Console.WriteLine(pageNameFile);
             Console.WriteLine(pageNameAccessFile);
             
-            CreateAccessFileAndReferences(pageNameFile, pageNameAccessFile, PageType.GenericFile, 
-                out AccessFileReference accessFileReference, out SymmetricReference symmetricReference,
-                out AccessFile accessFile);
+            _keyringManager.CreateAccessFileAndReferences(pageNameFile, pageNameAccessFile, 
+                configManager.DefaultServerLink, PageType.GenericFile, 
+                out SymmetricReference symmetricReference,
+                out AccessFile accessFile, out AccessFileReference accessFileReference);
             
             // Add symmetric reference to newEntries keyring and upload
             AddToDefaultKeyring(symmetricReference);
@@ -794,7 +795,7 @@ namespace SecureWiki
 
             // Upload new files to server
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
-            var uploadResAF = wikiHandler?.UploadAccessFile(symmetricReference, accessFile);
+            var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
             Console.WriteLine("uploadResAF:" + uploadResAF);
             
             // var fileContent = File.ReadAllBytes(GetRootDir(filepath));
@@ -806,82 +807,23 @@ namespace SecureWiki
             MasterKeyring.SetMountedDirMapping(accessFile.pageName, "NewEntries/" + filename);
         }
         
-        private void CreateAccessFileAndReferences(string pageNameKeyring, string pageNameAccessFile, 
-            PageType type, out AccessFileReference accessFileReference, 
-            out SymmetricReference symmetricReference, out AccessFile accessFile)
-        {
-            // Create access file and reference for folder
-            accessFile = new AccessFile(configManager.DefaultServerLink, pageNameKeyring) {filename = "placeholder"};
-            accessFileReference = new AccessFileReference(pageNameKeyring, configManager.DefaultServerLink,
-                accessFile, type);
-            accessFile.accessFileReference = accessFileReference;
-            
-            // Create symmetric reference to access file
-            symmetricReference = new SymmetricReference(pageNameAccessFile,
-                configManager.DefaultServerLink, type, pageNameKeyring, accessFile);
-        }
-        
         private void AddToDefaultKeyring(SymmetricReference symmetricReference)
         {
-            Console.WriteLine("AddToDefaultKeyring entered");
-            AccessFile? accessFile;
-            
-            // Add symmetric reference to newEntries keyring
-            var symmRef = MasterKeyring.SymmetricReferences.FirstOrDefault(
-                e => e.type == PageType.Keyring 
-                     && e.targetAccessFile?.accessFileReference?.KeyringTarget!.name.Equals("newEntries") == true);
-            var defaultKeyring = symmRef?.targetAccessFile?.accessFileReference?.KeyringTarget;
-            if (defaultKeyring == null)
-            {
-                Console.WriteLine("defaultkeyring is null");
-                var pageNameKeyring = GetFreshPageName();
-                var pageNameAccessFileKeyring = GetFreshPageName();
-
-                // Create access file and reference for keyring
-                CreateAccessFileAndReferences(pageNameKeyring, pageNameAccessFileKeyring, PageType.Keyring, 
-                    out AccessFileReference accessFileReferenceKeyring, out SymmetricReference symmetricReferenceToDefaultKeyring,
-                    out accessFile);
-                
-                var wh = GetWikiHandler(configManager.DefaultServerLink);
-                var uploadResAF = wh?.UploadAccessFile(symmetricReferenceToDefaultKeyring, accessFile);
-                Console.WriteLine("uploadResAF:" + uploadResAF);
-                
-                // Create new keyring
-                defaultKeyring = new Keyring(accessFileReferenceKeyring, "newEntries");
-                MasterKeyring.AddSymmetricReference(symmetricReferenceToDefaultKeyring);
-            }
-            else
-            {
-                Console.WriteLine("defaultkeyring is not null");
-                if (defaultKeyring.accessFileReferenceToSelf == null)
-                {
-                    Console.WriteLine("defaultKeyring.accessFileReferenceToSelf is null");
-                    Console.WriteLine("defaultKeyring.name = " + defaultKeyring.name);
-                }
-                if (defaultKeyring.accessFileReferenceToSelf?.AccessFileParent == null)
-                {
-                    Console.WriteLine("defaultKeyring.accessFileReferenceToSelf?.AccessFileParent is null");
-                    Console.WriteLine("defaultKeyring.name = " + defaultKeyring.name);
-                }
-                accessFile = defaultKeyring.accessFileReferenceToSelf.AccessFileParent;
-            }
-
-            if (accessFile == null)
-            {
-                Console.WriteLine("accessFile is null");
-            }
-
-            defaultKeyring.AddSymmetricReference(symmetricReference);
+            var defaultKeyring = _keyringManager.AddToDefaultKeyring(symmetricReference);
+            var accessFileToDefaultKeyring = defaultKeyring.accessFileReferenceToSelf.AccessFileParent;
             
             // Upload updated keyring
             var wikiHandler = GetWikiHandler(configManager.DefaultServerLink);
-            
-            if (accessFile != null)
+
+            if (accessFileToDefaultKeyring == null) return;
+            if (accessFileToDefaultKeyring.HasBeenChanged)
             {
-                var uploadResKR = wikiHandler?.UploadKeyring(
-                    accessFile, defaultKeyring);
-                Console.WriteLine("uploadResKR:" + uploadResKR);
+                wikiHandler?.UploadAccessFile(accessFileToDefaultKeyring);
             }
+            
+            var uploadResKR = wikiHandler?.UploadKeyring(
+                accessFileToDefaultKeyring, defaultKeyring);
+            Console.WriteLine("uploadResKR:" + uploadResKR);
         }
 
         public string GetFreshPageName(string? serverLink = null)
@@ -910,31 +852,25 @@ namespace SecureWiki
 
         public void AddNewKeyRing(string filename)
         {
-            var pageNameKeyring = GetFreshPageName();
-            var pageNameAccessFile = GetFreshPageName();
-            var pageNameInboxPage = GetFreshPageName();
+            var keyring = _keyringManager.CreateNewKeyring(filename, configManager.DefaultServerLink);
+            var accessFile = keyring?.accessFileReferenceToSelf.AccessFileParent;
+            var symmetricReference = accessFile?.SymmetricReferenceToSelf;
             
-            CreateAccessFileAndReferences(pageNameKeyring, pageNameAccessFile, PageType.Keyring, 
-                out AccessFileReference accessFileReference, out SymmetricReference symmetricReference,
-                out AccessFile accessFile);
-
-            // Create new keyring object
-            var newKeyring = new Keyring(accessFileReference, filename);
-
-            // Create inbox reference to inbox page
-            InboxReference inboxReference = new(pageNameInboxPage, configManager.DefaultServerLink);
-            newKeyring.InboxReferenceToSelf = inboxReference;
-
-            // Add symmetric reference to newEntries keyring and upload
-            AddToDefaultKeyring(symmetricReference);
-
+            // If construction failed
+            if (keyring == null || accessFile == null || symmetricReference == null)
+            {
+                var loggerMsg = $"Creating new Keyring of name '{filename}' failed.";
+                WriteToLogger(loggerMsg);
+                return;
+            }
+            
             // Upload new files to server
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
-            var uploadResAF = wikiHandler?.UploadAccessFile(symmetricReference, accessFile);
+            var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
             Console.WriteLine("uploadResAF:" + uploadResAF);
             
             // Upload new keyring to server
-            var uploadResNewKeyring = wikiHandler?.UploadKeyring(accessFile, newKeyring);
+            var uploadResNewKeyring = wikiHandler?.UploadKeyring(accessFile, keyring);
             Console.WriteLine("upload result of new keyring: " + uploadResNewKeyring);
         }
         
@@ -947,16 +883,15 @@ namespace SecureWiki
             var pageNameGenericFile = genericAccessFile.pageName;
             var pageNameAccessFile = GetFreshPageName();
         
-            CreateAccessFileAndReferences(pageNameGenericFile, pageNameAccessFile, PageType.GenericFile, 
-                out AccessFileReference accessFileReference, out SymmetricReference symmetricReference,
-                out AccessFile accessFile);
+            _keyringManager.CreateAccessFileAndReferences(pageNameGenericFile, pageNameAccessFile, configManager.DefaultServerLink, PageType.GenericFile, 
+                out SymmetricReference symmetricReference, out AccessFile accessFile, out AccessFileReference accessFileReference);
             
             // fix
             var newPathSplit = newPath.Split('/');
             var keyringName = newPathSplit[^2];
 
             var symmRef = GetKeyringReference(keyringName, MasterKeyring);
-            var newKeyring = symmRef?.targetAccessFile?.accessFileReference?.KeyringTarget;
+            var newKeyring = symmRef?.targetAccessFile?.AccessFileReference?.KeyringTarget;
 
             if (newKeyring == null)
             {
@@ -968,7 +903,7 @@ namespace SecureWiki
             
             // Upload new files to server
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
-            var uploadResAF = wikiHandler?.UploadAccessFile(symmetricReference, accessFile);
+            var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
             Console.WriteLine("uploadResAF:" + uploadResAF);
 
             if (symmRef?.targetAccessFile != null)
@@ -982,14 +917,14 @@ namespace SecureWiki
         {
             foreach (var symmRef in keyring.SymmetricReferences)
             {
-                if (symmRef.targetAccessFile?.accessFileReference?.KeyringTarget != null 
+                if (symmRef.targetAccessFile?.AccessFileReference?.KeyringTarget != null 
                     && symmRef.type == PageType.Keyring && 
-                    symmRef.targetAccessFile.accessFileReference.KeyringTarget.name.Equals(name))
+                    symmRef.targetAccessFile.AccessFileReference.KeyringTarget.name.Equals(name))
                 {
                     return symmRef;
                 }
 
-                var kr = symmRef.targetAccessFile?.accessFileReference?.KeyringTarget;
+                var kr = symmRef.targetAccessFile?.AccessFileReference?.KeyringTarget;
                 if (kr == null)
                 { 
                     continue;
@@ -1485,17 +1420,17 @@ namespace SecureWiki
             }
 
             var keyringPath = "Keyrings/";
-            populateMountedDirKeyrings(MasterKeyring, keyringPath, new List<Keyring>());
+            PopulateMountedDirKeyrings(MasterKeyring, keyringPath, new List<Keyring>());
         }
 
-        public void populateMountedDirKeyrings(Keyring keyring, string path, List<Keyring> visitedKeyrings)
+        public void PopulateMountedDirKeyrings(Keyring keyring, string path, List<Keyring> visitedKeyrings)
         {
             visitedKeyrings.Add(keyring);
             foreach (var symmRef in keyring.SymmetricReferences)
             {
                 if (symmRef.type == PageType.Keyring)
                 {
-                    var kr = symmRef.targetAccessFile?.accessFileReference?.KeyringTarget;
+                    var kr = symmRef.targetAccessFile?.AccessFileReference?.KeyringTarget;
                     if (kr == null)
                     {
                         continue;
@@ -1509,7 +1444,7 @@ namespace SecureWiki
                         continue;
                     }
                     
-                    populateMountedDirKeyrings(kr, path + kr.name + '/', visitedKeyrings);
+                    PopulateMountedDirKeyrings(kr, path + kr.name + '/', visitedKeyrings);
                 }
             }
         }

@@ -133,7 +133,7 @@ namespace SecureWiki.Cryptography
                 else if (reference.type == PageType.Keyring)
                 {
                     Directory.CreateDirectory(Path.Combine(path, reference.targetAccessFile.filename));
-                    CreateFileStructureRecursion(reference.targetAccessFile.accessFileReference.KeyringTarget, 
+                    CreateFileStructureRecursion(reference.targetAccessFile.AccessFileReference.KeyringTarget, 
                         Path.Combine(path, reference.targetAccessFile.filename));
                 }
             }
@@ -239,7 +239,7 @@ namespace SecureWiki.Cryptography
                     continue;
                 }
 
-                var kr = symRef.targetAccessFile?.accessFileReference?.KeyringTarget;
+                var kr = symRef.targetAccessFile?.AccessFileReference?.KeyringTarget;
                 if (kr == null) continue;
                 var result = GetAccessFile(filename, kr);
                 if (result != null)
@@ -480,6 +480,101 @@ namespace SecureWiki.Cryptography
             }
 
             return (true, null);
+        }
+        
+        // Create new access file and connect it to fresh references
+        public void CreateAccessFileAndReferences(string pageNameTarget, string pageNameAccessFile, 
+            string serverLink, PageType type, out SymmetricReference symmetricReference, 
+            out AccessFile accessFile, out AccessFileReference accessFileReference)
+        {
+            // Create access file and reference for folder
+            accessFile = new AccessFile(serverLink, pageNameTarget, "placeholder"); // TODO remove filename
+            accessFileReference = new AccessFileReference(pageNameTarget, serverLink,
+                accessFile, type);
+            accessFile.AccessFileReference = accessFileReference;
+            
+            // Create symmetric reference to access file
+            symmetricReference = new SymmetricReference(pageNameAccessFile,
+                serverLink, type, pageNameTarget, accessFile);
+            accessFile.SymmetricReferenceToSelf = symmetricReference;
+        }
+
+        public Keyring? CreateNewKeyring(string name, string serverLink)
+        {
+            var pageNameKeyring = _manager.GetFreshPageName();
+            var pageNameAccessFile = _manager.GetFreshPageName();
+            var pageNameInboxPage = _manager.GetFreshPageName();
+            
+            CreateAccessFileAndReferences(pageNameKeyring, pageNameAccessFile, serverLink, PageType.Keyring, 
+                out SymmetricReference symmetricReference,
+                out AccessFile accessFile, out AccessFileReference accessFileReference);
+            
+            // Create new keyring object
+            var keyring = new Keyring(accessFileReference, name);
+            
+            // Create inbox reference to inbox page
+            InboxReference inboxReference = new(pageNameInboxPage, serverLink);
+            keyring.InboxReferenceToSelf = inboxReference;
+            
+            // Add symmetric reference to newEntries keyring and upload
+            AddToDefaultKeyring(symmetricReference);
+
+            return keyring;
+        }
+        
+        // Add symmetric reference to newEntries keyring
+        public Keyring AddToDefaultKeyring(SymmetricReference symmetricReference)
+        {
+            Console.WriteLine("AddToDefaultKeyring entered");
+            // AccessFile? accessFile;
+            
+            // Check if default Keyring already exists
+            var symmRefToDefaultKeyring = _masterKeyring.SymmetricReferences.FirstOrDefault(
+                e => e.type == PageType.Keyring 
+                     && e.targetAccessFile?.AccessFileReference?.KeyringTarget!.name.Equals("newEntries") == true);
+            var defaultKeyring = symmRefToDefaultKeyring?.targetAccessFile?.AccessFileReference?.KeyringTarget;
+            
+            // If no such keyring already exists
+            if (defaultKeyring == null)
+            {
+                Console.WriteLine("defaultkeyring is null");
+                var pageNameKeyring = _manager.GetFreshPageName();
+                var pageNameAccessFileKeyring = _manager.GetFreshPageName();
+                var defaultServerLink = _manager.configManager.DefaultServerLink;
+
+                // Create access file and reference for keyring
+                CreateAccessFileAndReferences(pageNameKeyring, 
+                    pageNameAccessFileKeyring, defaultServerLink, PageType.Keyring, 
+                    out SymmetricReference symmetricReferenceToDefaultKeyring, out AccessFile accessFile, 
+                    out AccessFileReference accessFileReferenceKeyring);
+                
+                // Create new keyring
+                defaultKeyring = new Keyring(accessFileReferenceKeyring, "newEntries");
+                _masterKeyring.AddSymmetricReference(symmetricReferenceToDefaultKeyring);
+            }
+            // else
+            // {
+            //     Console.WriteLine("defaultkeyring is not null");
+            //     if (defaultKeyring.accessFileReferenceToSelf == null)
+            //     {
+            //         Console.WriteLine("defaultKeyring.accessFileReferenceToSelf is null");
+            //         Console.WriteLine("defaultKeyring.name = " + defaultKeyring.name);
+            //     }
+            //     if (defaultKeyring.accessFileReferenceToSelf?.AccessFileParent == null)
+            //     {
+            //         Console.WriteLine("defaultKeyring.accessFileReferenceToSelf?.AccessFileParent is null");
+            //         Console.WriteLine("defaultKeyring.name = " + defaultKeyring.name);
+            //     }
+            //     accessFile = defaultKeyring.accessFileReferenceToSelf.AccessFileParent;
+            // }
+            //
+            // if (accessFile == null)
+            // {
+            //     Console.WriteLine("accessFile is null");
+            // }
+
+            defaultKeyring.AddSymmetricReference(symmetricReference);
+            return defaultKeyring;
         }
     }
 }
