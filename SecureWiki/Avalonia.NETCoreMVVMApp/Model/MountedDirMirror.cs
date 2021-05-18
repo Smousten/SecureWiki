@@ -15,10 +15,12 @@ namespace SecureWiki.Model
     public class MountedDirMirror
     {
         public MDFolder RootFolder;
+        public MDFolder KeyringFolder;
 
         public MountedDirMirror()
         {
             RootFolder = new MDFolder("root", null);
+            KeyringFolder = new MDFolder("Keyrings", null);
         }
 
         public MDFile? GetMDFile(string path)
@@ -26,38 +28,84 @@ namespace SecureWiki.Model
             var pathArr = path.Split('/');
             var cnt = 0;
 
-            Console.WriteLine(pathArr[cnt]);
+            while (pathArr[cnt].Length < 1)
+            {
+                Console.WriteLine(pathArr[cnt]);
+                cnt++;
+            }
+
+            return pathArr[cnt].Equals(KeyringFolder.name)
+                ? KeyringFolder.FindFileRecursively(pathArr, cnt+1)
+                : RootFolder.FindFileRecursively(pathArr, cnt);
+        }
+
+        public MDFile? CreateFile(string path, SymmetricReference reference)
+        {
+            var pathArr = path.Split('/');
+            var cnt = 0;
+
             while (pathArr[cnt].Length < 1)
             {
                 Console.WriteLine(pathArr[cnt]);
                 cnt++;
             }
             
-            return RootFolder.FindFileRecursively(pathArr, 0);
-        }
-
-        public MDFile? CreateFile(string path, SymmetricReference reference)
-        {
-            var pathArr = path.Split('/');
-            return RootFolder.CreateFileRecursively(pathArr, 0, reference);
+            return pathArr[cnt].Equals(KeyringFolder.name)
+                ? KeyringFolder.CreateFileRecursively(pathArr, cnt+1, reference)
+                : RootFolder.CreateFileRecursively(pathArr, cnt, reference);
         }
         
         public void AddFile(string path, MDFile mdFile)
         {
             var pathArr = path.Split('/');
-            RootFolder.AddFileRecursively(pathArr, 0, mdFile);
+            var cnt = 0;
+
+            while (pathArr[cnt].Length < 1)
+            {
+                Console.WriteLine(pathArr[cnt]);
+                cnt++;
+            }
+
+            if (pathArr[cnt].Equals(KeyringFolder.name))
+            {
+                KeyringFolder.AddFileRecursively(pathArr, cnt+1, mdFile);
+            }
+            else
+            {
+                RootFolder.AddFileRecursively(pathArr, cnt, mdFile);
+            }
         }
 
         public MDFolder? GetMDFolder(string path)
         {
             var pathArr = path.Split('/');
-            return RootFolder.FindFolderRecursively(pathArr, 0);
+            var cnt = 0;
+
+            while (pathArr[cnt].Length < 1)
+            {
+                Console.WriteLine(pathArr[cnt]);
+                cnt++;
+            }
+
+            return pathArr[cnt].Equals(KeyringFolder.name)
+                ? KeyringFolder.FindFolderRecursively(pathArr, cnt+1)
+                : RootFolder.FindFolderRecursively(pathArr, cnt);
         }
 
         public MDFolder? AddFolder(string path)
         {
             var pathArr = path.Split('/');
-            return RootFolder.AddFolderRecursively(pathArr, 0);
+            var cnt = 0;
+
+            while (pathArr[cnt].Length < 1)
+            {
+                Console.WriteLine(pathArr[cnt]);
+                cnt++;
+            }
+
+            return pathArr[cnt].Equals(KeyringFolder.name)
+                ? KeyringFolder.AddFolderRecursively(pathArr, cnt+1)
+                : RootFolder.AddFolderRecursively(pathArr, cnt);
         }
 
         public void Clear()
@@ -74,6 +122,8 @@ namespace SecureWiki.Model
         public void CreateFileStructureRecursion(string path)
         {
             RootFolder.CreateFileStructureRecursion(path);
+            var keyringPath = Path.Combine(path, KeyringFolder.name);
+            KeyringFolder.CreateFileStructureRecursion(keyringPath);
         }
 
         public MDFile? Move(string oldPath, string newPath)
