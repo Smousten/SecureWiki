@@ -12,46 +12,37 @@ using ReactiveUI;
 namespace SecureWiki.Model
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class Keyring : IReactiveObject
+    public class Keyring //: IReactiveObject
     {
-        private bool? _isChecked = false;
-        public bool? isChecked
-        {
-            get => (_isChecked ?? false);
-            set
-            {
-                _isChecked = value;
-                OnPropertyChanged(nameof(isChecked));
-                OnPropertyChanged(nameof(isCheckedWriteEnabled));
-                OnCheckedChanged(EventArgs.Empty);
-            }
-        }
-        
-        private bool? _isCheckedWrite = false;
-        public bool? isCheckedWrite
-        {
-            get => (_isCheckedWrite ?? false);
-            set
-            {
-                _isCheckedWrite = value;
-                OnPropertyChanged(nameof(isCheckedWrite));
-                OnCheckedWriteChanged(EventArgs.Empty);
-            }
-        }
-      
-        public bool isCheckedWriteEnabled => isChecked ?? false;
+        // private bool? _isChecked = false;
+        // public bool? isChecked
+        // {
+        //     get => (_isChecked ?? false);
+        //     set
+        //     {
+        //         _isChecked = value;
+        //         OnPropertyChanged(nameof(isChecked));
+        //         OnPropertyChanged(nameof(isCheckedWriteEnabled));
+        //         OnCheckedChanged(EventArgs.Empty);
+        //     }
+        // }
+        //
+        // private bool? _isCheckedWrite = false;
+        // public bool? isCheckedWrite
+        // {
+        //     get => (_isCheckedWrite ?? false);
+        //     set
+        //     {
+        //         _isCheckedWrite = value;
+        //         OnPropertyChanged(nameof(isCheckedWrite));
+        //         OnCheckedWriteChanged(EventArgs.Empty);
+        //     }
+        // }
+        //
+        // public bool isCheckedWriteEnabled => isChecked ?? false;
 
-        private string _name;
         [JsonProperty(Order = -4)]
-        public string name
-        {
-            get => _name;
-            set
-            {
-                _name = value; 
-                RaisePropertyChanged(nameof(name));
-            }
-        }
+        public string name { get; set; }
 
         [JsonProperty(Order = -3)] public string pageTitle;
         [JsonProperty(Order = 99)] public List<SymmetricReference> SymmetricReferences = new();
@@ -59,16 +50,17 @@ namespace SecureWiki.Model
         public AccessFileReference accessFileReferenceToSelf;
         public bool HasBeenChanged = false;
 
-        private Keyring? _parent;
-        public Keyring? parent
-        {
-            get => _parent;
-            set
-            {
-                _parent = value; 
-                RaisePropertyChanged(nameof(parent));
-            }
-        }
+        public Keyring? parent;
+        // private Keyring? _parent;
+        // public Keyring? parent
+        // {
+        //     get => _parent;
+        //     set
+        //     {
+        //         _parent = value; 
+        //         RaisePropertyChanged(nameof(parent));
+        //     }
+        // }
         
         // [JsonProperty]
         public ObservableCollection<Keyring> keyrings { get; set; } = new();
@@ -96,32 +88,32 @@ namespace SecureWiki.Model
 
         public Keyring(AccessFileReference accessFileReferenceToSelf, string name = "unnamed")
         {
-            _name = name;
+            this.name = name;
             this.accessFileReferenceToSelf = accessFileReferenceToSelf;
             accessFileReferenceToSelf.KeyringTarget = this;
             HasBeenChanged = true;
 
-            CheckedChanged += CheckedChangedUpdateParent;
-            CheckedChanged += CheckedChangedUpdateChildren;
-            CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
+            // CheckedChanged += CheckedChangedUpdateParent;
+            // CheckedChanged += CheckedChangedUpdateChildren;
+            // CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
         }
         
         public Keyring(string name = "unnamed")
         {
-            _name = name;
+            this.name = name;
             
-            CheckedChanged += CheckedChangedUpdateParent;
-            CheckedChanged += CheckedChangedUpdateChildren;
-            CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
+            // CheckedChanged += CheckedChangedUpdateParent;
+            // CheckedChanged += CheckedChangedUpdateChildren;
+            // CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
         }
         
         public Keyring()
         {
-            _name = "unnamed";
+            name = "unnamed";
             
-            CheckedChanged += CheckedChangedUpdateParent;
-            CheckedChanged += CheckedChangedUpdateChildren;
-            CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
+            // CheckedChanged += CheckedChangedUpdateParent;
+            // CheckedChanged += CheckedChangedUpdateChildren;
+            // CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
         }
 
         // Add a symmetric reference and update it accordingly
@@ -134,228 +126,228 @@ namespace SecureWiki.Model
         public void AddKeyring(Keyring keyring)
         {
             keyrings.Add(keyring);
-            RaisePropertyChanged(nameof(keyrings));
-            RaisePropertyChanged(nameof(combinedList));
+            // RaisePropertyChanged(nameof(keyrings));
+            // RaisePropertyChanged(nameof(combinedList));
         }
 
         public void AddRangeKeyring(List<Keyring> keyringEntries)
         {
             keyrings.AddRange(keyringEntries);
-            RaisePropertyChanged(nameof(keyrings));
-            RaisePropertyChanged(nameof(combinedList));
+            // RaisePropertyChanged(nameof(keyrings));
+            // RaisePropertyChanged(nameof(combinedList));
         }
         
         public void RemoveKeyring(Keyring keyring)
         {
             keyrings.Remove(keyring);
-            RaisePropertyChanged(nameof(keyrings));
-            RaisePropertyChanged(nameof(combinedList));
+            // RaisePropertyChanged(nameof(keyrings));
+            // RaisePropertyChanged(nameof(combinedList));
         }
         
         public void AddAccessFile(AccessFile accessFile)
         {
             accessFiles.Add(accessFile);
-            RaisePropertyChanged(nameof(accessFiles));
-            RaisePropertyChanged(nameof(combinedList));
+            // RaisePropertyChanged(nameof(accessFiles));
+            // RaisePropertyChanged(nameof(combinedList));
         }
         
         public void AddRangeAccessFile(List<AccessFile> accessFileEntries)
         {
             accessFiles.AddRange(accessFileEntries);
-            RaisePropertyChanged(nameof(accessFileEntries));
-            RaisePropertyChanged(nameof(combinedList));
+            // RaisePropertyChanged(nameof(accessFileEntries));
+            // RaisePropertyChanged(nameof(combinedList));
         }
         
         public void RemoveAccessFile(AccessFile accessFile)
         {
             accessFiles.Remove(accessFile);
-            RaisePropertyChanged(nameof(accessFiles));
-            RaisePropertyChanged(nameof(combinedList));
+            // RaisePropertyChanged(nameof(accessFiles));
+            // RaisePropertyChanged(nameof(combinedList));
         }
 
         public void ClearKeyrings()
         {
             keyrings.Clear();
-            RaisePropertyChanged(nameof(keyrings));
-            RaisePropertyChanged(nameof(combinedList));
+            // RaisePropertyChanged(nameof(keyrings));
+            // RaisePropertyChanged(nameof(combinedList));
         }
 
         public void ClearAccessFiles() {
             accessFiles.Clear();
-            RaisePropertyChanged(nameof(accessFiles));
-            RaisePropertyChanged(nameof(combinedList));
+            // RaisePropertyChanged(nameof(accessFiles));
+            // RaisePropertyChanged(nameof(combinedList));
         }
         
-        public event PropertyChangedEventHandler? PropertyChanged;
-        public event PropertyChangingEventHandler? PropertyChanging;
-        
-        public void RaisePropertyChanging(PropertyChangingEventArgs args)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RaisePropertyChanged(PropertyChangedEventArgs args)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler? handler = PropertyChanged;
-            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        [NotifyPropertyChangedInvocator]
-        public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null!)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        
-        protected virtual void OnCheckedChanged(EventArgs e)
-        {
-            EventHandler handler = CheckedChanged;
-            handler(this, e);
-        }
-        
-        protected virtual void OnCheckedWriteChanged(EventArgs e)
-        {
-            EventHandler handler = CheckedWriteChanged;
-            handler(this, e);
-        }
-
-        public event EventHandler CheckedChanged = null!;
-        public event EventHandler CheckedWriteChanged = null!;
-
-        // Update parent isChecked based own and any other siblings' values
-        protected void CheckedChangedUpdateParent(object? sender, EventArgs e)
-        {
-            parent?.UpdateIsCheckedBasedOnChildren();
-        }
-        
-        // Update children isChecked based own value
-        protected void CheckedChangedUpdateChildren(object? sender, EventArgs e)
-        {
-            // Disable events updating ancestors while setting values  
-            foreach (Keyring child in keyrings)
-            {
-                child.CheckedChanged -= child.CheckedChangedUpdateParent;
-                child.isChecked = isChecked;
-                child.CheckedChanged += child.CheckedChangedUpdateParent;
-            }
-            
-            foreach (AccessFile child in accessFiles)
-            {
-                child.CheckedChanged -= child.CheckedChangedUpdateParent;
-                child.isChecked = isChecked;
-                child.CheckedChanged += child.CheckedChangedUpdateParent;
-            }
-        }
-        
-        // Update children isCheckedWrite based own value
-        protected void CheckedWriteChangedUpdateChildren(object? sender, EventArgs e)
-        {
-            foreach (Keyring child in keyrings)
-            {
-                child.isCheckedWrite = isCheckedWrite;
-            }
-            
-            foreach (AccessFile child in accessFiles)
-            {
-                child.isCheckedWrite = isCheckedWrite;
-            }
-        }
-
-        public virtual void UpdateIsCheckedBasedOnChildren()
-        {
-            // Prevent feedback loop
-            this.CheckedChanged -= this.CheckedChangedUpdateChildren;
-            
-            bool anyChecked = false;
-            bool atLeastTwoChecked = false;
-            bool anyUnchecked = false;
-            bool ancestorChecked = false;
-            
-            foreach (Keyring child in keyrings)
-            {
-                if (child.isChecked == true)
-                {
-                    if (anyChecked)
-                    {
-                        atLeastTwoChecked = true;
-                    }
-                    anyChecked = true;
-                }
-                else
-                {
-                    anyUnchecked = true;
-                }
-            }
-            
-            foreach (AccessFile child in accessFiles)
-            {
-                if (child.isChecked == true)
-                {
-                    if (anyChecked)
-                    {
-                        atLeastTwoChecked = true;
-                    }
-                    anyChecked = true;
-                }
-                else
-                {
-                    anyUnchecked = true;
-                }
-            }
-
-            var localParent = parent;
-            List<Keyring> ancestorList = new();
-
-            // Find chain of unchecked ancestors and set isChecked to true
-            while (localParent != null)
-            {
-                if (localParent.isChecked == true)
-                {
-                    ancestorChecked = true;
-
-                    // Disable events updating ancestors or children while setting values  
-                    foreach (Keyring item in ancestorList)
-                    {
-                        item.CheckedChanged -= item.CheckedChangedUpdateChildren;
-                        item.CheckedChanged -= item.CheckedChangedUpdateParent;
-                        item.isChecked = true;
-                        item.CheckedChanged += item.CheckedChangedUpdateChildren;
-                        item.CheckedChanged += item.CheckedChangedUpdateParent;
-                    }
-
-                    break;
-                }
-
-                ancestorList.Add(localParent);
-                localParent = localParent.parent;
-            }
-
-            // Console.WriteLine("AnyUnchecked='{0}'", anyUnchecked);
-            // Console.WriteLine("AnyChecked='{0}'", anyChecked);
-            // Console.WriteLine("atLeastTwoChecked='{0}'", atLeastTwoChecked);
-            // Console.WriteLine("ancestorChecked='{0}'", ancestorChecked);
-            //
-            // Change here to interact with IsThreeState properly
-            // if (anyChecked && anyUnchecked)
-            // {
-            //     IsChecked = false;
-            // }
-            if (anyUnchecked == false || atLeastTwoChecked || (ancestorChecked && anyChecked))
-            {
-                isChecked = true;
-            }
-            else if (anyChecked == false)
-            {
-                isChecked = false;
-            }
-            
-            // Restore event handler
-            this.CheckedChanged += this.CheckedChangedUpdateChildren;
-        }
+        // public event PropertyChangedEventHandler? PropertyChanged;
+        // public event PropertyChangingEventHandler? PropertyChanging;
+        //
+        // public void RaisePropertyChanging(PropertyChangingEventArgs args)
+        // {
+        //     throw new NotImplementedException();
+        // }
+        //
+        // public void RaisePropertyChanged(PropertyChangedEventArgs args)
+        // {
+        //     throw new NotImplementedException();
+        // }
+        //
+        // public void RaisePropertyChanged(string propertyName)
+        // {
+        //     PropertyChangedEventHandler? handler = PropertyChanged;
+        //     handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        // }
+        //
+        // [NotifyPropertyChangedInvocator]
+        // public virtual void OnPropertyChanged([CallerMemberName] string propertyName = null!)
+        // {
+        //     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        // }
+        //
+        // protected virtual void OnCheckedChanged(EventArgs e)
+        // {
+        //     EventHandler handler = CheckedChanged;
+        //     handler(this, e);
+        // }
+        //
+        // protected virtual void OnCheckedWriteChanged(EventArgs e)
+        // {
+        //     EventHandler handler = CheckedWriteChanged;
+        //     handler(this, e);
+        // }
+        //
+        // public event EventHandler CheckedChanged = null!;
+        // public event EventHandler CheckedWriteChanged = null!;
+        //
+        // // Update parent isChecked based own and any other siblings' values
+        // protected void CheckedChangedUpdateParent(object? sender, EventArgs e)
+        // {
+        //     parent?.UpdateIsCheckedBasedOnChildren();
+        // }
+        //
+        // // Update children isChecked based own value
+        // protected void CheckedChangedUpdateChildren(object? sender, EventArgs e)
+        // {
+        //     // Disable events updating ancestors while setting values  
+        //     foreach (Keyring child in keyrings)
+        //     {
+        //         child.CheckedChanged -= child.CheckedChangedUpdateParent;
+        //         child.isChecked = isChecked;
+        //         child.CheckedChanged += child.CheckedChangedUpdateParent;
+        //     }
+        //     
+        //     foreach (AccessFile child in accessFiles)
+        //     {
+        //         child.CheckedChanged -= child.CheckedChangedUpdateParent;
+        //         child.isChecked = isChecked;
+        //         child.CheckedChanged += child.CheckedChangedUpdateParent;
+        //     }
+        // }
+        //
+        // // Update children isCheckedWrite based own value
+        // protected void CheckedWriteChangedUpdateChildren(object? sender, EventArgs e)
+        // {
+        //     foreach (Keyring child in keyrings)
+        //     {
+        //         child.isCheckedWrite = isCheckedWrite;
+        //     }
+        //     
+        //     foreach (AccessFile child in accessFiles)
+        //     {
+        //         child.isCheckedWrite = isCheckedWrite;
+        //     }
+        // }
+        //
+        // public virtual void UpdateIsCheckedBasedOnChildren()
+        // {
+        //     // Prevent feedback loop
+        //     this.CheckedChanged -= this.CheckedChangedUpdateChildren;
+        //     
+        //     bool anyChecked = false;
+        //     bool atLeastTwoChecked = false;
+        //     bool anyUnchecked = false;
+        //     bool ancestorChecked = false;
+        //     
+        //     foreach (Keyring child in keyrings)
+        //     {
+        //         if (child.isChecked == true)
+        //         {
+        //             if (anyChecked)
+        //             {
+        //                 atLeastTwoChecked = true;
+        //             }
+        //             anyChecked = true;
+        //         }
+        //         else
+        //         {
+        //             anyUnchecked = true;
+        //         }
+        //     }
+        //     
+        //     foreach (AccessFile child in accessFiles)
+        //     {
+        //         if (child.isChecked == true)
+        //         {
+        //             if (anyChecked)
+        //             {
+        //                 atLeastTwoChecked = true;
+        //             }
+        //             anyChecked = true;
+        //         }
+        //         else
+        //         {
+        //             anyUnchecked = true;
+        //         }
+        //     }
+        //
+        //     var localParent = parent;
+        //     List<Keyring> ancestorList = new();
+        //
+        //     // Find chain of unchecked ancestors and set isChecked to true
+        //     while (localParent != null)
+        //     {
+        //         if (localParent.isChecked == true)
+        //         {
+        //             ancestorChecked = true;
+        //
+        //             // Disable events updating ancestors or children while setting values  
+        //             foreach (Keyring item in ancestorList)
+        //             {
+        //                 item.CheckedChanged -= item.CheckedChangedUpdateChildren;
+        //                 item.CheckedChanged -= item.CheckedChangedUpdateParent;
+        //                 item.isChecked = true;
+        //                 item.CheckedChanged += item.CheckedChangedUpdateChildren;
+        //                 item.CheckedChanged += item.CheckedChangedUpdateParent;
+        //             }
+        //
+        //             break;
+        //         }
+        //
+        //         ancestorList.Add(localParent);
+        //         localParent = localParent.parent;
+        //     }
+        //
+        //     // Console.WriteLine("AnyUnchecked='{0}'", anyUnchecked);
+        //     // Console.WriteLine("AnyChecked='{0}'", anyChecked);
+        //     // Console.WriteLine("atLeastTwoChecked='{0}'", atLeastTwoChecked);
+        //     // Console.WriteLine("ancestorChecked='{0}'", ancestorChecked);
+        //     //
+        //     // Change here to interact with IsThreeState properly
+        //     // if (anyChecked && anyUnchecked)
+        //     // {
+        //     //     IsChecked = false;
+        //     // }
+        //     if (anyUnchecked == false || atLeastTwoChecked || (ancestorChecked && anyChecked))
+        //     {
+        //         isChecked = true;
+        //     }
+        //     else if (anyChecked == false)
+        //     {
+        //         isChecked = false;
+        //     }
+        //     
+        //     // Restore event handler
+        //     this.CheckedChanged += this.CheckedChangedUpdateChildren;
+        // }
 
 
         public void CopyFromOtherKeyring(Keyring ke)
@@ -493,47 +485,47 @@ namespace SecureWiki.Model
             }
         }
 
-        // Recursively add checked children to another keyring 
-        public void AddToOtherKeyringRecursivelyBasedOnIsChecked(Keyring outputKeyring)
-        {
-            foreach (Keyring ke in keyrings)
-            {
-                Keyring keCopy = new(ke.accessFileReferenceToSelf, ke.name);
-                outputKeyring.AddKeyring(keCopy);
-                
-                ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
-            }
-            
-            foreach (AccessFile accessFileEntry in accessFiles)
-            {
-                if (accessFileEntry.isChecked == true)
-                {
-                    outputKeyring.AddAccessFile(accessFileEntry);                    
-                }
-            }
-        }
+        // // Recursively add checked children to another keyring 
+        // public void AddToOtherKeyringRecursivelyBasedOnIsChecked(Keyring outputKeyring)
+        // {
+        //     foreach (Keyring ke in keyrings)
+        //     {
+        //         Keyring keCopy = new(ke.accessFileReferenceToSelf, ke.name);
+        //         outputKeyring.AddKeyring(keCopy);
+        //         
+        //         ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
+        //     }
+        //     
+        //     foreach (AccessFile accessFileEntry in accessFiles)
+        //     {
+        //         if (accessFileEntry.isChecked == true)
+        //         {
+        //             outputKeyring.AddAccessFile(accessFileEntry);                    
+        //         }
+        //     }
+        // }
         
-        // Recursively add copies of checked children to another keyring 
-        public void AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(Keyring outputKeyring)
-        {
-            foreach (Keyring ke in keyrings)
-            {
-                Keyring keCopy = new(ke.accessFileReferenceToSelf, ke.name);
-                outputKeyring.AddKeyring(keCopy);
-                
-                ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
-            }
-            
-            foreach (AccessFile accessFileEntry in accessFiles)
-            {
-                if (accessFileEntry.isChecked == true)
-                {
-                    var afCopy = accessFileEntry.Copy();
-                    
-                    outputKeyring.AddAccessFile(afCopy);                    
-                }
-            }
-        }
+        // // Recursively add copies of checked children to another keyring 
+        // public void AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(Keyring outputKeyring)
+        // {
+        //     foreach (Keyring ke in keyrings)
+        //     {
+        //         Keyring keCopy = new(ke.accessFileReferenceToSelf, ke.name);
+        //         outputKeyring.AddKeyring(keCopy);
+        //         
+        //         ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
+        //     }
+        //     
+        //     foreach (AccessFile accessFileEntry in accessFiles)
+        //     {
+        //         if (accessFileEntry.isChecked == true)
+        //         {
+        //             var afCopy = accessFileEntry.Copy();
+        //             
+        //             outputKeyring.AddAccessFile(afCopy);                    
+        //         }
+        //     }
+        // }
         
         // Recursively add copies of children to another keyring 
         public void AddCopiesToOtherKeyringRecursively(Keyring outputKeyring)
@@ -543,7 +535,7 @@ namespace SecureWiki.Model
                 Keyring keCopy = new(ke.accessFileReferenceToSelf, ke.name);
                 outputKeyring.AddKeyring(keCopy);
                 
-                ke.AddCopiesToOtherKeyringRecursivelyBasedOnIsChecked(keCopy);
+                ke.AddCopiesToOtherKeyringRecursively(keCopy);
             }
             
             foreach (AccessFile accessFileEntry in accessFiles)
@@ -566,11 +558,11 @@ namespace SecureWiki.Model
             {
                 // accessFileEntry.PrepareForExport();
                 
-                if (accessFileEntry.isCheckedWrite != true)
-                {
+                // if (accessFileEntry.isCheckedWrite != true)
+                // {
                     accessFileEntry.keyList.ForEach(e => e.PrivateKey = null);
                     // AccessFileEntry.privateKey = null;
-                }
+                // }
             }
         }
 
@@ -742,8 +734,10 @@ namespace SecureWiki.Model
         
         public void PrintInfoRecursively()
         {
+            // Console.WriteLine("KeyRing: Name='{0}', Checked='{1}', Parent.Name='{2}'", 
+            //     name, isChecked, parent?.name ?? "null");
             Console.WriteLine("KeyRing: Name='{0}', Checked='{1}', Parent.Name='{2}'", 
-                name, isChecked, parent?.name ?? "null");
+                name, parent?.name ?? "null");
             foreach (AccessFile item in accessFiles)
             {
                 item.PrintInfo();

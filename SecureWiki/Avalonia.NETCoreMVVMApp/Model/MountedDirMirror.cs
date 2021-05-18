@@ -140,6 +140,17 @@ namespace SecureWiki.Model
             AddFile(newPath, mdFile);
             return mdFile;
         }
+
+        public List<SymmetricReference> GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedRootFolder()
+        {
+            return RootFolder.GetAllAndDescendantSymmetricReferencesBasedOnIsChecked();
+        }
+        
+        public List<SymmetricReference> GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyringFolder()
+        {
+            return KeyringFolder.GetAllAndDescendantSymmetricReferencesBasedOnIsChecked();
+        }
+
     }
     
     public abstract class MDItem : IReactiveObject
@@ -164,6 +175,7 @@ namespace SecureWiki.Model
                 _isChecked = value;
                 RaisePropertyChanged(nameof(isChecked));
                 RaisePropertyChanged(nameof(isCheckedWriteEnabled));
+                OnCheckedChanged(EventArgs.Empty);
             }
         }
         
@@ -175,6 +187,7 @@ namespace SecureWiki.Model
             {
                 _isCheckedWrite = value;
                 RaisePropertyChanged(nameof(isCheckedWrite));
+                OnCheckedWriteChanged(EventArgs.Empty);
             }
         }
       
@@ -214,6 +227,25 @@ namespace SecureWiki.Model
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        
+        protected virtual void OnCheckedChanged(EventArgs e)
+        {
+            EventHandler handler = CheckedChanged;
+            // The Rider IDE incorrectly thinks handler can never be null
+            // ReSharper disable once ConstantConditionalAccessQualifier
+            handler?.Invoke(this, e);
+        }
+        
+        protected virtual void OnCheckedWriteChanged(EventArgs e)
+        {
+            EventHandler handler = CheckedWriteChanged;
+            // The Rider IDE incorrectly thinks handler can never be null
+            // ReSharper disable once ConstantConditionalAccessQualifier
+            handler?.Invoke(this, e);
+        }
+
+        public event EventHandler CheckedChanged = null!;
+        public event EventHandler CheckedWriteChanged = null!;
     }
 
     public class MDFolder : MDItem
@@ -225,6 +257,7 @@ namespace SecureWiki.Model
 
         private ObservableCollection<MDFolder> Folders = new();
         private ObservableCollection<MDFile> Files = new();
+        public List<MDFolder> AncestorList = new();
         
         public ObservableCollection<object> combinedList
         {
@@ -234,6 +267,7 @@ namespace SecureWiki.Model
 
                 foreach (var entry in Folders)
                 {
+                    if (AncestorList.Contains(entry)) continue;
                     output.Add(entry);
                 }
                 foreach (var entry in Files)
@@ -248,11 +282,17 @@ namespace SecureWiki.Model
         public MDFolder(string name, MDFolder? parent) : base(name)
         {
             Parent = parent;
+            
+            CheckedChanged += CheckedChangedUpdateParent;
+            CheckedChanged += CheckedChangedUpdateChildren;
+            CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
         }
 
         private MDFolder()
         {
-            
+            CheckedChanged += CheckedChangedUpdateParent;
+            CheckedChanged += CheckedChangedUpdateChildren;
+            CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
         }
 
         public void CreateFileStructureRecursion(string path)
@@ -308,6 +348,8 @@ namespace SecureWiki.Model
                 // var index = Folders.BinarySearch(mdFolder, new MDFolderComparer());
                 // Folders.Insert(index, mdFolder);
                 Folders.Add(mdFolder);
+                mdFolder.AncestorList.Add(this);
+                mdFolder.AncestorList.AddRange(AncestorList);
                 SortFolders();
             }
             
@@ -317,6 +359,11 @@ namespace SecureWiki.Model
         public void AddRangeFolders(List<MDFolder> mdFolders)
         {
             Folders.AddRange(mdFolders);
+            foreach (var folder in mdFolders)
+            {
+                folder.AncestorList.Add(this);
+                folder.AncestorList.AddRange(AncestorList);
+            }
             SortFolders();
             
             RaisePropertiesChangedFolders();
@@ -518,25 +565,6 @@ namespace SecureWiki.Model
                 mdfile.PrintInfo();
             }
         }
-
-        // Events
-        public event PropertyChangedEventHandler? PropertyChanged;
-        public event PropertyChangingEventHandler? PropertyChanging;
-        public void RaisePropertyChanging(PropertyChangingEventArgs args)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void RaisePropertyChanged(PropertyChangedEventArgs args)
-        {
-            throw new System.NotImplementedException();
-        }
-        
-        public void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler? handler = PropertyChanged;
-            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
         
         public void RaisePropertiesChangedFiles()
         {
@@ -551,11 +579,174 @@ namespace SecureWiki.Model
             RaisePropertyChanged(nameof(combinedList));
             OnPropertyChanged(nameof(combinedList));
         }
+        
+        // Update parent isChecked based own and any other siblings' values
+        protected void CheckedChangedUpdateParent(object? sender, EventArgs e)
+        {
+            Parent?.UpdateIsCheckedBasedOnChildren();
+        }
+        
+        // Update children isChecked based own value
+        protected void CheckedChangedUpdateChildren(object? sender, EventArgs e)
+        {
+            // Disable events updating ancestors while setting values  
+            foreach (var child in Folders)
+            {
+                child.CheckedChanged -= child.CheckedChangedUpdateParent;
+                child.isChecked = isChecked;
+                child.CheckedChanged += child.CheckedChangedUpdateParent;
+            }
+            
+            foreach (var child in Files)
+            {
+                child.CheckedChanged -= child.CheckedChangedUpdateParent;
+                child.isChecked = isChecked;
+                child.CheckedChanged += child.CheckedChangedUpdateParent;
+            }
+        }
+        
+        // Update children isCheckedWrite based own value
+        protected void CheckedWriteChangedUpdateChildren(object? sender, EventArgs e)
+        {
+            foreach (var child in Folders)
+            {
+                child.isCheckedWrite = isCheckedWrite;
+            }
+            
+            foreach (var child in Files)
+            {
+                child.isCheckedWrite = isCheckedWrite;
+            }
+        }
+
+       public virtual void UpdateIsCheckedBasedOnChildren()
+        {
+            // Prevent feedback loop
+            this.CheckedChanged -= this.CheckedChangedUpdateChildren;
+            
+            bool anyChecked = false;
+            bool atLeastTwoChecked = false;
+            bool anyUnchecked = false;
+            bool ancestorChecked = false;
+            
+            foreach (var child in Folders)
+            {
+                if (child.isChecked == true)
+                {
+                    if (anyChecked)
+                    {
+                        atLeastTwoChecked = true;
+                    }
+                    anyChecked = true;
+                }
+                else
+                {
+                    anyUnchecked = true;
+                }
+            }
+            
+            foreach (var child in Files)
+            {
+                if (child.isChecked == true)
+                {
+                    if (anyChecked)
+                    {
+                        atLeastTwoChecked = true;
+                    }
+                    anyChecked = true;
+                }
+                else
+                {
+                    anyUnchecked = true;
+                }
+            }
+
+            var localParent = Parent;
+            List<MDFolder> ancestorList = new();
+
+            // Find chain of unchecked ancestors and set isChecked to true
+            while (localParent != null)
+            {
+                if (localParent.isChecked == true)
+                {
+                    ancestorChecked = true;
+
+                    // Disable events updating ancestors or children while setting values  
+                    foreach (var item in ancestorList)
+                    {
+                        item.CheckedChanged -= item.CheckedChangedUpdateChildren;
+                        item.CheckedChanged -= item.CheckedChangedUpdateParent;
+                        item.isChecked = true;
+                        item.CheckedChanged += item.CheckedChangedUpdateChildren;
+                        item.CheckedChanged += item.CheckedChangedUpdateParent;
+                    }
+
+                    break;
+                }
+
+                ancestorList.Add(localParent);
+                localParent = localParent.Parent;
+            }
+
+            // Console.WriteLine("AnyUnchecked='{0}'", anyUnchecked);
+            // Console.WriteLine("AnyChecked='{0}'", anyChecked);
+            // Console.WriteLine("atLeastTwoChecked='{0}'", atLeastTwoChecked);
+            // Console.WriteLine("ancestorChecked='{0}'", ancestorChecked);
+            //
+            // Change here to interact with IsThreeState properly
+            // if (anyChecked && anyUnchecked)
+            // {
+            //     IsChecked = false;
+            // }
+            if (anyUnchecked == false || atLeastTwoChecked || (ancestorChecked && anyChecked))
+            {
+                isChecked = true;
+            }
+            else if (anyChecked == false)
+            {
+                isChecked = false;
+            }
+            
+            // Restore event handler
+            this.CheckedChanged += this.CheckedChangedUpdateChildren;
+        }
+       
+       public List<SymmetricReference> GetAllAndDescendantSymmetricReferences()
+       {
+           var outputList = new List<SymmetricReference>();
+
+           foreach (var file in Files)
+           {
+               outputList.Add(file.symmetricReference);
+           }
+
+           foreach (var child in Folders)
+           {
+               outputList.AddRange(child.GetAllAndDescendantSymmetricReferences());
+           }
+
+           return outputList;
+       }
+       
+       public List<SymmetricReference> GetAllAndDescendantSymmetricReferencesBasedOnIsChecked()
+       {
+           var outputList = (from file in Files where file.isChecked == true select file.symmetricReference).ToList();
+
+           foreach (var child in Folders)
+           {
+               if (child.isChecked == true)
+               {
+                   outputList.AddRange(child.GetAllAndDescendantSymmetricReferencesBasedOnIsChecked());
+               }
+           }
+
+           return outputList;
+       }
     }
 
     public class MDFile : MDItem
     {
-        public new bool? isCheckedWrite
+        public bool? isCheckedWrite
         {
             get
             {
@@ -572,7 +763,7 @@ namespace SecureWiki.Model
             }
         }
         
-        public new bool isCheckedWriteEnabled
+        public bool isCheckedWriteEnabled
         {
             get
             {
@@ -593,10 +784,17 @@ namespace SecureWiki.Model
         {
             Parent = parent;
             symmetricReference = reference;
+            
+            // Set event handlers
+            CheckedChanged -= CheckedChangedUpdateParent;
+            CheckedChanged += CheckedChangedUpdateParent;
         }
 
         public MDFile()
         {
+            // Set event handlers
+            CheckedChanged -= CheckedChangedUpdateParent;
+            CheckedChanged += CheckedChangedUpdateParent;
         }
 
         public void PrintInfo()
@@ -604,26 +802,9 @@ namespace SecureWiki.Model
             Console.WriteLine("MDFile '{0}'", name);
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-        public event PropertyChangingEventHandler? PropertyChanging;
-        public void RaisePropertyChanging(PropertyChangingEventArgs args)
+        public void CheckedChangedUpdateParent(object? sender, EventArgs e)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public void RaisePropertyChanged(PropertyChangedEventArgs args)
-        {
-            throw new System.NotImplementedException();
-        }
-        
-        public void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler? handler = PropertyChanged;
-            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            Parent.UpdateIsCheckedBasedOnChildren();
         }
     }
-    
-    
-    
-    
 }

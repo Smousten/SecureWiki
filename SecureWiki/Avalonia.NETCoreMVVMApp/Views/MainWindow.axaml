@@ -225,7 +225,63 @@
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
                       Name="ScrollViewerTreeView">
             <StackPanel Orientation="Vertical">
+                <!-- Files TreeView -->
                 <TreeView Items="{Binding rootMountedDirFolderCollection, Mode=TwoWay}" Name="TreeView1">
+                    <TreeView.DataTemplates>
+                        <TreeDataTemplate DataType="models:MDFolder" ItemsSource="{Binding combinedList}">
+                            <StackPanel Orientation="Horizontal">
+                                <!--IsChecked CheckBox-->
+                                <CheckBox IsChecked="{Binding isChecked}" MinWidth="20" Name="CheckBox"
+                                          Initialized="CheckBox_OnInitialized" />
+                                <!--IsCheckedWrite CheckBox-->
+                                <CheckBox IsChecked="{Binding isCheckedWrite}" MinWidth="20" Name="CheckBoxWrite"
+                                          IsEnabled="{Binding isCheckedWriteEnabled}" />
+                                <!--Folder-->
+                                <Border BorderBrush="{x:Null}" Height="{Binding Height, ElementName=CheckBox}">
+                                    <TextBlock VerticalAlignment="Center" Text="{Binding name}" />
+                                </Border>
+                            </StackPanel>
+                        </TreeDataTemplate>
+                        <DataTemplate DataType="models:MDFile">
+                            <DockPanel LastChildFill="False" Name="DockPanel_DataFileEntry"
+                                       MaxWidth="{Binding Bounds.Width, ElementName=ScrollViewerTreeView}">
+                                <!--IsChecked CheckBox-->
+                                <CheckBox IsChecked="{Binding isChecked}" DockPanel.Dock="Left" MinWidth="20"
+                                          Name="CheckBox" Initialized="CheckBox_OnInitialized" />
+                                <!--IsCheckedWrite CheckBox-->
+                                <CheckBox IsChecked="{Binding isCheckedWrite}" DockPanel.Dock="Left" MinWidth="20"
+                                          Name="CheckBoxWrite" IsEnabled="{Binding isCheckedWriteEnabled}" />
+                                
+                                <DockPanel DockPanel.Dock="Left"
+                                           Background="{Binding symmetricReference.targetAccessFile.newestRevisionSelected, Converter={StaticResource TreeViewItemColourConverter}}">
+                                    <!--DataFile -->
+                                    <TextBlock Foreground="Blue" Name="TextBlockDataFileEntry"
+                                               VerticalAlignment="Center"
+                                               PointerPressed="InputElement_OnPointerPressed" Text="{Binding name}" />
+                                    <!-- This is stupid, but it works decently. -->
+                                    <TextBlock Foreground="Blue" Name="TextBlockFillDataFileEntry"
+                                               VerticalAlignment="Center"
+                                               PointerPressed="InputElement_OnPointerPressed"
+                                               Text="
+                                                                                                                             ">
+                                        <TextBlock.Width>
+                                            <MultiBinding Converter="{StaticResource WidthConverterMulti}">
+                                                <Binding Path="Bounds.Width" ElementName="ScrollViewerTreeView" />
+                                                <Binding Path="Bounds.Width" ElementName="DockPanel_DataFileEntry" />
+                                                <Binding Path="Bounds.Width" ElementName="CheckBox" />
+                                                <Binding Path="Bounds.Width" ElementName="CheckBoxWrite" />
+                                                <Binding Path="Bounds.Width" ElementName="TextBlockDataFileEntry" />
+                                                <Binding Path="Bounds.Width" ElementName="TreeView1" />
+                                            </MultiBinding>
+                                        </TextBlock.Width>
+                                    </TextBlock>
+                                </DockPanel>
+                            </DockPanel>
+                        </DataTemplate>
+                    </TreeView.DataTemplates>
+                </TreeView>
+                <!-- Keyring TreeView -->
+                <TreeView Items="{Binding keyringMountedDirFolderCollection, Mode=TwoWay}" Name="TreeView2">
                     <TreeView.DataTemplates>
                         <TreeDataTemplate DataType="models:MDFolder" ItemsSource="{Binding combinedList}">
                             <StackPanel Orientation="Horizontal">

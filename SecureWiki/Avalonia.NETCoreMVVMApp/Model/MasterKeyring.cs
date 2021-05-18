@@ -13,7 +13,7 @@ namespace SecureWiki.Model
         public MasterKeyring() : base()
         {
             name = "Root";
-            isChecked = false;
+            // isChecked = false;
         }
 
         public void SetMountedDirMapping(string pageName, string filepath)

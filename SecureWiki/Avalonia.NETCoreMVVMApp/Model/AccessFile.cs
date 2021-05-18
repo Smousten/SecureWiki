@@ -13,7 +13,7 @@ using SecureWiki.Utilities;
 namespace SecureWiki.Model
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class AccessFile : IReactiveObject
+    public class AccessFile //: IReactiveObject
     {
         [JsonProperty]
         public string filename { get; set; }
@@ -41,59 +41,60 @@ namespace SecureWiki.Model
         public SymmetricReference? SymmetricReferenceToSelf;
         public bool HasBeenChanged = false;
 
-        private Keyring? _parent;
-        public Keyring? parent
-        {
-            get => _parent;
-            set
-            {
-                _parent = value;
-                RaisePropertyChanged(nameof(parent));
-            }
-        }
-
-        private bool? _isChecked = false;
-        public bool? isChecked
-        {
-            get => (_isChecked ?? false);
-            set
-            {
-                _isChecked = value;
-                OnPropertyChanged(nameof(isChecked));
-                OnPropertyChanged(nameof(isCheckedWriteEnabled));
-                OnCheckedChanged(EventArgs.Empty);
-            }
-        }
-        
-        private bool? _isCheckedWrite = false;
-        public bool? isCheckedWrite
-        {
-            get
-            {
-                if (keyList.TrueForAll(e => e.PrivateKey == null))
-                {
-                    return false;
-                }
-                return (_isCheckedWrite ?? false);
-            }
-            set
-            {
-                _isCheckedWrite = value;
-                OnPropertyChanged(nameof(isCheckedWrite));
-            }
-        }
-        
-        public bool isCheckedWriteEnabled
-        {
-            get
-            {
-                if (keyList.TrueForAll(e => e.PrivateKey == null))
-                {
-                    return false;
-                }
-                return isChecked ?? false;
-            }
-        }
+        public Keyring? Parent;
+        // private Keyring? _parent;
+        // public Keyring? parent
+        // {
+        //     get => _parent;
+        //     set
+        //     {
+        //         _parent = value;
+        //         RaisePropertyChanged(nameof(parent));
+        //     }
+        // }
+        //
+        // private bool? _isChecked = false;
+        // public bool? isChecked
+        // {
+        //     get => (_isChecked ?? false);
+        //     set
+        //     {
+        //         _isChecked = value;
+        //         OnPropertyChanged(nameof(isChecked));
+        //         OnPropertyChanged(nameof(isCheckedWriteEnabled));
+        //         OnCheckedChanged(EventArgs.Empty);
+        //     }
+        // }
+        //
+        // private bool? _isCheckedWrite = false;
+        // public bool? isCheckedWrite
+        // {
+        //     get
+        //     {
+        //         if (keyList.TrueForAll(e => e.PrivateKey == null))
+        //         {
+        //             return false;
+        //         }
+        //         return (_isCheckedWrite ?? false);
+        //     }
+        //     set
+        //     {
+        //         _isCheckedWrite = value;
+        //         OnPropertyChanged(nameof(isCheckedWrite));
+        //     }
+        // }
+        //
+        // public bool isCheckedWriteEnabled
+        // {
+        //     get
+        //     {
+        //         if (keyList.TrueForAll(e => e.PrivateKey == null))
+        //         {
+        //             return false;
+        //         }
+        //         return isChecked ?? false;
+        //     }
+        // }
 
         private bool _newestRevisionSelected = true;
         public bool newestRevisionSelected        
@@ -102,7 +103,7 @@ namespace SecureWiki.Model
             set
             {
                 _newestRevisionSelected = value;
-                OnPropertyChanged(nameof(newestRevisionSelected));
+                // OnPropertyChanged(nameof(newestRevisionSelected));
             }
         }
 
@@ -129,9 +130,9 @@ namespace SecureWiki.Model
             // Create a new AccessFileKey and sign it with the owner private key 
             keyList = new List<AccessFileKey> {new(ownerPrivateKey)};
 
-            // Set event handlers
-            CheckedChanged -= CheckedChangedUpdateParent;
-            CheckedChanged += CheckedChangedUpdateParent;
+            // // Set event handlers
+            // CheckedChanged -= CheckedChangedUpdateParent;
+            // CheckedChanged += CheckedChangedUpdateParent;
         }
 
         public bool VerifyKeys()
@@ -151,45 +152,45 @@ namespace SecureWiki.Model
             return true;
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-        public event PropertyChangingEventHandler? PropertyChanging;
-        public void RaisePropertyChanging(PropertyChangingEventArgs args)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RaisePropertyChanged(PropertyChangedEventArgs args)
-        {
-            throw new NotImplementedException();
-        }
-        
-        public void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler? handler = PropertyChanged;
-            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        
-        [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null!)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        
-        protected virtual void OnCheckedChanged(EventArgs e)
-        {
-            EventHandler handler = CheckedChanged;
-            
-            // The Rider IDE incorrectly thinks handler can never be null
-            // ReSharper disable once ConstantConditionalAccessQualifier
-            handler?.Invoke(this, e);
-        }
-
-        public event EventHandler CheckedChanged = null!;
-
-        public void CheckedChangedUpdateParent(object? sender, EventArgs e)
-        {
-            parent?.UpdateIsCheckedBasedOnChildren();
-        }
+        // public event PropertyChangedEventHandler? PropertyChanged;
+        // public event PropertyChangingEventHandler? PropertyChanging;
+        // public void RaisePropertyChanging(PropertyChangingEventArgs args)
+        // {
+        //     throw new NotImplementedException();
+        // }
+        //
+        // public void RaisePropertyChanged(PropertyChangedEventArgs args)
+        // {
+        //     throw new NotImplementedException();
+        // }
+        //
+        // public void RaisePropertyChanged(string propertyName)
+        // {
+        //     PropertyChangedEventHandler? handler = PropertyChanged;
+        //     handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        // }
+        //
+        // [NotifyPropertyChangedInvocator]
+        // protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null!)
+        // {
+        //     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        // }
+        //
+        // protected virtual void OnCheckedChanged(EventArgs e)
+        // {
+        //     EventHandler handler = CheckedChanged;
+        //     
+        //     // The Rider IDE incorrectly thinks handler can never be null
+        //     // ReSharper disable once ConstantConditionalAccessQualifier
+        //     handler?.Invoke(this, e);
+        // }
+        //
+        // public event EventHandler CheckedChanged = null!;
+        //
+        // public void CheckedChangedUpdateParent(object? sender, EventArgs e)
+        // {
+        //     Parent?.UpdateIsCheckedBasedOnChildren();
+        // }
 
         public bool IsEqual(AccessFile reference)
         {
@@ -450,16 +451,18 @@ namespace SecureWiki.Model
 
             AccessFile copy = (JSONSerialization.DeserializeObject(jsonData, typeof(AccessFile)) as AccessFile)!;
 
-            copy.isChecked = isChecked;
-            copy.isCheckedWrite = isCheckedWrite;
+            // copy.isChecked = isChecked;
+            // copy.isCheckedWrite = isCheckedWrite;
             
             return copy;
         }
 
         public void PrintInfo()
         {
+            // Console.WriteLine("AccessFile: filename='{0}', Checked='{1}', Parent.Name='{2}'", 
+            //     filename, isChecked, parent?.name ?? "null");
             Console.WriteLine("AccessFile: filename='{0}', Checked='{1}', Parent.Name='{2}'", 
-                filename, isChecked, parent?.name ?? "null");
+                filename, Parent?.name ?? "null");
         }
     }
 }

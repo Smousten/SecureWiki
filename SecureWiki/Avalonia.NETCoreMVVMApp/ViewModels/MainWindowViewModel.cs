@@ -10,7 +10,6 @@ namespace SecureWiki.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         private ObservableCollection<MDFolder> _rootMountedDirFolderCollection;
-
         public ObservableCollection<MDFolder> rootMountedDirFolderCollection
         {
             get { return _rootMountedDirFolderCollection; }
@@ -18,10 +17,19 @@ namespace SecureWiki.ViewModels
             {
                 _rootMountedDirFolderCollection = value;
                 this.RaisePropertyChanged(nameof(rootMountedDirFolderCollection));
-                Console.WriteLine("MountedDirMirrorCollection set");
             }
         }
         
+        private ObservableCollection<MDFolder> _keyringMountedDirFolderCollection;
+        public ObservableCollection<MDFolder> keyringMountedDirFolderCollection
+        {
+            get { return _keyringMountedDirFolderCollection; }
+            set
+            {
+                _keyringMountedDirFolderCollection = value;
+                this.RaisePropertyChanged(nameof(keyringMountedDirFolderCollection));
+            }
+        }
         private ObservableCollection<MasterKeyring> _rootKeyringCollection;
 
         public ObservableCollection<MasterKeyring> rootKeyringCollection
@@ -236,6 +244,8 @@ namespace SecureWiki.ViewModels
             this.MountedDirMirror = mountedDirMirror;
             rootMountedDirFolderCollection = new ObservableCollection<MDFolder>();
             rootMountedDirFolderCollection.Add(MountedDirMirror.RootFolder);
+            keyringMountedDirFolderCollection = new ObservableCollection<MDFolder>();
+            keyringMountedDirFolderCollection.Add(mountedDirMirror.KeyringFolder);
 
             revisions = new ObservableCollection<Revision>();
         }

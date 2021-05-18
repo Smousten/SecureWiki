@@ -348,15 +348,15 @@ namespace SecureWiki.Cryptography
         // }
 
         // Create and return a root keyring containing only all checked entries
-        public MasterKeyring CreateRootKeyringBasedOnIsChecked()
-        {
-            MasterKeyring outputMasterKeyring = new();
-        
-            _masterKeyring.AddToOtherKeyringRecursivelyBasedOnIsChecked(outputMasterKeyring);
-            outputMasterKeyring.RemoveEmptyDescendantsRecursively();
-        
-            return outputMasterKeyring;
-        }
+        // public MasterKeyring CreateRootKeyringBasedOnIsChecked()
+        // {
+        //     MasterKeyring outputMasterKeyring = new();
+        //
+        //     _masterKeyring.AddToOtherKeyringRecursivelyBasedOnIsChecked(outputMasterKeyring);
+        //     outputMasterKeyring.RemoveEmptyDescendantsRecursively();
+        //
+        //     return outputMasterKeyring;
+        // }
 
         // // Same as CreateRootKeyringBasedOnIsChecked() but uses deep copies instead
         // private MasterKeyring CreateCopyRootKeyringBasedOnIsChecked()

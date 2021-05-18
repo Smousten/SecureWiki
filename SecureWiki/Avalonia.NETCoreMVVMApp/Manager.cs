@@ -1508,13 +1508,14 @@ namespace SecureWiki
 
         public void AddFilesToKeyring(List<Keyring> keyrings)
         {
-            var keyringEntry = _keyringManager.CreateRootKeyringBasedOnIsChecked();
-            var accessFileList = keyringEntry.GetAllAndDescendantAccessFileEntries();
-
+            var symmetricReferences =
+                mountedDirMirror.GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedRootFolder();
+            
             foreach (var keyring in keyrings)
             {
-                foreach (var af in accessFileList)
+                foreach (var item in symmetricReferences)
                 {
+                    var af = item.targetAccessFile;
                     var pageNameAccessFile = GetFreshPageName();
                     _keyringManager.CreateAccessFileAndReferences(af.pageName, pageNameAccessFile,
                         configManager.DefaultServerLink, PageType.GenericFile,
