@@ -802,8 +802,8 @@ namespace SecureWiki
             var uploadResFile = wikiHandler?.Upload(accessFile, fileContent);
             Console.WriteLine("uploadResFile:" + uploadResFile);
 
-            var filename = filepath.Split('/').Last();
-            MasterKeyring.SetMountedDirMapping(accessFile.pageName, "NewEntries/" + filename);
+            // var filename = filepath.Split('/').Last();
+            MasterKeyring.SetMountedDirMapping(accessFile.pageName, filepath);
         }
         
         private void CreateAccessFileAndReferences(string pageNameKeyring, string pageNameAccessFile, 
@@ -1485,14 +1485,27 @@ namespace SecureWiki
             }
 
             var keyringPath = "Keyrings/";
-            populateMountedDirKeyrings(MasterKeyring, keyringPath, new List<Keyring>());
+            PopulateMountedDirKeyrings(MasterKeyring, keyringPath, new List<Keyring>());
         }
 
-        public void populateMountedDirKeyrings(Keyring keyring, string path, List<Keyring> visitedKeyrings)
+        private void PopulateMountedDirKeyrings(Keyring keyring, string path, List<Keyring> visitedKeyrings)
         {
             visitedKeyrings.Add(keyring);
             foreach (var symmRef in keyring.SymmetricReferences)
             {
+                if (symmRef.type == PageType.GenericFile)
+                {
+                    if (symmRef.targetAccessFile != null)
+                    {
+                        var parentKeyring = mountedDirMirror.GetMDFolder(path[..^1]);
+                        if (parentKeyring != null)
+                        {
+                            var accessMDFile = new MDFile(symmRef.targetAccessFile.filename, parentKeyring, symmRef);
+                            mountedDirMirror.AddFile(path, accessMDFile);
+                        }
+                    }
+                }
+                
                 if (symmRef.type == PageType.Keyring)
                 {
                     var kr = symmRef.targetAccessFile?.accessFileReference?.KeyringTarget;
@@ -1509,7 +1522,7 @@ namespace SecureWiki
                         continue;
                     }
                     
-                    populateMountedDirKeyrings(kr, path + kr.name + '/', visitedKeyrings);
+                    PopulateMountedDirKeyrings(kr, path + kr.name + '/', visitedKeyrings);
                 }
             }
         }

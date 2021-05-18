@@ -364,13 +364,11 @@ namespace SecureWiki.Model
                     var newFolder = new MDFolder(path[cnt], this);
                     AddFolder(newFolder);
                     cnt++;
-                    newFolder.CreateFileRecursively(path, cnt, reference);
+                    return newFolder.CreateFileRecursively(path, cnt, reference);
                 }
-                else
-                {
-                    cnt++;
-                    Folders[index].CreateFileRecursively(path, cnt, reference);
-                }
+
+                cnt++;
+                return Folders[index].CreateFileRecursively(path, cnt, reference);
             }
 
             return null;
