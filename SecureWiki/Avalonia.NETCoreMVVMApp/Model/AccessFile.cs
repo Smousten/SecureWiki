@@ -34,7 +34,9 @@ namespace SecureWiki.Model
         [JsonProperty] 
         public List<AccessFileKey> keyList { get; set; }
 
-        [JsonProperty] public AccessFileReference? accessFileReference;
+        [JsonProperty] public AccessFileReference? AccessFileReference;
+        public SymmetricReference? SymmetricReferenceToSelf;
+        public bool HasBeenChanged = false;
 
         private Keyring? _parent;
         public Keyring? parent
@@ -111,6 +113,7 @@ namespace SecureWiki.Model
             this.filename = filename;
             this.serverLink = serverLink;
             this.pageName = pageName;
+            HasBeenChanged = true;
 
             // Generate a new asymmetric key pair for owner priv/pub key
             var (newPrivateKey, newPublicKey) = Crypto.GenerateRSAParams();
