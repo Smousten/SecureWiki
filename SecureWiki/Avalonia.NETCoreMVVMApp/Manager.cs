@@ -1499,7 +1499,7 @@ namespace SecureWiki
                 }
             }
         }
-
+        
         public void GetKeyrings(ObservableCollection<Keyring> viewModelKeyrings)
         {
             viewModelKeyrings.Clear();
@@ -1516,6 +1516,10 @@ namespace SecureWiki
                 foreach (var item in symmetricReferences)
                 {
                     var af = item.targetAccessFile;
+                    
+                    // Check if the keyring already has an access file to the file
+                    if (keyring.SymmetricReferences.Contains(item)) continue;
+                    
                     var pageNameAccessFile = GetFreshPageName();
                     _keyringManager.CreateAccessFileAndReferences(af.pageName, pageNameAccessFile,
                         configManager.DefaultServerLink, PageType.GenericFile,
@@ -1523,6 +1527,7 @@ namespace SecureWiki
                         out AccessFile accessFile, out AccessFileReference accessFileReference);
 
                     keyring.AddSymmetricReference(symmetricReference);
+
                     // Upload new files to server
                     var wikiHandler = GetWikiHandler(accessFile!.serverLink);
                     var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
