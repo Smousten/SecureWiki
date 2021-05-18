@@ -73,7 +73,7 @@ namespace SecureWiki
             _keyringManager = new KeyringManager(MasterKeyring, this);
             tcpListener = new TCPListener(11111, "127.0.1.1", this);
 
-            _keyringManager.InitKeyring();
+            // _keyringManager.InitKeyring();
             InitializeCacheManager();
             InitializeContactManager();
 
@@ -970,9 +970,12 @@ namespace SecureWiki
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
             var uploadResAF = wikiHandler?.UploadAccessFile(symmetricReference, accessFile);
             Console.WriteLine("uploadResAF:" + uploadResAF);
-            
-            var uploadResKR = wikiHandler?.UploadKeyring(symmRef.targetAccessFile, newKeyring);
-            Console.WriteLine("uploadResKR:" + uploadResKR);
+
+            if (symmRef?.targetAccessFile != null)
+            {
+                var uploadResKR = wikiHandler?.UploadKeyring(symmRef.targetAccessFile, newKeyring);
+                Console.WriteLine("uploadResKR:" + uploadResKR);
+            }
         }
 
         private SymmetricReference? GetKeyringReference(string name, Keyring keyring)
@@ -1481,24 +1484,34 @@ namespace SecureWiki
                 }
             }
 
-            var symRefKeyrings = rk.GetAllAndDescendantSymmetricReferencesToKeyrings(new List<Keyring>());
             var keyringPath = "Keyrings/";
-            foreach (var symmRef in symRefKeyrings)
+            populateMountedDirKeyrings(MasterKeyring, keyringPath, new List<Keyring>());
+        }
+
+        public void populateMountedDirKeyrings(Keyring keyring, string path, List<Keyring> visitedKeyrings)
+        {
+            visitedKeyrings.Add(keyring);
+            foreach (var symmRef in keyring.SymmetricReferences)
             {
-                Console.WriteLine("adding symmRef '{0}' to MDMirror", symmRef.accessFileTargetPageName);
-                var mapping = rk.GetMountedDirMapping(symmRef.accessFileTargetPageName);
-                
-                if (mapping != null)
+                if (symmRef.type == PageType.Keyring)
                 {
-                    mountedDirMirror.AddFolder(keyringPath);
-                }
-                else
-                {
-                    Console.WriteLine("no mapping exists");
-                    mountedDirMirror.AddFolder(keyringPath + symmRef.targetAccessFile?.filename);
+                    var kr = symmRef.targetAccessFile?.accessFileReference?.KeyringTarget;
+                    if (kr == null)
+                    {
+                        continue;
+                    }
+                    
+                    mountedDirMirror.AddFolder(path + kr.name);
+                    
+                    if (visitedKeyrings.Contains(kr))
+                    {
+                        Console.WriteLine("keyring already visited, name = " + keyring.name);
+                        continue;
+                    }
+                    
+                    populateMountedDirKeyrings(kr, path + kr.name + '/', visitedKeyrings);
                 }
             }
-
         }
     }
 }

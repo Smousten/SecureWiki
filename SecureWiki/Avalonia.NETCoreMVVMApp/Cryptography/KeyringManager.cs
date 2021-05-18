@@ -36,7 +36,7 @@ namespace SecureWiki.Cryptography
                 UpdateKeyringParentPropertyRecursively(_masterKeyring);
             }
 
-            CreateFileStructureRecursion(_masterKeyring, GetRootDirPath());
+            // CreateFileStructureRecursion(_masterKeyring, GetRootDirPath());
         }
 
         private Masterkey? GetMasterkey(string filepath)
