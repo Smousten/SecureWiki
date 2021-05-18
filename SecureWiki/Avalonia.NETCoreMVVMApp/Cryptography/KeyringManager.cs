@@ -487,7 +487,7 @@ namespace SecureWiki.Cryptography
             string serverLink, PageType type, out SymmetricReference symmetricReference, 
             out AccessFile accessFile, out AccessFileReference accessFileReference)
         {
-            // Create access file and reference for folder
+            // Create access file and reference
             accessFile = new AccessFile(serverLink, pageNameTarget, "placeholder"); // TODO remove filename
             accessFileReference = new AccessFileReference(pageNameTarget, serverLink,
                 accessFile, type);
