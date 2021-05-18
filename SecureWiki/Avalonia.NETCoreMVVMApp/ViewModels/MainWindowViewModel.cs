@@ -209,7 +209,19 @@ namespace SecureWiki.ViewModels
         }
 
         public ObservableCollection<Contact> SelectedShareContacts { get; } = new();
-
+        
+        private ObservableCollection<Keyring> _keyrings = new();
+        public ObservableCollection<Keyring> keyrings
+        {
+            get => _keyrings;
+            set
+            {
+                _keyrings = value;
+                this.RaisePropertyChanged(nameof(keyrings));
+            }
+        }
+        public ObservableCollection<Keyring> selectedKeyrings { get; } = new();
+        
         
         public MainWindowViewModel(MasterKeyring rk, Logger logger, MountedDirMirror mountedDirMirror)
         {

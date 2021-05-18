@@ -564,7 +564,7 @@ namespace SecureWiki.Model
             // Remove private keys from AccessFileEntries if they do not have write access checked
             foreach (AccessFile accessFileEntry in accessFiles)
             {
-                accessFileEntry.PrepareForExport();
+                // accessFileEntry.PrepareForExport();
                 
                 if (accessFileEntry.isCheckedWrite != true)
                 {
@@ -675,38 +675,68 @@ namespace SecureWiki.Model
             return outputList;
         }
 
-        public List<SymmetricReference> GetAllAndDescendantSymmetricReferencesToKeyrings(List<Keyring> visitedKeyrings)
+        // public List<SymmetricReference> GetAllAndDescendantSymmetricReferencesToKeyrings(List<Keyring> visitedKeyrings)
+        // {
+        //     Console.WriteLine("GetAllAndDescendantSymmetricReferencesToKeyrings entered, visitedKeyrings.count = " + visitedKeyrings.Count);
+        //     var outputList = new List<SymmetricReference>();
+        //     visitedKeyrings.Add(this);
+        //
+        //     foreach (var symmRef in SymmetricReferences)
+        //     {
+        //         Console.WriteLine("getting descendants from symmRef.target='{0}', type=='{1}'", 
+        //             symmRef.accessFileTargetPageName, symmRef.type.ToString());
+        //         if (symmRef.type == PageType.Keyring)
+        //         {
+        //             outputList.Add(symmRef);
+        //             
+        //             var kr = symmRef.targetAccessFile?.AccessFileReference?.KeyringTarget;
+        //             if (kr == null)
+        //             {
+        //                 Console.WriteLine("GetAllAndDescendantSymmetricReferencesToGenericFiles:- Keyring is null");
+        //                 continue;
+        //             }
+        //             
+        //             if (visitedKeyrings.Contains(kr))
+        //             {
+        //                 Console.WriteLine("keyring already visited, name = " + this.name);
+        //                 continue;
+        //             }
+        //             
+        //             var res = kr.GetAllAndDescendantSymmetricReferencesToKeyrings(visitedKeyrings);
+        //             outputList.AddRange(res);
+        //         }
+        //     }
+        //
+        //     return outputList;
+        // }
+        
+        public List<Keyring> GetAllAndDescendantKeyrings(List<Keyring> visitedKeyrings)
         {
-            Console.WriteLine("GetAllAndDescendantSymmetricReferencesToKeyrings entered, visitedKeyrings.count = " + visitedKeyrings.Count);
-            var outputList = new List<SymmetricReference>();
+            var outputList = new List<Keyring>();
             visitedKeyrings.Add(this);
-
+        
             foreach (var symmRef in SymmetricReferences)
             {
-                Console.WriteLine("getting descendants from symmRef.target='{0}', type=='{1}'", 
-                    symmRef.accessFileTargetPageName, symmRef.type.ToString());
                 if (symmRef.type == PageType.Keyring)
                 {
-                    outputList.Add(symmRef);
-                    
                     var kr = symmRef.targetAccessFile?.AccessFileReference?.KeyringTarget;
                     if (kr == null)
                     {
                         Console.WriteLine("GetAllAndDescendantSymmetricReferencesToGenericFiles:- Keyring is null");
                         continue;
                     }
-                    
+                    outputList.Add(kr);
                     if (visitedKeyrings.Contains(kr))
                     {
                         Console.WriteLine("keyring already visited, name = " + this.name);
                         continue;
                     }
                     
-                    var res = kr.GetAllAndDescendantSymmetricReferencesToKeyrings(visitedKeyrings);
+                    var res = kr.GetAllAndDescendantKeyrings(visitedKeyrings);
                     outputList.AddRange(res);
                 }
             }
-
+        
             return outputList;
         }
         

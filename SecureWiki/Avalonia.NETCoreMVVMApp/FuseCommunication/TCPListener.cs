@@ -238,7 +238,7 @@ namespace SecureWiki.FuseCommunication
             var filePathSplit = filepath.Split("/");
             if (filePathSplit[0].Equals("Keyrings"))
             {
-                _manager.AddNewKeyRing(filename);
+                _manager.AddNewKeyring(filename);
             }
             _manager.AddNewFolder(filename, filepath);
         }

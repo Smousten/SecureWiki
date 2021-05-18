@@ -350,22 +350,29 @@ namespace SecureWiki.Views
 
             if (tag.Equals("ExportContactsPopup"))
             {
-                Thread localThread = new(() =>
-                    manager.GetAllContacts(_viewModel.ExportContactsOwn, _viewModel.ExportContactsOther));
-                localThread.Start();
+                // Thread localThread = new(() =>
+                //     manager.GetAllContacts(_viewModel.ExportContactsOwn, _viewModel.ExportContactsOther));
+                // localThread.Start();
             }
 
             if (tag.Equals("RevokeAccessPopup"))
             {
-                Thread localThread = new(() =>
-                    manager.GetFileContacts(_viewModel.RevokeContacts, _viewModel.selectedFile));
-                localThread.Start();
+                // Thread localThread = new(() =>
+                //     manager.GetFileContacts(_viewModel.RevokeContacts, _viewModel.selectedFile));
+                // localThread.Start();
             }
             
             if (tag.Equals("ShareKeyringPopup"))
             {
+                // Thread localThread = new(() =>
+                //     manager.GetOtherContacts(_viewModel.ShareContacts));
+                // localThread.Start();
+            }
+            
+            if (tag.Equals("AddToKeyringPopup"))
+            {
                 Thread localThread = new(() =>
-                    manager.GetOtherContacts(_viewModel.ShareContacts));
+                    manager.GetKeyrings(_viewModel.keyrings));
                 localThread.Start();
             }
             
@@ -472,7 +479,7 @@ namespace SecureWiki.Views
 
             if (path != null)
             {
-                manager.ImportContact(path);
+                // manager.ImportContact(path);
             }
             else
             {
@@ -490,9 +497,9 @@ namespace SecureWiki.Views
 
             if (serverLink != null && nickname != null)
             {
-                Thread localThread = new(() =>
-                    manager.GenerateOwnContact(serverLink, nickname));
-                localThread.Start();
+                // Thread localThread = new(() =>
+                //     manager.GenerateOwnContact(serverLink, nickname));
+                // localThread.Start();
             }
 
             var popup = this.FindControl<Popup>("GenerateContactPopup");
@@ -512,9 +519,9 @@ namespace SecureWiki.Views
             
             if (exportContacts.Count > 0)
             {
-                Thread localThread = new(() =>
-                    manager.ExportContacts(exportContacts));
-                localThread.Start();
+                // Thread localThread = new(() =>
+                //     manager.ExportContacts(exportContacts));
+                // localThread.Start();
             }
             
             var popup = this.FindControl<Popup>("ExportContactsPopup");
@@ -527,6 +534,16 @@ namespace SecureWiki.Views
             Thread localThread = new(() =>
                 manager.ForceUpdateFromAllInboxPages());
             localThread.Start();
+        }
+
+        private void ButtonAddToKeyring_Click(object? sender, RoutedEventArgs e)
+        {
+            Thread localThread = new(() =>
+                manager.AddFilesToKeyring(_viewModel.selectedKeyrings.ToList()));
+            localThread.Start();
+            
+            var popup = this.FindControl<Popup>("AddToKeyringPopup");
+            popup.IsOpen = false;
         }
     }
 }

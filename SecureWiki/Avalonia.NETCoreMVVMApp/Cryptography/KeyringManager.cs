@@ -347,16 +347,16 @@ namespace SecureWiki.Cryptography
         //     }
         // }
 
-        // // Create and return a root keyring containing only all checked entries
-        // public MasterKeyring CreateRootKeyringBasedOnIsChecked()
-        // {
-        //     MasterKeyring outputMasterKeyring = new();
-        //
-        //     _masterKeyring.AddToOtherKeyringRecursivelyBasedOnIsChecked(outputMasterKeyring);
-        //     outputMasterKeyring.RemoveEmptyDescendantsRecursively();
-        //
-        //     return outputMasterKeyring;
-        // }
+        // Create and return a root keyring containing only all checked entries
+        public MasterKeyring CreateRootKeyringBasedOnIsChecked()
+        {
+            MasterKeyring outputMasterKeyring = new();
+        
+            _masterKeyring.AddToOtherKeyringRecursivelyBasedOnIsChecked(outputMasterKeyring);
+            outputMasterKeyring.RemoveEmptyDescendantsRecursively();
+        
+            return outputMasterKeyring;
+        }
 
         // // Same as CreateRootKeyringBasedOnIsChecked() but uses deep copies instead
         // private MasterKeyring CreateCopyRootKeyringBasedOnIsChecked()
@@ -443,20 +443,18 @@ namespace SecureWiki.Cryptography
         //     SaveRootKeyring();
         // }
 
-        // public void RevokeAccess(AccessFile accessFile, string latestRevisionID)
-        // {
-        //     // If no revisions are known to exist for current latest key
-        //     if (accessFile.keyList.Last().RevisionStart.Equals("-1")) return;
-        //     
-        //     // Set end revision for current latest key
-        //     accessFile.keyList.Last().RevisionEnd = latestRevisionID;
-        //     
-        //     // Create
-        //     AccessFileKey newAccessFileKey = new(accessFile.ownerPrivateKey!);
-        //     accessFile.keyList.Add(newAccessFileKey);
-        //     
-        //     // SaveRootKeyring();
-        // }
+        public void RevokeAccess(AccessFile accessFile, string latestRevisionID)
+        {
+            // If no revisions are known to exist for current latest key
+            if (accessFile.keyList.Last().RevisionStart.Equals("-1")) return;
+            
+            // Set end revision for current latest key
+            accessFile.keyList.Last().RevisionEnd = latestRevisionID;
+            
+            // Create
+            AccessFileKey newAccessFileKey = new(accessFile.ownerPrivateKey!);
+            accessFile.keyList.Add(newAccessFileKey);
+        }
 
         // // Recursively verify all keys of all access files in given keyring 
         // private (bool, AccessFile?) VerifyImportKeyring(Keyring rk)

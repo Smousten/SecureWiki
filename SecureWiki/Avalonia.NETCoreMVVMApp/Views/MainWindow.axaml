@@ -185,6 +185,32 @@
             <!-- </TextBox> -->
             <!-- <Button Name="MailButton" Click="ButtonMail">Login</Button> -->
 
+            <Button Name="ButtonAddToKeyring" Click="ShowButtonPopup_Click" Tag="AddToKeyringPopup">Add files to keyring</Button>
+            <!--Share files popup-->
+            <Popup Name="AddToKeyringPopup" PlacementTarget="ButtonAddToKeyring" IsLightDismissEnabled="True">
+                <Border BorderBrush="Black" BorderThickness="1,1,1,1">
+                    <Grid>
+                        <Grid ColumnDefinitions="Auto" RowDefinitions="Auto, Auto, Auto" Background="White">
+                            <TextBlock Name="AddtoKeyringText" Background="White"
+                                       Text="Add the selected files to keyrings from the list below."
+                                       TextAlignment="Center" />
+                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding keyrings, Mode=TwoWay}" 
+                                     SelectionMode="Multiple, Toggle" SelectedItems="{Binding selectedKeyrings}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="models:Keyring">
+                                        <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
+                                            <TextBlock Grid.Row="0" Grid.Column="0">Name: </TextBlock>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding name}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <Button Grid.Row="2" Grid.Column="0" Click="HideButtonPopup_Click" Tag="AddToKeyringPopup" Margin="30,80,10,10">Cancel</Button>
+                            <Button Grid.Row="2" Grid.Column="0" Click="ButtonAddToKeyring_Click" Tag="AddToKeyringPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Popup>
 
         </StackPanel>
 

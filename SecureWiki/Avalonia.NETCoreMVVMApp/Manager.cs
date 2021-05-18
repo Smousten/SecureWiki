@@ -91,7 +91,7 @@ namespace SecureWiki
 
             // GUI can now proceed
             MainWindow.ManagerReadyEvent.Set();
-            
+
             InitializeSymRefMasterKeyring();
 
             var wh = GetWikiHandler(symRefToMasterKeyring.serverLink);
@@ -112,7 +112,7 @@ namespace SecureWiki
                 symRefToMasterKeyring.targetAccessFile.AccessFileReference.KeyringTarget = MasterKeyring;
                 wh!.DownloadKeyringsRecursion(MasterKeyring);
             }
-            
+
             PopulateMountedDirMirror(MasterKeyring);
             mountedDirMirror.CreateFileStructureRecursion(GetRootDir(""));
             mountedDirMirror.PrintInfo();
@@ -126,7 +126,7 @@ namespace SecureWiki
             Console.WriteLine("ManagerThread printing: " + input + " from thread:" +
                               Thread.CurrentThread.Name);
         }
-        
+
         public string GetSymRefMasterKeyringFilePath()
         {
             const string filename = "SymRefMasterKeyring.json";
@@ -144,14 +144,15 @@ namespace SecureWiki
 
             if (File.Exists(path))
             {
-                symRefToMasterKeyring = (SymmetricReference) JSONSerialization.ReadFileAndDeserialize(path, typeof(SymmetricReference));
+                symRefToMasterKeyring =
+                    (SymmetricReference) JSONSerialization.ReadFileAndDeserialize(path, typeof(SymmetricReference));
                 if (symRefToMasterKeyring == null)
                 {
                     Console.WriteLine();
                     Console.WriteLine("InitializeSymRefMasterKeyring:- symRefToMasterKeyring null");
                     return;
                 }
-                
+
                 // Download target Access File
                 var wh = GetWikiHandler(symRefToMasterKeyring.serverLink);
                 var af = wh?.DownloadAccessFile(symRefToMasterKeyring);
@@ -161,7 +162,7 @@ namespace SecureWiki
                     Console.WriteLine("InitializeSymRefMasterKeyring:- af null");
                     return;
                 }
-                
+
                 // Create and connect references
                 var afr = new AccessFileReference(af.pageName, af.serverLink, af, PageType.Keyring);
                 af.AccessFileReference = afr;
@@ -172,7 +173,7 @@ namespace SecureWiki
                 // Create new references
                 Console.WriteLine();
                 Console.WriteLine("InitializeSymRefMasterKeyring:- creating new master sym ref");
-                _keyringManager.CreateAccessFileAndReferences(GetFreshPageName(), GetFreshPageName(), 
+                _keyringManager.CreateAccessFileAndReferences(GetFreshPageName(), GetFreshPageName(),
                     configManager.DefaultServerLink, PageType.Keyring, out SymmetricReference symmetricReference,
                     out AccessFile accessFile, out AccessFileReference accessFileReference);
                 symRefToMasterKeyring = symmetricReference;
@@ -187,7 +188,7 @@ namespace SecureWiki
 
             Console.WriteLine("Upload access file to: " + symRefToMasterKeyring.targetPageName);
             Console.WriteLine("Upload keyring file to: " + symRefToMasterKeyring.accessFileTargetPageName);
-            
+
             var wikihandler = GetWikiHandler(symRefToMasterKeyring.serverLink);
             var res1 = wikihandler?.UploadAccessFile(symRefToMasterKeyring.targetAccessFile);
             var res2 = wikihandler?.UploadKeyring(symRefToMasterKeyring.targetAccessFile, MasterKeyring);
@@ -303,105 +304,115 @@ namespace SecureWiki
         }
 
         // Contacts in revoke popup list should only show contacts in access file
-        public void GetFileContacts(ObservableCollection<Contact> revokeContacts, AccessFile accessFile)
+        // public void GetFileContacts(ObservableCollection<Contact> revokeContacts, AccessFile accessFile)
+        // {
+        //     revokeContacts.Clear();
+        //     foreach (var (pageTitle, serverLink) in accessFile.contactList)
+        //     {
+        //         var contact =
+        //             contactManager.GetContactByPageTitleAndServerLink(pageTitle, serverLink ?? accessFile.serverLink);
+        //         if (contact != null) revokeContacts.Add(contact);
+        //     }
+        // }
+
+        // Contacts in revoke popup list should only show contacts in access file
+        public void GetFileContacts(ObservableCollection<InboxReference> revokeContacts, AccessFile accessFile)
         {
             revokeContacts.Clear();
-            foreach (var (pageTitle, serverLink) in accessFile.contactList)
+            foreach (var inboxRef in accessFile.inboxReferences)
             {
-                var contact =
-                    contactManager.GetContactByPageTitleAndServerLink(pageTitle, serverLink ?? accessFile.serverLink);
-                if (contact != null) revokeContacts.Add(contact);
+                revokeContacts.Add(inboxRef);
             }
         }
 
-        public void ImportContact(string path)
-        {
-            WriteToLogger($"Importing contacts from '{path}'");
-            var newContacts = JSONSerialization.ReadFileAndDeserialize(
-                path, typeof(List<Contact>)) as List<Contact>;
-
-            if (newContacts == null)
-            {
-                const string loggerMsg = "Import file cannot be parsed as a list of contact objects. Merged aborted.";
-                WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
-                return;
-            }
-
-            contactManager.MergeContacts(newContacts);
-        }
-
-        public void GenerateOwnContact(string serverLink, string nickname)
-        {
-            var pageTitle = RandomString.GenerateRandomAlphanumericString();
-            while (true)
-            {
-                if (PageAlreadyExists(pageTitle, "-1", serverLink))
-                {
-                    WriteToLogger($"Auto generated page title ({pageTitle}) already exists on server. Retrying...");
-                    pageTitle = RandomString.GenerateRandomAlphanumericString();
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            // var url = "http://" + serverLink + "/mediawiki/api.php";
-            OwnContact newContact = new(serverLink, pageTitle, nickname);
-            contactManager.AddOwnContact(newContact);
-        }
-
-        public void GetAllContacts(ObservableCollection<Contact> contactsOwn,
-            ObservableCollection<Contact> contactsOther)
-        {
-            contactsOwn.Clear();
-            contactsOther.Clear();
-            if (contactManager.OwnContacts.Count > 0)
-            {
-                contactsOwn.AddRange(contactManager.OwnContacts);
-            }
-
-            if (contactManager.Contacts.Count > 0)
-            {
-                contactsOther.AddRange(contactManager.Contacts);
-            }
-        }
-
-        public void ExportContacts(ObservableCollection<Contact> exportContacts)
-        {
-            WriteToLogger("Exporting contacts");
-
-            var contactList = new List<Contact>();
-
-            foreach (var contact in exportContacts)
-            {
-                if (contact is OwnContact ownContact)
-                {
-                    contactList.Add(ownContact.ConvertToBaseClass());
-                }
-                else
-                {
-                    contactList.Add(contact);
-                }
-            }
-
-            var noDuplicates = contactList.Distinct().ToList();
-
-            var currentDir = Directory.GetCurrentDirectory();
-            var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
-            var exportFileName = "ContactExport.json";
-            var exportFilePath = Path.Combine(path, exportFileName);
-            JSONSerialization.SerializeAndWriteFile(exportFilePath, noDuplicates);
-        }
-
-        public void GetOtherContacts(ObservableCollection<Contact> contacts)
-        {
-            contacts.Clear();
-            if (contactManager.Contacts.Count > 0)
-            {
-                contacts.AddRange(contactManager.Contacts);
-            }
-        }
+        // public void ImportContact(string path)
+        // {
+        //     WriteToLogger($"Importing contacts from '{path}'");
+        //     var newContacts = JSONSerialization.ReadFileAndDeserialize(
+        //         path, typeof(List<Contact>)) as List<Contact>;
+        //
+        //     if (newContacts == null)
+        //     {
+        //         const string loggerMsg = "Import file cannot be parsed as a list of contact objects. Merged aborted.";
+        //         WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
+        //         return;
+        //     }
+        //
+        //     contactManager.MergeContacts(newContacts);
+        // }
+        //
+        // public void GenerateOwnContact(string serverLink, string nickname)
+        // {
+        //     var pageTitle = RandomString.GenerateRandomAlphanumericString();
+        //     while (true)
+        //     {
+        //         if (PageAlreadyExists(pageTitle, "-1", serverLink))
+        //         {
+        //             WriteToLogger($"Auto generated page title ({pageTitle}) already exists on server. Retrying...");
+        //             pageTitle = RandomString.GenerateRandomAlphanumericString();
+        //         }
+        //         else
+        //         {
+        //             break;
+        //         }
+        //     }
+        //
+        //     // var url = "http://" + serverLink + "/mediawiki/api.php";
+        //     OwnContact newContact = new(serverLink, pageTitle, nickname);
+        //     contactManager.AddOwnContact(newContact);
+        // }
+        //
+        // public void GetAllContacts(ObservableCollection<Contact> contactsOwn,
+        //     ObservableCollection<Contact> contactsOther)
+        // {
+        //     contactsOwn.Clear();
+        //     contactsOther.Clear();
+        //     if (contactManager.OwnContacts.Count > 0)
+        //     {
+        //         contactsOwn.AddRange(contactManager.OwnContacts);
+        //     }
+        //
+        //     if (contactManager.Contacts.Count > 0)
+        //     {
+        //         contactsOther.AddRange(contactManager.Contacts);
+        //     }
+        // }
+        //
+        // public void ExportContacts(ObservableCollection<Contact> exportContacts)
+        // {
+        //     WriteToLogger("Exporting contacts");
+        //
+        //     var contactList = new List<Contact>();
+        //
+        //     foreach (var contact in exportContacts)
+        //     {
+        //         if (contact is OwnContact ownContact)
+        //         {
+        //             contactList.Add(ownContact.ConvertToBaseClass());
+        //         }
+        //         else
+        //         {
+        //             contactList.Add(contact);
+        //         }
+        //     }
+        //
+        //     var noDuplicates = contactList.Distinct().ToList();
+        //
+        //     var currentDir = Directory.GetCurrentDirectory();
+        //     var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+        //     var exportFileName = "ContactExport.json";
+        //     var exportFilePath = Path.Combine(path, exportFileName);
+        //     JSONSerialization.SerializeAndWriteFile(exportFilePath, noDuplicates);
+        // }
+        //
+        // public void GetOtherContacts(ObservableCollection<Contact> contacts)
+        // {
+        //     contacts.Clear();
+        //     if (contactManager.Contacts.Count > 0)
+        //     {
+        //         contacts.AddRange(contactManager.Contacts);
+        //     }
+        // }
 
         private void InitializeWikiHandlers()
         {
@@ -570,7 +581,7 @@ namespace SecureWiki
                 var importFolder = MasterKeyring.keyrings.First(e => e.name.Equals("ImportedFromContacts"));
                 importFolder.AddRangeAccessFile(newAccessFiles);
             }
-            
+
             // _keyringManager.SortAndUpdatePeripherals();
         }
 
@@ -600,7 +611,6 @@ namespace SecureWiki
                     GetWikiHandler(serverLink);
                 }
             }
-            
         }
 
         public MediaWikiObject.PageQuery.AllRevisions? GetAllRevisions(string pageTitle, string url)
@@ -718,15 +728,15 @@ namespace SecureWiki
         {
             WriteToLogger($"Attempting to read file '{filepath}'", filepath);
             string? revid = null;
-            
+
             var accessFile = GetAccessFile(filepath);
             if (accessFile == null) return null;
-            
+
             // Check if any specific revision has been requested
             if (RequestedRevision.ContainsKey((accessFile.pageName, accessFile.serverLink)))
             {
                 revid = RequestedRevision[(accessFile.pageName, accessFile.serverLink)];
-                
+
                 // Check if content already is in cache
                 var cacheResult = AttemptReadFileFromCache(accessFile.pageName, revid);
                 if (cacheResult != null) return Convert.FromBase64String(cacheResult);
@@ -744,15 +754,15 @@ namespace SecureWiki
             {
                 var cacheResult = AttemptReadFileFromCache(accessFile.pageName, revid);
                 if (cacheResult != null) return Convert.FromBase64String(cacheResult);
-            } 
-            
+            }
+
             // Download page content from server
             var textBytes = wikiHandler.Download(accessFile, revid);
 
             // Add plaintext to cache
             if (textBytes != null && revid != null)
             {
-                AddEntryToCache(accessFile.pageName, revid, Convert.ToBase64String(textBytes)); 
+                AddEntryToCache(accessFile.pageName, revid, Convert.ToBase64String(textBytes));
             }
 
             return textBytes;
@@ -760,11 +770,11 @@ namespace SecureWiki
 
         public void UploadMasterKeyring()
         {
-            if (!PageAlreadyExists(_keyringManager.masterKey.pageTitle, "-1", 
+            if (!PageAlreadyExists(_keyringManager.masterKey.pageTitle, "-1",
                 configManager.DefaultServerLink))
             {
                 var wikiHandler = GetWikiHandler(configManager.DefaultServerLink);
-                wikiHandler?.UploadMasterKeyring(_keyringManager.masterKey.symmKey, 
+                wikiHandler?.UploadMasterKeyring(_keyringManager.masterKey.symmKey,
                     _keyringManager.masterKey.pageTitle,
                     MasterKeyring);
             }
@@ -775,12 +785,12 @@ namespace SecureWiki
         {
             var pageNameFile = GetFreshPageName();
             var pageNameAccessFile = GetFreshPageName();
-            
-            _keyringManager.CreateAccessFileAndReferences(pageNameFile, pageNameAccessFile, 
-                configManager.DefaultServerLink, PageType.GenericFile, 
+
+            _keyringManager.CreateAccessFileAndReferences(pageNameFile, pageNameAccessFile,
+                configManager.DefaultServerLink, PageType.GenericFile,
                 out SymmetricReference symmetricReference,
                 out AccessFile accessFile, out AccessFileReference accessFileReference);
-            
+
             // Add symmetric reference to newEntries keyring and upload
             AddToDefaultKeyring(symmetricReference);
 
@@ -795,31 +805,31 @@ namespace SecureWiki
             // Upload new files to server
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
             var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
-            
+
             if (uploadResAF == false)
             {
                 WriteToLogger("Access File could not be uploaded, aborting.");
                 return;
             }
-            
+
             // var fileContent = File.ReadAllBytes(GetRootDir(filepath));
             var fileContent = Encoding.ASCII.GetBytes("This is the first revision");
             var uploadResFile = wikiHandler?.Upload(accessFile, fileContent);
-            
+
             if (uploadResFile == false)
             {
                 WriteToLogger("File could not be uploaded", filepath);
                 return;
             }
-            
+
             MasterKeyring.SetMountedDirMapping(accessFile.pageName, filepath);
         }
-        
+
         private void AddToDefaultKeyring(SymmetricReference symmetricReference)
         {
             var defaultKeyring = _keyringManager.AddToDefaultKeyring(symmetricReference);
             var accessFileToDefaultKeyring = defaultKeyring.accessFileReferenceToSelf.AccessFileParent;
-            
+
             // Upload updated keyring
             var wikiHandler = GetWikiHandler(configManager.DefaultServerLink);
 
@@ -828,18 +838,18 @@ namespace SecureWiki
             {
                 wikiHandler?.UploadAccessFile(accessFileToDefaultKeyring);
             }
-            
+
             var uploadResKR = wikiHandler?.UploadKeyring(
                 accessFileToDefaultKeyring, defaultKeyring);
             if (uploadResKR == false)
             {
-                WriteToLogger($"Keyring '{defaultKeyring.name}' could not be uploaded." );
+                WriteToLogger($"Keyring '{defaultKeyring.name}' could not be uploaded.");
             }
         }
 
         public string GetFreshPageName(string? serverLink = null)
         {
-            serverLink ??= configManager.DefaultServerLink; 
+            serverLink ??= configManager.DefaultServerLink;
             while (true)
             {
                 var tmp = RandomString.GenerateRandomAlphanumericString();
@@ -861,12 +871,12 @@ namespace SecureWiki
             }
         }
 
-        public void AddNewKeyRing(string filename)
+        public void AddNewKeyring(string filename)
         {
             var keyring = _keyringManager.CreateNewKeyring(filename, configManager.DefaultServerLink);
             var accessFile = keyring?.accessFileReferenceToSelf.AccessFileParent;
             var symmetricReference = accessFile?.SymmetricReferenceToSelf;
-            
+
             // If construction failed
             if (keyring == null || accessFile == null || symmetricReference == null)
             {
@@ -874,23 +884,23 @@ namespace SecureWiki
                 WriteToLogger(loggerMsg);
                 return;
             }
-            
+
             // Upload new files to server
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
             var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
             if (uploadResAF == false)
             {
-                WriteToLogger($"Access File for Keyring '{keyring.name}' could not be uploaded." );
+                WriteToLogger($"Access File for Keyring '{keyring.name}' could not be uploaded.");
             }
-            
+
             // Upload new keyring to server
             var uploadResKR = wikiHandler?.UploadKeyring(accessFile, keyring);
             if (uploadResKR == false)
             {
-                WriteToLogger($"Keyring '{keyring.name}' could not be uploaded." );
+                WriteToLogger($"Keyring '{keyring.name}' could not be uploaded.");
             }
         }
-        
+
         public void AddFileToKeyring(string filename, string filepath)
         {
             // TODO: find existing pagename for file, create new access file and references to generic file, add symmetric reference to keyring
@@ -899,10 +909,12 @@ namespace SecureWiki
             if (genericAccessFile == null) return;
             var pageNameGenericFile = genericAccessFile.pageName;
             var pageNameAccessFile = GetFreshPageName();
-        
-            _keyringManager.CreateAccessFileAndReferences(pageNameGenericFile, pageNameAccessFile, configManager.DefaultServerLink, PageType.GenericFile, 
-                out SymmetricReference symmetricReference, out AccessFile accessFile, out AccessFileReference accessFileReference);
-            
+
+            _keyringManager.CreateAccessFileAndReferences(pageNameGenericFile, pageNameAccessFile,
+                configManager.DefaultServerLink, PageType.GenericFile,
+                out SymmetricReference symmetricReference, out AccessFile accessFile,
+                out AccessFileReference accessFileReference);
+
             // fix
             var filepathSplit = filepath.Split('/');
             var keyringName = filepathSplit[^2];
@@ -915,9 +927,9 @@ namespace SecureWiki
                 Console.WriteLine("Keyring does not exist");
                 return;
             }
-            
+
             newKeyring.AddSymmetricReference(symmetricReference);
-            
+
             // Upload new files to server
             var wikiHandler = GetWikiHandler(accessFile!.serverLink);
             var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
@@ -934,8 +946,8 @@ namespace SecureWiki
         {
             foreach (var symmRef in keyring.SymmetricReferences)
             {
-                if (symmRef.targetAccessFile?.AccessFileReference?.KeyringTarget != null 
-                    && symmRef.type == PageType.Keyring && 
+                if (symmRef.targetAccessFile?.AccessFileReference?.KeyringTarget != null
+                    && symmRef.type == PageType.Keyring &&
                     symmRef.targetAccessFile.AccessFileReference.KeyringTarget.name.Equals(name))
                 {
                     return symmRef;
@@ -943,9 +955,10 @@ namespace SecureWiki
 
                 var kr = symmRef.targetAccessFile?.AccessFileReference?.KeyringTarget;
                 if (kr == null)
-                { 
+                {
                     continue;
                 }
+
                 var res = GetKeyringReference(name, kr);
                 if (res != null)
                 {
@@ -1082,7 +1095,7 @@ namespace SecureWiki
         // {
         //     return _keyringManager.GetAccessFile(filename, keyring);
         // }
-        
+
 
         // // Revoke access to the selected access file. Create new cryptographic keys and the given contacts
         // // will receive the new key in their inbox
@@ -1127,6 +1140,46 @@ namespace SecureWiki
         //         }
         //     }
         // }
+
+        public void RevokeAccess(AccessFile accessFile, List<InboxReference> inboxRefs)
+        {
+            WriteToLogger($"Attempting to revoke access to file '{accessFile.filename}'");
+
+            var wikiHandler = GetWikiHandler(accessFile.serverLink);
+            var latestRevision = wikiHandler?.GetLatestRevision(accessFile);
+
+            // Create new cryptographic keys for access file
+            if (latestRevision?.revisionID != null && accessFile.ownerPrivateKey != null)
+            {
+                _keyringManager.RevokeAccess(accessFile, latestRevision.revisionID);
+            }
+
+            // Send new cryptographic keys as a keyring with one access file containing latest key
+            // to selected inbox pages - TODO: private key should depend on inbox reference access level
+            var uploadObject = new Keyring("revocation");
+            var accessFileCopy = accessFile.Copy();
+            var latestKey = accessFile.keyList.Last();
+            accessFileCopy.keyList = new List<AccessFileKey> {latestKey};
+            uploadObject.accessFiles.Add(accessFileCopy);
+            uploadObject.PrepareForExportRecursively();
+
+            var serializeObject = JSONSerialization.SerializeObject(uploadObject);
+            foreach (var inboxRef in inboxRefs)
+            {
+                UploadToInboxPage(inboxRef.serverLink, inboxRef.targetPageName, serializeObject, inboxRef.publicKey);
+            }
+
+            // Remove non-selected references from access file reference list
+            foreach (var inboxRef in accessFile.inboxReferences)
+            {
+                if (!inboxRefs.Contains(inboxRef))
+                {
+                    accessFile.inboxReferences.Remove(inboxRef);
+                }
+            }
+
+            wikiHandler?.UploadAccessFile(accessFile);
+        }
 
         // write to logger with normal as default priority 
         public void WriteToLogger(string content, string? location = null,
@@ -1340,10 +1393,10 @@ namespace SecureWiki
                 RequestedRevision.Remove((pageName, serverLink));
                 return;
             }
-            
+
             RequestedRevision[(pageName, serverLink)] = revid;
         }
-        
+
         // If the RequestedRevision dictionary contains key with given pageName and serverLink 
         // then return true, otherwise return false
         public bool RequestedRevisionContains(string pageName, string serverLink)
@@ -1359,12 +1412,12 @@ namespace SecureWiki
             {
                 return null;
             }
-            
+
             var output = RequestedRevision[(pageName, serverLink)];
 
             return output;
         }
-        
+
         // Return absolute path to fuse root directory
         public static string GetRootDir(string relativeFilepath)
         {
@@ -1381,12 +1434,12 @@ namespace SecureWiki
             var symmRefList = rk.GetAllAndDescendantSymmetricReferencesToGenericFiles(new List<Keyring>());
             mountedDirMirror.Clear();
             Console.WriteLine("symmRefList.count = " + symmRefList.Count);
-            
+
             mountedDirMirror.RootFolder.name = rk.name;
-            
+
             var defaultPath = "Unmapped_files/Unmapped_file_";
             var unmappedCnt = 0;
-            
+
             foreach (var symmRef in symmRefList)
             {
                 Console.WriteLine("adding symmRef '{0}' to MDMirror", symmRef.accessFileTargetPageName);
@@ -1425,7 +1478,7 @@ namespace SecureWiki
                         }
                     }
                 }
-                
+
                 if (symmRef.type == PageType.Keyring)
                 {
                     var kr = symmRef.targetAccessFile?.AccessFileReference?.KeyringTarget;
@@ -1433,16 +1486,53 @@ namespace SecureWiki
                     {
                         continue;
                     }
-                    
+
                     mountedDirMirror.AddFolder(path + kr.name);
-                    
+
                     if (visitedKeyrings.Contains(kr))
                     {
                         Console.WriteLine("keyring already visited, name = " + keyring.name);
                         continue;
                     }
-                    
+
                     PopulateMountedDirKeyrings(kr, path + kr.name + '/', visitedKeyrings);
+                }
+            }
+        }
+
+        public void GetKeyrings(ObservableCollection<Keyring> viewModelKeyrings)
+        {
+            viewModelKeyrings.Clear();
+            viewModelKeyrings.AddRange(MasterKeyring.GetAllAndDescendantKeyrings(new List<Keyring>()));
+        }
+
+        public void AddFilesToKeyring(List<Keyring> keyrings)
+        {
+            var keyringEntry = _keyringManager.CreateRootKeyringBasedOnIsChecked();
+            var accessFileList = keyringEntry.GetAllAndDescendantAccessFileEntries();
+
+            foreach (var keyring in keyrings)
+            {
+                foreach (var af in accessFileList)
+                {
+                    var pageNameAccessFile = GetFreshPageName();
+                    _keyringManager.CreateAccessFileAndReferences(af.pageName, pageNameAccessFile,
+                        configManager.DefaultServerLink, PageType.GenericFile,
+                        out SymmetricReference symmetricReference,
+                        out AccessFile accessFile, out AccessFileReference accessFileReference);
+
+                    keyring.AddSymmetricReference(symmetricReference);
+                    // Upload new files to server
+                    var wikiHandler = GetWikiHandler(accessFile!.serverLink);
+                    var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
+                    Console.WriteLine("uploadResAF:" + uploadResAF);
+
+                    if (keyring.accessFileReferenceToSelf.AccessFileParent != null)
+                    {
+                        var uploadResKR = wikiHandler?.UploadKeyring(
+                            keyring.accessFileReferenceToSelf.AccessFileParent, keyring);
+                        Console.WriteLine("uploadResKR:" + uploadResKR);
+                    }
                 }
             }
         }

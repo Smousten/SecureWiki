@@ -26,9 +26,12 @@ namespace SecureWiki.Model
         [JsonProperty]
         public byte[]? ownerPublicKey { get; set; }
         
-        // List of the page titles of contacts that this file is automatically shared with
+        // // List of the page titles of contacts that this file is automatically shared with
+        // [JsonProperty] 
+        // public List<(string, string?)> contactList { get; set; }
+        // List of inbox references which 'subscribe' to this access file
         [JsonProperty] 
-        public List<(string, string?)> contactList { get; set; }
+        public List<InboxReference> inboxReferences { get; set; }
 
         // AccessFileKey is a tuple of (private key, public key and information relevant to their use)
         [JsonProperty] 
@@ -120,7 +123,8 @@ namespace SecureWiki.Model
             ownerPrivateKey = newPrivateKey;
             ownerPublicKey = newPublicKey;
 
-            contactList = new List<(string, string?)>();
+            // contactList = new List<(string, string?)>();
+            inboxReferences = new List<InboxReference>();
             
             // Create a new AccessFileKey and sign it with the owner private key 
             keyList = new List<AccessFileKey> {new(ownerPrivateKey)};
@@ -363,72 +367,72 @@ namespace SecureWiki.Model
             keyList.AddRange(resultingKeyList);
         }
 
-        public void PrepareForExport()
-        {
-            ownerPrivateKey = null;
-            contactList.Clear();
-        }
-
-        public (string, string?)? GetContactInfo(string pageTitle, string serverlink)
-        {
-            (string, string?) output;
-            
-            // Check if contactList contains any entries with the given page title and server link
-            // Serverlink is not saved to file if it matches that of the AccessFileEntry
-            if (serverlink.Equals(serverLink))
-            {
-                output = contactList.FirstOrDefault
-                    (e => e.Item1.Equals(pageTitle) && e.Item2 == null);
-            }
-            else
-            {
-                output = contactList.FirstOrDefault
-                    (e => e.Item1.Equals(pageTitle) && e.Item2 == serverlink);
-            }
-            
-            if (output.Equals(default)) return null;
-            
-            output.Item2 ??= serverLink;
-            
-            return output;
-        }
-
-        public void AddContactInfo(string pageTitle, string serverlink)
-        {
-            (string, string?) existingContactInfo;
-            
-            // Check if contact with same pageTitle already is in contactList
-            // Serverlink is not saved to file if it matches that of the AccessFileEntry
-            if (serverlink.Equals(serverLink))
-            {
-                existingContactInfo = contactList.FirstOrDefault
-                    (e => e.Item1.Equals(pageTitle) && e.Item2 == null);
-            }
-            else
-            {
-                existingContactInfo = contactList.FirstOrDefault
-                    (e => e.Item1.Equals(pageTitle) && e.Item2 == serverlink);
-            }
-
-            // If conflicting entry does not exist
-            if (existingContactInfo.Equals(default))
-            {
-                contactList.Add(serverlink.Equals(serverLink) ? (pageTitle, null) : (pageTitle, serverlink));
-                return;
-            }
-
-            // If exact contact already exists 
-            if ((existingContactInfo.Item2 == null && serverlink.Equals(serverLink)) ||
-                (existingContactInfo.Item2 != null && existingContactInfo.Item2.Equals(serverlink))) 
-            {
-                return;
-            }
-            // If there is a conflict
-            else
-            {
-                contactList.Add(serverlink.Equals(serverLink) ? (pageTitle, null) : (pageTitle, serverlink));
-            }
-        }
+        // public void PrepareForExport()
+        // {
+        //     ownerPrivateKey = null;
+        //     contactList.Clear();
+        // }
+        //
+        // public (string, string?)? GetContactInfo(string pageTitle, string serverlink)
+        // {
+        //     (string, string?) output;
+        //     
+        //     // Check if contactList contains any entries with the given page title and server link
+        //     // Serverlink is not saved to file if it matches that of the AccessFileEntry
+        //     if (serverlink.Equals(serverLink))
+        //     {
+        //         output = contactList.FirstOrDefault
+        //             (e => e.Item1.Equals(pageTitle) && e.Item2 == null);
+        //     }
+        //     else
+        //     {
+        //         output = contactList.FirstOrDefault
+        //             (e => e.Item1.Equals(pageTitle) && e.Item2 == serverlink);
+        //     }
+        //     
+        //     if (output.Equals(default)) return null;
+        //     
+        //     output.Item2 ??= serverLink;
+        //     
+        //     return output;
+        // }
+        //
+        // public void AddContactInfo(string pageTitle, string serverlink)
+        // {
+        //     (string, string?) existingContactInfo;
+        //     
+        //     // Check if contact with same pageTitle already is in contactList
+        //     // Serverlink is not saved to file if it matches that of the AccessFileEntry
+        //     if (serverlink.Equals(serverLink))
+        //     {
+        //         existingContactInfo = contactList.FirstOrDefault
+        //             (e => e.Item1.Equals(pageTitle) && e.Item2 == null);
+        //     }
+        //     else
+        //     {
+        //         existingContactInfo = contactList.FirstOrDefault
+        //             (e => e.Item1.Equals(pageTitle) && e.Item2 == serverlink);
+        //     }
+        //
+        //     // If conflicting entry does not exist
+        //     if (existingContactInfo.Equals(default))
+        //     {
+        //         contactList.Add(serverlink.Equals(serverLink) ? (pageTitle, null) : (pageTitle, serverlink));
+        //         return;
+        //     }
+        //
+        //     // If exact contact already exists 
+        //     if ((existingContactInfo.Item2 == null && serverlink.Equals(serverLink)) ||
+        //         (existingContactInfo.Item2 != null && existingContactInfo.Item2.Equals(serverlink))) 
+        //     {
+        //         return;
+        //     }
+        //     // If there is a conflict
+        //     else
+        //     {
+        //         contactList.Add(serverlink.Equals(serverLink) ? (pageTitle, null) : (pageTitle, serverlink));
+        //     }
+        // }
 
         // Creates a new AccessFileEntry and copies most of own properties over
         public AccessFile Copy()
