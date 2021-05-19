@@ -502,7 +502,7 @@ namespace SecureWiki.Model
                 var index = Files.BinarySearch(new MDFile {name = path[cnt]}, new MDFileComparer());
                 if (index < 0)
                 {
-                    var newMDFile = new MDFile(path[cnt], this, reference);
+                    var newMDFile = NewMDFile(path[cnt], reference);
                     AddFile(newMDFile);
                     return newMDFile;
                 }
@@ -524,7 +524,12 @@ namespace SecureWiki.Model
 
             return null;
         }
-        
+
+        protected virtual MDFile NewMDFile(string path, SymmetricReference reference)
+        {
+            return new MDFile(path, MDFile.Type.GenericFile, this, reference);
+        }
+
         public void AddFileRecursively(string[] path, int cnt, MDFile mdFile)
         {
             if (path.Length - cnt <= 1)
@@ -823,6 +828,10 @@ namespace SecureWiki.Model
             var newFolder = new MDFolderKeyring(folderName, this);
             return newFolder;
         }
+        protected override MDFile NewMDFile(string path, SymmetricReference reference)
+        {
+            return new MDFile(path, MDFile.Type.AccessFile, this, reference);
+        }
         
         // Update children isChecked based own value
         protected override void CheckedChangedUpdateChildren(object? sender, EventArgs e)
@@ -868,6 +877,13 @@ namespace SecureWiki.Model
 
     public class MDFile : MDItem
     {
+        public enum Type
+        {
+            GenericFile,
+            Keyring,
+            AccessFile
+        }
+        
         public bool? isCheckedWrite
         {
             get
@@ -898,14 +914,16 @@ namespace SecureWiki.Model
         }
         
         public MDFolder Parent;
+        public Type TargetType;
 
         // public AccessFileReference accessFileReference;
         public SymmetricReference symmetricReference { get; set; }
 
-        public MDFile(string filename, MDFolder parent, SymmetricReference reference) : base(filename)
+        public MDFile(string filename, Type targetType, MDFolder parent, SymmetricReference reference) : base(filename)
         {
             Parent = parent;
             symmetricReference = reference;
+            this.TargetType = targetType;
             
             // Set event handlers
             CheckedChanged -= CheckedChangedUpdateParent;

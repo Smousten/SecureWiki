@@ -197,6 +197,38 @@ namespace SecureWiki.MediaWiki
 
             return null;
         }
+        
+        public byte[]? GetLatestValidRevision(SymmetricReference symmetricReference, List<Revision> revisions)
+        {
+            for (var i = 0; i < revisions.Count; i++)
+            {
+                // If revision ID is not set, continue
+                var revid = revisions[i].revisionID;
+                if (revid == null)
+                {
+                    continue;
+                }
+
+                var pageName = symmetricReference.targetPageName;
+                
+                // Get page content from server
+                var pageContent = GetPageContent(symmetricReference.targetPageName, revid);
+
+                // Split downloaded page content into cipher text and signature
+                var splitPageContent = SplitPageContent(pageContent);
+                if (splitPageContent == null) return null;
+
+                var accessFileBytes = Convert.FromBase64String(pageContent);
+                var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, symmetricReference.symmKey);
+                
+                if (decryptedAccessFile != null && decryptedAccessFile.Length >= 2)
+                {
+                    return decryptedAccessFile;
+                }
+            }
+
+            return null;
+        }
 
         // Returns the id of the newest revision of a page on the server, or null if no revision is found
         public string? GetLatestRevisionID(string pageName)
@@ -264,6 +296,43 @@ namespace SecureWiki.MediaWiki
                 }
 
                 return !(decryptedBytes.Length > 0) ? null : decryptedBytes;
+            }
+            catch (FormatException e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
+            }
+        }
+
+        public byte[]? Download(SymmetricReference symmetricReference, string? revid = null)
+        {
+            var pageName = symmetricReference.targetPageName;
+
+            // If revid is not set, get id of newest revision, or set to default
+            revid ??= GetLatestRevisionID(pageName) ?? "-1";
+
+            // Get page content from server
+            var pageContent = GetPageContent(pageName, revid);
+            if (pageContent.Equals(""))
+            {
+                var revisions = GetAllRevisions(pageName).GetAllRevisionBefore(revid);
+                return GetLatestValidRevision(symmetricReference, revisions);
+            }
+
+            try
+            {
+                var accessFileBytes = Convert.FromBase64String(pageContent);
+                var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, symmetricReference.symmKey);
+                
+                if (decryptedAccessFile != null && decryptedAccessFile.Length >= 2)
+                {
+                    return decryptedAccessFile;
+                }
+                
+                Console.WriteLine("decryptedAccessFile is null");
+                var revisions = GetAllRevisions(pageName).GetAllRevisionBefore(revid);
+                return GetLatestValidRevision(symmetricReference, revisions);
+
             }
             catch (FormatException e)
             {
@@ -417,10 +486,9 @@ namespace SecureWiki.MediaWiki
             }
 
             var decryptedAccessFileString = Encoding.ASCII.GetString(decryptedAccessFile);
-            var accessFile = JSONSerialization.DeserializeObject(
-                decryptedAccessFileString, typeof(AccessFile)) as AccessFile;
 
-            if (accessFile == null)
+            if (!(JSONSerialization.DeserializeObject(
+                decryptedAccessFileString, typeof(AccessFile)) is AccessFile accessFile))
             {
                 Console.WriteLine("accessFile is null");
                 return null;
