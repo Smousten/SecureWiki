@@ -728,41 +728,65 @@ namespace SecureWiki
         {
             WriteToLogger($"Attempting to read file '{filepath}'", filepath);
             string? revid = null;
+            string pageName;
 
-            var accessFile = GetAccessFile(filepath);
-            if (accessFile == null) return null;
+            var mdFile = mountedDirMirror.GetMDFile(filepath);
+            var symmRef = mdFile?.symmetricReference;
 
-            // Check if any specific revision has been requested
-            if (RequestedRevision.ContainsKey((accessFile.pageName, accessFile.serverLink)))
+            if (symmRef == null) return null;
+            if (mdFile!.TargetType == MDFile.Type.AccessFile)
             {
-                revid = RequestedRevision[(accessFile.pageName, accessFile.serverLink)];
+                pageName = symmRef.targetPageName;
+            }
+            else
+            {
+                pageName = symmRef.accessFileTargetPageName;
+            }
+            
+            // Check if any specific revision has been requested
+            if (RequestedRevision.ContainsKey((pageName, symmRef.serverLink)))
+            {
+                revid = RequestedRevision[(pageName, symmRef.serverLink)];
 
                 // Check if content already is in cache
-                var cacheResult = AttemptReadFileFromCache(accessFile.pageName, revid);
+                var cacheResult = AttemptReadFileFromCache(pageName, revid);
                 if (cacheResult != null) return Convert.FromBase64String(cacheResult);
             }
 
             // Get valid WikiHandler or return null
-            var wikiHandler = GetWikiHandler(accessFile.serverLink);
+            var wikiHandler = GetWikiHandler(symmRef.serverLink);
             if (wikiHandler == null) return null;
 
             // If no specific revid has been requested, get newest revision id, if any exists
-            revid ??= wikiHandler.GetLatestRevisionID(accessFile.pageName);
+            revid ??= wikiHandler.GetLatestRevisionID(pageName);
 
             // Check if content already is in cache
             if (revid != null)
             {
-                var cacheResult = AttemptReadFileFromCache(accessFile.pageName, revid);
+                var cacheResult = AttemptReadFileFromCache(pageName, revid);
                 if (cacheResult != null) return Convert.FromBase64String(cacheResult);
             }
 
-            // Download page content from server
-            var textBytes = wikiHandler.Download(accessFile, revid);
-
+            byte[]? textBytes;
+            
+            if (mdFile!.TargetType == MDFile.Type.AccessFile)
+            {
+                textBytes = wikiHandler.Download(symmRef, revid);
+            }
+            else
+            {
+                // Get Access File
+                var accessFile = symmRef.targetAccessFile ?? wikiHandler.DownloadAccessFile(symmRef);
+                if (accessFile == null) return null;
+                
+                // Download page content from server
+                textBytes = wikiHandler.Download(accessFile, revid);
+            }
+            
             // Add plaintext to cache
             if (textBytes != null && revid != null)
             {
-                AddEntryToCache(accessFile.pageName, revid, Convert.ToBase64String(textBytes));
+                AddEntryToCache(pageName, revid, Convert.ToBase64String(textBytes));
             }
 
             return textBytes;
@@ -1462,6 +1486,8 @@ namespace SecureWiki
                         }
 
                         // Continue recursively with children Keyrings
+                        var mdFile = mountedDirMirror.CreateFile(Path.Combine(path, kr.name, "self"), symmRef);
+                        mdFile.TargetType = MDFile.Type.Keyring;
                         PopulateMountedDirKeyrings(kr, Path.Combine(path, kr.name), visitedKeyrings);
                         break;
                     }

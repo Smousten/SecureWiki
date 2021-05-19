@@ -20,7 +20,10 @@ namespace SecureWiki.MediaWiki
         public bool Upload(AccessFile accessFile, byte[] content);
 
         // Returns decrypted data stored on server of data file with given revID
-        public byte[]? Download(AccessFile accessFile, string? revID = null);
+        public byte[]? Download(AccessFile accessFile, string? revid = null);
+        
+        // Returns decrypted content of a file protected by a Symmetric Reference for a given revision id
+        public byte[]? Download(SymmetricReference symmetricReference, string? revid = null);
 
         // Returns the id of the newest revision of a page on the server, or null if no revision is found
         public string? GetLatestRevisionID(string pageName);
