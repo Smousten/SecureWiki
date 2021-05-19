@@ -10,37 +10,25 @@ namespace SecureWiki.Utilities
     [JsonObject(MemberSerialization.OptIn)]
     public class OwnContact : Contact
     {
-        // [JsonProperty] public byte[] PrivateKey;
         [JsonProperty] public int RevidCounter;
         
-        // public OwnContact(string serverLink, string pageTitle, string nickname, int revidCounter = 0) 
-        //     : base(serverLink, pageTitle, nickname)
-        // {
-        //     this.revidCounter = revidCounter;
-        //
-        //     var (newPrivateKey, newPublicKey) = Crypto.GenerateRSAParams();
-        //     PrivateKey = newPrivateKey;
-        //     PublicKey = newPublicKey;
-        // }
         public OwnContact(string nickname, InboxReference inboxReference, int revidCounter = 0) : base(nickname,
             inboxReference)
         {
             RevidCounter = revidCounter;
         }
 
-        // public Contact ConvertToBaseClass()
-        // {
-        //     return new(ServerLink, PageTitle, Nickname, PublicKey);
-        // }
+        public Contact ConvertToBaseClass()
+        {
+            InboxReference.accessLevel = InboxReference.AccessLevel.Write;
+            InboxReference.privateKey = null;
+            return new(Nickname, InboxReference);
+        }
     }
 
     [JsonObject(MemberSerialization.OptIn)]
     public class Contact
     {
-        // [JsonProperty] public byte[] PublicKey { get; set; }
-        // // [JsonProperty] public byte[]? PrivateKey;
-        // [JsonProperty] public string ServerLink { get; set; }
-        // [JsonProperty] public string PageTitle { get; set; }
         [JsonProperty] public InboxReference InboxReference { get; set; }
         [JsonProperty] public string Nickname { get; set; }
 
@@ -80,51 +68,51 @@ namespace SecureWiki.Utilities
             this.manager = manager;
         }
 
-        public void AddContact(Contact contact)
-        {
-            Contacts.Add(contact);
-        }
-
-        public void RemoveContact(Contact contact)
-        {
-            if (Contacts.Contains(contact))
-            {
-                Contacts.Remove(contact);
-            }
-        }
-        
-        public void AddOwnContact(OwnContact contact)
-        {
-            OwnContacts.Add(contact);
-        }
-        
-        public void RemoveOwnContact(OwnContact contact)
-        {
-            if (OwnContacts.Contains(contact))
-            {
-                OwnContacts.Remove(contact);
-            }
-        }
-
-        public void AddRangeContacts(List<Contact> contacts)
-        {
-            Contacts.AddRange(contacts);
-        }
-        
-        public void AddRangeOwnContacts(List<OwnContact> contacts)
-        {
-            OwnContacts.AddRange(contacts);
-        }
-        
-        public void ClearContacts()
-        {
-            Contacts.Clear();
-        }
-        
-        public void ClearOwnContacts()
-        {
-            OwnContacts.Clear();
-        }
+        // public void AddContact(Contact contact)
+        // {
+        //     Contacts.Add(contact);
+        // }
+        //
+        // public void RemoveContact(Contact contact)
+        // {
+        //     if (Contacts.Contains(contact))
+        //     {
+        //         Contacts.Remove(contact);
+        //     }
+        // }
+        //
+        // public void AddOwnContact(OwnContact contact)
+        // {
+        //     OwnContacts.Add(contact);
+        // }
+        //
+        // public void RemoveOwnContact(OwnContact contact)
+        // {
+        //     if (OwnContacts.Contains(contact))
+        //     {
+        //         OwnContacts.Remove(contact);
+        //     }
+        // }
+        //
+        // public void AddRangeContacts(List<Contact> contacts)
+        // {
+        //     Contacts.AddRange(contacts);
+        // }
+        //
+        // public void AddRangeOwnContacts(List<OwnContact> contacts)
+        // {
+        //     OwnContacts.AddRange(contacts);
+        // }
+        //
+        // public void ClearContacts()
+        // {
+        //     Contacts.Clear();
+        // }
+        //
+        // public void ClearOwnContacts()
+        // {
+        //     OwnContacts.Clear();
+        // }
         //
         // public void MergeContacts(List<Contact> newContacts)
         // {
@@ -377,30 +365,30 @@ namespace SecureWiki.Utilities
         //
         //     return resultingList;
         // }
-
-        public void SortContacts()
-        {
-            var sortedList = Contacts.OrderBy(entry => entry.Nickname).ToList();
-            ClearContacts();
-            AddRangeContacts(sortedList);
-        }
-        
-        public void SortOwnContacts()
-        {
-            var sortedList = OwnContacts.OrderBy(entry => entry.Nickname).ToList();
-            ClearOwnContacts();
-            AddRangeOwnContacts(sortedList);
-        }
-
-        public Contact? GetContactByNickname(string nickname)
-        {
-            return Contacts.Find(entry => entry.Nickname.Equals(nickname));
-        }
-        
-        public Contact? GetContactByInboxReference(InboxReference inboxReference)
-        {
-            return Contacts.Find(entry => entry.InboxReference.Equals(inboxReference));
-        }
+        //
+        // public void SortContacts()
+        // {
+        //     var sortedList = Contacts.OrderBy(entry => entry.Nickname).ToList();
+        //     ClearContacts();
+        //     AddRangeContacts(sortedList);
+        // }
+        //
+        // public void SortOwnContacts()
+        // {
+        //     var sortedList = OwnContacts.OrderBy(entry => entry.Nickname).ToList();
+        //     ClearOwnContacts();
+        //     AddRangeOwnContacts(sortedList);
+        // }
+        //
+        // public Contact? GetContactByNickname(string nickname)
+        // {
+        //     return Contacts.Find(entry => entry.Nickname.Equals(nickname));
+        // }
+        //
+        // public Contact? GetContactByInboxReference(InboxReference inboxReference)
+        // {
+        //     return Contacts.Find(entry => entry.InboxReference.Equals(inboxReference));
+        // }
         //
         // public Contact? GetContactByServerLink(string serverLink)
         // {
@@ -443,14 +431,6 @@ namespace SecureWiki.Utilities
         //     // Return results if any found, otherwise null
         //     return contacts.Count > 0 ? contacts : null;
         // }
-        
-        public List<OwnContact>? GetOwnContactsByServerLink(string serverLink)
-        {
-            var contacts = OwnContacts.FindAll(entry => entry.InboxReference.serverLink.Equals(serverLink));
-        
-            // Return results if any found, otherwise null
-            return contacts.Count > 0 ? contacts : null;
-        }
         //
         // public List<string>? GetAllUniqueServerLinksFromOwnContacts()
         // {
@@ -477,32 +457,5 @@ namespace SecureWiki.Utilities
         //     // If any server links have been found, return those.
         //     return output.Count > 0 ? output : null;
         // }
-        
-        public List<string>? GetAllUniqueServerLinksFromOwnContacts()
-        {
-            List<string> output = new();
-        
-            var sortedContacts = OwnContacts.OrderBy(c => c.InboxReference.serverLink).ToList();
-        
-            // Iterate over all contacts and add unique server links to output list
-            int i = 0;
-            while (i < sortedContacts.Count)
-            {
-                int cnt = 1;
-        
-                while (i + cnt < sortedContacts.Count &&
-                       sortedContacts[i].InboxReference.serverLink.Equals(
-                           sortedContacts[i + cnt].InboxReference.serverLink))
-                {
-                    cnt++;
-                }
-        
-                output.Add(sortedContacts[i].InboxReference.serverLink);
-                i += cnt;
-            }
-        
-            // If any server links have been found, return those.
-            return output.Count > 0 ? output : null;
-        }
     }
 }

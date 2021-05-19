@@ -595,7 +595,7 @@ namespace SecureWiki.MediaWiki
             var outputList = new List<List<string>>();
 
             // Get list of OwnContacts associated with the current server 
-            var contactList = _manager.contactManager.GetOwnContactsByServerLink(url);
+            var contactList = _manager.MasterKeyring.GetOwnContactsByServerLink(url);
 
             if (contactList == null)
             {

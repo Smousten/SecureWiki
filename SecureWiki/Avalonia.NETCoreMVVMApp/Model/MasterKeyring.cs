@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using SecureWiki.Utilities;
 
@@ -12,10 +13,10 @@ namespace SecureWiki.Model
         [JsonProperty] private Dictionary<string, string> MountedDirMapping = new();
         
         // Save lists of contacts which contains inbox references
-        [JsonProperty] public List<OwnContact> OwnContacts;
-        [JsonProperty] public List<Contact> Contacts;
+        [JsonProperty] public List<OwnContact> OwnContacts = new();
+        [JsonProperty] public List<Contact> Contacts = new();
         
-        public MasterKeyring() : base()
+        public MasterKeyring()
         {
             name = "Root";
             // isChecked = false;
@@ -46,10 +47,8 @@ namespace SecureWiki.Model
             {
                 return MountedDirMapping[pageName];
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public void CopyFromOtherKeyringNonRecursively(MasterKeyring ke)
@@ -57,7 +56,41 @@ namespace SecureWiki.Model
             base.CopyFromOtherKeyringNonRecursively(ke);
             MountedDirMapping = ke.MountedDirMapping;
         }
+        
+        public List<OwnContact>? GetOwnContactsByServerLink(string serverLink)
+        {
+            var contacts = OwnContacts.FindAll(entry => entry.InboxReference.serverLink.Equals(serverLink));
+        
+            // Return results if any found, otherwise null
+            return contacts.Count > 0 ? contacts : null;
+        }
 
+        public List<string>? GetAllUniqueServerLinksFromOwnContacts()
+        {
+            List<string> output = new();
+        
+            var sortedContacts = OwnContacts.OrderBy(c => c.InboxReference.serverLink).ToList();
+        
+            // Iterate over all contacts and add unique server links to output list
+            int i = 0;
+            while (i < sortedContacts.Count)
+            {
+                int cnt = 1;
+        
+                while (i + cnt < sortedContacts.Count &&
+                       sortedContacts[i].InboxReference.serverLink.Equals(
+                           sortedContacts[i + cnt].InboxReference.serverLink))
+                {
+                    cnt++;
+                }
+        
+                output.Add(sortedContacts[i].InboxReference.serverLink);
+                i += cnt;
+            }
+        
+            // If any server links have been found, return those.
+            return output.Count > 0 ? output : null;
+        }
 
     }
 }

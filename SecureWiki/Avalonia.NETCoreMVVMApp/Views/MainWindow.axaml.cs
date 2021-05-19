@@ -77,8 +77,8 @@ namespace SecureWiki.Views
             manager.SaveConfigManagerToFile();
             Console.WriteLine("Saving keyring to file");
             // manager.SaveKeyringToFile();
-            Console.WriteLine("Saving contacts to file");
-            manager.SaveContactManagerToFile();
+            // Console.WriteLine("Saving contacts to file");
+            // manager.SaveContactManagerToFile();
             Console.WriteLine("Saving master symref to file and uploading");
             manager.SaveSymRefMasterKeyringToFile();
             // Unmount mounted directory
@@ -350,9 +350,9 @@ namespace SecureWiki.Views
 
             if (tag.Equals("ExportContactsPopup"))
             {
-                // Thread localThread = new(() =>
-                //     manager.GetAllContacts(_viewModel.ExportContactsOwn, _viewModel.ExportContactsOther));
-                // localThread.Start();
+                Thread localThread = new(() =>
+                    manager.GetAllContacts(_viewModel.ExportContactsOwn, _viewModel.ExportContactsOther));
+                localThread.Start();
             }
 
             if (tag.Equals("RevokeAccessPopup"))
@@ -519,9 +519,9 @@ namespace SecureWiki.Views
             
             if (exportContacts.Count > 0)
             {
-                // Thread localThread = new(() =>
-                //     manager.ExportContacts(exportContacts));
-                // localThread.Start();
+                Thread localThread = new(() =>
+                    manager.ExportContacts(exportContacts));
+                localThread.Start();
             }
             
             var popup = this.FindControl<Popup>("ExportContactsPopup");
@@ -546,11 +546,11 @@ namespace SecureWiki.Views
             popup.IsOpen = false;
         }
 
-        private void ButtonExportContact_Click(object? sender, RoutedEventArgs e)
-        {
-            Thread localThread = new(() =>
-                manager.ExportContact());
-            localThread.Start();
-        }
+        // private void ButtonExportContact_Click(object? sender, RoutedEventArgs e)
+        // {
+        //     Thread localThread = new(() =>
+        //         manager.ExportContact());
+        //     localThread.Start();
+        // }
     }
 }

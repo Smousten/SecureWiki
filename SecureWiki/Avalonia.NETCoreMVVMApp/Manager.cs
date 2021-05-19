@@ -37,7 +37,7 @@ namespace SecureWiki
         private KeyringManager _keyringManager;
         public CacheManager cacheManager;
         public ConfigManager configManager;
-        public ContactManager contactManager;
+        // public ContactManager contactManager;
 
         public MountedDirMirror mountedDirMirror;
         public Logger logger;
@@ -75,7 +75,7 @@ namespace SecureWiki
 
             // _keyringManager.InitKeyring();
             InitializeCacheManager();
-            InitializeContactManager();
+            // InitializeContactManager();
 
             TCPListenerThread = new Thread(tcpListener.RunListener) {IsBackground = true};
             TCPListenerThread.Start();
@@ -272,36 +272,36 @@ namespace SecureWiki
             return path;
         }
 
-        public void InitializeContactManager()
-        {
-            var contactsPath = GetContactsFilePath();
-            var ownContactsPath = GetOwnContactsFilePath();
-
-            contactManager = new ContactManager(this);
-
-            // Read existing contacts from their respective files
-            if (File.Exists(contactsPath))
-            {
-                contactManager.Contacts =
-                    (List<Contact>) JSONSerialization.ReadFileAndDeserialize(contactsPath, typeof(List<Contact>));
-            }
-
-            if (File.Exists(ownContactsPath))
-            {
-                contactManager.OwnContacts =
-                    (List<OwnContact>) JSONSerialization.ReadFileAndDeserialize(ownContactsPath,
-                        typeof(List<OwnContact>));
-            }
-        }
-
-        public void SaveContactManagerToFile()
-        {
-            var contactsPath = GetContactsFilePath();
-            var ownContactsPath = GetOwnContactsFilePath();
-
-            JSONSerialization.SerializeAndWriteFile(contactsPath, contactManager.Contacts);
-            JSONSerialization.SerializeAndWriteFile(ownContactsPath, contactManager.OwnContacts);
-        }
+        // public void InitializeContactManager()
+        // {
+        //     var contactsPath = GetContactsFilePath();
+        //     var ownContactsPath = GetOwnContactsFilePath();
+        //
+        //     contactManager = new ContactManager(this);
+        //
+        //     // Read existing contacts from their respective files
+        //     if (File.Exists(contactsPath))
+        //     {
+        //         contactManager.Contacts =
+        //             (List<Contact>) JSONSerialization.ReadFileAndDeserialize(contactsPath, typeof(List<Contact>));
+        //     }
+        //
+        //     if (File.Exists(ownContactsPath))
+        //     {
+        //         contactManager.OwnContacts =
+        //             (List<OwnContact>) JSONSerialization.ReadFileAndDeserialize(ownContactsPath,
+        //                 typeof(List<OwnContact>));
+        //     }
+        // }
+        //
+        // public void SaveContactManagerToFile()
+        // {
+        //     var contactsPath = GetContactsFilePath();
+        //     var ownContactsPath = GetOwnContactsFilePath();
+        //
+        //     JSONSerialization.SerializeAndWriteFile(contactsPath, contactManager.Contacts);
+        //     JSONSerialization.SerializeAndWriteFile(ownContactsPath, contactManager.OwnContacts);
+        // }
 
         // Contacts in revoke popup list should only show contacts in access file
         // public void GetFileContacts(ObservableCollection<Contact> revokeContacts, AccessFile accessFile)
@@ -325,21 +325,21 @@ namespace SecureWiki
             }
         }
 
-        // public void ImportContact(string path)
-        // {
-        //     WriteToLogger($"Importing contacts from '{path}'");
-        //     var newContacts = JSONSerialization.ReadFileAndDeserialize(
-        //         path, typeof(List<Contact>)) as List<Contact>;
-        //
-        //     if (newContacts == null)
-        //     {
-        //         const string loggerMsg = "Import file cannot be parsed as a list of contact objects. Merged aborted.";
-        //         WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
-        //         return;
-        //     }
-        //
-        //     contactManager.MergeContacts(newContacts);
-        // }
+        public void ImportContact(string path)
+        {
+            WriteToLogger($"Importing contacts from '{path}'");
+            var newContacts = JSONSerialization.ReadFileAndDeserialize(
+                path, typeof(List<Contact>)) as List<Contact>;
+        
+            if (newContacts == null)
+            {
+                const string loggerMsg = "Import file cannot be parsed as a list of contact objects. Merged aborted.";
+                WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
+                return;
+            }
+        
+            MasterKeyring.Contacts.AddRange(newContacts);
+        }
         //
         // public void GenerateOwnContact(string serverLink, string nickname)
         // {
@@ -362,48 +362,48 @@ namespace SecureWiki
         //     contactManager.AddOwnContact(newContact);
         // }
         //
-        // public void GetAllContacts(ObservableCollection<Contact> contactsOwn,
-        //     ObservableCollection<Contact> contactsOther)
-        // {
-        //     contactsOwn.Clear();
-        //     contactsOther.Clear();
-        //     if (contactManager.OwnContacts.Count > 0)
-        //     {
-        //         contactsOwn.AddRange(contactManager.OwnContacts);
-        //     }
-        //
-        //     if (contactManager.Contacts.Count > 0)
-        //     {
-        //         contactsOther.AddRange(contactManager.Contacts);
-        //     }
-        // }
-        //
-        // public void ExportContacts(ObservableCollection<Contact> exportContacts)
-        // {
-        //     WriteToLogger("Exporting contacts");
-        //
-        //     var contactList = new List<Contact>();
-        //
-        //     foreach (var contact in exportContacts)
-        //     {
-        //         if (contact is OwnContact ownContact)
-        //         {
-        //             contactList.Add(ownContact.ConvertToBaseClass());
-        //         }
-        //         else
-        //         {
-        //             contactList.Add(contact);
-        //         }
-        //     }
-        //
-        //     var noDuplicates = contactList.Distinct().ToList();
-        //
-        //     var currentDir = Directory.GetCurrentDirectory();
-        //     var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
-        //     var exportFileName = "ContactExport.json";
-        //     var exportFilePath = Path.Combine(path, exportFileName);
-        //     JSONSerialization.SerializeAndWriteFile(exportFilePath, noDuplicates);
-        // }
+        public void GetAllContacts(ObservableCollection<Contact> contactsOwn,
+            ObservableCollection<Contact> contactsOther)
+        {
+            contactsOwn.Clear();
+            contactsOther.Clear();
+            if (MasterKeyring.OwnContacts.Count > 0)
+            {
+                contactsOwn.AddRange(MasterKeyring.OwnContacts);
+            }
+        
+            if (MasterKeyring.Contacts.Count > 0)
+            {
+                contactsOther.AddRange(MasterKeyring.Contacts);
+            }
+        }
+
+        public void ExportContacts(ObservableCollection<Contact> exportContacts)
+        {
+            WriteToLogger("Exporting contacts");
+        
+            var contactList = new List<Contact>();
+        
+            foreach (var contact in exportContacts)
+            {
+                if (contact is OwnContact ownContact)
+                {
+                    contactList.Add(ownContact.ConvertToBaseClass());
+                }
+                else
+                {
+                    contactList.Add(contact);
+                }
+            }
+        
+            var noDuplicates = contactList.Distinct().ToList();
+        
+            var currentDir = Directory.GetCurrentDirectory();
+            var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+            var exportFileName = "ContactExport.json";
+            var exportFilePath = Path.Combine(path, exportFileName);
+            JSONSerialization.SerializeAndWriteFile(exportFilePath, noDuplicates);
+        }
         //
         // public void GetOtherContacts(ObservableCollection<Contact> contacts)
         // {
@@ -587,7 +587,7 @@ namespace SecureWiki
 
         public void ForceUpdateFromAllInboxPages()
         {
-            var serverLinks = contactManager.GetAllUniqueServerLinksFromOwnContacts();
+            var serverLinks = MasterKeyring.GetAllUniqueServerLinksFromOwnContacts();
 
             if (serverLinks == null)
             {
@@ -1546,35 +1546,35 @@ namespace SecureWiki
             }
         }
 
-        public void ExportContact()
-        {
-            WriteToLogger("Exporting contact information");
-            var inboxReferences =
-                mountedDirMirror.GetAllDescendantInboxReferencesBasedOnIsCheckedKeyringFolder();
-            
-            var currentDir = Directory.GetCurrentDirectory();
-            var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
-            var exportFileName = "ContactExport.json";
-            var exportFilePath = Path.Combine(path, exportFileName);
-            JSONSerialization.SerializeAndWriteFile(exportFilePath, inboxReferences);
-        }
-        
-        public void ImportContact(string path)
-        {
-            WriteToLogger($"Importing contacts from '{path}'");
-            var newInboxReferences = JSONSerialization.ReadFileAndDeserialize(
-                path, typeof(List<InboxReference>)) as List<InboxReference>;
-        
-            if (newInboxReferences == null)
-            {
-                const string loggerMsg = "Import file cannot be parsed as a list of inbox reference objects. " +
-                                         "Merged aborted.";
-                WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
-                return;
-            }
-        
-            
-        }
+        // public void ExportContact()
+        // {
+        //     WriteToLogger("Exporting contact information");
+        //     var inboxReferences =
+        //         mountedDirMirror.GetAllDescendantInboxReferencesBasedOnIsCheckedKeyringFolder();
+        //     
+        //     var currentDir = Directory.GetCurrentDirectory();
+        //     var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+        //     var exportFileName = "ContactExport.json";
+        //     var exportFilePath = Path.Combine(path, exportFileName);
+        //     JSONSerialization.SerializeAndWriteFile(exportFilePath, inboxReferences);
+        // }
+        //
+        // public void ImportContact(string path)
+        // {
+        //     WriteToLogger($"Importing contacts from '{path}'");
+        //     var newInboxReferences = JSONSerialization.ReadFileAndDeserialize(
+        //         path, typeof(List<InboxReference>)) as List<InboxReference>;
+        //
+        //     if (newInboxReferences == null)
+        //     {
+        //         const string loggerMsg = "Import file cannot be parsed as a list of inbox reference objects. " +
+        //                                  "Merged aborted.";
+        //         WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
+        //         return;
+        //     }
+        //
+        //     
+        // }
 
     }
 }
