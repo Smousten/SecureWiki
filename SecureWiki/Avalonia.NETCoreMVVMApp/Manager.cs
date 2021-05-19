@@ -1441,8 +1441,8 @@ namespace SecureWiki
                         var parentKeyring = mountedDirMirror.GetMDFolder(path[..^1]);
                         if (parentKeyring != null)
                         {
-                            var accessMDFile = new MDFile(symmRef.targetAccessFile.filename, parentKeyring, symmRef);
-                            mountedDirMirror.AddFile(path, accessMDFile);
+                            // var accessMDFile = new MDFile(symmRef.targetAccessFile.filename, parentKeyring, symmRef);
+                            mountedDirMirror.CreateFile(path, symmRef);
                         }
                     }
                 }

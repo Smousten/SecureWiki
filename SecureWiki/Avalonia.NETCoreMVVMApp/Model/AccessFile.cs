@@ -461,7 +461,7 @@ namespace SecureWiki.Model
         {
             // Console.WriteLine("AccessFile: filename='{0}', Checked='{1}', Parent.Name='{2}'", 
             //     filename, isChecked, parent?.name ?? "null");
-            Console.WriteLine("AccessFile: filename='{0}', Checked='{1}', Parent.Name='{2}'", 
+            Console.WriteLine("AccessFile: filename='{0}', Parent.Name='{1}'", 
                 filename, Parent?.name ?? "null");
         }
     }

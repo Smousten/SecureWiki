@@ -16,12 +16,12 @@ namespace SecureWiki.Model
     public class MountedDirMirror
     {
         public MDFolder RootFolder;
-        public MDFolder KeyringFolder;
+        public MDFolderKeyring KeyringFolder;
 
         public MountedDirMirror()
         {
             RootFolder = new MDFolder("root", null);
-            KeyringFolder = new MDFolder("Keyrings", null);
+            KeyringFolder = new MDFolderKeyring("Keyrings", null);
         }
 
         public MDFile? GetMDFile(string path)
@@ -118,6 +118,7 @@ namespace SecureWiki.Model
         public void PrintInfo()
         {
             RootFolder.PrintInfoRecursively();
+            KeyringFolder.PrintInfoRecursively();
         }
 
         public void CreateFileStructureRecursion(string path)
@@ -215,9 +216,32 @@ namespace SecureWiki.Model
                 OnCheckedWriteChanged(EventArgs.Empty);
             }
         }
-      
-        public bool isCheckedWriteEnabled => isChecked ?? false;
         
+        protected bool? _isCheckedEnabled = true;
+        public bool? isCheckedEnabled
+        {
+            get => (_isCheckedEnabled ?? false);
+            set
+            {
+                _isCheckedEnabled = value;
+                RaisePropertyChanged(nameof(isCheckedEnabled));
+            }
+        }
+      
+        protected bool? _isCheckedWriteEnabled = null;
+        public bool? isCheckedWriteEnabled
+        {
+            get
+            {
+                return _isCheckedWriteEnabled ?? (isChecked == true && isCheckedEnabled == true);
+            }
+            set
+            {
+                _isCheckedWriteEnabled = value;
+                RaisePropertyChanged(nameof(isCheckedWriteEnabled));
+            }
+        }
+
 
         public MDItem(string name)
         {
@@ -277,11 +301,8 @@ namespace SecureWiki.Model
     {
         public MDFolder? Parent;
 
-        // private List<MDFolder> Folders = new();
-        // private List<MDFile> Files = new();
-
-        private ObservableCollection<MDFolder> Folders = new();
-        private ObservableCollection<MDFile> Files = new();
+        protected ObservableCollection<MDFolder> Folders = new();
+        protected ObservableCollection<MDFile> Files = new();
         public List<MDFolder> AncestorList = new();
         
         public ObservableCollection<object> combinedList
@@ -313,7 +334,7 @@ namespace SecureWiki.Model
             CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
         }
 
-        private MDFolder()
+        protected MDFolder() : base()
         {
             CheckedChanged += CheckedChangedUpdateParent;
             CheckedChanged += CheckedChangedUpdateChildren;
@@ -322,6 +343,7 @@ namespace SecureWiki.Model
 
         public void CreateFileStructureRecursion(string path)
         {
+            PrintInfoRecursively();
             foreach (var file in Files)
             {
                 File.Create(Path.Combine(path, file.name)).Dispose();
@@ -447,18 +469,11 @@ namespace SecureWiki.Model
 
         public MDFile? FindFileRecursively(string[] path, int cnt)
         {
-            Console.WriteLine("path[cnt]='{0}'", path[cnt]);
             if (path.Length - cnt <= 1)
             {
                 var index = Files.BinarySearch(new MDFile {name = path[cnt]}, new MDFileComparer());
-                Console.WriteLine("index=" + index);
                 if (index < 0)
                 {
-                    Console.WriteLine("File not found, printing all files and returning null");
-                    PrintInfoRecursively();
-                    var asd = Files.FirstOrDefault(e => e.name.Equals(path[cnt]));
-                    Console.WriteLine(asd?.name ?? "null");
-                    
                     return null;
                 }
                 return Files[index];
@@ -468,7 +483,6 @@ namespace SecureWiki.Model
                 var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
                 if (index < 0)
                 {
-                    Console.WriteLine("Folder not found, returning null");
                     return null;
                 }
                 cnt++;
@@ -478,8 +492,14 @@ namespace SecureWiki.Model
 
         public MDFile? CreateFileRecursively(string[] path, int cnt, SymmetricReference reference)
         {
+            Console.WriteLine("path[cnt]: '{0}'", path[cnt]);
             if (path.Length - cnt <= 1)
             {
+                if (path[cnt].Length < 1)
+                {
+                    Console.WriteLine("CreateFileRecursively:- Illegal name, returning null in name=" + name);
+                    return null;
+                }
                 var index = Files.BinarySearch(new MDFile {name = path[cnt]}, new MDFileComparer());
                 if (index < 0)
                 {
@@ -493,7 +513,7 @@ namespace SecureWiki.Model
                 var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
                 if (index < 0)
                 {
-                    var newFolder = new MDFolder(path[cnt], this);
+                    var newFolder = NewFolder(path[cnt]);
                     AddFolder(newFolder);
                     cnt++;
                     return newFolder.CreateFileRecursively(path, cnt, reference);
@@ -522,7 +542,7 @@ namespace SecureWiki.Model
                 var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
                 if (index < 0)
                 {
-                    var newFolder = new MDFolder(path[cnt], this);
+                    var newFolder = NewFolder(path[cnt]);
                     AddFolder(newFolder);
                     cnt++;
                     newFolder.AddFileRecursively(path, cnt, mdFile);
@@ -536,7 +556,14 @@ namespace SecureWiki.Model
 
             return;
         }
-        
+
+        protected virtual MDFolder NewFolder(string folderName)
+        {
+            Console.WriteLine("protected virtual MDFolder NewFolder(string folderName) entered in " + name);
+            var newFolder = new MDFolder(folderName, this);
+            return newFolder;
+        }
+
         // TODO: refactor - make common function for file/folder
         public MDFolder? FindFolderRecursively(string[] path, int cnt)
         {
@@ -563,9 +590,9 @@ namespace SecureWiki.Model
                 var index = Folders.BinarySearch(new MDFolder() {name = path[cnt]}, new MDFolderComparer());
                 if (index < 0)
                 {
-                    var newMDFolder = new MDFolder(path[cnt], this);
-                    AddFolder(newMDFolder);
-                    return newMDFolder;
+                    var newFolder = NewFolder(path[cnt]);
+                    AddFolder(newFolder);
+                    return newFolder;
                 }
             }
             else
@@ -573,7 +600,7 @@ namespace SecureWiki.Model
                 var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
                 if (index < 0)
                 {
-                    var newFolder = new MDFolder(path[cnt], this);
+                    var newFolder = NewFolder(path[cnt]);
                     AddFolder(newFolder);
                     cnt++;
                     newFolder.AddFolderRecursively(path, cnt);
@@ -590,7 +617,7 @@ namespace SecureWiki.Model
 
         public void PrintInfoRecursively()
         {
-            Console.WriteLine("MDFolder '{0}':", name);
+            PrintOwnInfo();
             foreach (var mdfolder in Folders)
             {
                 mdfolder.PrintInfoRecursively();
@@ -599,6 +626,11 @@ namespace SecureWiki.Model
             {
                 mdfile.PrintInfo();
             }
+        }
+
+        public virtual void PrintOwnInfo()
+        {
+            Console.WriteLine("MDFolder '{0}':", name);
         }
         
         public void RaisePropertiesChangedFiles()
@@ -616,13 +648,13 @@ namespace SecureWiki.Model
         }
         
         // Update parent isChecked based own and any other siblings' values
-        protected void CheckedChangedUpdateParent(object? sender, EventArgs e)
+        protected internal void CheckedChangedUpdateParent(object? sender, EventArgs e)
         {
             Parent?.UpdateIsCheckedBasedOnChildren();
         }
         
         // Update children isChecked based own value
-        protected void CheckedChangedUpdateChildren(object? sender, EventArgs e)
+        protected virtual void CheckedChangedUpdateChildren(object? sender, EventArgs e)
         {
             // Disable events updating ancestors while setting values  
             foreach (var child in Folders)
@@ -641,7 +673,7 @@ namespace SecureWiki.Model
         }
         
         // Update children isCheckedWrite based own value
-        protected void CheckedWriteChangedUpdateChildren(object? sender, EventArgs e)
+        protected virtual void CheckedWriteChangedUpdateChildren(object? sender, EventArgs e)
         {
             foreach (var child in Folders)
             {
@@ -654,96 +686,97 @@ namespace SecureWiki.Model
             }
         }
 
+        // Currently not used
        public virtual void UpdateIsCheckedBasedOnChildren()
         {
-            // Prevent feedback loop
-            this.CheckedChanged -= this.CheckedChangedUpdateChildren;
-            
-            bool anyChecked = false;
-            bool atLeastTwoChecked = false;
-            bool anyUnchecked = false;
-            bool ancestorChecked = false;
-            
-            foreach (var child in Folders)
-            {
-                if (child.isChecked == true)
-                {
-                    if (anyChecked)
-                    {
-                        atLeastTwoChecked = true;
-                    }
-                    anyChecked = true;
-                }
-                else
-                {
-                    anyUnchecked = true;
-                }
-            }
-            
-            foreach (var child in Files)
-            {
-                if (child.isChecked == true)
-                {
-                    if (anyChecked)
-                    {
-                        atLeastTwoChecked = true;
-                    }
-                    anyChecked = true;
-                }
-                else
-                {
-                    anyUnchecked = true;
-                }
-            }
-
-            var localParent = Parent;
-            List<MDFolder> ancestorList = new();
-
-            // Find chain of unchecked ancestors and set isChecked to true
-            while (localParent != null)
-            {
-                if (localParent.isChecked == true)
-                {
-                    ancestorChecked = true;
-
-                    // Disable events updating ancestors or children while setting values  
-                    foreach (var item in ancestorList)
-                    {
-                        item.CheckedChanged -= item.CheckedChangedUpdateChildren;
-                        item.CheckedChanged -= item.CheckedChangedUpdateParent;
-                        item.isChecked = true;
-                        item.CheckedChanged += item.CheckedChangedUpdateChildren;
-                        item.CheckedChanged += item.CheckedChangedUpdateParent;
-                    }
-
-                    break;
-                }
-
-                ancestorList.Add(localParent);
-                localParent = localParent.Parent;
-            }
-
-            // Console.WriteLine("AnyUnchecked='{0}'", anyUnchecked);
-            // Console.WriteLine("AnyChecked='{0}'", anyChecked);
-            // Console.WriteLine("atLeastTwoChecked='{0}'", atLeastTwoChecked);
-            // Console.WriteLine("ancestorChecked='{0}'", ancestorChecked);
+            // // Prevent feedback loop
+            // this.CheckedChanged -= this.CheckedChangedUpdateChildren;
             //
-            // Change here to interact with IsThreeState properly
-            // if (anyChecked && anyUnchecked)
+            // bool anyChecked = false;
+            // bool atLeastTwoChecked = false;
+            // bool anyUnchecked = false;
+            // bool ancestorChecked = false;
+            //
+            // foreach (var child in Folders)
             // {
-            //     IsChecked = false;
+            //     if (child.isChecked == true)
+            //     {
+            //         if (anyChecked)
+            //         {
+            //             atLeastTwoChecked = true;
+            //         }
+            //         anyChecked = true;
+            //     }
+            //     else
+            //     {
+            //         anyUnchecked = true;
+            //     }
             // }
-            if (anyUnchecked == false || atLeastTwoChecked || (ancestorChecked && anyChecked))
-            {
-                isChecked = true;
-            }
-            else if (anyChecked == false)
-            {
-                isChecked = false;
-            }
-            
-            // Restore event handler
-            this.CheckedChanged += this.CheckedChangedUpdateChildren;
+            //
+            // foreach (var child in Files)
+            // {
+            //     if (child.isChecked == true)
+            //     {
+            //         if (anyChecked)
+            //         {
+            //             atLeastTwoChecked = true;
+            //         }
+            //         anyChecked = true;
+            //     }
+            //     else
+            //     {
+            //         anyUnchecked = true;
+            //     }
+            // }
+            //
+            // var localParent = Parent;
+            // List<MDFolder> ancestorList = new();
+            //
+            // // Find chain of unchecked ancestors and set isChecked to true
+            // while (localParent != null)
+            // {
+            //     if (localParent.isChecked == true)
+            //     {
+            //         ancestorChecked = true;
+            //
+            //         // Disable events updating ancestors or children while setting values  
+            //         foreach (var item in ancestorList)
+            //         {
+            //             item.CheckedChanged -= item.CheckedChangedUpdateChildren;
+            //             item.CheckedChanged -= item.CheckedChangedUpdateParent;
+            //             item.isChecked = true;
+            //             item.CheckedChanged += item.CheckedChangedUpdateChildren;
+            //             item.CheckedChanged += item.CheckedChangedUpdateParent;
+            //         }
+            //
+            //         break;
+            //     }
+            //
+            //     ancestorList.Add(localParent);
+            //     localParent = localParent.Parent;
+            // }
+            //
+            // // Console.WriteLine("AnyUnchecked='{0}'", anyUnchecked);
+            // // Console.WriteLine("AnyChecked='{0}'", anyChecked);
+            // // Console.WriteLine("atLeastTwoChecked='{0}'", atLeastTwoChecked);
+            // // Console.WriteLine("ancestorChecked='{0}'", ancestorChecked);
+            // //
+            // // Change here to interact with IsThreeState properly
+            // // if (anyChecked && anyUnchecked)
+            // // {
+            // //     IsChecked = false;
+            // // }
+            // if (anyUnchecked == false || atLeastTwoChecked || (ancestorChecked && anyChecked))
+            // {
+            //     isChecked = true;
+            // }
+            // else if (anyChecked == false)
+            // {
+            //     isChecked = false;
+            // }
+            //
+            // // Restore event handler
+            // this.CheckedChanged += this.CheckedChangedUpdateChildren;
         }
        
        public List<SymmetricReference> GetAllAndDescendantSymmetricReferences()
@@ -777,6 +810,62 @@ namespace SecureWiki.Model
 
            return outputList;
        }
+    }
+
+    public class MDFolderKeyring : MDFolder
+    {
+        public MDFolderKeyring(string name, MDFolder? parent) : base(name, parent)
+        {
+            
+        }
+
+        protected override MDFolder NewFolder(string folderName)
+        {
+            Console.WriteLine("protected override MDFolder NewFolder(string folderName) entered in " + name);    
+            var newFolder = new MDFolderKeyring(folderName, this);
+            return newFolder;
+        }
+        
+        // Update children isChecked based own value
+        protected override void CheckedChangedUpdateChildren(object? sender, EventArgs e)
+        {
+            Console.WriteLine("protected override void CheckedChangedUpdateChildren entered in " + name);
+            // Disable events updating ancestors while setting values  
+            foreach (var child in Folders)
+            {
+                child.CheckedChanged -= child.CheckedChangedUpdateParent;
+                child.isChecked = isChecked;
+                child.isCheckedEnabled = !isChecked;
+                child.CheckedChanged += child.CheckedChangedUpdateParent;
+            }
+            
+            foreach (var child in Files)
+            {
+                child.CheckedChanged -= child.CheckedChangedUpdateParent;
+                child.isChecked = isChecked;
+                child.isCheckedEnabled = !isChecked;
+                child.CheckedChanged += child.CheckedChangedUpdateParent;
+            }
+        }
+        
+        // Update children isCheckedWrite based own value
+        protected override void CheckedWriteChangedUpdateChildren(object? sender, EventArgs e)
+        {
+            foreach (var child in Folders)
+            {
+                child.isCheckedWrite = isCheckedWrite;
+            }
+            
+            foreach (var child in Files)
+            {
+                child.isCheckedWrite = isCheckedWrite;
+            }
+        }
+        
+        public override void PrintOwnInfo()
+        {
+            Console.WriteLine("MDFolderKeyring '{0}':", name);
+        }
     }
 
     public class MDFile : MDItem
@@ -817,6 +906,8 @@ namespace SecureWiki.Model
 
         public MDFile(string filename, MDFolder parent, SymmetricReference reference) : base(filename)
         {
+            Console.WriteLine("MDFile created, printing info");
+            PrintInfo();
             Parent = parent;
             symmetricReference = reference;
             
