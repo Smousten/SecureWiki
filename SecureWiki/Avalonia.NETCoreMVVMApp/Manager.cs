@@ -115,7 +115,7 @@ namespace SecureWiki
 
             PopulateMountedDirMirror(MasterKeyring);
             mountedDirMirror.CreateFileStructureRecursion(GetRootDir(""));
-            mountedDirMirror.PrintInfo();
+            // mountedDirMirror.PrintInfo();
 
             // var res = ShowMessageBox("some very loooooooooooooooooooooooooong title", " and some very loooooooooooooooooooooooooong title", MessageBox.Buttons.YesNoCancel);
             // Console.WriteLine(res.ToString());
@@ -1398,10 +1398,8 @@ namespace SecureWiki
 
         public void PopulateMountedDirMirror(MasterKeyring rk)
         {
-            Console.WriteLine("PopulateMountedDirMirror entered");
             var symmRefList = rk.GetAllAndDescendantSymmetricReferencesToGenericFiles(new List<Keyring>());
             mountedDirMirror.Clear();
-            Console.WriteLine("symmRefList.count = " + symmRefList.Count);
 
             mountedDirMirror.RootFolder.name = rk.name;
 
@@ -1410,7 +1408,6 @@ namespace SecureWiki
 
             foreach (var symmRef in symmRefList)
             {
-                Console.WriteLine("adding symmRef '{0}' to MDMirror", symmRef.accessFileTargetPageName);
                 var mapping = rk.GetMountedDirMapping(symmRef.accessFileTargetPageName);
 
                 if (mapping != null)
@@ -1419,7 +1416,6 @@ namespace SecureWiki
                 }
                 else
                 {
-                    Console.WriteLine("no mapping exists");
                     mountedDirMirror.CreateFile(defaultPath + unmappedCnt, symmRef);
                     unmappedCnt++;
                 }
@@ -1434,36 +1430,43 @@ namespace SecureWiki
             visitedKeyrings.Add(keyring);
             foreach (var symmRef in keyring.SymmetricReferences)
             {
-                if (symmRef.type == PageType.GenericFile)
+                switch (symmRef.type)
                 {
-                    if (symmRef.targetAccessFile != null)
+                    case PageType.GenericFile:
                     {
-                        var parentKeyring = mountedDirMirror.GetMDFolder(path[..^1]);
-                        if (parentKeyring != null)
+                        // Add MDFile representing Access File. Let name start with '_' and be either mapping
+                        // from Master Keyring or page name of target file
+                        var mapping = MasterKeyring.GetMountedDirMapping(symmRef.accessFileTargetPageName);
+                        mountedDirMirror.CreateFile(Path.Combine(path, "_" + (mapping ?? symmRef.accessFileTargetPageName)), symmRef);
+                        break;
+                    }
+                    case PageType.Keyring:
+                    {
+                        var kr = symmRef.targetAccessFile?.AccessFileReference?.KeyringTarget;
+                        if (kr == null)
                         {
-                            // var accessMDFile = new MDFile(symmRef.targetAccessFile.filename, parentKeyring, symmRef);
-                            mountedDirMirror.CreateFile(path, symmRef);
+                            Console.WriteLine("PopulateMountedDirKeyrings:- Keyring pn='{0}' is null", symmRef.accessFileTargetPageName);
+                            continue;
                         }
+                        
+                        // Add MDFile representing Access File to Keyring.
+                        mountedDirMirror.CreateFile(Path.Combine(path, "_" + kr.name), symmRef);
+
+                        // Add folder representing Keyring
+                        mountedDirMirror.AddFolder(path + kr.name);
+
+                        if (visitedKeyrings.Contains(kr))
+                        {
+                            Console.WriteLine("keyring already visited, name = " + keyring.name);
+                            continue;
+                        }
+
+                        // Continue recursively with children Keyrings
+                        PopulateMountedDirKeyrings(kr, Path.Combine(path, kr.name), visitedKeyrings);
+                        break;
                     }
-                }
-
-                if (symmRef.type == PageType.Keyring)
-                {
-                    var kr = symmRef.targetAccessFile?.AccessFileReference?.KeyringTarget;
-                    if (kr == null)
-                    {
-                        continue;
-                    }
-
-                    mountedDirMirror.AddFolder(path + kr.name);
-
-                    if (visitedKeyrings.Contains(kr))
-                    {
-                        Console.WriteLine("keyring already visited, name = " + keyring.name);
-                        continue;
-                    }
-
-                    PopulateMountedDirKeyrings(kr, path + kr.name + '/', visitedKeyrings);
+                    default:
+                        break;
                 }
             }
         }

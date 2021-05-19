@@ -633,14 +633,11 @@ namespace SecureWiki.Model
         
         public List<SymmetricReference> GetAllAndDescendantSymmetricReferencesToGenericFiles(List<Keyring> visitedKeyrings)
         {
-            Console.WriteLine("GetAllAndDescendantSymmetricReferencesToGenericFiles entered, visitedKeyrings.count = " + visitedKeyrings.Count);
             var outputList = new List<SymmetricReference>();
             visitedKeyrings.Add(this);
 
             foreach (var symmRef in SymmetricReferences)
             {
-                Console.WriteLine("getting descendants from symmRef.target='{0}', type=='{1}'", 
-                    symmRef.accessFileTargetPageName, symmRef.type.ToString());
                 if (symmRef.type == PageType.GenericFile)
                 {
                     outputList.Add(symmRef);

@@ -125,6 +125,7 @@ namespace SecureWiki.Model
         {
             RootFolder.CreateFileStructureRecursion(path);
             var keyringPath = Path.Combine(path, KeyringFolder.name);
+            Directory.CreateDirectory(keyringPath);
             KeyringFolder.CreateFileStructureRecursion(keyringPath);
         }
 
@@ -343,7 +344,6 @@ namespace SecureWiki.Model
 
         public void CreateFileStructureRecursion(string path)
         {
-            PrintInfoRecursively();
             foreach (var file in Files)
             {
                 File.Create(Path.Combine(path, file.name)).Dispose();
@@ -492,14 +492,13 @@ namespace SecureWiki.Model
 
         public MDFile? CreateFileRecursively(string[] path, int cnt, SymmetricReference reference)
         {
-            Console.WriteLine("path[cnt]: '{0}'", path[cnt]);
+            if (path[cnt].Length < 1)
+            {
+                Console.WriteLine("CreateFileRecursively:- Illegal path, returning null in name=" + name);
+                return null;
+            }
             if (path.Length - cnt <= 1)
             {
-                if (path[cnt].Length < 1)
-                {
-                    Console.WriteLine("CreateFileRecursively:- Illegal name, returning null in name=" + name);
-                    return null;
-                }
                 var index = Files.BinarySearch(new MDFile {name = path[cnt]}, new MDFileComparer());
                 if (index < 0)
                 {
@@ -821,7 +820,6 @@ namespace SecureWiki.Model
 
         protected override MDFolder NewFolder(string folderName)
         {
-            Console.WriteLine("protected override MDFolder NewFolder(string folderName) entered in " + name);    
             var newFolder = new MDFolderKeyring(folderName, this);
             return newFolder;
         }
@@ -906,8 +904,6 @@ namespace SecureWiki.Model
 
         public MDFile(string filename, MDFolder parent, SymmetricReference reference) : base(filename)
         {
-            Console.WriteLine("MDFile created, printing info");
-            PrintInfo();
             Parent = parent;
             symmetricReference = reference;
             
