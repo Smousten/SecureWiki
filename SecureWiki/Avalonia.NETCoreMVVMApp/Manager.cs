@@ -674,34 +674,62 @@ namespace SecureWiki
 
         public void UploadNewVersion(string filename, string filepath)
         {
-            AccessFile? af = GetAccessFile(filepath);
-            var keyList = af?.keyList.Last();
-            if (keyList?.PrivateKey != null)
+            string pageName;
+            var mdFile = mountedDirMirror.GetMDFile(filepath);
+            var symmRef = mdFile?.symmetricReference;
+
+            if (symmRef == null)
             {
-                var wikiHandler = GetWikiHandler(af!.serverLink);
-
-                if (wikiHandler != null)
-                {
-                    // Write to logger
-                    string loggerMsg = "Attempting to upload file to server '" + af!.serverLink + "'";
-                    WriteToLogger(loggerMsg, filepath);
-
-                    var fileContent = File.ReadAllBytes(GetRootDir(filepath));
-                    wikiHandler.Upload(af!, fileContent);
-                }
-                else
-                {
-                    // Write to logger
-                    string loggerMsg = $"File upload to server '{af!.serverLink}' " +
-                                       $"failed due to missing server credentials";
-                    WriteToLogger(loggerMsg, null);
-                }
+                // Write to logger
+                string loggerMsg = $"File upload to server failed. Could not find Symmetric Reference";
+                WriteToLogger(loggerMsg, filepath);
+                return;
+            }
+            
+            var whAF = GetWikiHandler(symmRef.serverLink);
+            if (whAF == null) return;
+            
+            if (mdFile!.TargetType == MDFile.Type.AccessFile)
+            {
+                var fileContent = File.ReadAllBytes(GetRootDir(filepath));
+                whAF.Upload(symmRef, fileContent);
             }
             else
             {
-                Console.WriteLine("{0}: the corresponding AccessFileEntry does not contain" +
-                                  " a private key, upload cancelled", filepath);
+                // Get Access File
+                var af = symmRef.targetAccessFile ?? whAF.DownloadAccessFile(symmRef);
+                if (af == null) return;
+            
+            
+                var keyList = af.keyList.Last();
+                if (keyList.PrivateKey != null)
+                {
+                    var whAFTarget = GetWikiHandler(af.serverLink);
+
+                    if (whAFTarget != null)
+                    {
+                        // Write to logger
+                        string loggerMsg = "Attempting to upload file to server '" + af.serverLink + "'";
+                        WriteToLogger(loggerMsg, filepath);
+
+                        var fileContent = File.ReadAllBytes(GetRootDir(filepath));
+                        whAFTarget.Upload(af!, fileContent);
+                    }
+                    else
+                    {
+                        // Write to logger
+                        string loggerMsg = $"File upload to server '{af!.serverLink}' " +
+                                           $"failed due to missing server credentials";
+                        WriteToLogger(loggerMsg, null);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("{0}: the corresponding AccessFileEntry does not contain" +
+                                      " a private key, upload cancelled", filepath);
+                }
             }
+            
         }
 
         public AccessFile? GetAccessFile(string filepath)
@@ -1138,7 +1166,7 @@ namespace SecureWiki
             WriteToLogger($"Attempting to revoke access to file '{accessFile.filename}'");
 
             var wikiHandler = GetWikiHandler(accessFile.serverLink);
-            var latestRevision = wikiHandler?.GetLatestRevision(accessFile);
+            var latestRevision = wikiHandler?.GetLatestRevision(accessFile.pageName);
 
             // Create new cryptographic keys for access file
             if (latestRevision?.revisionID != null && accessFile.ownerPrivateKey != null)

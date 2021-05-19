@@ -6,7 +6,7 @@ namespace SecureWiki.MediaWiki
     public interface IServerInteraction
     {
         // Returns latest revision stored on server of data file
-        public Revision GetLatestRevision(AccessFile accessFile);
+        public Revision GetLatestRevision(string pageName);
 
         // Returns latest revision stored on server of data file,
         // where the data file entry contains decryption key
@@ -18,6 +18,9 @@ namespace SecureWiki.MediaWiki
         // Upload byte[] stored in file to server
         // public bool Upload(AccessFile accessFile, string filepath);
         public bool Upload(AccessFile accessFile, byte[] content);
+        
+        // Upload using a Symmetric Reference and its key
+        public bool Upload(SymmetricReference symmetricReference, byte[] content);
 
         // Returns decrypted data stored on server of data file with given revID
         public byte[]? Download(AccessFile accessFile, string? revid = null);
