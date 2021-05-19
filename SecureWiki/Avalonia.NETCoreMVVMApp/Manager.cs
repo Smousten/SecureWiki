@@ -1164,84 +1164,84 @@ namespace SecureWiki
             var result = wikiHandler?.UploadToInboxPage(pageTitle, content, publicKey);
             return result == true;
         }
-
-        public void TestUpload()
-        {
-            var contact = contactManager.GetOwnContactByNickname("Test");
-
-            if (contact == null)
-            {
-                Console.WriteLine("contact is null");
-                return;
-            }
-
-            // var pubKey =
-            //     "MIIBCgKCAQEAug/PiOEJGPvdFdfyhMZLzp1ELdH1UBNMStxnGAQ3eQRJ0RyzgmSvq9FD9g106oPpz+GxaLjPplhz10bn108IwpjcB4+5XLMhedU0K4bOUHpSwsn+af6nkinU5/3BYN2EsI1hR31GNn0HiR0utJVs/6/CIZ/6RWPd4Z4CbD0f+Og4v3x24a0eYgr/vb02+T0HVG9gOyjomPnLiCj+pqnLb+x1Evpyy2y8SXXR76YpP+CVtgMRmQ4k+6YHU3VLCGTmwDEEvhm6KkjozA3A3RAl2M4BvKTZiHG1SxM79pUJkpFSor2SuRmrAr1S4tCgY9wBhBf0yRBZJa9xxjSVnZkWEwIDAQAB";
-            // var pubKeyBytes = Convert.FromBase64String(pubKey);
-
-            var pubKeyBytes = contact.PublicKey;
-
-            var af = MasterKeyring.accessFiles.First();
-
-            var afString = JSONSerialization.SerializeObject(af);
-
-            Console.WriteLine("afString");
-            Console.WriteLine(afString);
-
-            string content = afString;
-
-            UploadToInboxPage(contact.ServerLink, contact.PageTitle, content, pubKeyBytes);
-        }
-
-        public void TestDownloadInboxes()
-        {
-            var wikiHandler = GetWikiHandler("http://192.168.1.7/mediawiki/api.php");
-
-            wikiHandler?.DownloadFromInboxPages();
-        }
-
-        public void TestDownload()
-        {
-            // var contact = contactManager.GetOwnContactByNickname("Test");
-            var contact = contactManager.GetContactByPageTitle("InboxPageTest");
-
-            if (contact == null)
-            {
-                Console.WriteLine("contact is null");
-                return;
-            }
-
-            Console.WriteLine("contact is not null");
-
-            // var pubKey =
-            //     "MIIBCgKCAQEAug/PiOEJGPvdFdfyhMZLzp1ELdH1UBNMStxnGAQ3eQRJ0RyzgmSvq9FD9g106oPpz+GxaLjPplhz10bn108IwpjcB4+5XLMhedU0K4bOUHpSwsn+af6nkinU5/3BYN2EsI1hR31GNn0HiR0utJVs/6/CIZ/6RWPd4Z4CbD0f+Og4v3x24a0eYgr/vb02+T0HVG9gOyjomPnLiCj+pqnLb+x1Evpyy2y8SXXR76YpP+CVtgMRmQ4k+6YHU3VLCGTmwDEEvhm6KkjozA3A3RAl2M4BvKTZiHG1SxM79pUJkpFSor2SuRmrAr1S4tCgY9wBhBf0yRBZJa9xxjSVnZkWEwIDAQAB";
-            // var pubKeyBytes = Convert.FromBase64String(pubKey);
-
-            var wikihandler = GetWikiHandler(contact.ServerLink);
-
-            if (wikihandler == null)
-            {
-                Console.WriteLine("wikihandler is null");
-                return;
-            }
-
-            Console.WriteLine("wikihandler is not null");
-
-            var output = wikihandler.DownloadFromInboxPages();
-
-            if (output == null)
-            {
-                Console.WriteLine("output is null");
-                return;
-            }
-
-            Console.WriteLine("output is not null");
-
-            foreach (var item in output)
-            {
-                Console.WriteLine("count: " + item.Count);
-            }
-        }
+        //
+        // public void TestUpload()
+        // {
+        //     var contact = contactManager.GetOwnContactByNickname("Test");
+        //
+        //     if (contact == null)
+        //     {
+        //         Console.WriteLine("contact is null");
+        //         return;
+        //     }
+        //
+        //     // var pubKey =
+        //     //     "MIIBCgKCAQEAug/PiOEJGPvdFdfyhMZLzp1ELdH1UBNMStxnGAQ3eQRJ0RyzgmSvq9FD9g106oPpz+GxaLjPplhz10bn108IwpjcB4+5XLMhedU0K4bOUHpSwsn+af6nkinU5/3BYN2EsI1hR31GNn0HiR0utJVs/6/CIZ/6RWPd4Z4CbD0f+Og4v3x24a0eYgr/vb02+T0HVG9gOyjomPnLiCj+pqnLb+x1Evpyy2y8SXXR76YpP+CVtgMRmQ4k+6YHU3VLCGTmwDEEvhm6KkjozA3A3RAl2M4BvKTZiHG1SxM79pUJkpFSor2SuRmrAr1S4tCgY9wBhBf0yRBZJa9xxjSVnZkWEwIDAQAB";
+        //     // var pubKeyBytes = Convert.FromBase64String(pubKey);
+        //
+        //     var pubKeyBytes = contact.PublicKey;
+        //
+        //     var af = MasterKeyring.accessFiles.First();
+        //
+        //     var afString = JSONSerialization.SerializeObject(af);
+        //
+        //     Console.WriteLine("afString");
+        //     Console.WriteLine(afString);
+        //
+        //     string content = afString;
+        //
+        //     UploadToInboxPage(contact.ServerLink, contact.PageTitle, content, pubKeyBytes);
+        // }
+        //
+        // public void TestDownloadInboxes()
+        // {
+        //     var wikiHandler = GetWikiHandler("http://192.168.1.7/mediawiki/api.php");
+        //
+        //     wikiHandler?.DownloadFromInboxPages();
+        // }
+        //
+        // public void TestDownload()
+        // {
+        //     // var contact = contactManager.GetOwnContactByNickname("Test");
+        //     var contact = contactManager.GetContactByPageTitle("InboxPageTest");
+        //
+        //     if (contact == null)
+        //     {
+        //         Console.WriteLine("contact is null");
+        //         return;
+        //     }
+        //
+        //     Console.WriteLine("contact is not null");
+        //
+        //     // var pubKey =
+        //     //     "MIIBCgKCAQEAug/PiOEJGPvdFdfyhMZLzp1ELdH1UBNMStxnGAQ3eQRJ0RyzgmSvq9FD9g106oPpz+GxaLjPplhz10bn108IwpjcB4+5XLMhedU0K4bOUHpSwsn+af6nkinU5/3BYN2EsI1hR31GNn0HiR0utJVs/6/CIZ/6RWPd4Z4CbD0f+Og4v3x24a0eYgr/vb02+T0HVG9gOyjomPnLiCj+pqnLb+x1Evpyy2y8SXXR76YpP+CVtgMRmQ4k+6YHU3VLCGTmwDEEvhm6KkjozA3A3RAl2M4BvKTZiHG1SxM79pUJkpFSor2SuRmrAr1S4tCgY9wBhBf0yRBZJa9xxjSVnZkWEwIDAQAB";
+        //     // var pubKeyBytes = Convert.FromBase64String(pubKey);
+        //
+        //     var wikihandler = GetWikiHandler(contact.ServerLink);
+        //
+        //     if (wikihandler == null)
+        //     {
+        //         Console.WriteLine("wikihandler is null");
+        //         return;
+        //     }
+        //
+        //     Console.WriteLine("wikihandler is not null");
+        //
+        //     var output = wikihandler.DownloadFromInboxPages();
+        //
+        //     if (output == null)
+        //     {
+        //         Console.WriteLine("output is null");
+        //         return;
+        //     }
+        //
+        //     Console.WriteLine("output is not null");
+        //
+        //     foreach (var item in output)
+        //     {
+        //         Console.WriteLine("count: " + item.Count);
+        //     }
+        // }
 
         // // create new keyring containing all access files selected by user in GUI
         // // send new Keyring to the selected contacts inbox page
@@ -1481,6 +1481,12 @@ namespace SecureWiki
         {
             var symmetricReferences =
                 mountedDirMirror.GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedRootFolder();
+            
+            // Remove symmetric references from existing parent keyrings? 
+            // foreach (var symmRef in symmetricReferences)
+            // {
+            //     symmRef.keyringParent?.SymmetricReferences.Remove(symmRef);
+            // }
             
             foreach (var keyring in keyrings)
             {

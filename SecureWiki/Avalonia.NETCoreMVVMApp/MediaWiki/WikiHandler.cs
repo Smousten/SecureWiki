@@ -555,30 +555,33 @@ namespace SecureWiki.MediaWiki
                     var encryptedContentBytes = pageContentBytes.Skip(256).ToArray();
 
                     // Get IV and symmetric key
-                    var decryptedSymmKeyData =
-                        Crypto.RSADecryptWithPrivateKey(encryptedSymmKeyData, contact.PrivateKey);
-                    var iv = decryptedSymmKeyData?.Take(16).ToArray();
-                    var symmKey = decryptedSymmKeyData?.Skip(16).ToArray();
-
-                    if (symmKey == null || iv == null)
+                    if (contact.InboxReference.privateKey != null)
                     {
-                        Console.WriteLine("symmKey or iv null");
-                        break;
+                        var decryptedSymmKeyData =
+                            Crypto.RSADecryptWithPrivateKey(encryptedSymmKeyData, contact.InboxReference.privateKey);
+                        var iv = decryptedSymmKeyData?.Take(16).ToArray();
+                        var symmKey = decryptedSymmKeyData?.Skip(16).ToArray();
+
+                        if (symmKey == null || iv == null)
+                        {
+                            Console.WriteLine("symmKey or iv null");
+                            break;
+                        }
+
+                        // Decrypt ciphertext
+                        var decryptedContent = Crypto.Decrypt(encryptedContentBytes, symmKey, iv);
+                        // var decryptedContent = Crypto.DecryptGCM(encryptedContentBytes, symmKey);
+                        if (decryptedContent == null)
+                        {
+                            Console.WriteLine("decryptedContent is null");
+                            break;
+                        }
+
+                        // Convert plaintext to string
+                        var decryptedContentString = Encoding.ASCII.GetString(decryptedContent);
+
+                        contentList.Add(decryptedContentString);
                     }
-
-                    // Decrypt ciphertext
-                    var decryptedContent = Crypto.Decrypt(encryptedContentBytes, symmKey, iv);
-                    // var decryptedContent = Crypto.DecryptGCM(encryptedContentBytes, symmKey);
-                    if (decryptedContent == null)
-                    {
-                        Console.WriteLine("decryptedContent is null");
-                        break;
-                    }
-
-                    // Convert plaintext to string
-                    var decryptedContentString = Encoding.ASCII.GetString(decryptedContent);
-
-                    contentList.Add(decryptedContentString);
                 }
 
 
@@ -598,7 +601,7 @@ namespace SecureWiki.MediaWiki
             List<string> encryptedContentList = new();
 
             // Get list of all revisions on 
-            var allRevs = GetAllRevisions(contact.PageTitle);
+            var allRevs = GetAllRevisions(contact.InboxReference.targetPageName);
 
             int highestRev = 0;
 
@@ -617,13 +620,13 @@ namespace SecureWiki.MediaWiki
                 }
 
                 // If content has previously been parsed
-                if (revid <= contact.revidCounter)
+                if (revid <= contact.RevidCounter)
                 {
                     break;
                 }
 
                 // Get page content from server
-                var pageContent = GetPageContent(contact.PageTitle, revid.ToString());
+                var pageContent = GetPageContent(contact.InboxReference.targetPageName, revid.ToString());
 
                 if (pageContent.Equals(""))
                 {
@@ -634,9 +637,9 @@ namespace SecureWiki.MediaWiki
             }
 
             // Update contact revision counter so that these revisions don't have to be parsed again
-            if (highestRev > contact.revidCounter)
+            if (highestRev > contact.RevidCounter)
             {
-                contact.revidCounter = highestRev;
+                contact.RevidCounter = highestRev;
             }
 
             return encryptedContentList.Count > 0 ? encryptedContentList : null;

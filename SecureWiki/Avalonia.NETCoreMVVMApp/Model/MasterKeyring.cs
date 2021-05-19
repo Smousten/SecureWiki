@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using SecureWiki.Utilities;
 
 namespace SecureWiki.Model
 {
@@ -9,6 +10,10 @@ namespace SecureWiki.Model
 
         // Maps pageNames to filepaths
         [JsonProperty] private Dictionary<string, string> MountedDirMapping = new();
+        
+        // Save lists of contacts which contains inbox references
+        [JsonProperty] public List<OwnContact> OwnContacts;
+        [JsonProperty] public List<Contact> Contacts;
         
         public MasterKeyring() : base()
         {
