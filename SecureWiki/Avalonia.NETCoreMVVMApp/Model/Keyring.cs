@@ -736,7 +736,7 @@ namespace SecureWiki.Model
         {
             // Console.WriteLine("KeyRing: Name='{0}', Checked='{1}', Parent.Name='{2}'", 
             //     name, isChecked, parent?.name ?? "null");
-            Console.WriteLine("KeyRing: Name='{0}', Checked='{1}', Parent.Name='{2}'", 
+            Console.WriteLine("KeyRing: Name='{0}', Parent.Name='{1}'", 
                 name, parent?.name ?? "null");
             foreach (AccessFile item in accessFiles)
             {

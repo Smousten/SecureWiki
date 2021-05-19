@@ -287,7 +287,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <!--IsChecked CheckBox-->
                                 <CheckBox IsChecked="{Binding isChecked}" MinWidth="20" Name="CheckBox"
-                                          Initialized="CheckBox_OnInitialized" />
+                                          Initialized="CheckBox_OnInitialized" IsEnabled="{Binding isCheckedEnabled}" />
                                 <!--IsCheckedWrite CheckBox-->
                                 <CheckBox IsChecked="{Binding isCheckedWrite}" MinWidth="20" Name="CheckBoxWrite"
                                           IsEnabled="{Binding isCheckedWriteEnabled}" />
@@ -302,7 +302,7 @@
                                        MaxWidth="{Binding Bounds.Width, ElementName=ScrollViewerTreeView}">
                                 <!--IsChecked CheckBox-->
                                 <CheckBox IsChecked="{Binding isChecked}" DockPanel.Dock="Left" MinWidth="20"
-                                          Name="CheckBox" Initialized="CheckBox_OnInitialized" />
+                                          Name="CheckBox" Initialized="CheckBox_OnInitialized" IsEnabled="{Binding isCheckedEnabled}" />
                                 <!--IsCheckedWrite CheckBox-->
                                 <CheckBox IsChecked="{Binding isCheckedWrite}" DockPanel.Dock="Left" MinWidth="20"
                                           Name="CheckBoxWrite" IsEnabled="{Binding isCheckedWriteEnabled}" />
