@@ -45,9 +45,9 @@ namespace SecureWiki.MediaWiki
             return allRevisions;
         }
 
-        public Revision GetLatestRevision(AccessFile accessFile)
+        public Revision GetLatestRevision(string pageName)
         {
-            MediaWikiObject.PageQuery.LatestRevision latestRevision = new(_mwo, accessFile.pageName);
+            MediaWikiObject.PageQuery.LatestRevision latestRevision = new(_mwo, pageName);
             latestRevision.GetLatestRevision();
             return latestRevision.revision;
         }
@@ -81,32 +81,11 @@ namespace SecureWiki.MediaWiki
 
         public bool Upload(AccessFile accessFile, byte[] content)
         {
-            // var srcDir = GetRootDir(filepath);
-            // var plainText = File.ReadAllBytes(srcDir);
             var plainText = content;
-            string pageTitle = accessFile.pageName;
-
+            string pageName = accessFile.pageName;
             if (plainText.Length <= 0) return false;
 
-            var latestRevIDInCache = _manager.cacheManager.GetLatestRevisionID(pageTitle);
-            var rev = GetLatestRevision(accessFile);
-
-            if (rev.revisionID != null && !rev.revisionID.Equals(latestRevIDInCache))
-            {
-                string warningString = "Your changes are no longer based on the newest revision available, " +
-                                       "push changes to server regardless?" +
-                                       "\nUploaded: " + rev.timestamp +
-                                       "\nBy user: " + rev.user +
-                                       "\nContent size: " + rev.size;
-
-                var msgBoxOutput = Manager.ShowMessageBox("Warning!", warningString);
-
-                if (msgBoxOutput == MessageBox.Result.Cancel)
-                {
-                    Console.WriteLine("Upload cancelled");
-                    return false;
-                }
-            }
+            if (!ConfirmUpload(pageName)) return false;
 
             // Find latest key in data file key list
             var key = accessFile.keyList.Last();
@@ -150,6 +129,61 @@ namespace SecureWiki.MediaWiki
             }
 
             return false;
+        }
+
+        public bool Upload(SymmetricReference symmetricReference, byte[] content)
+        {
+            string pageName = symmetricReference.targetPageName;
+            if (content.Length <= 0) return false;
+
+            if (!ConfirmUpload(pageName)) return false;
+            var cipherTextBytes = Crypto.EncryptGCM(content, symmetricReference.symmKey);
+
+            MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
+                symmetricReference.targetPageName);
+
+            if (cipherTextBytes == null) return false;
+            
+            var cipherText = Convert.ToBase64String(cipherTextBytes);
+            var httpResponse = uploadNewRevision.UploadContent(cipherText);
+            _mwo.editToken ??= uploadNewRevision.editToken;
+
+            // Check if upload was successful
+            if (httpResponse != null)
+            {
+                var response = new Response(httpResponse);
+                if (response.Result == Response.ResultType.Success)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
+        private bool ConfirmUpload(string pageName)
+        {
+            var latestRevIDInCache = _manager.cacheManager.GetLatestRevisionID(pageName);
+            var rev = GetLatestRevision(pageName);
+
+            if (rev.revisionID != null && !rev.revisionID.Equals(latestRevIDInCache))
+            {
+                string warningString = "Your changes are no longer based on the newest revision available, " +
+                                       "push changes to server regardless?" +
+                                       "\nUploaded: " + rev.timestamp +
+                                       "\nBy user: " + rev.user +
+                                       "\nContent size: " + rev.size;
+
+                var msgBoxOutput = Manager.ShowMessageBox("Warning!", warningString);
+
+                if (msgBoxOutput == MessageBox.Result.Cancel)
+                {
+                    Console.WriteLine("Upload cancelled");
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         // Get latest valid revision of wiki page
