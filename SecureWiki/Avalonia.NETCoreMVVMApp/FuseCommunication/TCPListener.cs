@@ -183,14 +183,7 @@ namespace SecureWiki.FuseCommunication
         // Should upload new version to server
         public void Write(string filename, string filepath)
         {
-            var filepathSplit = filepath.Split('/');
-            
-            // Check if the file should be added to new server keyring
-            if (filepathSplit[0].Equals("Keyrings"))
-            {
-                _manager.AddFileToKeyring(filename, filepath);
-            }
-            else if (RealFileName(filename) && 
+            if (RealFileName(filename) && 
                 !(lastOperation == Operation.Write && filename.Equals(previousFilename) && filepath.Equals(previousFilepath)))
             {
                 previousFilename = filename;

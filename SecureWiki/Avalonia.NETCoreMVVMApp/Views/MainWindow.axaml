@@ -118,53 +118,55 @@
                 </Border>
             </Popup>
             
-            <Button Name="ButtonExportContact" Click="ShowButtonPopup_Click" Tag="ExportContactsPopup">Export contacts</Button>
-            <!--Export contacts popup-->
-            <Popup Name="ExportContactsPopup" PlacementTarget="ButtonExportContact" IsLightDismissEnabled="True">
-                <Border BorderBrush="Black" BorderThickness="1,1,1,1">
-                    <Grid>
-                        <Grid ColumnDefinitions="Auto" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" Background="White">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Name="ExportContactsText" 
-                                       Text="Select the contacts you wish to export."
-                                       TextAlignment="Center" />
-                            <TextBlock Grid.Row="1" Grid.Column="0" Name="ExportContactsOwnText" 
-                                       Text="List of own contacts."
-                                       TextAlignment="Left" />
-                            <ListBox Grid.Row="2" Grid.Column="0" Items="{Binding ExportContactsOwn, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedExportContactsOwn}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="utilities:Contact">
-                                        <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
-                                            <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock>
-                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" />
-                                            <TextBlock Grid.Row="1" Grid.Column="0">Server link: </TextBlock>
-                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ServerLink}" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                            <TextBlock Grid.Row="3" Grid.Column="0" Name="ExportContactsOtherText" 
-                                       Text="List of other contacts."
-                                       TextAlignment="Left" />
-                            <ListBox Grid.Row="4" Grid.Column="0" Items="{Binding ExportContactsOther, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedExportContactsOther}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="utilities:Contact">
-                                        <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
-                                            <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock>
-                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" />
-                                            <TextBlock Grid.Row="1" Grid.Column="0">Server link: </TextBlock>
-                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ServerLink}" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                            <Button Grid.Row="5" Grid.Column="0" Click="HideButtonPopup_Click" Tag="ExportContactsPopup" Margin="30,80,10,10">Cancel</Button>
-                            <Button Grid.Row="5" Grid.Column="0" Click="ExportContactsPopup_Click" Tag="ExportContactsPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button>
-                        </Grid>
-                    </Grid>
-                </Border>
-            </Popup>
+            <!-- <Button Name="ButtonExportContact" Click="ShowButtonPopup_Click" Tag="ExportContactsPopup">Export contacts</Button> -->
+            <!-- ~1~Export contacts popup@1@ -->
+            <!-- <Popup Name="ExportContactsPopup" PlacementTarget="ButtonExportContact" IsLightDismissEnabled="True"> -->
+            <!--     <Border BorderBrush="Black" BorderThickness="1,1,1,1"> -->
+            <!--         <Grid> -->
+            <!--             <Grid ColumnDefinitions="Auto" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" Background="White"> -->
+            <!--                 <TextBlock Grid.Row="0" Grid.Column="0" Name="ExportContactsText"  -->
+            <!--                            Text="Select the contacts you wish to export." -->
+            <!--                            TextAlignment="Center" /> -->
+            <!--                 <TextBlock Grid.Row="1" Grid.Column="0" Name="ExportContactsOwnText"  -->
+            <!--                            Text="List of own contacts." -->
+            <!--                            TextAlignment="Left" /> -->
+            <!--                 <ListBox Grid.Row="2" Grid.Column="0" Items="{Binding ExportContactsOwn, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedExportContactsOwn}"> -->
+            <!--                     <ListBox.ItemTemplate> -->
+            <!--                         <DataTemplate DataType="utilities:Contact"> -->
+            <!--                             <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto"> -->
+            <!--                                 <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock> -->
+            <!--                                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" /> -->
+            <!--                                 <TextBlock Grid.Row="1" Grid.Column="0">Server link: </TextBlock> -->
+            <!--                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ServerLink}" /> -->
+            <!--                             </Grid> -->
+            <!--                         </DataTemplate> -->
+            <!--                     </ListBox.ItemTemplate> -->
+            <!--                 </ListBox> -->
+            <!--                 <TextBlock Grid.Row="3" Grid.Column="0" Name="ExportContactsOtherText"  -->
+            <!--                            Text="List of other contacts." -->
+            <!--                            TextAlignment="Left" /> -->
+            <!--                 <ListBox Grid.Row="4" Grid.Column="0" Items="{Binding ExportContactsOther, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedExportContactsOther}"> -->
+            <!--                     <ListBox.ItemTemplate> -->
+            <!--                         <DataTemplate DataType="utilities:Contact"> -->
+            <!--                             <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto"> -->
+            <!--                                 <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock> -->
+            <!--                                 <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" /> -->
+            <!--                                 <TextBlock Grid.Row="1" Grid.Column="0">Server link: </TextBlock> -->
+            <!--                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ServerLink}" /> -->
+            <!--                             </Grid> -->
+            <!--                         </DataTemplate> -->
+            <!--                     </ListBox.ItemTemplate> -->
+            <!--                 </ListBox> -->
+            <!--                 <Button Grid.Row="5" Grid.Column="0" Click="HideButtonPopup_Click" Tag="ExportContactsPopup" Margin="30,80,10,10">Cancel</Button> -->
+            <!--                 <Button Grid.Row="5" Grid.Column="0" Click="ExportContactsPopup_Click" Tag="ExportContactsPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button> -->
+            <!--             </Grid> -->
+            <!--         </Grid> -->
+            <!--     </Border> -->
+            <!-- </Popup> -->
+            
+            <Button Name="ButtonExportContact" Click="ButtonExportContact_Click">Export contact information</Button>
 
-            <Button Name="ButtonImportContact" Click="ButtonImportContact_Click">Import contact</Button>
+            <Button Name="ButtonImportContact" Click="ButtonImportContact_Click">Import contact information</Button>
             
             <TextBlock>Enter IP address of MediaWiki server</TextBlock>
             <TextBox Name="TextBoxIp" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"

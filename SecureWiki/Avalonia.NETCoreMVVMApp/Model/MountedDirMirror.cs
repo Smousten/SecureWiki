@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Avalonia.Input;
 using DynamicData;
 using JetBrains.Annotations;
 using ReactiveUI;
@@ -140,6 +141,26 @@ namespace SecureWiki.Model
             AddFile(newPath, mdFile);
             return mdFile;
         }
+        
+        public MDFolder? MoveFolder(string oldPath, string newPath)
+        {
+            var mdFolder = GetMDFolder(oldPath);
+
+            if (mdFolder == null)
+            {
+                Console.WriteLine("Move:- could not find folder at oldPath='{0}'", oldPath);
+                return null;
+            }
+            
+            mdFolder.Parent?.RemoveFolder(mdFolder);
+
+            var newPathSplit = newPath.Split('/');
+            var newParentMDFolderPath = newPath[..(newPath.Length - newPathSplit[^1].Length - 1)];
+            var newParentMDFolder = GetMDFolder(newParentMDFolderPath) ?? AddFolder(newParentMDFolderPath);
+
+            newParentMDFolder?.AddFolder(mdFolder);
+            return mdFolder;
+        }
 
         public List<SymmetricReference> GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedRootFolder()
         {
@@ -151,6 +172,10 @@ namespace SecureWiki.Model
             return KeyringFolder.GetAllAndDescendantSymmetricReferencesBasedOnIsChecked();
         }
 
+        public object GetAllDescendantInboxReferencesBasedOnIsCheckedKeyringFolder()
+        {
+            throw new NotImplementedException();
+        }
     }
     
     public abstract class MDItem : IReactiveObject
@@ -408,6 +433,16 @@ namespace SecureWiki.Model
             Folders.Clear();
             Folders.AddRange(sortedList);
             RaisePropertiesChangedFolders();
+        }
+
+        public List<MDFolder> GetMDFolders()
+        {
+            return Folders.ToList();
+        }
+        
+        public List<MDFile> GetMDFiles()
+        {
+            return Files.ToList();
         }
 
         public MDFile? FindFileRecursively(string[] path, int cnt)

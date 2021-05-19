@@ -479,7 +479,7 @@ namespace SecureWiki.Views
 
             if (path != null)
             {
-                // manager.ImportContact(path);
+                manager.ImportContact(path);
             }
             else
             {
@@ -544,6 +544,13 @@ namespace SecureWiki.Views
             
             var popup = this.FindControl<Popup>("AddToKeyringPopup");
             popup.IsOpen = false;
+        }
+
+        private void ButtonExportContact_Click(object? sender, RoutedEventArgs e)
+        {
+            Thread localThread = new(() =>
+                manager.ExportContact());
+            localThread.Start();
         }
     }
 }

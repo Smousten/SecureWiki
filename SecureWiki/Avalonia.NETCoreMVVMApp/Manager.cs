@@ -900,48 +900,7 @@ namespace SecureWiki
                 WriteToLogger($"Keyring '{keyring.name}' could not be uploaded.");
             }
         }
-
-        public void AddFileToKeyring(string filename, string filepath)
-        {
-            // TODO: find existing pagename for file, create new access file and references to generic file, add symmetric reference to keyring
-
-            AccessFile? genericAccessFile = GetAccessFile(filepath);
-            if (genericAccessFile == null) return;
-            var pageNameGenericFile = genericAccessFile.pageName;
-            var pageNameAccessFile = GetFreshPageName();
-
-            _keyringManager.CreateAccessFileAndReferences(pageNameGenericFile, pageNameAccessFile,
-                configManager.DefaultServerLink, PageType.GenericFile,
-                out SymmetricReference symmetricReference, out AccessFile accessFile,
-                out AccessFileReference accessFileReference);
-
-            // fix
-            var filepathSplit = filepath.Split('/');
-            var keyringName = filepathSplit[^2];
-
-            var symmRef = GetKeyringReference(keyringName, MasterKeyring);
-            var newKeyring = symmRef?.targetAccessFile?.AccessFileReference?.KeyringTarget;
-
-            if (newKeyring == null)
-            {
-                Console.WriteLine("Keyring does not exist");
-                return;
-            }
-
-            newKeyring.AddSymmetricReference(symmetricReference);
-
-            // Upload new files to server
-            var wikiHandler = GetWikiHandler(accessFile!.serverLink);
-            var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
-            Console.WriteLine("uploadResAF:" + uploadResAF);
-
-            if (symmRef?.targetAccessFile != null)
-            {
-                var uploadResKR = wikiHandler?.UploadKeyring(symmRef.targetAccessFile, newKeyring);
-                Console.WriteLine("uploadResKR:" + uploadResKR);
-            }
-        }
-
+        
         private SymmetricReference? GetKeyringReference(string name, Keyring keyring)
         {
             foreach (var symmRef in keyring.SymmetricReferences)
@@ -976,8 +935,17 @@ namespace SecureWiki
             var mdFile = mountedDirMirror.Move(oldPath, newPath);
             if (mdFile == null)
             {
-                Console.WriteLine($"Renaming '{oldPath}' to '{newPath}' failed, creating new file instead");
-                AddNewFile(newPath);
+                var mdFolder = mountedDirMirror.MoveFolder(oldPath, newPath);
+                if (mdFolder != null)
+                {
+                    // Update mapping for all nested files
+                    MasterKeyring.SetMountedDirMappingNested(mdFolder, newPath);
+                }
+                else
+                {
+                    Console.WriteLine($"Renaming '{oldPath}' to '{newPath}' failed, creating new file instead");
+                    AddNewFile(newPath);
+                }
             }
             else
             {
@@ -1542,5 +1510,36 @@ namespace SecureWiki
                 }
             }
         }
+
+        public void ExportContact()
+        {
+            WriteToLogger("Exporting contact information");
+            var inboxReferences =
+                mountedDirMirror.GetAllDescendantInboxReferencesBasedOnIsCheckedKeyringFolder();
+            
+            var currentDir = Directory.GetCurrentDirectory();
+            var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
+            var exportFileName = "ContactExport.json";
+            var exportFilePath = Path.Combine(path, exportFileName);
+            JSONSerialization.SerializeAndWriteFile(exportFilePath, inboxReferences);
+        }
+        
+        public void ImportContact(string path)
+        {
+            WriteToLogger($"Importing contacts from '{path}'");
+            var newInboxReferences = JSONSerialization.ReadFileAndDeserialize(
+                path, typeof(List<InboxReference>)) as List<InboxReference>;
+        
+            if (newInboxReferences == null)
+            {
+                const string loggerMsg = "Import file cannot be parsed as a list of inbox reference objects. " +
+                                         "Merged aborted.";
+                WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
+                return;
+            }
+        
+            
+        }
+
     }
 }
