@@ -7,8 +7,8 @@ namespace SecureWiki.Model
     [JsonObject(MemberSerialization.OptIn)]
     public abstract class Reference
     {
-        [JsonProperty] public string targetPageName;
-        [JsonProperty] public string serverLink;
+        [JsonProperty] public string targetPageName { get; set; }
+        [JsonProperty] public string serverLink { get; set; }
 
         public Reference(string targetPageName, string serverLink)
         {

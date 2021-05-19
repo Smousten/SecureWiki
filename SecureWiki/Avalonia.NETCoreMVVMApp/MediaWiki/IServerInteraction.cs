@@ -59,13 +59,13 @@ namespace SecureWiki.MediaWiki
         public bool UploadMasterKeyring(byte[] key, string pageName, Keyring masterKeyring);
         
         // TODO
-        public AccessFile? DownloadAccessFile(SymmetricReference symmetricReference);
+        public AccessFile? DownloadAccessFile(SymmetricReference symmetricReference, string revid = "-1");
 
         // TODO
-        public Keyring? DownloadKeyring(SymmetricReference symmetricReference);
+        public Keyring? DownloadKeyring(SymmetricReference symmetricReference, string revid = "-1");
 
         // TODO
-        public MasterKeyring? DownloadMasterKeyring(SymmetricReference symmetricReference);
+        public MasterKeyring? DownloadMasterKeyring(SymmetricReference symmetricReference, string revid = "-1");
         
         // TODO
         public void DownloadKeyringsRecursion(Keyring rootKeyring);

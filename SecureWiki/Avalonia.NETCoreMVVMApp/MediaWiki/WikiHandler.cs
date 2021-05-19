@@ -263,6 +263,152 @@ namespace SecureWiki.MediaWiki
 
             return null;
         }
+        
+        public Keyring? GetLatestValidKeyring(AccessFile accessFile, List<Revision> revisions)
+        {
+            for (var i = 0; i < revisions.Count; i++)
+            {
+                // If revision ID is not set, continue
+                var revid = revisions[i].revisionID;
+                if (revid == null)
+                {
+                    continue;
+                }
+
+                // If no valid key is found, continue
+                var key = accessFile.GetAccessFileKeyByRevisionID(revid);
+                if (key == null)
+                {
+                    continue;
+                }
+
+                // Get page content from server
+                var pageContent = GetPageContent(accessFile.pageName, revid);
+
+                // Split downloaded page content into cipher text and signature
+                var splitPageContent = SplitPageContent(pageContent);
+                if (splitPageContent == null) return null;
+
+                // Verify data using public key, ciphertext and signature
+                if (Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes,
+                    splitPageContent.Value.signBytes))
+                {
+                    var decryptedBytes = Crypto.DecryptGCM(splitPageContent.Value.cipherBytes, key.SymmKey);
+                    if (decryptedBytes == null)
+                    {
+                        continue;
+                    }
+
+                    _manager.WriteToLogger(
+                        $"Signature of revision '{revid}' verified. This is the latest valid revision.",
+                        accessFile.filename);
+                    
+                    var keyringString = Encoding.ASCII.GetString(decryptedBytes);
+                    if (JSONSerialization.DeserializeObject(
+                        keyringString, typeof(Keyring)) is not Keyring keyring) continue;
+
+                    keyring.accessFileReferenceToSelf = accessFile.AccessFileReference;
+                    accessFile.AccessFileReference.KeyringTarget = keyring;
+                    return keyring;
+                }
+            }
+
+            return null;
+        }
+        
+        public MasterKeyring? GetLatestValidMasterKeyring(AccessFile accessFile, List<Revision> revisions)
+        {
+            for (var i = 0; i < revisions.Count; i++)
+            {
+                // If revision ID is not set, continue
+                var revid = revisions[i].revisionID;
+                if (revid == null)
+                {
+                    continue;
+                }
+
+                // If no valid key is found, continue
+                var key = accessFile.GetAccessFileKeyByRevisionID(revid);
+                if (key == null)
+                {
+                    continue;
+                }
+
+                // Get page content from server
+                var pageContent = GetPageContent(accessFile.pageName, revid);
+
+                // Split downloaded page content into cipher text and signature
+                var splitPageContent = SplitPageContent(pageContent);
+                if (splitPageContent == null) return null;
+
+                // Verify data using public key, ciphertext and signature
+                if (Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes,
+                    splitPageContent.Value.signBytes))
+                {
+                    var decryptedBytes = Crypto.DecryptGCM(splitPageContent.Value.cipherBytes, key.SymmKey);
+                    if (decryptedBytes == null)
+                    {
+                        continue;
+                    }
+
+                    _manager.WriteToLogger(
+                        $"Signature of revision '{revid}' verified. This is the latest valid revision.",
+                        accessFile.filename);
+                    
+                    var keyringString = Encoding.ASCII.GetString(decryptedBytes);
+                    if (JSONSerialization.DeserializeObject(
+                        keyringString, typeof(MasterKeyring)) is not MasterKeyring keyring) continue;
+
+                    keyring.accessFileReferenceToSelf = accessFile.AccessFileReference;
+                    accessFile.AccessFileReference.KeyringTarget = keyring;
+                    return keyring;
+                }
+            }
+
+            return null;
+        }
+        
+        public AccessFile? GetLatestValidAccessFile(SymmetricReference symmetricReference, List<Revision> revisions)
+        {
+            for (var i = 0; i < revisions.Count; i++)
+            {
+                // If revision ID is not set, continue
+                var revid = revisions[i].revisionID;
+                if (revid == null)
+                {
+                    continue;
+                }
+
+                var pageName = symmetricReference.targetPageName;
+                
+                // Get page content from server
+                var pageContent = GetPageContent(symmetricReference.targetPageName, revid);
+
+                // Split downloaded page content into cipher text and signature
+                var splitPageContent = SplitPageContent(pageContent);
+                if (splitPageContent == null) return null;
+
+                // Decrypt content, continue if not successful
+                var accessFileBytes = Convert.FromBase64String(pageContent);
+                var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, symmetricReference.symmKey);
+                if (decryptedAccessFile == null || decryptedAccessFile.Length < 2) continue;
+                var decryptedAccessFileString = Encoding.ASCII.GetString(decryptedAccessFile);
+                
+                // Check if plaintext can be parsed as Access File
+                if (!(JSONSerialization.DeserializeObject(
+                    decryptedAccessFileString, typeof(AccessFile)) is AccessFile accessFile))
+                {
+                    continue;
+                }
+            
+                // Connect references and return Access File
+                accessFile.AccessFileReference = new AccessFileReference(accessFile, symmetricReference.type);
+                accessFile.SymmetricReferenceToSelf = symmetricReference;
+                return accessFile;
+            }
+
+            return null;
+        }
 
         // Returns the id of the newest revision of a page on the server, or null if no revision is found
         public string? GetLatestRevisionID(string pageName)
@@ -500,7 +646,7 @@ namespace SecureWiki.MediaWiki
             return false;
         }
         
-        public AccessFile? DownloadAccessFile(SymmetricReference symmetricReference)
+        public AccessFile? DownloadAccessFile(SymmetricReference symmetricReference, string revid = "-1")
         {
             // Download access file
             var accessFileContent = GetPageContent(symmetricReference.targetPageName);
@@ -516,7 +662,8 @@ namespace SecureWiki.MediaWiki
             if (decryptedAccessFile == null)
             {
                 Console.WriteLine("decryptedAccessFile is null");
-                return null;
+                var revisions = GetAllRevisions(symmetricReference.targetPageName).GetAllRevisionBefore(revid);
+                return GetLatestValidAccessFile(symmetricReference, revisions);
             }
 
             var decryptedAccessFileString = Encoding.ASCII.GetString(decryptedAccessFile);
@@ -525,7 +672,8 @@ namespace SecureWiki.MediaWiki
                 decryptedAccessFileString, typeof(AccessFile)) is AccessFile accessFile))
             {
                 Console.WriteLine("accessFile is null");
-                return null;
+                var revisions = GetAllRevisions(symmetricReference.targetPageName).GetAllRevisionBefore(revid);
+                return GetLatestValidAccessFile(symmetricReference, revisions);
             }
             
             accessFile.AccessFileReference = new AccessFileReference(accessFile, symmetricReference.type);
@@ -533,7 +681,7 @@ namespace SecureWiki.MediaWiki
             return accessFile;
         }
 
-        public Keyring? DownloadKeyring(SymmetricReference symmetricReference)
+        public Keyring? DownloadKeyring(SymmetricReference symmetricReference, string revid = "-1")
         {
             if (symmetricReference.targetAccessFile == null)
             {
@@ -546,18 +694,26 @@ namespace SecureWiki.MediaWiki
             if (symmetricReference.targetAccessFile == null) return null;
             
             var keyringBytes = Download(symmetricReference.targetAccessFile);
-            if (keyringBytes == null) return null;
+            if (keyringBytes == null)
+            {
+                var revisions = GetAllRevisions(symmetricReference.targetAccessFile.pageName).GetAllRevisionBefore(revid);
+                return GetLatestValidKeyring(symmetricReference.targetAccessFile, revisions);
+            }
 
             var keyringString = Encoding.ASCII.GetString(keyringBytes);
             if (JSONSerialization.DeserializeObject(
-                keyringString, typeof(Keyring)) is not Keyring keyring) return null;
+                keyringString, typeof(Keyring)) is not Keyring keyring)
+            {
+                var revisions = GetAllRevisions(symmetricReference.targetAccessFile.pageName).GetAllRevisionBefore(revid);
+                return GetLatestValidKeyring(symmetricReference.targetAccessFile, revisions);
+            }
 
             keyring.accessFileReferenceToSelf = symmetricReference.targetAccessFile.AccessFileReference;
             symmetricReference.targetAccessFile.AccessFileReference.KeyringTarget = keyring;
             return keyring;
         }
 
-        public MasterKeyring? DownloadMasterKeyring(SymmetricReference symmetricReference)
+        public MasterKeyring? DownloadMasterKeyring(SymmetricReference symmetricReference, string revid = "-1")
         {
             if (symmetricReference.targetAccessFile == null)
             {
@@ -570,14 +726,19 @@ namespace SecureWiki.MediaWiki
             if (symmetricReference.targetAccessFile == null) return null;
             
             var keyringBytes = Download(symmetricReference.targetAccessFile);
-            if (keyringBytes == null) return null;
+            if (keyringBytes == null)
+            {
+                var revisions = GetAllRevisions(symmetricReference.targetAccessFile.pageName).GetAllRevisionBefore(revid);
+                return GetLatestValidMasterKeyring(symmetricReference.targetAccessFile, revisions);
+            }
             
             var keyringString = Encoding.ASCII.GetString(keyringBytes);
 
             if (JSONSerialization.DeserializeObject(
                 keyringString, typeof(MasterKeyring)) is not MasterKeyring keyring)
             {
-                return null;
+                var revisions = GetAllRevisions(symmetricReference.targetAccessFile.pageName).GetAllRevisionBefore(revid);
+                return GetLatestValidMasterKeyring(symmetricReference.targetAccessFile, revisions);
             }
             
             keyring.accessFileReferenceToSelf = symmetricReference.targetAccessFile.AccessFileReference;
