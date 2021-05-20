@@ -164,8 +164,8 @@ namespace SecureWiki
                 }
 
                 // Create and connect references
-                var afr = new AccessFileReference(af.pageName, af.serverLink, af, PageType.Keyring);
-                af.AccessFileReference = afr;
+                // var afr = new AccessFileReference(af.pageName, af.serverLink, af, PageType.Keyring);
+                // af.AccessFileReference = afr;
                 symRefToMasterKeyring.targetAccessFile = af;
             }
             else
@@ -175,7 +175,7 @@ namespace SecureWiki
                 Console.WriteLine("InitializeSymRefMasterKeyring:- creating new master sym ref");
                 _keyringManager.CreateAccessFileAndReferences(GetFreshPageName(), GetFreshPageName(),
                     configManager.DefaultServerLink, PageType.Keyring, out SymmetricReference symmetricReference,
-                    out AccessFile accessFile, out AccessFileReference accessFileReference);
+                    out AccessFile accessFile);
                 symRefToMasterKeyring = symmetricReference;
             }
         }
@@ -527,7 +527,7 @@ namespace SecureWiki
                 }
             }
 
-            incomingAccessFiles = incomingAccessFiles.OrderBy(e => e.pageName).ToList();
+            incomingAccessFiles = incomingAccessFiles.OrderBy(e => e.AccessFileReference.targetPageName).ToList();
             List<AccessFile> intermediateList = new();
 
             // Merge updates to same access files and remove duplicates 
@@ -537,9 +537,9 @@ namespace SecureWiki
                 int cnt = 1;
 
                 while (i + cnt < incomingAccessFiles.Count &&
-                       incomingAccessFiles[i].pageName.SequenceEqual(incomingAccessFiles[i + cnt].pageName))
+                       incomingAccessFiles[i].AccessFileReference.targetPageName.SequenceEqual(incomingAccessFiles[i + cnt].AccessFileReference.targetPageName))
                 {
-                    if (incomingAccessFiles[i].serverLink.Equals(incomingAccessFiles[i + cnt].serverLink))
+                    if (incomingAccessFiles[i].AccessFileReference.serverLink.Equals(incomingAccessFiles[i + cnt].AccessFileReference.serverLink))
                     {
                         incomingAccessFiles[i].MergeWithOtherAccessFileEntry(incomingAccessFiles[i + cnt]);
                     }
@@ -554,12 +554,13 @@ namespace SecureWiki
             // Get all existing access files in a list
             List<AccessFile> newAccessFiles = new();
             var existingAccessFiles = MasterKeyring.GetAllAndDescendantAccessFileEntries();
-            existingAccessFiles = existingAccessFiles.OrderBy(entry => entry.pageName).ToList();
+            existingAccessFiles = existingAccessFiles.OrderBy(entry => entry.AccessFileReference.targetPageName).ToList();
 
             // For each incoming access file from inbox, merge with existing access file or add to list of new files
             foreach (var accessFile in intermediateList)
             {
-                var existingAf = existingAccessFiles.Find(e => e.pageName.Equals(accessFile.pageName));
+                var existingAf = existingAccessFiles.Find(e => 
+                    e.AccessFileReference.targetPageName.Equals(accessFile.AccessFileReference.targetPageName));
                 if (existingAf != null)
                 {
                     existingAf.MergeWithOtherAccessFileEntry(accessFile);
@@ -704,12 +705,12 @@ namespace SecureWiki
                 var keyList = af.keyList.Last();
                 if (keyList.PrivateKey != null)
                 {
-                    var whAFTarget = GetWikiHandler(af.serverLink);
+                    var whAFTarget = GetWikiHandler(af.AccessFileReference.serverLink);
 
                     if (whAFTarget != null)
                     {
                         // Write to logger
-                        string loggerMsg = "Attempting to upload file to server '" + af.serverLink + "'";
+                        string loggerMsg = "Attempting to upload file to server '" + af.AccessFileReference.serverLink + "'";
                         WriteToLogger(loggerMsg, filepath);
 
                         var fileContent = File.ReadAllBytes(GetRootDir(filepath));
@@ -718,7 +719,7 @@ namespace SecureWiki
                     else
                     {
                         // Write to logger
-                        string loggerMsg = $"File upload to server '{af!.serverLink}' " +
+                        string loggerMsg = $"File upload to server '{af!.AccessFileReference.serverLink}' " +
                                            $"failed due to missing server credentials";
                         WriteToLogger(loggerMsg, null);
                     }
@@ -841,7 +842,7 @@ namespace SecureWiki
             _keyringManager.CreateAccessFileAndReferences(pageNameFile, pageNameAccessFile,
                 configManager.DefaultServerLink, PageType.GenericFile,
                 out SymmetricReference symmetricReference,
-                out AccessFile accessFile, out AccessFileReference accessFileReference);
+                out AccessFile accessFile);
 
             // Add symmetric reference to newEntries keyring and upload
             AddToDefaultKeyring(symmetricReference);
@@ -855,7 +856,7 @@ namespace SecureWiki
             }
 
             // Upload new files to server
-            var wikiHandler = GetWikiHandler(accessFile!.serverLink);
+            var wikiHandler = GetWikiHandler(accessFile!.AccessFileReference.serverLink);
             var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
 
             if (uploadResAF == false)
@@ -874,7 +875,7 @@ namespace SecureWiki
                 return;
             }
 
-            MasterKeyring.SetMountedDirMapping(accessFile.pageName, filepath);
+            MasterKeyring.SetMountedDirMapping(accessFile.AccessFileReference.targetPageName, filepath);
         }
 
         private void AddToDefaultKeyring(SymmetricReference symmetricReference)
@@ -938,7 +939,7 @@ namespace SecureWiki
             }
 
             // Upload new files to server
-            var wikiHandler = GetWikiHandler(accessFile!.serverLink);
+            var wikiHandler = GetWikiHandler(accessFile!.AccessFileReference.serverLink);
             var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
             if (uploadResAF == false)
             {
@@ -1165,8 +1166,8 @@ namespace SecureWiki
         {
             WriteToLogger($"Attempting to revoke access to file '{accessFile.filename}'");
 
-            var wikiHandler = GetWikiHandler(accessFile.serverLink);
-            var latestRevision = wikiHandler?.GetLatestRevision(accessFile.pageName);
+            var wikiHandler = GetWikiHandler(accessFile.AccessFileReference.serverLink);
+            var latestRevision = wikiHandler?.GetLatestRevision(accessFile.AccessFileReference.targetPageName);
 
             // Create new cryptographic keys for access file
             if (latestRevision?.revisionID != null && accessFile.ownerPrivateKey != null)
@@ -1544,23 +1545,35 @@ namespace SecureWiki
             
             foreach (var keyring in keyrings)
             {
-                foreach (var item in symmetricReferences)
+                foreach (var symmRef in symmetricReferences)
                 {
-                    var af = item.targetAccessFile;
+                    var af = symmRef.targetAccessFile;
+
+                    if (af == null)
+                    {
+                        var wh = GetWikiHandler(symmRef.serverLink);
+                        af = wh?.DownloadAccessFile(symmRef);
+                        if (af == null)
+                        {
+                            Console.WriteLine("AddFilesToKeyring:- Could not get AF from server, pageName='{0}", 
+                                symmRef.targetPageName);
+                            continue;
+                        }
+                    }
                     
                     // Check if the keyring already has an access file to the file
-                    if (keyring.SymmetricReferences.Contains(item)) continue;
+                    if (keyring.SymmetricReferences.Contains(symmRef)) continue;
                     
                     var pageNameAccessFile = GetFreshPageName();
-                    _keyringManager.CreateAccessFileAndReferences(af.pageName, pageNameAccessFile,
+                    _keyringManager.CreateAccessFileAndReferences(af.AccessFileReference.targetPageName, pageNameAccessFile,
                         configManager.DefaultServerLink, PageType.GenericFile,
                         out SymmetricReference symmetricReference,
-                        out AccessFile accessFile, out AccessFileReference accessFileReference);
+                        out AccessFile accessFile);
 
                     keyring.AddSymmetricReference(symmetricReference);
 
                     // Upload new files to server
-                    var wikiHandler = GetWikiHandler(accessFile!.serverLink);
+                    var wikiHandler = GetWikiHandler(accessFile!.AccessFileReference.serverLink);
                     var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
                     Console.WriteLine("uploadResAF:" + uploadResAF);
 

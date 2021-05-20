@@ -44,8 +44,8 @@ namespace SecureWikiTests
         [Test]
         public void TestAddRemoveAccessFile()
         {
-            var newAccessFile = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file1");
-            var newAccessFile2 = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file2");
+            var newAccessFile = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), PageType.GenericFile);
+            var newAccessFile2 = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), PageType.GenericFile);
             
             _masterKeyring.AddAccessFile(newAccessFile);
             Assert.True(_masterKeyring.accessFiles.Count.Equals(1));
@@ -65,8 +65,8 @@ namespace SecureWikiTests
             var newKeyring2 = new Keyring("folder2");
             var keyList = new List<Keyring> {newKeyring, newKeyring2};
             
-            var newAccessFile = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file1");
-            var newAccessFile2 = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file2");
+            var newAccessFile = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), PageType.GenericFile);
+            var newAccessFile2 = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), PageType.GenericFile);
             var fileList = new List<AccessFile> {newAccessFile, newAccessFile2};
             
             _masterKeyring.keyrings.AddRange(keyList);
@@ -88,8 +88,8 @@ namespace SecureWikiTests
             var newKeyring1 = new Keyring("folder1");
             var newKeyring2 = new Keyring("folder2");
             
-            var newAccessFile = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file1");
-            var newAccessFile2 = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file2");
+            var newAccessFile = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), PageType.GenericFile);
+            var newAccessFile2 = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), PageType.GenericFile);
             var fileList = new List<AccessFile> {newAccessFile, newAccessFile2};
             
             newKeyring2.AddRangeAccessFile(fileList);
@@ -98,7 +98,7 @@ namespace SecureWikiTests
             _masterKeyring.AddRangeKeyring(keyList);
 
             var newKeyring3 = new Keyring("folder2");
-            var newAccessFile3 = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file3");
+            var newAccessFile3 = new AccessFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), PageType.GenericFile);
             
             var newKeyring = new Keyring();
             newKeyring3.AddAccessFile(newAccessFile3);

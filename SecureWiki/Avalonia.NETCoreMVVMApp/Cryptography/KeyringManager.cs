@@ -483,13 +483,10 @@ namespace SecureWiki.Cryptography
         // Create new access file and connect it to fresh references
         public void CreateAccessFileAndReferences(string pageNameTarget, string pageNameAccessFile, 
             string serverLink, PageType type, out SymmetricReference symmetricReference, 
-            out AccessFile accessFile, out AccessFileReference accessFileReference)
+            out AccessFile accessFile)
         {
             // Create access file and reference
-            accessFile = new AccessFile(serverLink, pageNameTarget, "placeholder"); // TODO remove filename
-            accessFileReference = new AccessFileReference(pageNameTarget, serverLink,
-                accessFile, type);
-            accessFile.AccessFileReference = accessFileReference;
+            accessFile = new AccessFile(serverLink, pageNameTarget, type); 
             
             // Create symmetric reference to access file
             symmetricReference = new SymmetricReference(pageNameAccessFile,
@@ -505,10 +502,10 @@ namespace SecureWiki.Cryptography
             
             CreateAccessFileAndReferences(pageNameKeyring, pageNameAccessFile, serverLink, PageType.Keyring, 
                 out SymmetricReference symmetricReference,
-                out AccessFile accessFile, out AccessFileReference accessFileReference);
+                out AccessFile accessFile);
             
             // Create new keyring object
-            var keyring = new Keyring(accessFileReference, name);
+            var keyring = new Keyring(accessFile.AccessFileReference, name);
             
             // Create inbox reference to inbox page
             InboxReference inboxReference = new(pageNameInboxPage, serverLink);
@@ -543,11 +540,10 @@ namespace SecureWiki.Cryptography
                 // Create access file and reference for keyring
                 CreateAccessFileAndReferences(pageNameKeyring, 
                     pageNameAccessFileKeyring, defaultServerLink, PageType.Keyring, 
-                    out SymmetricReference symmetricReferenceToDefaultKeyring, out AccessFile accessFile, 
-                    out AccessFileReference accessFileReferenceKeyring);
+                    out SymmetricReference symmetricReferenceToDefaultKeyring, out AccessFile accessFileToDefaultKeyring);
                 
                 // Create new keyring
-                defaultKeyring = new Keyring(accessFileReferenceKeyring, "newEntries");
+                defaultKeyring = new Keyring(accessFileToDefaultKeyring.AccessFileReference, "newEntries");
                 _masterKeyring.AddSymmetricReference(symmetricReferenceToDefaultKeyring);
             }
             // else

@@ -275,13 +275,13 @@ namespace SecureWiki.Views
             _viewModel.selectedFile.newestRevisionSelected = false; // IsNewestRevision();
             _viewModel.selectedFileRevision = _viewModel.selectedRevision.revisionID;
 
-            manager.UpdateRequestedRevision(_viewModel.selectedFile.pageName, _viewModel.selectedFile.serverLink, _viewModel.selectedRevision.revisionID);
+            manager.UpdateRequestedRevision(_viewModel.selectedFile.AccessFileReference.targetPageName, _viewModel.selectedFile.AccessFileReference.serverLink, _viewModel.selectedRevision.revisionID);
         }
 
         private void DefaultRevisionButton_OnClick(object? sender, RoutedEventArgs e)
         {
             // Remove pageName from dictionary of requested revisions
-            manager.UpdateRequestedRevision(_viewModel.selectedFile.pageName, _viewModel.selectedFile.serverLink, null);
+            manager.UpdateRequestedRevision(_viewModel.selectedFile.AccessFileReference.targetPageName, _viewModel.selectedFile.AccessFileReference.serverLink, null);
             _viewModel.selectedFileRevision = "Newest";
 
             _viewModel.selectedFile.newestRevisionSelected = true;
@@ -295,11 +295,11 @@ namespace SecureWiki.Views
                 _viewModel.selectedFile = accessFile;
 
                 Thread localThread = new(() =>
-                    manager.UpdateAllRevisionsAsync(accessFile.pageName, accessFile.serverLink, _viewModel.revisions));
+                    manager.UpdateAllRevisionsAsync(accessFile.AccessFileReference.targetPageName, accessFile.AccessFileReference.serverLink, _viewModel.revisions));
                 localThread.Start();
 
                 // Get requested revision, if any
-                _viewModel.selectedFileRevision = manager.GetRequestedRevision(accessFile.pageName, accessFile.serverLink) ?? "Newest";
+                _viewModel.selectedFileRevision = manager.GetRequestedRevision(accessFile.AccessFileReference.targetPageName, accessFile.AccessFileReference.serverLink) ?? "Newest";
             }
         }
 
@@ -413,7 +413,7 @@ namespace SecureWiki.Views
                 setting = (CachePreferences.CacheSetting) Enum.Parse(typeof(CachePreferences.CacheSetting), content);
             }
 
-            manager.SetCacheSettingSingleFile(_viewModel.selectedFile.pageName, setting);
+            manager.SetCacheSettingSingleFile(_viewModel.selectedFile.AccessFileReference.targetPageName, setting);
         }
 
         private void CacheSettingPopup_OnOpened(object? sender, EventArgs e)
@@ -431,7 +431,7 @@ namespace SecureWiki.Views
                 }
             }
 
-            var setting = manager.GetCacheSettingSingleFile(_viewModel.selectedFile.pageName);
+            var setting = manager.GetCacheSettingSingleFile(_viewModel.selectedFile.AccessFileReference.targetPageName);
 
             const string buttonNameCommon = "CacheSettingPopup";
             string buttonName = setting != null ? buttonNameCommon + setting : buttonNameCommon + "Default";

@@ -7,8 +7,8 @@ namespace SecureWiki.Model
     [JsonObject(MemberSerialization.OptIn)]
     public abstract class Reference
     {
-        [JsonProperty] public string targetPageName { get; set; }
-        [JsonProperty] public string serverLink { get; set; }
+        [JsonProperty(Order = -11)] public string serverLink { get; set; }
+        [JsonProperty(Order = -10)] public string targetPageName { get; set; }
 
         public Reference(string targetPageName, string serverLink)
         {
@@ -25,13 +25,11 @@ namespace SecureWiki.Model
     [JsonObject(MemberSerialization.OptIn)]
     public class SymmetricReference : Reference
     {
-
-        [JsonProperty] public PageType type; 
-        [JsonProperty] public byte[] symmKey;
-        [JsonProperty] public string accessFileTargetPageName;
-        // [JsonProperty(Order = 99)] 
+        [JsonProperty(Order = -9)] public PageType type;
+        [JsonProperty(Order = -8)] public string accessFileTargetPageName;
+        [JsonProperty(Order = -7)] public byte[] symmKey;
+        
         public AccessFile? targetAccessFile { get; set; }
-
         public Keyring? keyringParent;
 
         public SymmetricReference(string targetPageName, string serverLink, PageType type, 
@@ -48,9 +46,9 @@ namespace SecureWiki.Model
     [JsonObject(MemberSerialization.OptIn)]
     public class AccessFileReference : Reference
     {
-        [JsonProperty] public PageType type;
+        [JsonProperty(Order = -9)] public PageType type;
         public AccessFile? AccessFileParent;
-        [JsonProperty(Order = 99)] public Keyring? KeyringTarget;
+        public Keyring? KeyringTarget;
 
         public AccessFileReference(string targetPageName, string serverLink, PageType type, Keyring? keyringTarget = null) : base(targetPageName, serverLink)
         {
@@ -61,13 +59,6 @@ namespace SecureWiki.Model
         public AccessFileReference()
         {
             
-        }
-        
-        public AccessFileReference(AccessFile accessFileParent, PageType type, Keyring? keyringTarget = null) : base(accessFileParent.pageName, accessFileParent.serverLink)
-        {
-            this.AccessFileParent = accessFileParent;
-            this.type = type;
-            this.KeyringTarget = keyringTarget;
         }
         
         public AccessFileReference(string targetPageName, string serverLink, AccessFile accessFileParent, PageType type, Keyring? keyringTarget = null) : base(targetPageName, serverLink)
@@ -87,8 +78,8 @@ namespace SecureWiki.Model
             ReadWrite
         }
         
-        [JsonProperty] public byte[] publicKey;
-        [JsonProperty] public byte[]? privateKey;
+        [JsonProperty(Order = 98)] public byte[] publicKey;
+        [JsonProperty(Order = 99)] public byte[]? privateKey;
         [JsonProperty(Order = -2)] public AccessLevel accessLevel;
 
         public InboxReference(string targetPageName, string serverLink, byte[] publicKey) : base(targetPageName,

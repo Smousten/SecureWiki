@@ -15,7 +15,7 @@ namespace SecureWikiTests
         {
             var serverLink = "http://127.0.0.1/mediawiki/api.php";
             var pageName = RandomString.GenerateRandomAlphanumericString();
-            _accessFile = new AccessFile(serverLink, pageName);
+            _accessFile = new AccessFile(serverLink, pageName, PageType.GenericFile);
         }
         
         [TearDown]
@@ -44,9 +44,9 @@ namespace SecureWikiTests
         [Test]
         public void TestHasSameStaticProperties()
         {
-            var serverLink = _accessFile.serverLink;
-            var pageName = _accessFile.pageName;
-            var comparisonFile = new AccessFile(serverLink, pageName) {ownerPublicKey = _accessFile.ownerPublicKey, };
+            var serverLink = _accessFile.AccessFileReference.serverLink;
+            var pageName = _accessFile.AccessFileReference.targetPageName;
+            var comparisonFile = new AccessFile(serverLink, pageName, PageType.GenericFile) {ownerPublicKey = _accessFile.ownerPublicKey, };
             var result = _accessFile.HasSameStaticProperties(comparisonFile);
             Assert.True(result);
         }
@@ -54,9 +54,9 @@ namespace SecureWikiTests
         [Test]
         public void TestHasSameStaticPropertiesFail()
         {
-            var serverLink = _accessFile.serverLink;
+            var serverLink = _accessFile.AccessFileReference.serverLink;
             var pageName = RandomString.GenerateRandomAlphanumericString();
-            var comparisonFile = new AccessFile(serverLink, pageName) {ownerPublicKey = _accessFile.ownerPublicKey};
+            var comparisonFile = new AccessFile(serverLink, pageName, PageType.GenericFile) {ownerPublicKey = _accessFile.ownerPublicKey};
             var result = _accessFile.HasSameStaticProperties(comparisonFile);
             Assert.False(result);
         }
@@ -136,7 +136,7 @@ namespace SecureWikiTests
         [Test]
         public void TestMergeWithOtherAccessFileEntry()
         {
-            var comparisonFile = new AccessFile(_accessFile.serverLink, _accessFile.pageName)
+            var comparisonFile = new AccessFile(_accessFile.AccessFileReference.serverLink, _accessFile.AccessFileReference.targetPageName, PageType.GenericFile)
             {
                 ownerPublicKey = _accessFile.ownerPublicKey, 
                 ownerPrivateKey = _accessFile.ownerPrivateKey

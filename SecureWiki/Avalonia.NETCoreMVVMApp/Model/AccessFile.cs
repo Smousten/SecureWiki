@@ -15,15 +15,11 @@ namespace SecureWiki.Model
     [JsonObject(MemberSerialization.OptIn)]
     public class AccessFile //: IReactiveObject
     {
-        [JsonProperty]
+        [JsonProperty(Order = 10)]
         public string filename { get; set; }
-        [JsonProperty]
-        public string serverLink { get; set; }
-        [JsonProperty]
-        public string pageName { get; set; }
-        [JsonProperty]
+        [JsonProperty(Order = 10)]
         public byte[]? ownerPrivateKey { get; set; }
-        [JsonProperty]
+        [JsonProperty(Order = 9)]
         public byte[]? ownerPublicKey { get; set; }
         
         // // List of the page titles of contacts that this file is automatically shared with
@@ -37,64 +33,14 @@ namespace SecureWiki.Model
         [JsonProperty] 
         public List<AccessFileKey> keyList { get; set; }
 
-        [JsonProperty] public AccessFileReference? AccessFileReference;
-        public SymmetricReference? SymmetricReferenceToSelf;
-        public bool HasBeenChanged = false;
+        [JsonProperty] public AccessFileReference AccessFileReference;
 
+        public SymmetricReference? SymmetricReferenceToSelf;
         public Keyring? Parent;
-        // private Keyring? _parent;
-        // public Keyring? parent
-        // {
-        //     get => _parent;
-        //     set
-        //     {
-        //         _parent = value;
-        //         RaisePropertyChanged(nameof(parent));
-        //     }
-        // }
-        //
-        // private bool? _isChecked = false;
-        // public bool? isChecked
-        // {
-        //     get => (_isChecked ?? false);
-        //     set
-        //     {
-        //         _isChecked = value;
-        //         OnPropertyChanged(nameof(isChecked));
-        //         OnPropertyChanged(nameof(isCheckedWriteEnabled));
-        //         OnCheckedChanged(EventArgs.Empty);
-        //     }
-        // }
-        //
-        // private bool? _isCheckedWrite = false;
-        // public bool? isCheckedWrite
-        // {
-        //     get
-        //     {
-        //         if (keyList.TrueForAll(e => e.PrivateKey == null))
-        //         {
-        //             return false;
-        //         }
-        //         return (_isCheckedWrite ?? false);
-        //     }
-        //     set
-        //     {
-        //         _isCheckedWrite = value;
-        //         OnPropertyChanged(nameof(isCheckedWrite));
-        //     }
-        // }
-        //
-        // public bool isCheckedWriteEnabled
-        // {
-        //     get
-        //     {
-        //         if (keyList.TrueForAll(e => e.PrivateKey == null))
-        //         {
-        //             return false;
-        //         }
-        //         return isChecked ?? false;
-        //     }
-        // }
+        
+        // public string serverLink { get; set; }
+        // public string pageName { get; set; }
+        public bool HasBeenChanged = false;
 
         private bool _newestRevisionSelected = true;
         public bool newestRevisionSelected        
@@ -107,16 +53,19 @@ namespace SecureWiki.Model
             }
         }
 
+        [JsonConstructor]
         private AccessFile()
         {
             
         }
         
-        public AccessFile(string serverLink, string pageName, string filename = "unnamed")
+        public AccessFile(string serverLink, string pageName, PageType pageType, Keyring? keyringTarget = null)
         {
-            this.filename = filename;
-            this.serverLink = serverLink;
-            this.pageName = pageName;
+            AccessFileReference = new AccessFileReference(pageName, serverLink, this, 
+                pageType, keyringTarget);
+            // Console.WriteLine("New AccessFile: serverLink: '" + serverLink + "'");
+            // Console.WriteLine("New AccessFile: pageName: '" + pageName + "'");
+            this.filename = "unnamed";
             HasBeenChanged = true;
 
             // Generate a new asymmetric key pair for owner priv/pub key
@@ -129,10 +78,6 @@ namespace SecureWiki.Model
             
             // Create a new AccessFileKey and sign it with the owner private key 
             keyList = new List<AccessFileKey> {new(ownerPrivateKey)};
-
-            // // Set event handlers
-            // CheckedChanged -= CheckedChangedUpdateParent;
-            // CheckedChanged += CheckedChangedUpdateParent;
         }
 
         public bool VerifyKeys()
@@ -203,8 +148,8 @@ namespace SecureWiki.Model
             List<PropertyInfo> compareList = new();
             
             // Add relevant static properties
-            staticPropertyList.Add(typeof(AccessFile).GetProperty(nameof(pageName)));
-            staticPropertyList.Add(typeof(AccessFile).GetProperty(nameof(serverLink)));
+            staticPropertyList.Add(typeof(AccessFile).GetProperty(nameof(AccessFileReference.targetPageName)));
+            staticPropertyList.Add(typeof(AccessFile).GetProperty(nameof(AccessFileReference.serverLink)));
             staticPropertyList.Add(typeof(AccessFile).GetProperty(nameof(ownerPublicKey)));
 
             // Check properties are not null
@@ -323,8 +268,8 @@ namespace SecureWiki.Model
         {
             // Abort if any of the static information does not match
             if (!filename.Equals(af.filename) ||
-                !serverLink.Equals(af.serverLink) ||
-                !pageName.Equals(af.pageName) ||
+                !AccessFileReference.serverLink.Equals(af.AccessFileReference.serverLink) ||
+                !AccessFileReference.targetPageName.Equals(af.AccessFileReference.targetPageName) ||
                 (ownerPrivateKey != null && af.ownerPrivateKey != null && !ownerPrivateKey.SequenceEqual(af.ownerPrivateKey)) ||
                 (ownerPublicKey != null && af.ownerPublicKey != null && !ownerPublicKey.SequenceEqual(af.ownerPublicKey))
                 )
