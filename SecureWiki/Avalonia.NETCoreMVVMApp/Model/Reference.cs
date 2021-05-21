@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Avalonia.Input;
 using Newtonsoft.Json;
 using SecureWiki.Cryptography;
@@ -67,6 +71,22 @@ namespace SecureWiki.Model
             this.type = type;
             this.KeyringTarget = keyringTarget;
         }
+        
+        public bool IsValid()
+        {
+            var properties = new List<PropertyInfo?>();
+            var fields = new List<FieldInfo?>();
+
+            // Properties to be checked
+            properties.Add(typeof(AccessFileReference).GetProperty(nameof(targetPageName)));
+            properties.Add(typeof(AccessFileReference).GetProperty(nameof(serverLink)));
+            
+            // Fields to be checked
+            fields.Add(typeof(AccessFileReference).GetField(nameof(AccessFileParent)));
+            
+            return properties.All(prop => prop?.GetValue(this) != null) 
+                   && fields.All(field => field?.GetValue(this) != null);
+        }
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -97,6 +117,23 @@ namespace SecureWiki.Model
         }
         
         public InboxReference() {}
+        
+        public bool IsValid()
+        {
+            var properties = new List<PropertyInfo?>();
+            var fields = new List<FieldInfo?>();
+
+            // Properties to be checked
+            properties.Add(typeof(InboxReference).GetProperty(nameof(targetPageName)));
+            properties.Add(typeof(InboxReference).GetProperty(nameof(serverLink)));
+            
+            // Fields to be checked
+            fields.Add(typeof(InboxReference).GetField(nameof(publicKey)));
+            fields.Add(typeof(InboxReference).GetField(nameof(accessLevel)));
+            
+            return properties.All(prop => prop?.GetValue(this) != null) 
+                   && fields.All(field => field?.GetValue(this) != null);
+        }
     }
     
     public enum PageType
