@@ -16,12 +16,12 @@ namespace SecureWiki.Cryptography
         [JsonProperty]
         private string _dirPath;
         [JsonProperty]
-        private string _pageTitle;
+        private string _pageName;
 
-        public CacheEntry(string dirPath, string pageTitle)
+        public CacheEntry(string dirPath, string pageName)
         {
             _dirPath = dirPath;
-            _pageTitle = pageTitle;
+            _pageName = pageName;
         }
 
         public void AddEntry(string revid, string content)
@@ -32,7 +32,7 @@ namespace SecureWiki.Cryptography
             }
 
             // Calculate filename
-            var hash = RandomString.ComputeHash(_pageTitle + revid);
+            var hash = RandomString.ComputeHash(_pageName + revid);
             var path = Path.Combine(_dirPath, hash);
 
             File.WriteAllText(path, content);

@@ -44,7 +44,7 @@ namespace SecureWiki.Model
         [JsonProperty(Order = -4)]
         public string name { get; set; }
 
-        [JsonProperty(Order = -3)] public string pageTitle;
+        [JsonProperty(Order = -3)] public string pageName;
         [JsonProperty(Order = 99)] public List<SymmetricReference> SymmetricReferences = new();
         [JsonProperty] public InboxReference InboxReferenceToSelf;
         public AccessFileReference accessFileReferenceToSelf;
@@ -356,7 +356,7 @@ namespace SecureWiki.Model
             accessFiles.Clear();
             
             name = ke.name;
-            pageTitle = ke.pageTitle;
+            pageName = ke.pageName;
             InboxReferenceToSelf = ke.InboxReferenceToSelf;
             accessFileReferenceToSelf = ke.accessFileReferenceToSelf;
             parent = ke.parent;
@@ -373,7 +373,7 @@ namespace SecureWiki.Model
             AddRangeAccessFile(ke.accessFiles.ToList());
             
             name = ke.name;
-            pageTitle = ke.pageTitle;
+            pageName = ke.pageName;
             InboxReferenceToSelf = ke.InboxReferenceToSelf;
             accessFileReferenceToSelf = ke.accessFileReferenceToSelf;
             parent = ke.parent;

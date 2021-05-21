@@ -28,19 +28,9 @@ namespace SecureWiki.MediaWiki
             this.url = url;
         }
 
-        // Return absolute path to fuse root directory
-        private static string GetRootDir(string relativeFilepath)
+        public MediaWikiObject.PageQuery.AllRevisions GetAllRevisions(string pageName)
         {
-            var filepath = "fuse/directories/rootdir/" + relativeFilepath;
-            var currentDir = Directory.GetCurrentDirectory();
-            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-            var srcDir = Path.Combine(projectDir, filepath);
-            return srcDir;
-        }
-
-        public MediaWikiObject.PageQuery.AllRevisions GetAllRevisions(string pageTitle)
-        {
-            MediaWikiObject.PageQuery.AllRevisions allRevisions = new(_mwo, pageTitle);
+            MediaWikiObject.PageQuery.AllRevisions allRevisions = new(_mwo, pageName);
             allRevisions.GetAllRevisions();
             return allRevisions;
         }
@@ -52,33 +42,40 @@ namespace SecureWiki.MediaWiki
             return latestRevision.revision;
         }
 
-        public string GetPageContent(string pageTitle, string revID = "-1")
+        public string GetPageContent(string pageName, string revID = "-1")
         {
-            MediaWikiObject.PageQuery.PageContent pc = new(_mwo, pageTitle, revID);
+            MediaWikiObject.PageQuery.PageContent pc = new(_mwo, pageName, revID);
             string output = pc.GetContent();
             return output;
         }
 
-        public bool PageAlreadyExists(string pageTitle, string revID)
+        public bool PageAlreadyExists(string pageName, string revID)
         {
-            MediaWikiObject.PageQuery.PageContent pc = new(_mwo, pageTitle, revID);
+            MediaWikiObject.PageQuery.PageContent pc = new(_mwo, pageName, revID);
             return pc.PageAlreadyExists();
         }
 
-        public void UndoRevisionsByID(string pageTitle, string startID, string endID)
+        public void UndoRevisionsByID(string pageName, string startID, string endID)
         {
             MediaWikiObject.PageAction.UndoRevisions undoRevisions =
-                new(_mwo, pageTitle);
+                new(_mwo, pageName);
             undoRevisions.UndoRevisionsByID(startID, endID);
         }
 
-        public void DeleteRevisionsByID(string pageTitle, string IDs)
+        public void DeleteRevisionsByID(string pageName, string IDs)
         {
             MediaWikiObject.PageAction.DeleteRevisions deleteRevisions =
-                new(_mwo, pageTitle);
+                new(_mwo, pageName);
             deleteRevisions.DeleteRevisionsByIDString(IDs);
         }
 
+        public void Upload(string pageName, string content)
+        {
+            MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
+                pageName);
+            uploadNewRevision.UploadContent(content);
+        }
+        
         public bool Upload(AccessFile accessFile, byte[] content)
         {
             var plainText = content;
@@ -695,7 +692,7 @@ namespace SecureWiki.MediaWiki
                 symmetricReference.targetAccessFile = accessFile;
             }
 
-            // Download master keyring - pageTitle stored in access File links to rootkeyring
+            // Download master keyring - pageName stored in access File links to rootkeyring
             if (symmetricReference.targetAccessFile == null) return null;
             
             var keyringBytes = Download(symmetricReference.targetAccessFile);
@@ -727,7 +724,7 @@ namespace SecureWiki.MediaWiki
                 symmetricReference.targetAccessFile = accessFile;
             }
 
-            // Download master keyring - pageTitle stored in access File links to rootkeyring
+            // Download master keyring - pageName stored in access File links to rootkeyring
             if (symmetricReference.targetAccessFile == null) return null;
             
             var keyringBytes = Download(symmetricReference.targetAccessFile);
@@ -914,7 +911,7 @@ namespace SecureWiki.MediaWiki
         }
 
 
-        public bool UploadToInboxPage(string pageTitle, string content, byte[] publicKey)
+        public bool UploadToInboxPage(string pageName, string content, byte[] publicKey)
         {
             Console.WriteLine("Uploading content to mediawiki: " + content);
             // Generate symmetric key
@@ -943,7 +940,7 @@ namespace SecureWiki.MediaWiki
 
             // Upload encrypted content
             MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
-                pageTitle);
+                pageName);
             var httpResponse = uploadNewRevision.UploadContent(pageContent);
             _mwo.editToken ??= uploadNewRevision.editToken;
 

@@ -232,9 +232,9 @@ namespace SecureWiki
             configManager!.CachePreference.GeneralSetting = setting;
         }
 
-        public void SetCacheSettingSingleFile(string pageTitle, CachePreferences.CacheSetting? setting)
+        public void SetCacheSettingSingleFile(string pageName, CachePreferences.CacheSetting? setting)
         {
-            configManager!.CachePreference.SetPreference(pageTitle, setting);
+            configManager!.CachePreference.SetPreference(pageName, setting);
         }
 
         public CachePreferences.CacheSetting GetCacheSettingGeneral()
@@ -242,9 +242,9 @@ namespace SecureWiki
             return configManager!.CachePreference.GeneralSetting;
         }
 
-        public CachePreferences.CacheSetting? GetCacheSettingSingleFile(string pageTitle)
+        public CachePreferences.CacheSetting? GetCacheSettingSingleFile(string pageName)
         {
-            return configManager!.CachePreference.GetSetting(pageTitle);
+            return configManager!.CachePreference.GetSetting(pageName);
         }
 
         public void SetDefaultServerLink(string url)
@@ -614,17 +614,17 @@ namespace SecureWiki
             }
         }
 
-        public MediaWikiObject.PageQuery.AllRevisions? GetAllRevisions(string pageTitle, string url)
+        public MediaWikiObject.PageQuery.AllRevisions? GetAllRevisions(string pageName, string url)
         {
             var wikiHandler = GetWikiHandler(url);
-            return wikiHandler?.GetAllRevisions(pageTitle);
+            return wikiHandler?.GetAllRevisions(pageName);
         }
 
-        public async void UpdateAllRevisionsAsync(string pageTitle, string url,
+        public async void UpdateAllRevisionsAsync(string pageName, string url,
             ObservableCollection<Revision> revisions)
         {
             var wikiHandler = GetWikiHandler(url);
-            var allRev = wikiHandler?.GetAllRevisions(pageTitle);
+            var allRev = wikiHandler?.GetAllRevisions(pageName);
 
             revisions.Clear();
 
@@ -634,13 +634,13 @@ namespace SecureWiki
             }
         }
 
-        public string? GetPageContent(string pageTitle, string revID, string url)
+        public string? GetPageContent(string pageName, string revID, string url)
         {
             // Write to logger
-            WriteToLogger($"Attempting to read file from page title '{pageTitle}', revision {revID} on server '{url}'");
+            WriteToLogger($"Attempting to read file from page title '{pageName}', revision {revID} on server '{url}'");
 
             var wikiHandler = GetWikiHandler(url);
-            var output = wikiHandler?.GetPageContent(pageTitle, revID);
+            var output = wikiHandler?.GetPageContent(pageName, revID);
 
             // Write to logger if read fails
             if (output == null)
@@ -654,23 +654,23 @@ namespace SecureWiki
             return output;
         }
 
-        private bool PageAlreadyExists(string pageTitle, string revID, string url)
+        private bool PageAlreadyExists(string pageName, string revID, string url)
         {
             var wikiHandler = GetWikiHandler(url);
-            return wikiHandler != null && wikiHandler.PageAlreadyExists(pageTitle, revID);
+            return wikiHandler != null && wikiHandler.PageAlreadyExists(pageName, revID);
         }
 
-        public bool UndoRevisionsByID(string pageTitle, string startID, string endID, string url)
+        public bool UndoRevisionsByID(string pageName, string startID, string endID, string url)
         {
             var wikiHandler = GetWikiHandler(url);
-            wikiHandler?.UndoRevisionsByID(pageTitle, startID, endID);
+            wikiHandler?.UndoRevisionsByID(pageName, startID, endID);
             return true;
         }
 
-        public void DeleteRevisionsByID(string pageTitle, string IDs, string url)
+        public void DeleteRevisionsByID(string pageName, string IDs, string url)
         {
             var wikiHandler = GetWikiHandler(url);
-            wikiHandler?.DeleteRevisionsByID(pageTitle, IDs);
+            wikiHandler?.DeleteRevisionsByID(pageName, IDs);
         }
 
         public void UploadNewVersion(string filename, string filepath)
@@ -823,12 +823,12 @@ namespace SecureWiki
 
         public void UploadMasterKeyring()
         {
-            if (!PageAlreadyExists(_keyringManager.masterKey.pageTitle, "-1",
+            if (!PageAlreadyExists(_keyringManager.masterKey.pageName, "-1",
                 configManager.DefaultServerLink))
             {
                 var wikiHandler = GetWikiHandler(configManager.DefaultServerLink);
                 wikiHandler?.UploadMasterKeyring(_keyringManager.masterKey.symmKey,
-                    _keyringManager.masterKey.pageTitle,
+                    _keyringManager.masterKey.pageName,
                     MasterKeyring);
             }
         }
@@ -900,18 +900,34 @@ namespace SecureWiki
             }
         }
 
-        public string GetFreshPageName(string? serverLink = null)
+        public string? GetFreshPageName(string? serverLink = null)
         {
             serverLink ??= configManager.DefaultServerLink;
-            while (true)
+            var wikiHandler = GetWikiHandler(serverLink);
+            string? pageName = null;
+            
+            // Try for 5 seconds to get fresh page name
+            var success = SpinWait.SpinUntil(() =>
             {
-                var tmp = RandomString.GenerateRandomAlphanumericString();
-                tmp = char.ToUpper(tmp[0]) + tmp.Substring(1);
-                if (!PageAlreadyExists(tmp, "-1", serverLink))
-                {
-                    return tmp;
-                }
+                pageName = TryFreshPageName(serverLink, wikiHandler);
+                return pageName != null;
+
+            }, TimeSpan.FromSeconds(5));
+            return success ? pageName : null;
+        }
+
+        private string? TryFreshPageName(string serverLink, IServerInteraction? wikiHandler)
+        {
+            var tmp = RandomString.GenerateRandomAlphanumericString();
+            tmp = char.ToUpper(tmp[0]) + tmp.Substring(1);
+            if (!PageAlreadyExists(tmp, "-1", serverLink))
+            {
+                // Upload placeholder text to page to reserve it
+                wikiHandler?.Upload(tmp, "placeholder");
+                return tmp;
             }
+
+            return null;
         }
 
         public void AddNewFolder(string filename, string filepath)
@@ -1036,18 +1052,18 @@ namespace SecureWiki
         //     _keyringManager.SaveRootKeyring();
         // }
 
-        public string? AttemptReadFileFromCache(string pageTitle, string revid)
+        public string? AttemptReadFileFromCache(string pageName, string revid)
         {
             string? cacheResult;
 
             if (revid.Equals("-1"))
             {
                 Console.WriteLine("AttemptReadFileFromCache:- revid==-1");
-                cacheResult = cacheManager.GetFilePath(pageTitle);
+                cacheResult = cacheManager.GetFilePath(pageName);
             }
             else
             {
-                cacheResult = cacheManager.GetFilePath(pageTitle, revid);
+                cacheResult = cacheManager.GetFilePath(pageName, revid);
             }
 
             if (cacheResult == null || File.Exists(cacheResult) == false)
@@ -1058,9 +1074,9 @@ namespace SecureWiki
             return File.ReadAllText(cacheResult);
         }
 
-        public void AddEntryToCache(string pageTitle, string revid, string content)
+        public void AddEntryToCache(string pageName, string revid, string content)
         {
-            cacheManager.AddEntry(pageTitle, revid, content);
+            cacheManager.AddEntry(pageName, revid, content);
         }
 
         public void SerializeCacheManagerAndWriteToFile(string path)
@@ -1145,7 +1161,7 @@ namespace SecureWiki
         //     var serializeObject = JSONSerialization.SerializeObject(uploadObject);
         //     foreach (var contact in contacts)
         //     {
-        //         UploadToInboxPage(contact.ServerLink, contact.PageTitle, serializeObject, contact.PublicKey);
+        //         UploadToInboxPage(contact.ServerLink, contact.PageName, serializeObject, contact.PublicKey);
         //     }
         //
         //     // Remove non-selected contacts from access file contact list
@@ -1209,12 +1225,12 @@ namespace SecureWiki
             logger.Add(content, location, priority);
         }
 
-        // Upload input content to given serverLink and pageTitle using the wikiHandler
-        private bool UploadToInboxPage(string serverLink, string pageTitle, string content, byte[] publicKey)
+        // Upload input content to given serverLink and pageName using the wikiHandler
+        private bool UploadToInboxPage(string serverLink, string pageName, string content, byte[] publicKey)
         {
             var wikiHandler = GetWikiHandler(serverLink);
 
-            var result = wikiHandler?.UploadToInboxPage(pageTitle, content, publicKey);
+            var result = wikiHandler?.UploadToInboxPage(pageName, content, publicKey);
             return result == true;
         }
         //
@@ -1243,7 +1259,7 @@ namespace SecureWiki
         //
         //     string content = afString;
         //
-        //     UploadToInboxPage(contact.ServerLink, contact.PageTitle, content, pubKeyBytes);
+        //     UploadToInboxPage(contact.ServerLink, contact.PageName, content, pubKeyBytes);
         // }
         //
         // public void TestDownloadInboxes()
