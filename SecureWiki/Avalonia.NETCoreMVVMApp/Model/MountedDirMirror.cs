@@ -634,7 +634,8 @@ namespace SecureWiki.Model
 
         public virtual void PrintOwnInfo()
         {
-            Console.WriteLine("MDFolder '{0}':", name);
+            Console.WriteLine("MDFolder '{0}', \tchecked='{1}', \tcheckedEnabled='{2}', \tcheckedWrite='{3}', \tcheckedWriteEnabled='{4}'", 
+                name, isChecked,  isCheckedEnabled, isCheckedWrite, isCheckedWriteEnabled);
         }
         
         public void RaisePropertiesChangedFiles()
@@ -837,7 +838,7 @@ namespace SecureWiki.Model
     public class MDFolderKeyring : MDFolder
     {
         public InboxReference? inboxReference { get; set; }
-        
+
         public MDFolderKeyring(string name, MDFolder? parent) : base(name, parent)
         {
             
@@ -860,13 +861,16 @@ namespace SecureWiki.Model
         // Update children isChecked based own value
         protected override void CheckedChangedUpdateChildren(object? sender, EventArgs e)
         {
-            Console.WriteLine("protected override void CheckedChangedUpdateChildren entered in " + name);
+            if (isChecked == false) isCheckedWrite = false;
+            
             // Disable events updating ancestors while setting values  
             foreach (var child in Folders)
             {
                 child.CheckedChanged -= child.CheckedChangedUpdateParent;
                 child.isChecked = isChecked;
                 child.isCheckedEnabled = !isChecked;
+                child.isCheckedWrite = isChecked;
+                child.isCheckedWriteEnabled = !isChecked;
                 child.CheckedChanged += child.CheckedChangedUpdateParent;
             }
             
@@ -875,27 +879,28 @@ namespace SecureWiki.Model
                 child.CheckedChanged -= child.CheckedChangedUpdateParent;
                 child.isChecked = isChecked;
                 child.isCheckedEnabled = !isChecked;
+                child.isCheckedWrite = child.canHaveWriteAccess == true && isChecked == true;
+                if (isChecked == true)
+                {
+                    child.isCheckedWriteEnabled = false;
+                }
+                else
+                {
+                    child.isCheckedWriteEnabled = null;
+                }
                 child.CheckedChanged += child.CheckedChangedUpdateParent;
             }
         }
         
-        // Update children isCheckedWrite based own value
+        // Does not update children isCheckedWrite based own value
         protected override void CheckedWriteChangedUpdateChildren(object? sender, EventArgs e)
         {
-            foreach (var child in Folders)
-            {
-                child.isCheckedWrite = isCheckedWrite;
-            }
-            
-            foreach (var child in Files)
-            {
-                child.isCheckedWrite = isCheckedWrite;
-            }
         }
 
         public override void PrintOwnInfo()
         {
-            Console.WriteLine("MDFolderKeyring '{0}':", name);
+            Console.WriteLine("MDFolderKeyring '{0}', \tchecked='{1}', \tcheckedEnabled='{2}', \tcheckedWrite='{3}', \tcheckedWriteEnabled='{4}'", 
+                name, isChecked,  isCheckedEnabled, isCheckedWrite, isCheckedWriteEnabled);
         }
     }
 
@@ -912,7 +917,7 @@ namespace SecureWiki.Model
         {
             get
             {
-                if (symmetricReference.targetAccessFile?.keyList.TrueForAll(e => e.PrivateKey == null) == true)
+                if (canHaveWriteAccess == false)
                 {
                     return false;
                 }
@@ -924,16 +929,43 @@ namespace SecureWiki.Model
                 RaisePropertyChanged(nameof(isCheckedWrite));
             }
         }
-        
-        public bool isCheckedWriteEnabled
+
+        private bool? _isCheckedWriteEnabled = null;
+        public bool? isCheckedWriteEnabled
         {
             get
             {
-                if (symmetricReference.targetAccessFile?.keyList.TrueForAll(e => e.PrivateKey == null) == true)
+                if (_isCheckedWriteEnabled != null) return _isCheckedWriteEnabled;
+                if (canHaveWriteAccess == false)
                 {
                     return false;
                 }
                 return isChecked ?? false;
+            }
+            set
+            {
+                if (canHaveWriteAccess == true)
+                {
+                    _isCheckedWriteEnabled = value;
+                    RaisePropertyChanged(nameof(isCheckedWriteEnabled));
+                    OnCheckedWriteChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        private bool? _canHaveWriteAccess = null;
+        public bool? canHaveWriteAccess
+        {
+            get
+            {
+                if (_canHaveWriteAccess != null) return _canHaveWriteAccess;
+                return symmetricReference.targetAccessFile?.keyList.TrueForAll(
+                    e => e.PrivateKey == null) == false;
+            }
+            set
+            {
+                _canHaveWriteAccess = value;
+                RaisePropertyChanged(nameof(isCheckedWriteEnabled));
             }
         }
         
@@ -963,7 +995,11 @@ namespace SecureWiki.Model
 
         public void PrintInfo()
         {
-            Console.WriteLine("MDFile '{0}'", name);
+            Console.Write("MDFile '{0}'", name);
+            if (name.Length < 12) Console.Write("\t");
+            Console.WriteLine("\tchecked='{0}', \tcheckedEnabled='{1}', \tcheckedWrite='{2}', " +
+                              "\tcheckedWriteEnabled='{3}', \tcanHaveWriteAccess='{4}'", 
+                isChecked,  isCheckedEnabled, isCheckedWrite, isCheckedWriteEnabled, canHaveWriteAccess);
         }
 
         public void CheckedChangedUpdateParent(object? sender, EventArgs e)
