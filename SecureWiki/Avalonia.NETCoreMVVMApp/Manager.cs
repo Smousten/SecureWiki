@@ -911,7 +911,6 @@ namespace SecureWiki
             {
                 pageName = TryFreshPageName(serverLink, wikiHandler);
                 return pageName != null;
-
             }, TimeSpan.FromSeconds(5));
             return success ? pageName : null;
         }
@@ -968,6 +967,9 @@ namespace SecureWiki
             {
                 WriteToLogger($"Keyring '{keyring.name}' could not be uploaded.");
             }
+            
+            // Add keyring contact to masterkeyring
+            MasterKeyring.OwnContacts.Add(new OwnContact(keyring.name, keyring.InboxReferenceToSelf));
         }
         
         private SymmetricReference? GetKeyringReference(string name, Keyring keyring)
@@ -1456,7 +1458,7 @@ namespace SecureWiki
         }
 
         // Return absolute path to fuse root directory
-        public static string GetRootDir(string relativeFilepath)
+        private static string GetRootDir(string relativeFilepath)
         {
             var filepath = "fuse/directories/rootdir/" + relativeFilepath;
             var currentDir = Directory.GetCurrentDirectory();
@@ -1465,7 +1467,7 @@ namespace SecureWiki
             return srcDir;
         }
 
-        public void PopulateMountedDirMirror(MasterKeyring rk)
+        private void PopulateMountedDirMirror(MasterKeyring rk)
         {
             var symmRefList = rk.GetAllAndDescendantSymmetricReferencesToGenericFiles(new List<Keyring>());
             mountedDirMirror.Clear();
@@ -1532,7 +1534,7 @@ namespace SecureWiki
 
                         // Continue recursively with children Keyrings
                         var mdFile = mountedDirMirror.CreateFile(Path.Combine(path, kr.name, "self"), symmRef);
-                        mdFile.TargetType = MDFile.Type.Keyring;
+                        if (mdFile != null) mdFile.TargetType = MDFile.Type.Keyring;
                         PopulateMountedDirKeyrings(kr, Path.Combine(path, kr.name), visitedKeyrings);
                         break;
                     }
@@ -1547,7 +1549,13 @@ namespace SecureWiki
             viewModelKeyrings.Clear();
             viewModelKeyrings.AddRange(MasterKeyring.GetAllAndDescendantKeyrings(new List<Keyring>()));
         }
-
+        
+        public void GetOwnContacts(ObservableCollection<OwnContact> ownContacts)
+        {
+            ownContacts.Clear();
+            ownContacts.AddRange(MasterKeyring.OwnContacts);
+        }
+        
         public void AddFilesToKeyring(List<Keyring> keyrings)
         {
             var symmetricReferences =
@@ -1602,36 +1610,11 @@ namespace SecureWiki
                 }
             }
         }
-
-        // public void ExportContact()
-        // {
-        //     WriteToLogger("Exporting contact information");
-        //     var inboxReferences =
-        //         mountedDirMirror.GetAllDescendantInboxReferencesBasedOnIsCheckedKeyringFolder();
-        //     
-        //     var currentDir = Directory.GetCurrentDirectory();
-        //     var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
-        //     var exportFileName = "ContactExport.json";
-        //     var exportFilePath = Path.Combine(path, exportFileName);
-        //     JSONSerialization.SerializeAndWriteFile(exportFilePath, inboxReferences);
-        // }
-        //
-        // public void ImportContact(string path)
-        // {
-        //     WriteToLogger($"Importing contacts from '{path}'");
-        //     var newInboxReferences = JSONSerialization.ReadFileAndDeserialize(
-        //         path, typeof(List<InboxReference>)) as List<InboxReference>;
-        //
-        //     if (newInboxReferences == null)
-        //     {
-        //         const string loggerMsg = "Import file cannot be parsed as a list of inbox reference objects. " +
-        //                                  "Merged aborted.";
-        //         WriteToLogger(loggerMsg, null, LoggerEntry.LogPriority.Warning);
-        //         return;
-        //     }
-        //
-        //     
-        // }
-
+        
+        public void RenameOwnContact(string nickname, OwnContact selectedOwnContact)
+        {
+            var contact = MasterKeyring.OwnContacts.FirstOrDefault(e => e.HasSameStaticProperties(selectedOwnContact));
+            if (contact != null) contact.Nickname = nickname;
+        }
     }
 }

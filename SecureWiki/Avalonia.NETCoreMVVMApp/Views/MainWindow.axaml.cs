@@ -334,10 +334,9 @@ namespace SecureWiki.Views
             var tag = (string) ((Button) sender!).Tag;
             var popup = this.FindControl<Popup>(tag);
 
-            if (tag.Equals("GenerateContactPopup"))
+            if (tag.Equals("RenameContactPopup"))
             {
                 _viewModel.NicknamePopUp = "";
-                _viewModel.ServerLinkPopUp = "";
             }
             
             popup.IsOpen = false;
@@ -375,7 +374,12 @@ namespace SecureWiki.Views
                     manager.GetKeyrings(_viewModel.keyrings));
                 localThread.Start();
             }
-            
+            if (tag.Equals("RenameContactPopup"))
+            {
+                Thread localThread = new(() =>
+                    manager.GetOwnContacts(_viewModel.ownContacts));
+                localThread.Start();
+            }
             popup.IsOpen = true;
         }
 
@@ -462,12 +466,6 @@ namespace SecureWiki.Views
             }
         }
 
-        private void ButtonGenerateContact_Click(object? sender, RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-        
-
         private void ButtonImportContact_Click(object? sender, RoutedEventArgs e)
         {
             ImportContact();
@@ -487,25 +485,21 @@ namespace SecureWiki.Views
             }
         }
 
-        private void GenerateContactPopup_Click(object? sender, RoutedEventArgs e)
+        private void RenameContactPopup_Click(object? sender, RoutedEventArgs e)
         {
-            var serverLinkTextBox = this.FindControl<TextBox>("ServerLinkTextBox");
-            var serverLink = serverLinkTextBox.Text;
-
             var nicknameTextBox = this.FindControl<TextBox>("NicknameTextBox");
             var nickname = nicknameTextBox.Text;
 
-            if (serverLink != null && nickname != null)
+            if (nickname != null)
             {
-                // Thread localThread = new(() =>
-                //     manager.GenerateOwnContact(serverLink, nickname));
-                // localThread.Start();
+                Thread localThread = new(() =>
+                    manager.RenameOwnContact(nickname, _viewModel.selectedOwnContact));
+                localThread.Start();
             }
 
-            var popup = this.FindControl<Popup>("GenerateContactPopup");
+            var popup = this.FindControl<Popup>("RenameContactPopup");
 
             _viewModel.NicknamePopUp = "";
-            _viewModel.ServerLinkPopUp = "";
 
             popup.IsOpen = false;
         }
@@ -527,7 +521,6 @@ namespace SecureWiki.Views
             var popup = this.FindControl<Popup>("ExportContactsPopup");
             popup.IsOpen = false;
         }
-
 
         private void UpdateInboxes_OnClick(object? sender, RoutedEventArgs e)
         {

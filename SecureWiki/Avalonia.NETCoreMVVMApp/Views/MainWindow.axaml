@@ -97,22 +97,33 @@
                     </Grid>
                 </Border>
             </Popup>
-            
-            <Button Name="ButtonGenerateContact" Click="ShowButtonPopup_Click" Tag="GenerateContactPopup">Generate contact</Button>
-            <!--Generate contact popup-->
-            <Popup Name="GenerateContactPopup" PlacementTarget="ButtonGenerateContact" IsLightDismissEnabled="True">
+
+            <Button Name="ButtonRenameContact" Click="ShowButtonPopup_Click" Tag="RenameContactPopup">Name keyring contact</Button>
+            <!--Rename contact popup-->
+            <Popup Name="RenameContactPopup" PlacementTarget="ButtonRenameContact" IsLightDismissEnabled="True">
                 <Border BorderBrush="Black" BorderThickness="1,1,1,1">
                     <Grid>
                         <Grid ColumnDefinitions="Auto" RowDefinitions="Auto, Auto, Auto, Auto" Background="White">
-                            <TextBlock Grid.Row="0" Grid.Column="0" Name="GenerateContactText" 
-                                       Text="Generate contact information to be shared with other users."
+                            <TextBlock Name="RenameContactText" Background="White"
+                                       Text="Rename contact for selected keyring."
                                        TextAlignment="Center" />
-                            <TextBox Grid.Row="1" Grid.Column="0" Name="ServerLinkTextBox" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
-                                     Text="{Binding ServerLinkPopUp}" Watermark="http://localhost/mediawiki/api.php" />
+                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding ownContacts, Mode=TwoWay}"
+                                     SelectionMode="Single" SelectedItem="{Binding selectedOwnContact}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="utilities:OwnContact">
+                                        <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
+                                            <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" />
+                                            <TextBlock Grid.Row="1" Grid.Column="0">Inbox name: </TextBlock>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding InboxReference.targetPageName}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
                             <TextBox Grid.Row="2" Grid.Column="0" Name="NicknameTextBox" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
-                                     Text="{Binding NicknamePopUp}" Watermark="nickname" />
-                            <Button Grid.Row="3" Grid.Column="0" Click="HideButtonPopup_Click" Tag="GenerateContactPopup" Margin="30,80,10,10">Cancel</Button>
-                            <Button Grid.Row="3" Grid.Column="0" Click="GenerateContactPopup_Click" Tag="GenerateContactPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button>
+                                Text="{Binding NicknamePopUp}" Watermark="nickname" />
+                            <Button Grid.Row="3" Grid.Column="0" Click="HideButtonPopup_Click" Tag="RenameContactPopup" Margin="30,80,10,10">Cancel</Button>
+                            <Button Grid.Row="3" Grid.Column="0" Click="RenameContactPopup_Click" Tag="RenameContactPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button>
                         </Grid>
                     </Grid>
                 </Border>
@@ -164,8 +175,6 @@
                 </Border>
             </Popup>
             
-            <!-- <Button Name="ButtonExportContact" Click="ButtonExportContact_Click">Export contact information</Button> -->
-
             <Button Name="ButtonImportContact" Click="ButtonImportContact_Click">Import contact information</Button>
             
             <TextBlock>Enter IP address of MediaWiki server</TextBlock>

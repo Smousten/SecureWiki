@@ -131,13 +131,6 @@ namespace SecureWiki.ViewModels
             get => _selectedRevision;
             set => this.RaiseAndSetIfChanged(ref _selectedRevision, value);
         }
-
-        private string _serverLinkPopUp;
-        public string ServerLinkPopUp
-        {
-            get => _serverLinkPopUp;
-            set => this.RaiseAndSetIfChanged(ref _serverLinkPopUp, value);
-        }
         
         private string _nicknamePopUp;
         public string NicknamePopUp
@@ -225,7 +218,23 @@ namespace SecureWiki.ViewModels
             }
         }
         public ObservableCollection<Keyring> selectedKeyrings { get; } = new();
-        
+
+        private ObservableCollection<OwnContact> _ownContacts = new();
+        public ObservableCollection<OwnContact> ownContacts
+        {
+            get => _ownContacts;
+            set
+            {
+                _ownContacts = value;
+                this.RaisePropertyChanged(nameof(ownContacts));
+            }
+        }
+        private OwnContact _selectedOwnContact;
+        public OwnContact selectedOwnContact
+        {
+            get => _selectedOwnContact;
+            set => this.RaiseAndSetIfChanged(ref _selectedOwnContact, value);
+        }
         
         public MainWindowViewModel(MasterKeyring rk, Logger logger, MountedDirMirror mountedDirMirror)
         {
