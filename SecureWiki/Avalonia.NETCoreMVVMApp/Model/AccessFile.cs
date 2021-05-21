@@ -22,24 +22,21 @@ namespace SecureWiki.Model
         [JsonProperty(Order = 9)]
         public byte[]? ownerPublicKey { get; set; }
         
-        // // List of the page titles of contacts that this file is automatically shared with
-        // [JsonProperty] 
-        // public List<(string, string?)> contactList { get; set; }
         // List of inbox references which 'subscribe' to this access file
         [JsonProperty] 
         public List<InboxReference> inboxReferences { get; set; }
 
-        // AccessFileKey is a tuple of (private key, public key and information relevant to their use)
+        // AccessFileKey is a tuple of (private key, public key, semi-permanent symmetric key
+        // and information relevant to their use)
         [JsonProperty] 
         public List<AccessFileKey> keyList { get; set; }
 
-        [JsonProperty] public AccessFileReference AccessFileReference;
+        [JsonProperty] 
+        public AccessFileReference AccessFileReference;
 
         public SymmetricReference? SymmetricReferenceToSelf;
         public Keyring? Parent;
         
-        // public string serverLink { get; set; }
-        // public string pageName { get; set; }
         public bool HasBeenChanged = false;
 
         private bool _newestRevisionSelected = true;
@@ -63,8 +60,6 @@ namespace SecureWiki.Model
         {
             AccessFileReference = new AccessFileReference(pageName, serverLink, this, 
                 pageType, keyringTarget);
-            // Console.WriteLine("New AccessFile: serverLink: '" + serverLink + "'");
-            // Console.WriteLine("New AccessFile: pageName: '" + pageName + "'");
             this.filename = "unnamed";
             HasBeenChanged = true;
 
@@ -78,6 +73,51 @@ namespace SecureWiki.Model
             
             // Create a new AccessFileKey and sign it with the owner private key 
             keyList = new List<AccessFileKey> {new(ownerPrivateKey)};
+        }
+
+        public bool IsValid()
+        {
+            var properties = new List<PropertyInfo?>();
+            var fields = new List<FieldInfo?>();
+
+            // Properties to be checked
+            properties.Add(typeof(AccessFile).GetProperty(nameof(ownerPublicKey)));
+            properties.Add(typeof(AccessFile).GetProperty(nameof(inboxReferences)));
+            properties.Add(typeof(AccessFile).GetProperty(nameof(keyList)));
+            
+            // Fields to be checked
+            fields.Add(typeof(AccessFile).GetField(nameof(AccessFileReference)));
+            fields.Add(typeof(AccessFile).GetField(nameof(SymmetricReferenceToSelf)));
+            
+            foreach (var prop in properties)
+            {
+                var val = prop?.GetValue(this);
+                if (val == null)
+                {
+                    return false;
+                }
+
+                if (val is string {Length: < 2})
+                {
+                    return false;
+                }
+                
+                if (val is byte[] {Length: < 2})
+                {
+                    return false;
+                }
+            }
+            
+            foreach (var field in fields)
+            {
+                if (field?.GetValue(this) == null)
+                {
+                    return false;
+                }
+            }
+
+            // Check if reference is also valid
+            return AccessFileReference.IsValid();
         }
 
         public bool VerifyKeys()

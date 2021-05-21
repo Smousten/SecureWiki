@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using DynamicData;
 using JetBrains.Annotations;
@@ -14,77 +15,18 @@ namespace SecureWiki.Model
     [JsonObject(MemberSerialization.OptIn)]
     public class Keyring //: IReactiveObject
     {
-        // private bool? _isChecked = false;
-        // public bool? isChecked
-        // {
-        //     get => (_isChecked ?? false);
-        //     set
-        //     {
-        //         _isChecked = value;
-        //         OnPropertyChanged(nameof(isChecked));
-        //         OnPropertyChanged(nameof(isCheckedWriteEnabled));
-        //         OnCheckedChanged(EventArgs.Empty);
-        //     }
-        // }
-        //
-        // private bool? _isCheckedWrite = false;
-        // public bool? isCheckedWrite
-        // {
-        //     get => (_isCheckedWrite ?? false);
-        //     set
-        //     {
-        //         _isCheckedWrite = value;
-        //         OnPropertyChanged(nameof(isCheckedWrite));
-        //         OnCheckedWriteChanged(EventArgs.Empty);
-        //     }
-        // }
-        //
-        // public bool isCheckedWriteEnabled => isChecked ?? false;
-
         [JsonProperty(Order = -4)]
         public string name { get; set; }
 
-        [JsonProperty(Order = -3)] public string pageName;
         [JsonProperty(Order = 99)] public List<SymmetricReference> SymmetricReferences = new();
         [JsonProperty] public InboxReference InboxReferenceToSelf;
         public AccessFileReference accessFileReferenceToSelf;
         public bool HasBeenChanged = false;
 
         public Keyring? parent;
-        // private Keyring? _parent;
-        // public Keyring? parent
-        // {
-        //     get => _parent;
-        //     set
-        //     {
-        //         _parent = value; 
-        //         RaisePropertyChanged(nameof(parent));
-        //     }
-        // }
         
-        // [JsonProperty]
         public ObservableCollection<Keyring> keyrings { get; set; } = new();
-        // [JsonProperty]
         public ObservableCollection<AccessFile> accessFiles { get; set; } = new();
-
-        public ObservableCollection<object> combinedList
-        {
-            get
-            {
-                var output = new ObservableCollection<object>();
-
-                foreach (Keyring entry in keyrings)
-                {
-                    output.Add(entry);
-                }
-                foreach (AccessFile entry in accessFiles)
-                {
-                    output.Add(entry);
-                }
-                
-                return output;
-            }   
-        }
 
         public Keyring(AccessFileReference accessFileReferenceToSelf, string name = "unnamed")
         {
@@ -92,28 +34,48 @@ namespace SecureWiki.Model
             this.accessFileReferenceToSelf = accessFileReferenceToSelf;
             accessFileReferenceToSelf.KeyringTarget = this;
             HasBeenChanged = true;
-
-            // CheckedChanged += CheckedChangedUpdateParent;
-            // CheckedChanged += CheckedChangedUpdateChildren;
-            // CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
         }
         
         public Keyring(string name = "unnamed")
         {
             this.name = name;
-            
-            // CheckedChanged += CheckedChangedUpdateParent;
-            // CheckedChanged += CheckedChangedUpdateChildren;
-            // CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
-        }
+            }
         
         public Keyring()
         {
             name = "unnamed";
+        }
+        
+        public bool IsValid()
+        {
+            var properties = new List<PropertyInfo?>();
+            var fields = new List<FieldInfo?>();
+
+            // Properties to be checked
+            // properties.Add(GetType().GetProperty(nameof(name)));
+
+            // Fields to be checked
+            fields.Add(typeof(Keyring).GetField(nameof(InboxReferenceToSelf)));
+            fields.Add(typeof(Keyring).GetField(nameof(SymmetricReferences)));
             
-            // CheckedChanged += CheckedChangedUpdateParent;
-            // CheckedChanged += CheckedChangedUpdateChildren;
-            // CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
+            foreach (var val in properties.Select(prop => prop?.GetValue(this)))
+            {
+                switch (val)
+                {
+                    case null:
+                    case string {Length: < 2}:
+                    case byte[] {Length: < 2}:
+                        return false;
+                }
+            }
+            
+            if (fields.Any(field => field?.GetValue(this) == null))
+            {
+                return false;
+            }
+
+            // Check if reference is also valid
+            return InboxReferenceToSelf.IsValid();
         }
 
         // Add a symmetric reference and update it accordingly
@@ -126,56 +88,40 @@ namespace SecureWiki.Model
         public void AddKeyring(Keyring keyring)
         {
             keyrings.Add(keyring);
-            // RaisePropertyChanged(nameof(keyrings));
-            // RaisePropertyChanged(nameof(combinedList));
         }
 
         public void AddRangeKeyring(List<Keyring> keyringEntries)
         {
             keyrings.AddRange(keyringEntries);
-            // RaisePropertyChanged(nameof(keyrings));
-            // RaisePropertyChanged(nameof(combinedList));
         }
         
         public void RemoveKeyring(Keyring keyring)
         {
             keyrings.Remove(keyring);
-            // RaisePropertyChanged(nameof(keyrings));
-            // RaisePropertyChanged(nameof(combinedList));
         }
         
         public void AddAccessFile(AccessFile accessFile)
         {
             accessFiles.Add(accessFile);
-            // RaisePropertyChanged(nameof(accessFiles));
-            // RaisePropertyChanged(nameof(combinedList));
         }
         
         public void AddRangeAccessFile(List<AccessFile> accessFileEntries)
         {
             accessFiles.AddRange(accessFileEntries);
-            // RaisePropertyChanged(nameof(accessFileEntries));
-            // RaisePropertyChanged(nameof(combinedList));
         }
         
         public void RemoveAccessFile(AccessFile accessFile)
         {
             accessFiles.Remove(accessFile);
-            // RaisePropertyChanged(nameof(accessFiles));
-            // RaisePropertyChanged(nameof(combinedList));
         }
 
         public void ClearKeyrings()
         {
             keyrings.Clear();
-            // RaisePropertyChanged(nameof(keyrings));
-            // RaisePropertyChanged(nameof(combinedList));
         }
 
         public void ClearAccessFiles() {
             accessFiles.Clear();
-            // RaisePropertyChanged(nameof(accessFiles));
-            // RaisePropertyChanged(nameof(combinedList));
         }
         
         // public event PropertyChangedEventHandler? PropertyChanged;
@@ -356,7 +302,6 @@ namespace SecureWiki.Model
             accessFiles.Clear();
             
             name = ke.name;
-            pageName = ke.pageName;
             InboxReferenceToSelf = ke.InboxReferenceToSelf;
             accessFileReferenceToSelf = ke.accessFileReferenceToSelf;
             parent = ke.parent;
@@ -373,7 +318,6 @@ namespace SecureWiki.Model
             AddRangeAccessFile(ke.accessFiles.ToList());
             
             name = ke.name;
-            pageName = ke.pageName;
             InboxReferenceToSelf = ke.InboxReferenceToSelf;
             accessFileReferenceToSelf = ke.accessFileReferenceToSelf;
             parent = ke.parent;

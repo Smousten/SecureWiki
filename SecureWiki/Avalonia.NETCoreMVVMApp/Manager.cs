@@ -912,6 +912,7 @@ namespace SecureWiki
                 pageName = TryFreshPageName(serverLink, wikiHandler);
                 return pageName != null;
             }, TimeSpan.FromSeconds(5));
+            Console.WriteLine("GetFreshPageName:- pageName='{0}'", pageName);
             return success ? pageName : null;
         }
 
@@ -942,6 +943,8 @@ namespace SecureWiki
         public void AddNewKeyring(string filename)
         {
             var keyring = _keyringManager.CreateNewKeyring(filename, configManager.DefaultServerLink);
+            // Add symmetric reference to newEntries keyring and upload
+            AddToDefaultKeyring(keyring.accessFileReferenceToSelf.AccessFileParent.SymmetricReferenceToSelf);
             var accessFile = keyring?.accessFileReferenceToSelf.AccessFileParent;
             var symmetricReference = accessFile?.SymmetricReferenceToSelf;
 

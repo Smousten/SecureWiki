@@ -217,6 +217,67 @@ namespace SecureWiki.MediaWiki
                     revision = tmp;
                 }
             }
+            
+            public class TwoLatestRevisions : PageQuery
+            {
+                public List<Revision> revisionList = new();
+
+                public TwoLatestRevisions(MediaWikiObject source, string pageName) : base(source)
+                {
+                    this.pageName = pageName;
+                }
+
+                public TwoLatestRevisions(string pageName, HttpClient client)
+                {
+                    this.pageName = pageName;
+                    httpClient = client;
+                }
+
+                public List<Revision> GetLatestRevisions()
+                {
+                    PostRequest();
+
+                    return revisionList;
+                }
+
+                public override string BuildQuery()
+                {
+                    // URL does not allow + character, instead encode as hexadecimal
+                    var updatedPageName = pageName.Replace("+", "%2B");
+                    
+                    string queryBody = "?action=query";
+                    queryBody += "&titles=" + updatedPageName;
+                    queryBody += "&prop=revisions";
+                    queryBody += "&rvslots=*";
+                    queryBody += "&rvlimit=2";
+                    queryBody += "&rvprop=ids|flags|timestamp|user|size";
+                    queryBody += "&formatversion=2";
+                    queryBody += "&format=json";
+
+                    string query = queryBody;
+
+                    return query;
+                }
+
+                public override void ParseJObject(JObject inputJObject)
+                {
+                    // Read the relevant fields of each revision entry into a Revision object
+                    // and add it to the list of revisions
+                    foreach (var token in inputJObject.SelectTokens("query.pages[0].revisions[*]"))
+                    {
+                        Revision tmp = new()
+                        {
+                            revisionID = token.SelectToken("revid")?.ToString(),
+                            flags = token.SelectToken("flags")?.ToString(),
+                            timestamp = token.SelectToken("timestamp")?.ToString(),
+                            user = token.SelectToken("user")?.ToString(),
+                            size = token.SelectToken("size")?.ToString()
+                        };
+
+                        revisionList.Add(tmp);
+                    }
+                }
+            }
 
             public class AllRevisions : PageQuery
             {
