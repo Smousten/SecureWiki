@@ -175,29 +175,45 @@
                 </Border>
             </Popup>
             
-            <Button Name="ButtonImportContact" Click="ButtonImportContact_Click">Import contact information</Button>
+            <Button Name="ButtonImportContact" Click="ButtonImportContact_Click">Import contacts</Button>
+            
+            <Button Name="ButtonShareFiles" Click="ShowButtonPopup_Click" Tag="ShareFilesPopup">Share files with contact</Button>
+            <!--Share files popup-->
+            <Popup Name="ShareFilesPopup" PlacementTarget="ButtonShareFiles" IsLightDismissEnabled="True">
+                <Border BorderBrush="Black" BorderThickness="1,1,1,1">
+                    <Grid>
+                        <Grid ColumnDefinitions="Auto" RowDefinitions="Auto, Auto, Auto" Background="White">
+                            <TextBlock Name="ShareFilesText" Background="White"
+                                       Text="Share the selected files with contacts from the list below."
+                                       TextAlignment="Center" />
+                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding shareContacts, Mode=TwoWay}"
+                                     SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedShareContacts}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="utilities:Contact">
+                                        <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
+                                            <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock> 
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" />
+                                            <TextBlock Grid.Row="1" Grid.Column="0">Server link: </TextBlock>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding InboxReference.serverLink}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <Button Grid.Row="2" Grid.Column="0" Click="HideButtonPopup_Click" Tag="ShareFilesPopup" Margin="30,80,10,10">Cancel</Button>
+                            <Button Grid.Row="2" Grid.Column="0" Click="ButtonShareFiles_Click" Tag="ShareFilesPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Popup>
             
             <TextBlock>Enter IP address of MediaWiki server</TextBlock>
             <TextBox Name="TextBoxIp" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
                      Text="{Binding IP}" />
             <Button Name="ButtonIp" Click="ButtonIP_Click">Change</Button>
             <Button Name="UpdateInboxes" Click="UpdateInboxes_OnClick">Force update keyring</Button>
-
-            <!-- <TextBlock>Login to MediaWiki</TextBlock> -->
-            <!-- <TextBox Name="TextBoxUser" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" -->
-            <!--          Text="{Binding Username}" Watermark="Username" /> -->
-            <!-- <TextBox Name="TextBoxPass" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" -->
-            <!--          Text="{Binding Password}" Watermark="Password" /> -->
-            <!-- <Button Name="ButtonLogin" Click="ButtonLogin_Click">Login</Button> -->
-
-            <!-- <TextBlock>Send keyring</TextBlock> -->
-            <!-- -->
-            <!-- <TextBox Name="TextBoxMail" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" Text="{Binding MailRecipient}" Watermark="Email recipient"> -->
-            <!-- </TextBox> -->
-            <!-- <Button Name="MailButton" Click="ButtonMail">Login</Button> -->
-
+            
             <Button Name="ButtonAddToKeyring" Click="ShowButtonPopup_Click" Tag="AddToKeyringPopup">Add files to keyring</Button>
-            <!--Share files popup-->
+            <!--Add files to keyring popup-->
             <Popup Name="AddToKeyringPopup" PlacementTarget="ButtonAddToKeyring" IsLightDismissEnabled="True">
                 <Border BorderBrush="Black" BorderThickness="1,1,1,1">
                     <Grid>

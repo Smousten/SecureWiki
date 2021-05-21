@@ -538,12 +538,15 @@ namespace SecureWiki.Views
             var popup = this.FindControl<Popup>("AddToKeyringPopup");
             popup.IsOpen = false;
         }
-
-        // private void ButtonExportContact_Click(object? sender, RoutedEventArgs e)
-        // {
-        //     Thread localThread = new(() =>
-        //         manager.ExportContact());
-        //     localThread.Start();
-        // }
+        
+        private void ButtonShareFiles_Click(object? sender, RoutedEventArgs e)
+        {
+            Thread localThread = new(() =>
+                manager.ShareFiles(_viewModel.SelectedShareContacts.ToList()));
+            localThread.Start();
+            
+            var popup = this.FindControl<Popup>("AddToKeyringPopup");
+            popup.IsOpen = false;
+        }
     }
 }

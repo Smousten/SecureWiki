@@ -353,6 +353,19 @@ namespace SecureWiki.Model
             keyList.AddRange(resultingKeyList);
         }
 
+        public void PrepareForExport(bool writeEnabled)
+        {
+            ownerPrivateKey = null;
+            if (!writeEnabled)
+            {
+                foreach (var key in keyList)
+                {
+                    key.PrivateKey = null;
+                    key.SignedWriteKey = null;
+                }
+            }
+        }
+
         // public void PrepareForExport()
         // {
         //     ownerPrivateKey = null;
