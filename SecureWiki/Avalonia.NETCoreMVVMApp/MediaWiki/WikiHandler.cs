@@ -859,29 +859,35 @@ namespace SecureWiki.MediaWiki
                 foreach (var entry in encryptedContentList)
                 {
                     // Convert page content to byte array so it can be processed
-                    var pageContentBytes = Convert.FromBase64String(entry);
-
+                    byte[] pageContentBytes;
+                    try
+                    {
+                        pageContentBytes = Convert.FromBase64String(entry);
+                    }
+                    catch (FormatException e)
+                    {
+                        Console.WriteLine(e);
+                        continue;
+                    }
                     // Split page content into header and ciphertext 
-                    var encryptedSymmKeyData = pageContentBytes.Take(256).ToArray();
+                    var encryptedSymmKey = pageContentBytes.Take(256).ToArray();
                     var encryptedContentBytes = pageContentBytes.Skip(256).ToArray();
 
-                    // Get IV and symmetric key
+                    // Get symmetric key
                     if (contact.InboxReference.privateKey != null)
                     {
-                        var decryptedSymmKeyData =
-                            Crypto.RSADecryptWithPrivateKey(encryptedSymmKeyData, contact.InboxReference.privateKey);
-                        var iv = decryptedSymmKeyData?.Take(16).ToArray();
-                        var symmKey = decryptedSymmKeyData?.Skip(16).ToArray();
+                        var decryptedSymmKey =
+                            Crypto.RSADecryptWithPrivateKey(encryptedSymmKey, contact.InboxReference.privateKey);
+                        var symmKey = decryptedSymmKey;
 
-                        if (symmKey == null || iv == null)
+                        if (symmKey == null)
                         {
-                            Console.WriteLine("symmKey or iv null");
+                            Console.WriteLine("symmKey is null");
                             break;
                         }
 
                         // Decrypt ciphertext
-                        var decryptedContent = Crypto.Decrypt(encryptedContentBytes, symmKey, iv);
-                        // var decryptedContent = Crypto.DecryptGCM(encryptedContentBytes, symmKey);
+                        var decryptedContent = Crypto.DecryptGCM(encryptedContentBytes, symmKey);
                         if (decryptedContent == null)
                         {
                             Console.WriteLine("decryptedContent is null");
@@ -961,18 +967,15 @@ namespace SecureWiki.MediaWiki
         {
             Console.WriteLine("Uploading content to mediawiki: " + content);
             // Generate symmetric key
-            var (symmKey, IV) = Crypto.GenerateAESParams();
+            var symmKey = Crypto.GenerateSymmKey();
 
-            // Encrypt symmetric key information with given public key
-            var symmKeyData = ByteArrayCombiner.Combine(IV, symmKey);
-            var encryptedSymmKeyData = Crypto.RSAEncryptWithPublicKey(symmKeyData, publicKey);
+            // Encrypt symmetric key with given public key
+            var encryptedSymmKeyData = Crypto.RSAEncryptWithPublicKey(symmKey, publicKey);
 
             // Encrypt content with the symmetric key
             var contentBytes = Encoding.ASCII.GetBytes(content);
-            var encryptedBytes = Crypto.Encrypt(
-                contentBytes, symmKey, IV);
-            // var encryptedBytes = Crypto.EncryptGCM(
-            //     contentBytes, symmKey);
+            var encryptedBytes = Crypto.EncryptGCM(
+                contentBytes, symmKey);
 
             if (encryptedBytes == null || encryptedSymmKeyData == null)
             {
@@ -993,6 +996,7 @@ namespace SecureWiki.MediaWiki
             // Check if upload was successful
             if (httpResponse != null)
             {
+                Console.WriteLine(httpResponse);
                 var response = new Response(httpResponse);
 
                 if (response.Result == Response.ResultType.Success)

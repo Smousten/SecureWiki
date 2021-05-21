@@ -379,6 +379,21 @@ namespace SecureWiki
                 contactsOther.AddRange(MasterKeyring.Contacts);
             }
         }
+        
+        public void GetAllContacts(ObservableCollection<Contact> contacts)
+        {
+            contacts.Clear();
+
+            foreach (var ownContact in MasterKeyring.OwnContacts)
+            {
+                contacts.Add(ownContact.ConvertToBaseClass());
+            }
+
+            if (MasterKeyring.Contacts.Count > 0)
+            {
+                contacts.AddRange(MasterKeyring.Contacts);
+            }
+        }
 
         public void ExportContacts(ObservableCollection<Contact> exportContacts)
         {
@@ -1635,7 +1650,7 @@ namespace SecureWiki
 
             // get the list of all clicked symmetric references
             var symmetricReferences = mountedDirMirror.GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedRootFolder();
-
+            
             // for each contact create a new list with access files not previously received
             foreach (var contact in contacts)
             {
@@ -1657,24 +1672,14 @@ namespace SecureWiki
                 {
                     continue;
                 }
-
-                // // Create new keyring containing copies of the access files to be shared
-                // var intermediateKeyringEntry = new Keyring(keyringEntry.name);
-                // var keyringEntryToExport = new Keyring(intermediateKeyringEntry.name);
-                //
-                // intermediateKeyringEntry.accessFiles.AddRange(newAccessFiles);
-                // intermediateKeyringEntry.AddCopiesToOtherKeyringRecursively(keyringEntryToExport);
-                // keyringEntryToExport.PrepareForExportRecursively();
-                //
-                // var keyringEntryString = JSONSerialization.SerializeObject(keyringEntryToExport);
                 
-                // Determine access rights
                 foreach (var af in newAccessFiles)
                 {
                     var path = MasterKeyring.GetMountedDirMapping(af.AccessFileReference.targetPageName);
                     if (path == null) continue;
                     var mdFile = mountedDirMirror.GetMDFile(path);
-                    af.PrepareForExport(mdFile is {isCheckedWriteEnabled: true});
+                    af.PrepareForExport(mdFile is {isCheckedWrite: true});
+                    af.inboxReferences.Add(contact.InboxReference);
                 }
                 
                 var newAccessFilesString = JSONSerialization.SerializeObject(newAccessFiles);

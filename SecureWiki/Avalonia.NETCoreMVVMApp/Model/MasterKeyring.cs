@@ -55,6 +55,8 @@ namespace SecureWiki.Model
         {
             base.CopyFromOtherKeyringNonRecursively(ke);
             MountedDirMapping = ke.MountedDirMapping;
+            OwnContacts = ke.OwnContacts;
+            Contacts = ke.Contacts;
         }
         
         public List<OwnContact>? GetOwnContactsByServerLink(string serverLink)

@@ -186,7 +186,7 @@
                             <TextBlock Name="ShareFilesText" Background="White"
                                        Text="Share the selected files with contacts from the list below."
                                        TextAlignment="Center" />
-                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding shareContacts, Mode=TwoWay}"
+                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding ShareContacts, Mode=TwoWay}"
                                      SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedShareContacts}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="utilities:Contact">
@@ -210,7 +210,7 @@
             <TextBox Name="TextBoxIp" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
                      Text="{Binding IP}" />
             <Button Name="ButtonIp" Click="ButtonIP_Click">Change</Button>
-            <Button Name="UpdateInboxes" Click="UpdateInboxes_OnClick">Force update keyring</Button>
+            <Button Name="UpdateInboxes" Click="UpdateInboxes_Click">Force update keyring</Button>
             
             <Button Name="ButtonAddToKeyring" Click="ShowButtonPopup_Click" Tag="AddToKeyringPopup">Add files to keyring</Button>
             <!--Add files to keyring popup-->

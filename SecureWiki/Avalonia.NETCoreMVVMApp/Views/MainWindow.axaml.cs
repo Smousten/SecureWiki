@@ -380,6 +380,12 @@ namespace SecureWiki.Views
                     manager.GetOwnContacts(_viewModel.ownContacts));
                 localThread.Start();
             }
+            if (tag.Equals("ShareFilesPopup"))
+            {
+                Thread localThread = new(() =>
+                    manager.GetAllContacts(_viewModel.ShareContacts));
+                localThread.Start();
+            }
             popup.IsOpen = true;
         }
 
@@ -522,7 +528,7 @@ namespace SecureWiki.Views
             popup.IsOpen = false;
         }
 
-        private void UpdateInboxes_OnClick(object? sender, RoutedEventArgs e)
+        private void UpdateInboxes_Click(object? sender, RoutedEventArgs e)
         {
             Thread localThread = new(() =>
                 manager.ForceUpdateFromAllInboxPages());
