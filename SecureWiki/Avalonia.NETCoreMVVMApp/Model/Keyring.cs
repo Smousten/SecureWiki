@@ -74,6 +74,11 @@ namespace SecureWiki.Model
                 return false;
             }
 
+            if (SymmetricReferences.Any(symmRef => !symmRef.IsValid()))
+            {
+                return false;
+            }
+
             // Check if reference is also valid
             return InboxReferenceToSelf.IsValid();
         }

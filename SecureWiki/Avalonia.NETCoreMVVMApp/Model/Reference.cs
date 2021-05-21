@@ -45,6 +45,24 @@ namespace SecureWiki.Model
             this.targetAccessFile = targetAccessFile;
         }
         
+        public bool IsValid()
+        {
+            var properties = new List<PropertyInfo?>();
+            var fields = new List<FieldInfo?>();
+
+            // Properties to be checked
+            properties.Add(this.GetType().GetProperty(nameof(targetPageName)));
+            properties.Add(this.GetType().GetProperty(nameof(serverLink)));
+
+            // Fields to be checked
+            fields.Add(this.GetType().GetField(nameof(symmKey)));
+            fields.Add(this.GetType().GetField(nameof(accessFileTargetPageName)));
+            fields.Add(this.GetType().GetField(nameof(type)));
+            
+            return properties.All(prop => prop?.GetValue(this) != null) 
+                   && fields.All(field => field?.GetValue(this) != null);
+        }
+        
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -83,6 +101,7 @@ namespace SecureWiki.Model
             
             // Fields to be checked
             fields.Add(typeof(AccessFileReference).GetField(nameof(AccessFileParent)));
+            fields.Add(this.GetType().GetField(nameof(type)));
             
             return properties.All(prop => prop?.GetValue(this) != null) 
                    && fields.All(field => field?.GetValue(this) != null);
