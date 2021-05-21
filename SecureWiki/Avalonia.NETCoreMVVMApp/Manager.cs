@@ -1517,6 +1517,9 @@ namespace SecureWiki
 
             var keyringPath = "Keyrings/";
             PopulateMountedDirKeyrings(MasterKeyring, keyringPath, new List<Keyring>());
+            var mdFile = mountedDirMirror.CreateFile(Path.Combine(keyringPath, "self"), 
+                rk.accessFileReferenceToSelf.AccessFileParent.SymmetricReferenceToSelf);
+            if (mdFile != null) mdFile.TargetType = MDFile.Type.Keyring;
         }
 
         private void PopulateMountedDirKeyrings(Keyring keyring, string path, List<Keyring> visitedKeyrings)
