@@ -752,7 +752,7 @@ namespace SecureWiki.MediaWiki
             
             if (!keyring.IsValid())
             {
-                Console.WriteLine("Parsed Keyring or its InboxReferenceToSelf is not valid, " +
+                Console.WriteLine("Parsed Keyring, its InboxReferenceToSelf, or its Symmetric references are not valid, " +
                                   "symmetricReference.accessFileTargetPageName='{0}'", symmetricReference.accessFileTargetPageName);
                 var revisions = GetAllRevisions(symmetricReference.targetAccessFile.AccessFileReference.targetPageName).GetAllRevisionBefore(revid);
                 return GetLatestValidKeyring(symmetricReference.targetAccessFile, revisions);

@@ -530,17 +530,6 @@ namespace SecureWiki.Cryptography
             if (defaultKeyring == null)
             {
                 Console.WriteLine("defaultkeyring is null");
-                // var pageNameKeyring = _manager.GetFreshPageName();
-                // var pageNameAccessFileKeyring = _manager.GetFreshPageName();
-                // var defaultServerLink = _manager.configManager.DefaultServerLink;
-                //
-                // // Create access file and reference for keyring
-                // CreateAccessFileAndReferences(pageNameKeyring, 
-                //     pageNameAccessFileKeyring, defaultServerLink, PageType.Keyring, 
-                //     out SymmetricReference symmetricReferenceToDefaultKeyring, out AccessFile accessFileToDefaultKeyring);
-                //
-                // // Create new keyring
-                // defaultKeyring = new Keyring(accessFileToDefaultKeyring.AccessFileReference, "newEntries");
                 defaultKeyring = CreateNewKeyring("newEntries", _manager.configManager.DefaultServerLink);
                 _masterKeyring.AddSymmetricReference(defaultKeyring.accessFileReferenceToSelf.AccessFileParent.SymmetricReferenceToSelf);
             }
