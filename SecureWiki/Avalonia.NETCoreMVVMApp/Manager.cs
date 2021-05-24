@@ -560,6 +560,15 @@ namespace SecureWiki
                     accessFile.SymmetricReferenceToSelf = symmetricReference;
                     keyring.AddSymmetricReference(symmetricReference);
                     
+                    // Create new entry in md mirror
+                    var filepath = keyring.name + '/' + accessFile.filename;
+                    var mdFile = mountedDirMirror.CreateFile(filepath, symmetricReference);
+                    if (mdFile == null)
+                    {
+                        WriteToLogger("File could not be added to MDMirror, upload failed");
+                        return;
+                    }
+                    
                     var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
 
                     if (uploadResAF == false)
@@ -567,6 +576,8 @@ namespace SecureWiki
                         WriteToLogger("Access File could not be uploaded, aborting.");
                         return;
                     }
+                    
+                    MasterKeyring.SetMountedDirMapping(accessFile.AccessFileReference.targetPageName, filepath);
                 }
 
                 var accessFileToKeyring = keyring.accessFileReferenceToSelf.AccessFileParent;
