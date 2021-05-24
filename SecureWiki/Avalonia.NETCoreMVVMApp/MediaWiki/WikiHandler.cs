@@ -96,7 +96,7 @@ namespace SecureWiki.MediaWiki
 
             // Encrypt text using key from key list
             // var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey, iv);
-            var encryptedContent = Crypto.EncryptGCM(plainText, key.SymmKey);
+            var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey);
 
             if (encryptedContent == null) return false;
 
@@ -141,7 +141,7 @@ namespace SecureWiki.MediaWiki
             if (content.Length <= 0) return false;
 
             if (!ConfirmUpload(pageName)) return false;
-            var cipherTextBytes = Crypto.EncryptGCM(content, symmetricReference.symmKey);
+            var cipherTextBytes = Crypto.Encrypt(content, symmetricReference.symmKey);
 
             MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
                 symmetricReference.targetPageName);
@@ -221,7 +221,7 @@ namespace SecureWiki.MediaWiki
                 if (Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes,
                     splitPageContent.Value.signBytes))
                 {
-                    var decryptedBytes = Crypto.DecryptGCM(splitPageContent.Value.cipherBytes, key.SymmKey);
+                    var decryptedBytes = Crypto.Decrypt(splitPageContent.Value.cipherBytes, key.SymmKey);
                     if (decryptedBytes == null)
                     {
                         continue;
@@ -258,7 +258,7 @@ namespace SecureWiki.MediaWiki
                 if (splitPageContent == null) return null;
 
                 var accessFileBytes = Convert.FromBase64String(pageContent);
-                var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, symmetricReference.symmKey);
+                var decryptedAccessFile = Crypto.Decrypt(accessFileBytes, symmetricReference.symmKey);
                 
                 if (decryptedAccessFile != null && decryptedAccessFile.Length >= 2)
                 {
@@ -298,7 +298,7 @@ namespace SecureWiki.MediaWiki
                 if (Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes,
                     splitPageContent.Value.signBytes))
                 {
-                    var decryptedBytes = Crypto.DecryptGCM(splitPageContent.Value.cipherBytes, key.SymmKey);
+                    var decryptedBytes = Crypto.Decrypt(splitPageContent.Value.cipherBytes, key.SymmKey);
                     if (decryptedBytes == null)
                     {
                         continue;
@@ -351,7 +351,7 @@ namespace SecureWiki.MediaWiki
                 if (Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes,
                     splitPageContent.Value.signBytes))
                 {
-                    var decryptedBytes = Crypto.DecryptGCM(splitPageContent.Value.cipherBytes, key.SymmKey);
+                    var decryptedBytes = Crypto.Decrypt(splitPageContent.Value.cipherBytes, key.SymmKey);
                     if (decryptedBytes == null)
                     {
                         continue;
@@ -398,7 +398,7 @@ namespace SecureWiki.MediaWiki
 
                 // Decrypt content, continue if not successful
                 var accessFileBytes = Convert.FromBase64String(pageContent);
-                var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, symmetricReference.symmKey);
+                var decryptedAccessFile = Crypto.Decrypt(accessFileBytes, symmetricReference.symmKey);
                 if (decryptedAccessFile == null || decryptedAccessFile.Length < 2) continue;
                 var decryptedAccessFileString = Encoding.ASCII.GetString(decryptedAccessFile);
                 
@@ -484,7 +484,7 @@ namespace SecureWiki.MediaWiki
                     return GetLatestValidRevision(accessFile, revisions);
                 }
                 
-                var decryptedBytes = Crypto.DecryptGCM(splitPageContent.Value.cipherBytes, key.SymmKey);
+                var decryptedBytes = Crypto.Decrypt(splitPageContent.Value.cipherBytes, key.SymmKey);
                 if (decryptedBytes == null)
                 {
                     var revisions = GetAllRevisions(accessFile.AccessFileReference.targetPageName).GetAllRevisionBefore(revid);
@@ -518,7 +518,7 @@ namespace SecureWiki.MediaWiki
             try
             {
                 var accessFileBytes = Convert.FromBase64String(pageContent);
-                var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, symmetricReference.symmKey);
+                var decryptedAccessFile = Crypto.Decrypt(accessFileBytes, symmetricReference.symmKey);
                 
                 if (decryptedAccessFile != null && decryptedAccessFile.Length >= 2)
                 {
@@ -561,7 +561,7 @@ namespace SecureWiki.MediaWiki
             var accessFileString = JSONSerialization.SerializeObject(accessFile);
             var accessFileBytes = Encoding.ASCII.GetBytes(accessFileString);
 
-            var cipherTextBytes = Crypto.EncryptGCM(accessFileBytes, symmetricReference.symmKey);
+            var cipherTextBytes = Crypto.Encrypt(accessFileBytes, symmetricReference.symmKey);
 
             MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
                 symmetricReference.targetPageName);
@@ -595,7 +595,7 @@ namespace SecureWiki.MediaWiki
             var keyringBytes = Encoding.ASCII.GetBytes(keyringString);
             
             // Encrypt text using key from key list
-            var encryptedContent = Crypto.EncryptGCM(keyringBytes, key);
+            var encryptedContent = Crypto.Encrypt(keyringBytes, key);
             if (encryptedContent == null) return false;
 
             var encryptedContentString = Convert.ToBase64String(encryptedContent);
@@ -631,7 +631,7 @@ namespace SecureWiki.MediaWiki
             var key = accessFile.keyList.Last();
 
             // Encrypt text using key from key list
-            var encryptedContent = Crypto.EncryptGCM(keyringBytes, key.SymmKey);
+            var encryptedContent = Crypto.Encrypt(keyringBytes, key.SymmKey);
             if (encryptedContent == null) return false;
 
             // Sign hash value of cipher text
@@ -682,7 +682,7 @@ namespace SecureWiki.MediaWiki
             }
 
             var accessFileBytes = Convert.FromBase64String(accessFileContent);
-            var decryptedAccessFile = Crypto.DecryptGCM(accessFileBytes, symmetricReference.symmKey);
+            var decryptedAccessFile = Crypto.Decrypt(accessFileBytes, symmetricReference.symmKey);
             if (decryptedAccessFile == null)
             {
                 Console.WriteLine("decryptedAccessFile is null");
@@ -832,10 +832,10 @@ namespace SecureWiki.MediaWiki
             }
         }
 
-        public List<List<string>>? DownloadFromInboxPages()
+        public Dictionary<Contact, List<string>>? DownloadFromInboxPages()
         {
-            // List of new content(s) for each contact
-            var outputList = new List<List<string>>();
+            // Dict of new content(s) for each contact
+            var outputDict = new Dictionary<Contact, List<string>>();
 
             // Get list of OwnContacts associated with the current server 
             var contactList = _manager.MasterKeyring.GetOwnContactsByServerLink(url);
@@ -877,7 +877,7 @@ namespace SecureWiki.MediaWiki
                     if (contact.InboxReference.privateKey != null)
                     {
                         var decryptedSymmKey =
-                            Crypto.RSADecryptWithPrivateKey(encryptedSymmKey, contact.InboxReference.privateKey);
+                            Crypto.RSADecrypt(encryptedSymmKey, contact.InboxReference.privateKey);
                         var symmKey = decryptedSymmKey;
 
                         if (symmKey == null)
@@ -887,7 +887,7 @@ namespace SecureWiki.MediaWiki
                         }
 
                         // Decrypt ciphertext
-                        var decryptedContent = Crypto.DecryptGCM(encryptedContentBytes, symmKey);
+                        var decryptedContent = Crypto.Decrypt(encryptedContentBytes, symmKey);
                         if (decryptedContent == null)
                         {
                             Console.WriteLine("decryptedContent is null");
@@ -904,12 +904,12 @@ namespace SecureWiki.MediaWiki
 
                 if (contentList.Count > 0)
                 {
-                    outputList.Add(contentList);
+                    outputDict.Add(contact, contentList);
                 }
             }
 
             // Return outputList if it is not empty, null otherwise
-            return outputList.Count > 0 ? outputList : null;
+            return outputDict.Count > 0 ? outputDict : null;
         }
 
         private List<string>? GetInboxPageContent(OwnContact contact)
@@ -970,11 +970,11 @@ namespace SecureWiki.MediaWiki
             var symmKey = Crypto.GenerateSymmKey();
 
             // Encrypt symmetric key with given public key
-            var encryptedSymmKeyData = Crypto.RSAEncryptWithPublicKey(symmKey, publicKey);
+            var encryptedSymmKeyData = Crypto.RSAEncrypt(symmKey, publicKey);
 
             // Encrypt content with the symmetric key
             var contentBytes = Encoding.ASCII.GetBytes(content);
-            var encryptedBytes = Crypto.EncryptGCM(
+            var encryptedBytes = Crypto.Encrypt(
                 contentBytes, symmKey);
 
             if (encryptedBytes == null || encryptedSymmKeyData == null)

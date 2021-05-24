@@ -120,19 +120,22 @@ namespace SecureWiki.Model
         [JsonProperty(Order = 98)] public byte[] publicKey;
         [JsonProperty(Order = 99)] public byte[]? privateKey;
         [JsonProperty(Order = -2)] public AccessLevel accessLevel;
+        public Keyring KeyringTarget;
 
-        public InboxReference(string targetPageName, string serverLink, byte[] publicKey) : base(targetPageName,
+        public InboxReference(string targetPageName, string serverLink, byte[] publicKey, Keyring keyringTarget) : base(targetPageName,
             serverLink)
         {
             this.publicKey = publicKey;
             accessLevel = AccessLevel.Write;
+            KeyringTarget = keyringTarget;
         }
         
-        public InboxReference(string targetPageName, string serverLink) : base(targetPageName,
+        public InboxReference(string targetPageName, string serverLink, Keyring keyringTarget) : base(targetPageName,
             serverLink)
         {
             (privateKey, publicKey) = Crypto.GenerateRSAParams();
             accessLevel = AccessLevel.ReadWrite;
+            KeyringTarget = keyringTarget;
         }
         
         public InboxReference() {}

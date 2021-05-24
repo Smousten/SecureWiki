@@ -523,87 +523,127 @@ namespace SecureWiki
             return wikiHandler;
         }
 
-        // Check inboxes of own contacts to update existing keyring with new updates
+        // Check inboxes of own contacts to update keyrings on server
         private void UpdateFromInboxes(WikiHandler? wikiHandler)
         {
-            List<AccessFile> incomingAccessFiles = new();
-            // Download from inbox - iterate through all new revisions for each contact
+            Dictionary<Contact, List<AccessFile>> incomingAccessFiles = new();
+            // Download from inbox - iterate through all new revisions for each contact access file
             var inboxContent = wikiHandler?.DownloadFromInboxPages();
             if (inboxContent != null)
             {
-                foreach (var contactInbox in inboxContent)
+                foreach (var contactInbox in inboxContent.Keys)
                 {
-                    foreach (var revision in contactInbox)
+                    foreach (var revision in inboxContent[contactInbox])
                     {
-                        if (JSONSerialization.DeserializeObject(revision, typeof(Keyring)) is Keyring
+                        if (JSONSerialization.DeserializeObject(revision, typeof(List<AccessFile>)) is List<AccessFile>
                             deserializeObject)
                         {
-                            incomingAccessFiles.AddRange(deserializeObject.accessFiles);
+                            incomingAccessFiles.Add(contactInbox, deserializeObject);
                         }
                     }
                 }
             }
 
-            incomingAccessFiles = incomingAccessFiles.OrderBy(e => e.AccessFileReference.targetPageName).ToList();
-            List<AccessFile> intermediateList = new();
-
-            // Merge updates to same access files and remove duplicates 
-            int i = 0;
-            while (i < incomingAccessFiles.Count)
+            foreach (var contact in incomingAccessFiles.Keys)
             {
-                int cnt = 1;
-
-                while (i + cnt < incomingAccessFiles.Count &&
-                       incomingAccessFiles[i].AccessFileReference.targetPageName
-                           .SequenceEqual(incomingAccessFiles[i + cnt].AccessFileReference.targetPageName))
+                var keyring = contact.InboxReference.KeyringTarget;
+                
+                // Create new access file page and reference for each received
+                foreach (var accessFile in incomingAccessFiles[contact])
                 {
-                    if (incomingAccessFiles[i].AccessFileReference.serverLink
-                        .Equals(incomingAccessFiles[i + cnt].AccessFileReference.serverLink))
+                    var pageNameAccessFile = GetFreshPageName();
+
+                    // Create symmetric reference to access file
+                    var symmetricReference = new SymmetricReference(pageNameAccessFile,
+                        configManager.DefaultServerLink, PageType.GenericFile, 
+                        accessFile.AccessFileReference.targetPageName, accessFile);
+                    accessFile.SymmetricReferenceToSelf = symmetricReference;
+                    keyring.AddSymmetricReference(symmetricReference);
+                    
+                    var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
+
+                    if (uploadResAF == false)
                     {
-                        incomingAccessFiles[i].MergeWithOtherAccessFileEntry(incomingAccessFiles[i + cnt]);
+                        WriteToLogger("Access File could not be uploaded, aborting.");
+                        return;
                     }
-
-                    cnt++;
                 }
 
-                intermediateList.Add(incomingAccessFiles[i]);
-                i += cnt;
-            }
-
-            // Get all existing access files in a list
-            List<AccessFile> newAccessFiles = new();
-            var existingAccessFiles = MasterKeyring.GetAllAndDescendantAccessFileEntries();
-            existingAccessFiles =
-                existingAccessFiles.OrderBy(entry => entry.AccessFileReference.targetPageName).ToList();
-
-            // For each incoming access file from inbox, merge with existing access file or add to list of new files
-            foreach (var accessFile in intermediateList)
-            {
-                var existingAf = existingAccessFiles.Find(e =>
-                    e.AccessFileReference.targetPageName.Equals(accessFile.AccessFileReference.targetPageName));
-                if (existingAf != null)
+                var accessFileToKeyring = keyring.accessFileReferenceToSelf.AccessFileParent;
+                if (accessFileToKeyring == null) return;
+                if (accessFileToKeyring.HasBeenChanged)
                 {
-                    existingAf.MergeWithOtherAccessFileEntry(accessFile);
+                    wikiHandler?.UploadAccessFile(accessFileToKeyring);
                 }
-                else
+
+                var uploadResKR = wikiHandler?.UploadKeyring(
+                    accessFileToKeyring, keyring);
+                if (uploadResKR == false)
                 {
-                    newAccessFiles.Add(accessFile);
+                    WriteToLogger($"Keyring '{keyring.name}' could not be uploaded.");
                 }
             }
 
-            // Add new access files to folder the same import folder
-            if (newAccessFiles.Count > 0)
-            {
-                if (!MasterKeyring.keyrings.Any(e => e.name.Equals("ImportedFromContacts")))
-                {
-                    MasterKeyring.AddKeyring(new Keyring("ImportedFromContacts"));
-                }
-
-                var importFolder = MasterKeyring.keyrings.First(e => e.name.Equals("ImportedFromContacts"));
-                importFolder.AddRangeAccessFile(newAccessFiles);
-            }
-
-            // _keyringManager.SortAndUpdatePeripherals();
+            // incomingAccessFiles = incomingAccessFiles.OrderBy(e => e.AccessFileReference.targetPageName).ToList();
+            // List<AccessFile> intermediateList = new();
+            //
+            // // Merge updates to same access files and remove duplicates 
+            // int i = 0;
+            // while (i < incomingAccessFiles.Count)
+            // {
+            //     int cnt = 1;
+            //
+            //     while (i + cnt < incomingAccessFiles.Count &&
+            //            incomingAccessFiles[i].AccessFileReference.targetPageName
+            //                .SequenceEqual(incomingAccessFiles[i + cnt].AccessFileReference.targetPageName))
+            //     {
+            //         if (incomingAccessFiles[i].AccessFileReference.serverLink
+            //             .Equals(incomingAccessFiles[i + cnt].AccessFileReference.serverLink))
+            //         {
+            //             incomingAccessFiles[i].MergeWithOtherAccessFileEntry(incomingAccessFiles[i + cnt]);
+            //         }
+            //
+            //         cnt++;
+            //     }
+            //
+            //     intermediateList.Add(incomingAccessFiles[i]);
+            //     i += cnt;
+            // }
+            //
+            // // Get all existing access files in a list
+            // List<AccessFile> newAccessFiles = new();
+            // var existingAccessFiles = MasterKeyring.GetAllAndDescendantAccessFileEntries();
+            // existingAccessFiles =
+            //     existingAccessFiles.OrderBy(entry => entry.AccessFileReference.targetPageName).ToList();
+            //
+            // // For each incoming access file from inbox, merge with existing access file or add to list of new files
+            // foreach (var accessFile in intermediateList)
+            // {
+            //     var existingAf = existingAccessFiles.Find(e =>
+            //         e.AccessFileReference.targetPageName.Equals(accessFile.AccessFileReference.targetPageName));
+            //     if (existingAf != null)
+            //     {
+            //         existingAf.MergeWithOtherAccessFileEntry(accessFile);
+            //     }
+            //     else
+            //     {
+            //         newAccessFiles.Add(accessFile);
+            //     }
+            // }
+            //
+            // // Add new access files to folder the same import folder
+            // if (newAccessFiles.Count > 0)
+            // {
+            //     if (!MasterKeyring.keyrings.Any(e => e.name.Equals("ImportedFromContacts")))
+            //     {
+            //         MasterKeyring.AddKeyring(new Keyring("ImportedFromContacts"));
+            //     }
+            //
+            //     var importFolder = MasterKeyring.keyrings.First(e => e.name.Equals("ImportedFromContacts"));
+            //     importFolder.AddRangeAccessFile(newAccessFiles);
+            // }
+            //
+            // // _keyringManager.SortAndUpdatePeripherals();
         }
 
         public void ForceUpdateFromAllInboxPages()
@@ -866,7 +906,7 @@ namespace SecureWiki
 
             // Add symmetric reference to newEntries keyring and upload
             AddToDefaultKeyring(symmetricReference);
-
+            
             // Create new entry in md mirror
             var mdFile = mountedDirMirror.CreateFile(filepath, symmetricReference);
             if (mdFile == null)

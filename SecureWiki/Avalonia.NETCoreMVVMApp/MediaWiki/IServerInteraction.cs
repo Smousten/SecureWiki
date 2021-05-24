@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using SecureWiki.Model;
+using SecureWiki.Utilities;
 
 namespace SecureWiki.MediaWiki
 {
@@ -50,7 +51,7 @@ namespace SecureWiki.MediaWiki
         public bool UploadToInboxPage(string pageName, string content, byte[] publicKey);
 
         // TODO
-        public List<List<string>>? DownloadFromInboxPages();
+        public Dictionary<Contact, List<string>>? DownloadFromInboxPages();
         
         // TODO
         public bool UploadAccessFile(AccessFile accessFile);
