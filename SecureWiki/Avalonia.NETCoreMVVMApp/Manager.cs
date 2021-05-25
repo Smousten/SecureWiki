@@ -547,6 +547,7 @@ namespace SecureWiki
             foreach (var contact in incomingAccessFiles.Keys)
             {
                 var keyring = contact.InboxReference.KeyringTarget;
+                var count = 0;
                 
                 // Create new access file page and reference for each received
                 foreach (var accessFile in incomingAccessFiles[contact])
@@ -561,7 +562,8 @@ namespace SecureWiki
                     keyring.AddSymmetricReference(symmetricReference);
                     
                     // Create new entry in md mirror
-                    var filepath = keyring.name + '/' + accessFile.filename;
+                    var filepath = keyring.name + "_inbox" + '/' + accessFile.filename + '_' + count;
+                    count++;
                     var mdFile = mountedDirMirror.CreateFile(filepath, symmetricReference);
                     if (mdFile == null)
                     {
@@ -1707,6 +1709,11 @@ namespace SecureWiki
 
             // get the list of all clicked symmetric references
             var symmetricReferences = mountedDirMirror.GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedRootFolder();
+            
+            // get the list of all clicked keyrings
+            
+            
+            
             
             // for each contact create a new list with access files not previously received
             foreach (var contact in contacts)

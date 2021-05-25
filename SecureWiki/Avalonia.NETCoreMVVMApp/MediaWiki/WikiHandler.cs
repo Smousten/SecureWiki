@@ -749,6 +749,7 @@ namespace SecureWiki.MediaWiki
 
             keyring.accessFileReferenceToSelf = symmetricReference.targetAccessFile.AccessFileReference;
             symmetricReference.targetAccessFile.AccessFileReference.KeyringTarget = keyring;
+            keyring.InboxReferenceToSelf.KeyringTarget = keyring;
 
             if (!keyring.IsValid())
             {
@@ -788,8 +789,9 @@ namespace SecureWiki.MediaWiki
                 var revisions = GetAllRevisions(symmetricReference.targetAccessFile.AccessFileReference.targetPageName).GetAllRevisionBefore(revid);
                 return GetLatestValidMasterKeyring(symmetricReference.targetAccessFile, revisions);
             }
-            
+
             keyring.accessFileReferenceToSelf = symmetricReference.targetAccessFile.AccessFileReference;
+
             return keyring;
         }
 
