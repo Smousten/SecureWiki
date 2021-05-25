@@ -561,6 +561,14 @@ namespace SecureWiki
                     accessFile.SymmetricReferenceToSelf = symmetricReference;
                     keyring.AddSymmetricReference(symmetricReference);
                     
+                    // Check if received access file already exists
+                    var existingAccessFile = MasterKeyring.GetMountedDirMapping(accessFile.AccessFileReference.targetPageName);
+                    if (existingAccessFile != null)
+                    {
+                        WriteToLogger("Received access file to an already existing file, merging access files.");
+                        // accessFile = accessFile.MergeWithOtherAccessFileEntry();
+                    }
+                    
                     // Create new entry in md mirror
                     var filepath = keyring.name + "_inbox" + '/' + accessFile.filename + '_' + count;
                     count++;
