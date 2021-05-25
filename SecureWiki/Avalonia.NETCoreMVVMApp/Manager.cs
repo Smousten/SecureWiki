@@ -383,10 +383,10 @@ namespace SecureWiki
         public void GetAllContacts(ObservableCollection<Contact> contacts)
         {
             contacts.Clear();
-
-            foreach (var ownContact in MasterKeyring.OwnContacts)
+            
+            if (MasterKeyring.OwnContacts.Count > 0)
             {
-                contacts.Add(ownContact.ConvertToBaseClass());
+                contacts.AddRange(MasterKeyring.OwnContacts);
             }
 
             if (MasterKeyring.Contacts.Count > 0)
@@ -1568,9 +1568,12 @@ namespace SecureWiki
 
             var keyringPath = "Keyrings/";
             PopulateMountedDirKeyrings(MasterKeyring, keyringPath, new List<Keyring>());
-            var mdFile = mountedDirMirror.CreateFile(Path.Combine(keyringPath, "self"), 
-                rk.accessFileReferenceToSelf.AccessFileParent.SymmetricReferenceToSelf);
-            if (mdFile != null) mdFile.TargetType = MDFile.Type.Keyring;
+            if (rk.accessFileReferenceToSelf != null)
+            {
+                var mdFile = mountedDirMirror.CreateFile(Path.Combine(keyringPath, "self"), 
+                    rk.accessFileReferenceToSelf.AccessFileParent.SymmetricReferenceToSelf);
+                if (mdFile != null) mdFile.TargetType = MDFile.Type.Keyring;
+            }
         }
 
         private void PopulateMountedDirKeyrings(Keyring keyring, string path, List<Keyring> visitedKeyrings)

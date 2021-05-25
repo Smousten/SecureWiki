@@ -57,7 +57,7 @@ namespace SecureWiki.ViewModels
         }
 
 
-        public string IP { get; set; } = "http://192.168.1.7/mediawiki/api.php";
+        public string IP { get; set; } = "http://127.0.0.1/mediawiki/api.php";
 
         private string _Username;
 

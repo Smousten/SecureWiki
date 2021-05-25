@@ -749,7 +749,7 @@ namespace SecureWiki.MediaWiki
 
             keyring.accessFileReferenceToSelf = symmetricReference.targetAccessFile.AccessFileReference;
             symmetricReference.targetAccessFile.AccessFileReference.KeyringTarget = keyring;
-            
+
             if (!keyring.IsValid())
             {
                 Console.WriteLine("Parsed Keyring, its InboxReferenceToSelf, or its Symmetric references are not valid, " +

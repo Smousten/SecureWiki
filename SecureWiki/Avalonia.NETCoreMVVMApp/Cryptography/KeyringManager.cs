@@ -509,6 +509,7 @@ namespace SecureWiki.Cryptography
             
             // Create inbox reference to inbox page
             InboxReference inboxReference = new(pageNameInboxPage, serverLink, keyring);
+            
             keyring.InboxReferenceToSelf = inboxReference;
             
             return keyring;
