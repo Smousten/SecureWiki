@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
 using Avalonia.Input;
 using DynamicData;
 using JetBrains.Annotations;
@@ -168,6 +169,16 @@ namespace SecureWiki.Model
         {
             return RootFolder.GetAllAndDescendantSymmetricReferencesBasedOnIsChecked();
         }
+        
+        public (List<SymmetricReference>, List<SymmetricReference>) GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyring()
+        {
+            return KeyringFolder.GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyring();
+        }
+        
+        public List<SymmetricReference> GetDescendantKeyringsBasedOnIsCheckedKeyring()
+        {
+            return KeyringFolder.GetDescendantKeyringsBasedOnIsCheckedKeyring();
+        }
     }
     
     public abstract class MDItem : IReactiveObject
@@ -292,8 +303,8 @@ namespace SecureWiki.Model
     {
         public MDFolder? Parent;
 
-        protected ObservableCollection<MDFolder> Folders = new();
-        protected ObservableCollection<MDFile> Files = new();
+        public ObservableCollection<MDFolder> Folders = new();
+        public ObservableCollection<MDFile> Files = new();
         public List<MDFolder> AncestorList = new();
         
         public ObservableCollection<object> combinedList
@@ -811,7 +822,6 @@ namespace SecureWiki.Model
     {
         public MDFolderKeyring(string name, MDFolder? parent) : base(name, parent)
         {
-            
         }
         
         protected override MDFolder NewFolder(string folderName)
@@ -868,6 +878,48 @@ namespace SecureWiki.Model
             Console.WriteLine("MDFolderKeyring '{0}', \tchecked='{1}', \tcheckedEnabled='{2}', \tcheckedWrite='{3}', \tcheckedWriteEnabled='{4}'", 
                 name, isChecked,  isCheckedEnabled, isCheckedWrite, isCheckedWriteEnabled);
         }
+
+        public (List<SymmetricReference>, List<SymmetricReference>) GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyring()
+        {
+            var FileList = (from file in Files where file.isChecked == true select file.symmetricReference).ToList();
+            var FolderList = new List<SymmetricReference>();
+            
+            foreach (var child in Folders)
+            {
+                if (child.isChecked == true)
+                {
+                    var mdFile = child.Files.FirstOrDefault(e => e.name.Equals("self"));
+                    if (mdFile != null) FolderList.Add(mdFile.symmetricReference);
+                }
+                else if (child.GetType() == typeof(MDFolderKeyring))
+                {
+                    var (FileListRes, FolderListRes) = ((MDFolderKeyring) child)
+                        .GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyring();
+                    FileList.AddRange(FileListRes);
+                    FolderList.AddRange(FolderListRes);
+                }
+            }
+
+            return (FileList, FolderList);
+        }
+        
+        public List<SymmetricReference> GetDescendantKeyringsBasedOnIsCheckedKeyring()
+        {
+            var FolderList = new List<SymmetricReference>();
+            
+            foreach (var child in Folders)
+            {
+                if (child.isChecked == true)
+                {
+                    var mdFile = child.Files.FirstOrDefault(e => e.name.Equals("self"));
+                    if (mdFile != null) FolderList.Add(mdFile.symmetricReference);
+                }
+                FolderList.AddRange(child.GetAllAndDescendantSymmetricReferencesBasedOnIsChecked());
+
+            }
+            return FolderList;
+        }
+        
     }
 
     public class MDFile : MDItem

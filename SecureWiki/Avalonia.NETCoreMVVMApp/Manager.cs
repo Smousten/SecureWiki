@@ -556,7 +556,7 @@ namespace SecureWiki
 
                     // Create symmetric reference to access file
                     var symmetricReference = new SymmetricReference(pageNameAccessFile,
-                        configManager.DefaultServerLink, PageType.GenericFile, 
+                        configManager.DefaultServerLink, accessFile.AccessFileReference.type, 
                         accessFile.AccessFileReference.targetPageName, accessFile);
                     accessFile.SymmetricReferenceToSelf = symmetricReference;
                     keyring.AddSymmetricReference(symmetricReference);
@@ -1606,10 +1606,7 @@ namespace SecureWiki
 
                         // Add MDFile representing Access File to Keyring.
                         mountedDirMirror.CreateFile(Path.Combine(path, "_" + kr.name), symmRef);
-
-                        // Add folder representing Keyring
-                        mountedDirMirror.AddFolder(path + kr.name);
-
+                        
                         if (visitedKeyrings.Contains(kr))
                         {
                             Console.WriteLine("keyring already visited, name = " + keyring.name);
@@ -1711,16 +1708,28 @@ namespace SecureWiki
             var symmetricReferences = mountedDirMirror.GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedRootFolder();
             
             // get the list of all clicked keyrings
-            
-            
-            
-            
+            var (FileList, FolderList) =
+                mountedDirMirror.GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyring();
+            var keyringSymmrefs = mountedDirMirror.GetDescendantKeyringsBasedOnIsCheckedKeyring();
+
             // for each contact create a new list with access files not previously received
             foreach (var contact in contacts)
             {
                 var newAccessFiles = new List<AccessFile>();
 
                 foreach (var symmRef in symmetricReferences)
+                {
+                    var accessFile = symmRef.targetAccessFile;
+                    
+                    // The access file should not already contain a inbox reference to the contact
+                    // otherwise the contact has received the file before
+                    if (accessFile != null && !accessFile.inboxReferences.Contains(contact.InboxReference))
+                    {
+                        newAccessFiles.Add(accessFile);
+                    }
+                }
+
+                foreach (var symmRef in keyringSymmrefs)
                 {
                     var accessFile = symmRef.targetAccessFile;
                     
