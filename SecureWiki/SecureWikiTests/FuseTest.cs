@@ -40,6 +40,18 @@ namespace SecureWikiTests
         {
             _manager = null;
             MainWindow.Unmount();
+            DirectoryInfo directoryInfo = new(GetRootDirPath());
+
+            foreach (var file in directoryInfo.GetFiles())
+            {
+                file.Delete();
+            }
+            
+            foreach (var dir in directoryInfo.GetDirectories())
+            {
+                dir.Delete(true);
+            }
+            
         }
 
         public string GetMountDirPath()
@@ -56,8 +68,36 @@ namespace SecureWikiTests
             var mountdir = Path.GetFullPath(Path.Combine(cDir, @"../directories/mountdir"));
             return mountdir;
         }
+        
+        public string GetRootDirPath()
+        {
+            var currentDir = Directory.GetCurrentDirectory();
+            var baseDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
 
-        [Test]
+            // Create mountdir if it does not already exist
+            var mountdirPath = Path.Combine(baseDir, @"fuse/directories/mountdir");
+            Directory.CreateDirectory(mountdirPath);
+            
+            var cDir = Path.Combine(baseDir, @"fuse/src/");
+            var rootdir = Path.GetFullPath(Path.Combine(cDir, @"../directories/rootdir"));
+            var mountdir = Path.GetFullPath(Path.Combine(cDir, @"../directories/mountdir"));
+            return rootdir;
+        }
+
+        public static void ExecuteShellCommand(string cmd)
+        {
+            Process proc = new Process ();
+            proc.StartInfo.FileName = "/bin/bash";
+            proc.StartInfo.Arguments = "-c \" " + cmd + " \"";
+            proc.StartInfo.UseShellExecute = false; 
+            proc.StartInfo.RedirectStandardOutput = true;
+            proc.Start ();
+
+            while (!proc.StandardOutput.EndOfStream) {
+                Console.WriteLine (proc.StandardOutput.ReadLine ());
+            }
+        }
+        // [Test]
         public void PassSetup()
         {
             var sleepCnt = 0;
@@ -91,7 +131,14 @@ namespace SecureWikiTests
             
             var cntPre = _manager.mountedDirMirror.RootFolder.combinedList.Count;
             
-            File.Create(mountdirPath + "/CreateFileTest");
+            // File.Create(mountdirPath + "/CreateFileTest.txt").Dispose();
+            var cmd = $"touch {mountdirPath}/CreateFileTest.txt";
+            ExecuteShellCommand(cmd);
+            Console.WriteLine($"ls {mountdirPath} :");
+            ExecuteShellCommand($"ls {mountdirPath}");
+            Console.WriteLine();
+            
+            Thread.Sleep(5000);
 
             var cntPost = _manager.mountedDirMirror.RootFolder.combinedList.Count;
             
