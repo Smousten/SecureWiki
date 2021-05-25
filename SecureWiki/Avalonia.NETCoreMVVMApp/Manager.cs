@@ -562,11 +562,23 @@ namespace SecureWiki
                     keyring.AddSymmetricReference(symmetricReference);
                     
                     // Check if received access file already exists
-                    var existingAccessFile = MasterKeyring.GetMountedDirMapping(accessFile.AccessFileReference.targetPageName);
-                    if (existingAccessFile != null)
+                    var existingAccessFilePath = MasterKeyring.GetMountedDirMapping(accessFile.AccessFileReference.targetPageName);
+                    if (existingAccessFilePath != null)
                     {
                         WriteToLogger("Received access file to an already existing file, merging access files.");
-                        // accessFile = accessFile.MergeWithOtherAccessFileEntry();
+                        var existingMDFile = mountedDirMirror.GetMDFile(existingAccessFilePath);
+                        var existingAccessFile = existingMDFile?.symmetricReference.targetAccessFile;
+
+                        if (existingAccessFile != null)
+                        {
+                            existingAccessFile.MergeWithOtherAccessFileEntry(accessFile);
+                            var uploadResAFExisting = wikiHandler?.UploadAccessFile(existingAccessFile);
+                            if (uploadResAFExisting == false)
+                            {
+                                WriteToLogger("Access File could not be uploaded, aborting.");
+                            }
+                        }
+                        continue;
                     }
                     
                     // Create new entry in md mirror
@@ -576,7 +588,7 @@ namespace SecureWiki
                     if (mdFile == null)
                     {
                         WriteToLogger("File could not be added to MDMirror, upload failed");
-                        return;
+                        continue;
                     }
                     
                     var uploadResAF = wikiHandler?.UploadAccessFile(accessFile);
@@ -584,14 +596,14 @@ namespace SecureWiki
                     if (uploadResAF == false)
                     {
                         WriteToLogger("Access File could not be uploaded, aborting.");
-                        return;
+                        continue;
                     }
                     
                     MasterKeyring.SetMountedDirMapping(accessFile.AccessFileReference.targetPageName, filepath);
                 }
 
                 var accessFileToKeyring = keyring.accessFileReferenceToSelf.AccessFileParent;
-                if (accessFileToKeyring == null) return;
+                if (accessFileToKeyring == null) continue;
                 if (accessFileToKeyring.HasBeenChanged)
                 {
                     wikiHandler?.UploadAccessFile(accessFileToKeyring);
