@@ -675,10 +675,11 @@ namespace SecureWiki.MediaWiki
             // Download access file
             var accessFileContent = GetPageContent(symmetricReference.targetPageName);
             
-            if (accessFileContent.Length < 2)
+            if (accessFileContent.Length <= "placeholder".Length)
             {
                 Console.WriteLine("DownloadAccessFile:- accessFileContent is null");
-                return null;
+                var revisions = GetAllRevisions(symmetricReference.targetPageName).GetAllRevisionBefore(revid);
+                return GetLatestValidAccessFile(symmetricReference, revisions);
             }
 
             var accessFileBytes = Convert.FromBase64String(accessFileContent);

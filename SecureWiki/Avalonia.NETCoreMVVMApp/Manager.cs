@@ -571,14 +571,25 @@ namespace SecureWiki
 
                         if (existingAccessFile != null)
                         {
-                            existingAccessFile.MergeWithOtherAccessFileEntry(accessFile);
-                            var uploadResAFExisting = wikiHandler?.UploadAccessFile(existingAccessFile);
-                            if (uploadResAFExisting == false)
+                            // existingAccessFile.MergeWithOtherAccessFileEntry(accessFile);
+                            // var uploadResAFExisting = wikiHandler?.UploadAccessFile(existingAccessFile);
+                            // if (uploadResAFExisting == false)
+                            // {
+                            //     WriteToLogger("Access File could not be uploaded, aborting.");
+                            // }
+                            
+                            
+                            // refactor later. 
+                            var uploadResAFt = wikiHandler?.UploadAccessFile(accessFile);
+
+                            if (uploadResAFt == false)
                             {
                                 WriteToLogger("Access File could not be uploaded, aborting.");
+                                continue;
                             }
+
+                            continue;
                         }
-                        continue;
                     }
                     
                     // Create new entry in md mirror
