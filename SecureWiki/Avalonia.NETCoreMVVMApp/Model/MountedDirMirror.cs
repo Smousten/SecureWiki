@@ -168,16 +168,6 @@ namespace SecureWiki.Model
         {
             return RootFolder.GetAllAndDescendantSymmetricReferencesBasedOnIsChecked();
         }
-        
-        public List<SymmetricReference> GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyringFolder()
-        {
-            return KeyringFolder.GetAllAndDescendantSymmetricReferencesBasedOnIsChecked();
-        }
-
-        public List<InboxReference> GetAllDescendantInboxReferencesBasedOnIsCheckedKeyringFolder()
-        {
-            return KeyringFolder.GetAllDescendantInboxReferencesBasedOnIsCheckedKeyringFolder();
-        }
     }
     
     public abstract class MDItem : IReactiveObject
@@ -815,39 +805,15 @@ namespace SecureWiki.Model
 
            return outputList;
        }
-       
-       public List<InboxReference> GetAllDescendantInboxReferencesBasedOnIsCheckedKeyringFolder()
-       {
-           var outputList = new List<InboxReference>();
-           
-           foreach (var folder in Folders)
-           {
-               if (folder.isChecked == true && folder.GetType() == typeof(MDFolderKeyring))
-               {
-                   var inboxReference = ((MDFolderKeyring) folder).inboxReference;
-                   if (inboxReference != null)
-                       outputList.Add(inboxReference);
-               }    
-               outputList.AddRange(folder.GetAllDescendantInboxReferencesBasedOnIsCheckedKeyringFolder());
-           }
-           
-           return outputList;
-       }
     }
 
     public class MDFolderKeyring : MDFolder
     {
-        public InboxReference? inboxReference { get; set; }
-
         public MDFolderKeyring(string name, MDFolder? parent) : base(name, parent)
         {
             
         }
-        public MDFolderKeyring(string name, MDFolder? parent, InboxReference inboxReference) : base(name, parent)
-        {
-            this.inboxReference = inboxReference;
-        }
-
+        
         protected override MDFolder NewFolder(string folderName)
         {
             var newFolder = new MDFolderKeyring(folderName, this);
