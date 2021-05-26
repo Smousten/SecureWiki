@@ -94,7 +94,7 @@ namespace SecureWiki
             // TestUpload();
 
             // GUI can now proceed
-            // MainWindow.ManagerReadyEvent.Set();
+            MainWindow.ManagerReadyEvent.Set();
 
             InitializeSymRefMasterKeyring();
 
@@ -123,6 +123,8 @@ namespace SecureWiki
 
             // var res = ShowMessageBox("some very loooooooooooooooooooooooooong title", " and some very loooooooooooooooooooooooooong title", MessageBox.Buttons.YesNoCancel);
             // Console.WriteLine(res.ToString());
+            UpdateFromInboxes(wh);
+            
 
             setupFinished = true;
             Console.WriteLine("setupFinished = true;");
@@ -534,7 +536,7 @@ namespace SecureWiki
         }
 
         // Check inboxes of own contacts to update keyrings on server
-        private void UpdateFromInboxes(WikiHandler? wikiHandler)
+        private void UpdateFromInboxes(IServerInteraction? wikiHandler)
         {
             Dictionary<Contact, List<AccessFile>> incomingAccessFiles = new();
             // Download from inbox - iterate through all new revisions for each contact access file
