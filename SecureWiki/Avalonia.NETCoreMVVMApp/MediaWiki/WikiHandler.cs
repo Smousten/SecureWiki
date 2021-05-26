@@ -796,7 +796,7 @@ namespace SecureWiki.MediaWiki
             return keyring;
         }
 
-        public void DownloadKeyringsRecursion(Keyring rootKeyring)
+        public void DownloadKeyringsRecursion(MasterKeyring masterKeyring, Keyring rootKeyring)
         {
             foreach (var symmRef in rootKeyring.SymmetricReferences)
             {
@@ -824,8 +824,16 @@ namespace SecureWiki.MediaWiki
 
                     if (kr != null)
                     {
+                        var ownContact = masterKeyring.OwnContacts.FirstOrDefault(e =>
+                            e.InboxReference.targetPageName.Equals(kr.InboxReferenceToSelf.targetPageName));
+                        if (ownContact != null) ownContact.InboxReference.KeyringTarget = kr;
+                        
+                        var contact = masterKeyring.Contacts.FirstOrDefault(e =>
+                            e.InboxReference.targetPageName.Equals(kr.InboxReferenceToSelf.targetPageName));
+                        if (contact != null) contact.InboxReference.KeyringTarget = kr;
+                        
                         rootKeyring.AddKeyring(kr);
-                        DownloadKeyringsRecursion(kr);
+                        DownloadKeyringsRecursion(masterKeyring, kr);
                     }
                     else
                     {

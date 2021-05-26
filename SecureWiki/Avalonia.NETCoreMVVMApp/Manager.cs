@@ -111,7 +111,7 @@ namespace SecureWiki
                 // MasterKeyring = newRootKR;
                 MasterKeyring.CopyFromOtherKeyringNonRecursively(newRootKR);
                 symRefToMasterKeyring.targetAccessFile.AccessFileReference.KeyringTarget = MasterKeyring;
-                wh!.DownloadKeyringsRecursion(MasterKeyring);
+                wh!.DownloadKeyringsRecursion(MasterKeyring, MasterKeyring);
             }
 
             PopulateMountedDirMirror(MasterKeyring);

@@ -551,7 +551,7 @@ namespace SecureWiki.Views
                 manager.ShareFiles(_viewModel.SelectedShareContacts.ToList()));
             localThread.Start();
             
-            var popup = this.FindControl<Popup>("AddToKeyringPopup");
+            var popup = this.FindControl<Popup>("ShareFilesPopup");
             popup.IsOpen = false;
         }
     }

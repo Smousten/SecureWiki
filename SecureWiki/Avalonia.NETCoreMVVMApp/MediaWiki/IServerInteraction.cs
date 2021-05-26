@@ -72,6 +72,6 @@ namespace SecureWiki.MediaWiki
         public MasterKeyring? DownloadMasterKeyring(SymmetricReference symmetricReference, string revid = "-1");
         
         // TODO
-        public void DownloadKeyringsRecursion(Keyring rootKeyring);
+        public void DownloadKeyringsRecursion(MasterKeyring masterKeyring, Keyring rootKeyring);
     }
 }
