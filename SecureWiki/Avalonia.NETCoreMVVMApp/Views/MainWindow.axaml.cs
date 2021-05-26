@@ -356,9 +356,9 @@ namespace SecureWiki.Views
 
             if (tag.Equals("RevokeAccessPopup"))
             {
-                // Thread localThread = new(() =>
-                //     manager.GetFileContacts(_viewModel.RevokeContacts, _viewModel.selectedFile));
-                // localThread.Start();
+                Thread localThread = new(() =>
+                    manager.GetFileContacts(_viewModel.RevokeContacts, _viewModel.selectedFile));
+                localThread.Start();
             }
             
             if (tag.Equals("ShareKeyringPopup"))
@@ -391,11 +391,11 @@ namespace SecureWiki.Views
 
         private void Revoke_Click(object? sender, RoutedEventArgs e)
         {
-            var datafile = _viewModel.selectedFile;
+            var accessFile = _viewModel.selectedFile;
 
-            // Thread localThread = new(() =>
-            //     manager.RevokeAccess(datafile, _viewModel.SelectedRevokeContacts));
-            // localThread.Start();
+            Thread localThread = new(() =>
+                manager.RevokeAccess(accessFile, _viewModel.SelectedRevokeContacts.ToList()));
+            localThread.Start();
 
             var popup = this.FindControl<Popup>("RevokeAccessPopup");
             popup.IsOpen = false;

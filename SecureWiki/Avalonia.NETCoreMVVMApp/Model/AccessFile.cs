@@ -22,9 +22,9 @@ namespace SecureWiki.Model
         [JsonProperty(Order = 9)]
         public byte[]? ownerPublicKey { get; set; }
         
-        // List of inbox references which 'subscribe' to this access file
-        [JsonProperty] 
-        public List<InboxReference> inboxReferences { get; set; }
+        // Dictionary of contacts who 'subscribe' to this access file as key and
+        // boolean indicating if contact has write-access as value
+        [JsonProperty] public Dictionary<Contact, bool> ContactDict = new();
 
         // AccessFileKey is a tuple of (private key, public key, semi-permanent symmetric key
         // and information relevant to their use)
@@ -69,7 +69,7 @@ namespace SecureWiki.Model
             ownerPublicKey = newPublicKey;
 
             // contactList = new List<(string, string?)>();
-            inboxReferences = new List<InboxReference>();
+            ContactDict = new Dictionary<Contact, bool>();
             
             // Create a new AccessFileKey and sign it with the owner private key 
             keyList = new List<AccessFileKey> {new(ownerPrivateKey)};
@@ -82,7 +82,6 @@ namespace SecureWiki.Model
 
             // Properties to be checked
             properties.Add(typeof(AccessFile).GetProperty(nameof(ownerPublicKey)));
-            properties.Add(typeof(AccessFile).GetProperty(nameof(inboxReferences)));
             properties.Add(typeof(AccessFile).GetProperty(nameof(keyList)));
             
             // Fields to be checked

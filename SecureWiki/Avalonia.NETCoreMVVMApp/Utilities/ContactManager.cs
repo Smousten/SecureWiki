@@ -20,7 +20,6 @@ namespace SecureWiki.Utilities
 
         public Contact ConvertToBaseClass()
         {
-            InboxReference.accessLevel = InboxReference.AccessLevel.Write;
             InboxReference.privateKey = null;
             return new(Nickname, InboxReference);
         }
@@ -54,6 +53,8 @@ namespace SecureWiki.Utilities
         }
         
     }
+    
+    
     
     public class ContactManager
     {

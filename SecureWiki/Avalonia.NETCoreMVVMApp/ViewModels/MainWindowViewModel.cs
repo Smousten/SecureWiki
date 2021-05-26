@@ -180,14 +180,10 @@ namespace SecureWiki.ViewModels
         public ObservableCollection<Contact> RevokeContacts
         {
             get => _revokeContacts;
-            // set => this.RaiseAndSetIfChanged(ref _revisions, value);
             set
             {
-                // Console.WriteLine("setting revisions");
                 _revokeContacts = value;
-                // Console.WriteLine("revisions set");
                 this.RaisePropertyChanged(nameof(RevokeContacts));
-                // Console.WriteLine("property raised");
             }
         }
 

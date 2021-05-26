@@ -338,13 +338,10 @@ namespace SecureWiki
         // }
 
         // Contacts in revoke popup list should only show contacts in access file
-        public void GetFileContacts(ObservableCollection<InboxReference> revokeContacts, AccessFile accessFile)
+        public void GetFileContacts(ObservableCollection<Contact> revokeContacts, AccessFile accessFile)
         {
             revokeContacts.Clear();
-            foreach (var inboxRef in accessFile.inboxReferences)
-            {
-                revokeContacts.Add(inboxRef);
-            }
+            revokeContacts.AddRange(accessFile.ContactDict.Keys);
         }
 
         public void ImportContact(string path)
@@ -1341,7 +1338,7 @@ namespace SecureWiki
         //     }
         // }
 
-        public void RevokeAccess(AccessFile accessFile, List<InboxReference> inboxRefs)
+        public void RevokeAccess(AccessFile accessFile, List<Contact> contacts)
         {
             UploadsInProgress++;
             WriteToLogger($"Attempting to revoke access to file '{accessFile.filename}'");
@@ -1355,27 +1352,42 @@ namespace SecureWiki
                 _keyringManager.RevokeAccess(accessFile, latestRevision.revisionID);
             }
 
-            // Send new cryptographic keys as a keyring with one access file containing latest key
-            // to selected inbox pages - TODO: private key should depend on inbox reference access level
-            var uploadObject = new Keyring("revocation");
-            var accessFileCopy = accessFile.Copy();
+            // List of one access file containing latest key
+            // to selected inbox pages. Send keys depending on access level of user. 
+            var uploadReadWrite = new List<AccessFile>();
+            var uploadReadOnly = new List<AccessFile>();
+            
+            var accessFileReadWrite = accessFile.Copy();
             var latestKey = accessFile.keyList.Last();
-            accessFileCopy.keyList = new List<AccessFileKey> {latestKey};
-            uploadObject.accessFiles.Add(accessFileCopy);
-            uploadObject.PrepareForExportRecursively();
+            
+            accessFileReadWrite.keyList = new List<AccessFileKey> {latestKey};
+            uploadReadWrite.Add(accessFileReadWrite);
 
-            var serializeObject = JSONSerialization.SerializeObject(uploadObject);
-            foreach (var inboxRef in inboxRefs)
+            var accessFileReadOnly = accessFileReadWrite.Copy();
+            accessFileReadOnly.ownerPrivateKey = null;
+            // accessFileReadOnly.ownerPublicKey = null;
+            foreach (var key in accessFileReadOnly.keyList)
             {
-                UploadToInboxPage(inboxRef.serverLink, inboxRef.targetPageName, serializeObject, inboxRef.publicKey);
+                key.PrivateKey = null;
+                key.SignedWriteKey = null;
+            }
+            uploadReadOnly.Add(accessFileReadOnly);
+            
+            var serializeObjectReadWrite = JSONSerialization.SerializeObject(uploadReadWrite);
+            var serializeObjectReadOnly = JSONSerialization.SerializeObject(uploadReadOnly);
+            foreach (var contact in contacts)
+            {
+                UploadToInboxPage(contact.InboxReference.serverLink, contact.InboxReference.targetPageName,
+                    accessFile.ContactDict[contact] ? serializeObjectReadWrite : serializeObjectReadOnly,
+                    contact.InboxReference.publicKey);
             }
 
             // Remove non-selected references from access file reference list
-            foreach (var inboxRef in accessFile.inboxReferences)
+            foreach (var contact in accessFile.ContactDict)
             {
-                if (!inboxRefs.Contains(inboxRef))
+                if (!contacts.Contains(contact.Key))
                 {
-                    accessFile.inboxReferences.Remove(inboxRef);
+                    accessFile.ContactDict.Remove(contact.Key);
                 }
             }
 
@@ -1814,7 +1826,7 @@ namespace SecureWiki
                     
                     // The access file should not already contain a inbox reference to the contact
                     // otherwise the contact has received the file before
-                    if (accessFile != null && !accessFile.inboxReferences.Contains(contact.InboxReference))
+                    if (accessFile != null && !accessFile.ContactDict.ContainsKey(contact))
                     {
                         newAccessFiles.Add(accessFile);
                     }
@@ -1826,7 +1838,7 @@ namespace SecureWiki
                     
                     // The access file should not already contain a inbox reference to the contact
                     // otherwise the contact has received the file before
-                    if (accessFile != null && !accessFile.inboxReferences.Contains(contact.InboxReference))
+                    if (accessFile != null && !accessFile.ContactDict.ContainsKey(contact))
                     {
                         newAccessFiles.Add(accessFile);
                     }
@@ -1843,7 +1855,7 @@ namespace SecureWiki
                     if (path == null) continue;
                     var mdFile = mountedDirMirror.GetMDFile(path);
                     af.PrepareForExport(mdFile is {isCheckedWrite: true});
-                    af.inboxReferences.Add(contact.InboxReference);
+                    af.ContactDict.Add(contact, mdFile is {isCheckedWrite: true});
                 }
                 
                 var newAccessFilesString = JSONSerialization.SerializeObject(newAccessFiles);
