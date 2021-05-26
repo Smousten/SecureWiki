@@ -52,6 +52,7 @@ namespace SecureWiki
         public delegate void PrintTest(string input);
 
         public bool setupFinished = false;
+        public uint UploadsInProgress = 0;
 
         public PrintTest printTest;
 
@@ -114,7 +115,9 @@ namespace SecureWiki
                 // MasterKeyring = newRootKR;
                 MasterKeyring.CopyFromOtherKeyringNonRecursively(newRootKR);
                 symRefToMasterKeyring.targetAccessFile.AccessFileReference.KeyringTarget = MasterKeyring;
+                UploadsInProgress++;
                 wh!.DownloadKeyringsRecursion(MasterKeyring, MasterKeyring);
+                UploadsInProgress--;
             }
 
             PopulateMountedDirMirror(MasterKeyring);
@@ -149,6 +152,7 @@ namespace SecureWiki
         public void InitializeSymRefMasterKeyring()
         {
             Console.WriteLine("InitializeSymRefMasterKeyring entered");
+            UploadsInProgress++;
             var path = GetSymRefMasterKeyringFilePath();
 
             if (File.Exists(path))
@@ -159,6 +163,7 @@ namespace SecureWiki
                 {
                     Console.WriteLine();
                     Console.WriteLine("InitializeSymRefMasterKeyring:- symRefToMasterKeyring null");
+                    UploadsInProgress--;
                     return;
                 }
                 else
@@ -173,6 +178,7 @@ namespace SecureWiki
                 if (af == null)
                 {
                     Console.WriteLine("InitializeSymRefMasterKeyring:- af null");
+                    UploadsInProgress--;
                     return;
                 }
 
@@ -190,11 +196,13 @@ namespace SecureWiki
                     configManager.DefaultServerLink, PageType.Keyring, out SymmetricReference symmetricReference,
                     out AccessFile accessFile);
                 symRefToMasterKeyring = symmetricReference;
+                UploadsInProgress--;
             }
         }
 
         public void SaveSymRefMasterKeyringToFile()
         {
+            UploadsInProgress++;
             var path = GetSymRefMasterKeyringFilePath();
 
             JSONSerialization.SerializeAndWriteFile(path, symRefToMasterKeyring);
@@ -207,6 +215,7 @@ namespace SecureWiki
             var res2 = wikihandler?.UploadKeyring(symRefToMasterKeyring.targetAccessFile, MasterKeyring);
 
             Console.WriteLine("res1, res2: {0}, {1}", res1, res2);
+            UploadsInProgress--;
         }
 
         public string GetConfigManagerFilePath()
@@ -538,6 +547,7 @@ namespace SecureWiki
         // Check inboxes of own contacts to update keyrings on server
         private void UpdateFromInboxes(IServerInteraction? wikiHandler)
         {
+            UploadsInProgress++;
             Dictionary<Contact, List<AccessFile>> incomingAccessFiles = new();
             // Download from inbox - iterate through all new revisions for each contact access file
             var inboxContent = wikiHandler?.DownloadFromInboxPages();
@@ -639,6 +649,8 @@ namespace SecureWiki
                     WriteToLogger($"Keyring '{keyring.name}' could not be uploaded.");
                 }
             }
+            
+            UploadsInProgress--;
 
             // incomingAccessFiles = incomingAccessFiles.OrderBy(e => e.AccessFileReference.targetPageName).ToList();
             // List<AccessFile> intermediateList = new();
@@ -791,6 +803,7 @@ namespace SecureWiki
 
         public void UploadNewVersion(string filename, string filepath)
         {
+            UploadsInProgress++;
             string pageName;
             var mdFile = mountedDirMirror.GetMDFile(filepath);
             var symmRef = mdFile?.symmetricReference;
@@ -800,11 +813,16 @@ namespace SecureWiki
                 // Write to logger
                 string loggerMsg = $"File upload to server failed. Could not find Symmetric Reference";
                 WriteToLogger(loggerMsg, filepath);
+                UploadsInProgress--;
                 return;
             }
 
             var whAF = GetWikiHandler(symmRef.serverLink);
-            if (whAF == null) return;
+            if (whAF == null)
+            {
+                UploadsInProgress--;
+                return;
+            }
 
             if (mdFile!.TargetType == MDFile.Type.AccessFile)
             {
@@ -815,7 +833,11 @@ namespace SecureWiki
             {
                 // Get Access File
                 var af = symmRef.targetAccessFile ?? whAF.DownloadAccessFile(symmRef);
-                if (af == null) return;
+                if (af == null)
+                {
+                    UploadsInProgress--;
+                    return;
+                }
 
 
                 var keyList = af.keyList.Last();
@@ -847,6 +869,7 @@ namespace SecureWiki
                                       " a private key, upload cancelled", filepath);
                 }
             }
+            UploadsInProgress--;
         }
 
         public AccessFile? GetAccessFile(string filepath)
@@ -939,6 +962,7 @@ namespace SecureWiki
 
         public void UploadMasterKeyring()
         {
+            UploadsInProgress++;
             if (!PageAlreadyExists(_keyringManager.masterKey.pageName, "-1",
                 configManager.DefaultServerLink))
             {
@@ -947,11 +971,13 @@ namespace SecureWiki
                     _keyringManager.masterKey.pageName,
                     MasterKeyring);
             }
+            UploadsInProgress--;
         }
 
         // Delegated Keyring functions
         public void AddNewFile(string filepath)
         {
+            UploadsInProgress++;
             var pageNameFile = GetFreshPageName();
             var pageNameAccessFile = GetFreshPageName();
 
@@ -968,6 +994,7 @@ namespace SecureWiki
             if (mdFile == null)
             {
                 WriteToLogger("File could not be added to MDMirror, upload failed");
+                UploadsInProgress--;
                 return;
             }
 
@@ -978,6 +1005,7 @@ namespace SecureWiki
             if (uploadResAF == false)
             {
                 WriteToLogger("Access File could not be uploaded, aborting.");
+                UploadsInProgress--;
                 return;
             }
 
@@ -988,21 +1016,28 @@ namespace SecureWiki
             if (uploadResFile == false)
             {
                 WriteToLogger("File could not be uploaded", filepath);
+                UploadsInProgress--;
                 return;
             }
 
             MasterKeyring.SetMountedDirMapping(accessFile.AccessFileReference.targetPageName, filepath);
+            UploadsInProgress--;
         }
 
         private void AddToDefaultKeyring(SymmetricReference symmetricReference)
         {
+            UploadsInProgress++;
             var defaultKeyring = _keyringManager.AddToDefaultKeyring(symmetricReference);
             var accessFileToDefaultKeyring = defaultKeyring.accessFileReferenceToSelf.AccessFileParent;
 
             // Upload updated keyring
             var wikiHandler = GetWikiHandler(configManager.DefaultServerLink);
 
-            if (accessFileToDefaultKeyring == null) return;
+            if (accessFileToDefaultKeyring == null)
+            {
+                UploadsInProgress--;
+                return;
+            }
             if (accessFileToDefaultKeyring.HasBeenChanged)
             {
                 wikiHandler?.UploadAccessFile(accessFileToDefaultKeyring);
@@ -1014,6 +1049,7 @@ namespace SecureWiki
             {
                 WriteToLogger($"Keyring '{defaultKeyring.name}' could not be uploaded.");
             }
+            UploadsInProgress--;
         }
 
         public string? GetFreshPageName(string? serverLink = null)
@@ -1034,15 +1070,18 @@ namespace SecureWiki
 
         private string? TryFreshPageName(string serverLink, IServerInteraction? wikiHandler)
         {
+            UploadsInProgress++;
             var tmp = RandomString.GenerateRandomAlphanumericString();
             tmp = char.ToUpper(tmp[0]) + tmp.Substring(1);
             if (!PageAlreadyExists(tmp, "-1", serverLink))
             {
                 // Upload placeholder text to page to reserve it
                 wikiHandler?.Upload(tmp, "placeholder");
+                UploadsInProgress--;
                 return tmp;
             }
 
+            UploadsInProgress--;
             return null;
         }
 
@@ -1058,6 +1097,7 @@ namespace SecureWiki
 
         public void AddNewKeyring(string filename)
         {
+            UploadsInProgress++;
             var keyring = _keyringManager.CreateNewKeyring(filename, configManager.DefaultServerLink);
             // Add symmetric reference to newEntries keyring and upload
             AddToDefaultKeyring(keyring.accessFileReferenceToSelf.AccessFileParent.SymmetricReferenceToSelf);
@@ -1069,6 +1109,7 @@ namespace SecureWiki
             {
                 var loggerMsg = $"Creating new Keyring of name '{filename}' failed.";
                 WriteToLogger(loggerMsg);
+                UploadsInProgress--;
                 return;
             }
 
@@ -1089,6 +1130,7 @@ namespace SecureWiki
 
             // Add keyring contact to masterkeyring
             MasterKeyring.OwnContacts.Add(new OwnContact(keyring.name, keyring.InboxReferenceToSelf));
+            UploadsInProgress--;
         }
 
         private SymmetricReference? GetKeyringReference(string name, Keyring keyring)
@@ -1301,6 +1343,7 @@ namespace SecureWiki
 
         public void RevokeAccess(AccessFile accessFile, List<InboxReference> inboxRefs)
         {
+            UploadsInProgress++;
             WriteToLogger($"Attempting to revoke access to file '{accessFile.filename}'");
 
             var wikiHandler = GetWikiHandler(accessFile.AccessFileReference.serverLink);
@@ -1337,6 +1380,7 @@ namespace SecureWiki
             }
 
             wikiHandler?.UploadAccessFile(accessFile);
+            UploadsInProgress--;
         }
 
         // write to logger with normal as default priority 
@@ -1349,9 +1393,11 @@ namespace SecureWiki
         // Upload input content to given serverLink and pageName using the wikiHandler
         private bool UploadToInboxPage(string serverLink, string pageName, string content, byte[] publicKey)
         {
+            UploadsInProgress++;
             var wikiHandler = GetWikiHandler(serverLink);
 
             var result = wikiHandler?.UploadToInboxPage(pageName, content, publicKey);
+            UploadsInProgress--;
             return result == true;
         }
         //
@@ -1682,6 +1728,7 @@ namespace SecureWiki
 
         public void AddFilesToKeyring(List<Keyring> keyrings)
         {
+            UploadsInProgress++;
             var symmetricReferences =
                 mountedDirMirror.GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedRootFolder();
 
@@ -1734,6 +1781,7 @@ namespace SecureWiki
                     }
                 }
             }
+            UploadsInProgress--;
         }
 
         public void RenameOwnContact(string nickname, OwnContact selectedOwnContact)

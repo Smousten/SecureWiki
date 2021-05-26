@@ -127,6 +127,10 @@ namespace SecureWikiTests
                 Console.WriteLine("sleepCnt = " + sleepCnt);
                 Thread.Sleep(1000);
                 sleepCnt++;
+                if (sleepCnt > 60)
+                {
+                    break;
+                }
             }
             
             var cntPre = _manager.mountedDirMirror.RootFolder.combinedList.Count;
@@ -137,9 +141,32 @@ namespace SecureWikiTests
             Console.WriteLine($"ls {mountdirPath} :");
             ExecuteShellCommand($"ls {mountdirPath}");
             Console.WriteLine();
-            
-            Thread.Sleep(5000);
 
+            Console.WriteLine("before sleep 2");
+            var sleepCnt2 = 0;
+            while (true)
+            {
+                if (_manager.UploadsInProgress <= 0)
+                {
+                    Console.WriteLine("sleepCnt = " + sleepCnt2);
+                    Thread.Sleep(1000);
+                    sleepCnt2++;
+                    if (_manager.UploadsInProgress <= 0)
+                    {
+                        break;
+                    }
+                }
+                Console.WriteLine("sleepCnt = " + sleepCnt2 + ", _manager.UploadsInProgress = " + _manager.UploadsInProgress);
+                Thread.Sleep(1000);
+                sleepCnt2++;
+                if (sleepCnt2 > 60)
+                {
+                    break;
+                }
+            }
+            Console.WriteLine("after sleep 2");
+
+            
             var cntPost = _manager.mountedDirMirror.RootFolder.combinedList.Count;
             
             Assert.Greater(cntPost, cntPre);
