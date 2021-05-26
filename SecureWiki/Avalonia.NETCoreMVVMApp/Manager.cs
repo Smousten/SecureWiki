@@ -51,6 +51,8 @@ namespace SecureWiki
 
         public delegate void PrintTest(string input);
 
+        public bool setupFinished = false;
+
         public PrintTest printTest;
 
         public Manager(Thread createrThread, MasterKeyring rk, Logger logger, MountedDirMirror mountedDirMirror)
@@ -64,6 +66,7 @@ namespace SecureWiki
 
         public void Run()
         {
+            
             InitializeConfigManager();
             InitializeWikiHandlers();
 
@@ -91,7 +94,7 @@ namespace SecureWiki
             // TestUpload();
 
             // GUI can now proceed
-            MainWindow.ManagerReadyEvent.Set();
+            // MainWindow.ManagerReadyEvent.Set();
 
             InitializeSymRefMasterKeyring();
 
@@ -120,6 +123,9 @@ namespace SecureWiki
 
             // var res = ShowMessageBox("some very loooooooooooooooooooooooooong title", " and some very loooooooooooooooooooooooooong title", MessageBox.Buttons.YesNoCancel);
             // Console.WriteLine(res.ToString());
+
+            setupFinished = true;
+            Console.WriteLine("setupFinished = true;");
         }
 
         public void PrintTestMethod(string input)
@@ -152,6 +158,10 @@ namespace SecureWiki
                     Console.WriteLine();
                     Console.WriteLine("InitializeSymRefMasterKeyring:- symRefToMasterKeyring null");
                     return;
+                }
+                else
+                {
+                    Console.WriteLine("InitializeSymRefMasterKeyring:- symRefToMasterKeyring parsed successfully");
                 }
 
                 // Download target Access File

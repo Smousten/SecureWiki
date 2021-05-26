@@ -108,7 +108,7 @@ namespace SecureWiki.Views
         }
 
         // Start process to unmount fuse mounted directory
-        private static void Unmount()
+        public static void Unmount()
         {
             var mountdirPath = GetPathToDirectory("mountdir");
             ProcessStartInfo start = new();
@@ -123,7 +123,7 @@ namespace SecureWiki.Views
         }
         
         // If mountdir is already mounted, then unmount
-        private static void IsFuseRunning()
+        public static void IsFuseRunning()
         {
             var mountdirPath = GetPathToDirectory("mountdir");
             var allDrives = DriveInfo.GetDrives().ToList();
