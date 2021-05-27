@@ -551,6 +551,7 @@ namespace SecureWiki.MediaWiki
                     }
 
                     Console.WriteLine("Upload finished, response length: " + (result?.Length ?? 0));
+                    // Console.WriteLine(result);
                     return result;
                 }
 

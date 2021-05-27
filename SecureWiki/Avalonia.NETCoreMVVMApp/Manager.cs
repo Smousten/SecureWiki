@@ -460,7 +460,7 @@ namespace SecureWiki
             // TODO: read from config file
         }
 
-        private IServerInteraction? GetWikiHandler(string url)
+        public IServerInteraction? GetWikiHandler(string url)
         {
             // Console.WriteLine("attempting to get wikihandler with url "+ url);
             if (wikiHandlers.ContainsKey(url))
