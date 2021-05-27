@@ -81,15 +81,23 @@ namespace SecureWiki.MediaWiki
             MediaWikiObject.PageAction.UploadNewRevision uploadNewRevision = new(_mwo,
                 pageName);
             uploadNewRevision.UploadContent(content);
+            _mwo.editToken ??= uploadNewRevision.editToken;
         }
         
         public bool Upload(AccessFile accessFile, byte[] content)
         {
             var plainText = content;
             string pageName = accessFile.AccessFileReference.targetPageName;
-            if (plainText.Length <= 0) return false;
-
-            if (!ConfirmUpload(pageName)) return false;
+            if (plainText.Length <= 0)
+            {
+                Console.WriteLine("plainText.Length <= 0");
+                return false;
+            }
+            if (!ConfirmUpload(pageName))
+            {
+                Console.WriteLine($"ConfirmUpload('{pageName}') failed");
+                return false;
+            }
 
             // Find latest key in data file key list
             var key = accessFile.keyList.Last();
@@ -98,7 +106,11 @@ namespace SecureWiki.MediaWiki
             // var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey, iv);
             var encryptedContent = Crypto.Encrypt(plainText, key.SymmKey);
 
-            if (encryptedContent == null) return false;
+            if (encryptedContent == null)
+            {
+                Console.WriteLine("encryptedContent == null");
+                return false;
+            }
 
             // Sign hash value of cipher text
             var signature = Crypto.SignData(key.PrivateKey!, encryptedContent);
@@ -128,6 +140,7 @@ namespace SecureWiki.MediaWiki
                 // If upload was a success
                 if (response.Result == Response.ResultType.Success)
                 {
+                    Console.WriteLine("Upload successful");
                     return true;
                 }
             }
@@ -158,6 +171,7 @@ namespace SecureWiki.MediaWiki
                 var response = new Response(httpResponse);
                 if (response.Result == Response.ResultType.Success)
                 {
+                    Console.WriteLine("Upload successful");
                     return true;
                 }
             }
@@ -168,10 +182,11 @@ namespace SecureWiki.MediaWiki
         private bool ConfirmUpload(string pageName)
         {
             var latestRevIDInCache = _manager.cacheManager.GetLatestRevisionID(pageName);
+            if (latestRevIDInCache == null) return true;
             var rev = GetLatestRevision(pageName);
             var atleastTwoRevisions = HasAtleastTwoRevisions(pageName);
 
-            if (atleastTwoRevisions && rev.revisionID != null && !rev.revisionID.Equals(latestRevIDInCache))
+            if (atleastTwoRevisions && rev?.revisionID != null && !rev.revisionID.Equals(latestRevIDInCache))
             {
                 string warningString = "Your changes are no longer based on the newest revision available, " +
                                        "push changes to server regardless?" +
@@ -179,11 +194,15 @@ namespace SecureWiki.MediaWiki
                                        "\nBy user: " + rev.user +
                                        "\nContent size: " + rev.size;
 
+                // Default to true when GUI isn't running, e.g. during testing
+                if (!_manager.GUIRunning) return true;
+                
                 var msgBoxOutput = Manager.ShowMessageBox("Warning!", warningString);
+                
 
                 if (msgBoxOutput == MessageBox.Result.Cancel)
                 {
-                    Console.WriteLine("Upload cancelled");
+                    Console.WriteLine("Cancel selected");
                     return false;
                 }
             }
@@ -548,7 +567,6 @@ namespace SecureWiki.MediaWiki
             }
             catch (FormatException e)
             {
-                Console.WriteLine("SplitPageContent:- FormatException");
                 return null;
             }
         }
@@ -580,6 +598,7 @@ namespace SecureWiki.MediaWiki
                     // If upload was a success
                     if (response.Result == Response.ResultType.Success)
                     {
+                        Console.WriteLine("Upload successful");
                         accessFile.HasBeenChanged = false;
                         return true;
                     }
@@ -614,6 +633,7 @@ namespace SecureWiki.MediaWiki
                 // If upload was a success
                 if (response.Result == Response.ResultType.Success)
                 {
+                    Console.WriteLine("Upload successful");
                     masterKeyring.HasBeenChanged = false;
                     return true;
                 }
@@ -662,6 +682,7 @@ namespace SecureWiki.MediaWiki
                 // If upload was a success
                 if (response.Result == Response.ResultType.Success)
                 {
+                    Console.WriteLine("Upload successful");
                     keyring.HasBeenChanged = false;
                     return true;
                 }
@@ -1012,6 +1033,7 @@ namespace SecureWiki.MediaWiki
 
                 if (response.Result == Response.ResultType.Success)
                 {
+                    Console.WriteLine("Upload successful");
                     return true;
                 }
             }
