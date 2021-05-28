@@ -537,7 +537,7 @@ namespace SecureWiki.MediaWiki
 
                     action = BuildAction();
 
-                    Console.WriteLine("Starting upload: posting to server.");
+                    Console.WriteLine($"Starting upload: posting to page '{pageName}' at server '{URL}'.");
 
                     var result = PostHttpToServer(action);
 
@@ -550,6 +550,8 @@ namespace SecureWiki.MediaWiki
                         result = PostHttpToServer(action);
                     }
 
+                    Console.WriteLine("Upload finished, response length: " + (result?.Length ?? 0));
+                    // Console.WriteLine(result);
                     return result;
                 }
 
@@ -737,8 +739,6 @@ namespace SecureWiki.MediaWiki
             public string? ExtractToken(JObject jOTokens, string tokenName)
             {
                 var token = jOTokens["query"]?["tokens"]?[tokenName]?.ToString();
-
-                Console.WriteLine("Extracted token '{0}': {1}", tokenName, token);
 
                 return token;
             }

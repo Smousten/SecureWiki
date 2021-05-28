@@ -45,6 +45,7 @@ namespace SecureWiki.Views
             manager = new Manager(Thread.CurrentThread, _masterKeyring, logger, _mountedDirMirror);
             Thread managerThread = new(manager.Run) {IsBackground = true, Name = "ManagerThread"};
             managerThread.Start();
+            manager.GUIRunning = true;
 
             // Do not show GUI window until manager is ready to handle requests
             // ManagerReadyEvent.WaitOne();

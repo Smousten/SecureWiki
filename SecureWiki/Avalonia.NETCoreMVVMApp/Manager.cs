@@ -32,7 +32,7 @@ namespace SecureWiki
 
         private Dictionary<string, IServerInteraction> wikiHandlers;
         private IServerInteraction localhostWikiHandler;
-        private IFuseInteraction tcpListener;
+        public IFuseInteraction tcpListener;
 
         private KeyringManager _keyringManager;
         public CacheManager cacheManager;
@@ -52,6 +52,7 @@ namespace SecureWiki
         public delegate void PrintTest(string input);
 
         public bool setupFinished = false;
+        public bool GUIRunning = false;
         public uint UploadsInProgress = 0;
 
         public PrintTest printTest;
@@ -456,7 +457,7 @@ namespace SecureWiki
             // TODO: read from config file
         }
 
-        private IServerInteraction? GetWikiHandler(string url)
+        public IServerInteraction? GetWikiHandler(string url)
         {
             // Console.WriteLine("attempting to get wikihandler with url "+ url);
             if (wikiHandlers.ContainsKey(url))
@@ -1054,7 +1055,7 @@ namespace SecureWiki
                 pageName = TryFreshPageName(serverLink, wikiHandler);
                 return pageName != null;
             }, TimeSpan.FromSeconds(5));
-            Console.WriteLine("GetFreshPageName:- pageName='{0}'", pageName);
+            // Console.WriteLine("GetFreshPageName:- pageName='{0}'", pageName);
             return success ? pageName : null;
         }
 

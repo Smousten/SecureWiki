@@ -36,7 +36,7 @@ namespace SecureWiki.MediaWiki
         public string? GetLatestRevisionID(string pageName);
         
         // Returns encrypted string stored on server of page with given title and revision ID
-        public string GetPageContent(string pageName, string revID);
+        public string GetPageContent(string pageName, string revID = "-1");
         
         // Check if page exists on server
         public bool PageAlreadyExists(string pageName, string revID);
