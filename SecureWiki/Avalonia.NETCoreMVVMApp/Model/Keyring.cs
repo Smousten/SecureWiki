@@ -92,6 +92,11 @@ namespace SecureWiki.Model
             SymmetricReferences.Add(symmetricReference);
             symmetricReference.keyringParent = this;
         }
+
+        public InboxReference GetInboxReference(InboxReference.AccessLevel accessLevel)
+        {
+            return InboxReferenceToSelf.Copy(accessLevel);
+        }
         
         public void AddKeyring(Keyring keyring)
         {

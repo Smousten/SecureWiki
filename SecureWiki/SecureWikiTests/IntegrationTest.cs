@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -455,11 +456,27 @@ namespace SecureWikiTests
                 _manager._keyringManager.CreateAccessFileAndReferences(_manager.GetFreshPageName(), _manager.GetFreshPageName(),
                     serverLink, PageType.Keyring, out SymmetricReference symmetricReference,
                     out AccessFile accessFile);
-                
-                
-                
-                
+                keyring1.AddSymmetricReference(symmetricReference);
 
+                var symmRefList = new List<(SymmetricReference, bool)>();
+                symmRefList.Add((symmetricReference, true));
+
+                var dict = _manager._keyringManager.PrepareForExport(symmRefList);
+
+                accessFile.inboxReferences.Add(keyring2.InboxReferenceToSelf.Copy(InboxReference.AccessLevel.ReadWrite));
+                var uploadList = JSONSerialization.SerializeObject(dict[accessFile]);
+                
+                var wh = _manager.GetWikiHandler(serverLink);
+                Assert.True(wh != null);
+
+                var inboxRef = accessFile.inboxReferences.First();
+                Assert.True(inboxRef.privateKey == null || inboxRef.privateKey.Length < 1);
+
+                wh.UploadToInboxPage(inboxRef.targetPageName, uploadList, inboxRef.publicKey);
+
+                WaitForUploads();
+                
+                
             }
         }
         
