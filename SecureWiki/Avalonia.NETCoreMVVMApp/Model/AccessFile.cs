@@ -24,7 +24,7 @@ namespace SecureWiki.Model
         
         // Dictionary of contacts who 'subscribe' to this access file as key and
         // boolean indicating if contact has write-access as value
-        [JsonProperty] public Dictionary<Contact, bool> ContactDict = new();
+        [JsonProperty] public List<Contact> ContactList { get; set; }
 
         // AccessFileKey is a tuple of (private key, public key, semi-permanent symmetric key
         // and information relevant to their use)
@@ -67,9 +67,8 @@ namespace SecureWiki.Model
             var (newPrivateKey, newPublicKey) = Crypto.GenerateRSAParams();
             ownerPrivateKey = newPrivateKey;
             ownerPublicKey = newPublicKey;
-
-            // contactList = new List<(string, string?)>();
-            ContactDict = new Dictionary<Contact, bool>();
+            
+            ContactList = new List<Contact>();
             
             // Create a new AccessFileKey and sign it with the owner private key 
             keyList = new List<AccessFileKey> {new(ownerPrivateKey)};

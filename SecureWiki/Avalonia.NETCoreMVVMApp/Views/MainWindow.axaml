@@ -69,34 +69,6 @@
             <Button Name="Button2" Click="Button2_Click">Print keyring info</Button>
             <Button Name="Button3" Click="ButtonExport_Click">Export keyring</Button>
             <Button Name="Button4" Click="ButtonImport_Click">Import keyring</Button>
-            
-            <Button Name="ButtonShareKeyring" Click="ShowButtonPopup_Click" Tag="ShareKeyringPopup">Share keyring</Button>
-            <!--Share keyring popup-->
-            <Popup Name="ShareKeyringPopup" PlacementTarget="ButtonShareKeyring" IsLightDismissEnabled="True">
-                <Border BorderBrush="Black" BorderThickness="1,1,1,1">
-                    <Grid>
-                        <Grid ColumnDefinitions="Auto" RowDefinitions="Auto, Auto, Auto" Background="White">
-                            <TextBlock Name="ShareKeyringText" Background="White"
-                                       Text="Share the selected files with contacts from the list below."
-                                       TextAlignment="Center" />
-                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding ShareContacts, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedShareContacts}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate DataType="utilities:Contact">
-                                        <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
-                                            <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock>
-                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" />
-                                            <TextBlock Grid.Row="1" Grid.Column="0">Server link: </TextBlock>
-                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ServerLink}" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                            <Button Grid.Row="2" Grid.Column="0" Click="HideButtonPopup_Click" Tag="ShareKeyringPopup" Margin="30,80,10,10">Cancel</Button>
-                            <Button Grid.Row="2" Grid.Column="0" Click="ButtonShareKeyring_Click" Tag="ShareKeyringPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button>
-                        </Grid>
-                    </Grid>
-                </Border>
-            </Popup>
 
             <Button Name="ButtonRenameContact" Click="ShowButtonPopup_Click" Tag="RenameContactPopup">Name keyring contact</Button>
             <!--Rename contact popup-->
@@ -186,8 +158,8 @@
                             <TextBlock Name="ShareFilesText" Background="White"
                                        Text="Share the selected files with contacts from the list below."
                                        TextAlignment="Center" />
-                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding ShareContacts, Mode=TwoWay}"
-                                     SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedShareContacts}">
+                            <ListBox Name="ListBoxShareFiles" Grid.Row="1" Grid.Column="0" Items="{Binding ShareContacts, Mode=TwoWay}"
+                                     SelectionMode="Multiple,Toggle" SelectedItems="{Binding SelectedShareContacts}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="utilities:Contact">
                                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
@@ -421,7 +393,7 @@
                                             <TextBlock Grid.Row="0" Grid.Column="0">Nickname: </TextBlock>
                                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Nickname}" />
                                             <TextBlock Grid.Row="1" Grid.Column="0">Server link: </TextBlock>
-                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ServerLink}" />
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding InboxReference.serverLink}" />
                                         </Grid>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>

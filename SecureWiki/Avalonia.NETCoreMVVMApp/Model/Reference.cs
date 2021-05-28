@@ -113,28 +113,28 @@ namespace SecureWiki.Model
     {
         public enum AccessLevel
         {
-            Write,
+            Read,
             ReadWrite
         }
         
         [JsonProperty(Order = 98)] public byte[] publicKey;
         [JsonProperty(Order = 99)] public byte[]? privateKey;
-        [JsonProperty(Order = -2)] public AccessLevel accessLevel;
+        [JsonProperty(Order = -2)] public AccessLevel? accessLevel;
         public Keyring KeyringTarget;
 
-        public InboxReference(string targetPageName, string serverLink, byte[] publicKey, Keyring keyringTarget) : base(targetPageName,
-            serverLink)
+        public InboxReference(string targetPageName, string serverLink, byte[] publicKey, Keyring keyringTarget, 
+            AccessLevel? accessLevel = null) : base(targetPageName, serverLink)
         {
+            this.accessLevel = accessLevel;
             this.publicKey = publicKey;
-            accessLevel = AccessLevel.Write;
             KeyringTarget = keyringTarget;
         }
         
-        public InboxReference(string targetPageName, string serverLink, Keyring keyringTarget) : base(targetPageName,
-            serverLink)
+        public InboxReference(string targetPageName, string serverLink, Keyring keyringTarget, 
+            AccessLevel? accessLevel = null) : base(targetPageName, serverLink)
         {
+            this.accessLevel = accessLevel;
             (privateKey, publicKey) = Crypto.GenerateRSAParams();
-            accessLevel = AccessLevel.ReadWrite;
             KeyringTarget = keyringTarget;
         }
         

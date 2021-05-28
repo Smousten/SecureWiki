@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Newtonsoft.Json;
-using SecureWiki.Cryptography;
 using SecureWiki.Model;
 
 namespace SecureWiki.Utilities
@@ -42,7 +39,6 @@ namespace SecureWiki.Utilities
             Nickname = nickname;
             InboxReference = inboxReference;
         }
-        
 
         public bool HasSameStaticProperties(Contact refContact)
         {
@@ -51,7 +47,11 @@ namespace SecureWiki.Utilities
         
             return output;
         }
-        
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
     
     
