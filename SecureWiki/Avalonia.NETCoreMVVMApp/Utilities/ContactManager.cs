@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using SecureWiki.Model;
 
@@ -43,7 +44,7 @@ namespace SecureWiki.Utilities
         public bool HasSameStaticProperties(Contact refContact)
         {
             // TODO: might need to fix equals method
-            bool output = InboxReference.Equals(refContact.InboxReference);
+            bool output = InboxReference.HasSameStaticProperties(refContact.InboxReference);
         
             return output;
         }
@@ -55,18 +56,61 @@ namespace SecureWiki.Utilities
     }
     
     
-    
+    [JsonObject(MemberSerialization.OptIn)]
     public class ContactManager
     {
-        public List<OwnContact> OwnContacts;
-        public List<Contact> Contacts;
-        public Manager manager;
+        [JsonProperty] public List<OwnContact> OwnContacts;
+        [JsonProperty] public List<Contact> Contacts;
 
-        public ContactManager(Manager manager)
+        public ContactManager()
         {
             OwnContacts = new List<OwnContact>();
             Contacts = new List<Contact>();
-            this.manager = manager;
+        }
+        
+        public List<OwnContact>? GetOwnContactsByServerLink(string serverLink)
+        {
+            var contacts = OwnContacts.FindAll(entry => entry.InboxReference.serverLink.Equals(serverLink));
+        
+            // Return results if any found, otherwise null
+            return contacts.Count > 0 ? contacts : null;
+        }
+        
+        public List<string>? GetAllUniqueServerLinksFromOwnContacts()
+        {
+            List<string> output = new();
+        
+            var sortedContacts = OwnContacts.OrderBy(c => c.InboxReference.serverLink).ToList();
+        
+            // Iterate over all contacts and add unique server links to output list
+            int i = 0;
+            while (i < sortedContacts.Count)
+            {
+                int cnt = 1;
+        
+                while (i + cnt < sortedContacts.Count &&
+                       sortedContacts[i].InboxReference.serverLink.Equals(
+                           sortedContacts[i + cnt].InboxReference.serverLink))
+                {
+                    cnt++;
+                }
+        
+                output.Add(sortedContacts[i].InboxReference.serverLink);
+                i += cnt;
+            }
+        
+            // If any server links have been found, return those.
+            return output.Count > 0 ? output : null;
+        }
+
+        public Contact? FindContact(InboxReference inboxReference)
+        {
+            return Contacts.FirstOrDefault(c => c.InboxReference.HasSameStaticProperties(inboxReference));
+        }
+        
+        public Contact? FindOwnContact(InboxReference inboxReference)
+        {
+            return OwnContacts.FirstOrDefault(c => c.InboxReference.HasSameStaticProperties(inboxReference));
         }
 
         // public void AddContact(Contact contact)

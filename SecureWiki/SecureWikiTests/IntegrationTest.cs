@@ -436,6 +436,32 @@ namespace SecureWikiTests
                 Assert.True(contentString2.Equals(readContentLatest));
             }
         }
+
+        public class KeyringSharingTest : IntegrationTest
+        {
+            [Test, Order(4)]
+            public void Share()
+            {
+                Console.WriteLine("Share() entered");
+                var serverLink = _manager.configManager.DefaultServerLink;
+                var mountdirPath = GetMountDirPath();
+                var filename = "CreateFileTest.txt";
+                var filePath = Path.Combine(mountdirPath, filename);
+                var contentString = "This is a string that should match";
+
+                var keyring1 = _manager._keyringManager.CreateNewKeyring("Keyring1", serverLink);
+                var keyring2 = _manager._keyringManager.CreateNewKeyring("Keyring2", serverLink);
+
+                _manager._keyringManager.CreateAccessFileAndReferences(_manager.GetFreshPageName(), _manager.GetFreshPageName(),
+                    serverLink, PageType.Keyring, out SymmetricReference symmetricReference,
+                    out AccessFile accessFile);
+                
+                
+                
+                
+
+            }
+        }
         
         [Test, Order(1)]
         public void PassSetup()

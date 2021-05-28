@@ -14,13 +14,13 @@ namespace SecureWiki.Model
         [JsonProperty] private Dictionary<string, string> MountedDirMapping = new();
         
         // Save lists of contacts which contains inbox references
-        [JsonProperty] public List<OwnContact> OwnContacts = new();
-        [JsonProperty] public List<Contact> Contacts = new();
+        [JsonProperty] public ContactManager ContactManager;
         
         public MasterKeyring()
         {
             name = "Root";
             // isChecked = false;
+            ContactManager = new ContactManager();
         }
 
         public void SetMountedDirMapping(string pageName, string filepath)
@@ -56,43 +56,17 @@ namespace SecureWiki.Model
         {
             base.CopyFromOtherKeyringNonRecursively(ke);
             MountedDirMapping = ke.MountedDirMapping;
-            OwnContacts = ke.OwnContacts;
-            Contacts = ke.Contacts;
+            ContactManager = ke.ContactManager;
         }
         
         public List<OwnContact>? GetOwnContactsByServerLink(string serverLink)
         {
-            var contacts = OwnContacts.FindAll(entry => entry.InboxReference.serverLink.Equals(serverLink));
-        
-            // Return results if any found, otherwise null
-            return contacts.Count > 0 ? contacts : null;
+            return ContactManager.GetOwnContactsByServerLink(serverLink);
         }
 
         public List<string>? GetAllUniqueServerLinksFromOwnContacts()
         {
-            List<string> output = new();
-        
-            var sortedContacts = OwnContacts.OrderBy(c => c.InboxReference.serverLink).ToList();
-        
-            // Iterate over all contacts and add unique server links to output list
-            int i = 0;
-            while (i < sortedContacts.Count)
-            {
-                int cnt = 1;
-        
-                while (i + cnt < sortedContacts.Count &&
-                       sortedContacts[i].InboxReference.serverLink.Equals(
-                           sortedContacts[i + cnt].InboxReference.serverLink))
-                {
-                    cnt++;
-                }
-        
-                output.Add(sortedContacts[i].InboxReference.serverLink);
-                i += cnt;
-            }
-        
-            // If any server links have been found, return those.
-            return output.Count > 0 ? output : null;
+            return ContactManager.GetAllUniqueServerLinksFromOwnContacts();
         }
 
     }

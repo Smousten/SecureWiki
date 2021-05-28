@@ -456,6 +456,63 @@ namespace SecureWiki.Cryptography
             accessFile.keyList.Add(newAccessFileKey);
         }
 
+        public Dictionary<AccessFile, AccessFile> PrepareForExport(List<(SymmetricReference, bool)> inputList)
+        {
+            var dict = new Dictionary<AccessFile, AccessFile>();
+            
+            foreach (var (symmRef, isCheckedWrite) in inputList)
+            {
+                if (symmRef.targetAccessFile == null)
+                {
+                    Console.WriteLine("symmRef.targetAccessFile == null, symmRef.targetPageName = " + symmRef.targetPageName);
+                    continue;
+                }
+                var afCopy = symmRef.targetAccessFile.Copy();
+                afCopy.PrepareForExport(isCheckedWrite);
+                dict.Add(symmRef.targetAccessFile, afCopy);
+            }
+
+            return dict;
+        }
+
+        public Dictionary<Contact, List<AccessFile>> AddContactsToAccessFilesInBulk(List<(AccessFile, bool)> accessFiles, List<Contact> contacts)
+        {
+            var dict = new Dictionary<Contact, List<AccessFile>>();
+
+            foreach (var contact in contacts)
+            {
+                dict.Add(contact, new List<AccessFile>());
+            }
+            
+            foreach (var (af, isCheckedWrite) in accessFiles)
+            {
+                foreach (var contact in contacts)
+                {
+                    var inboxReference = af.inboxReferences.FirstOrDefault(c => c.HasSameStaticProperties(contact.InboxReference));
+
+                    if (inboxReference == null)
+                    {
+                        var copy = contact.InboxReference.Copy();
+                        copy.accessLevel = isCheckedWrite
+                            ? InboxReference.AccessLevel.ReadWrite
+                            : InboxReference.AccessLevel.Read;
+                        af.inboxReferences.Add(copy);
+                        dict[contact].Add(af);
+                    }
+                    else
+                    {
+                        if (inboxReference.accessLevel == InboxReference.AccessLevel.Read && isCheckedWrite)
+                        {
+                            inboxReference.accessLevel = InboxReference.AccessLevel.ReadWrite;
+                            dict[contact].Add(af);
+                        }
+                    }
+                }
+            }
+
+            return dict;
+        }
+
         // // Recursively verify all keys of all access files in given keyring 
         // private (bool, AccessFile?) VerifyImportKeyring(Keyring rk)
         // {

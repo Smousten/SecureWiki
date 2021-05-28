@@ -24,7 +24,7 @@ namespace SecureWiki.Model
         
         // Dictionary of contacts who 'subscribe' to this access file as key and
         // boolean indicating if contact has write-access as value
-        [JsonProperty] public List<Contact> ContactList { get; set; }
+        [JsonProperty] public List<InboxReference> inboxReferences { get; set; }
 
         // AccessFileKey is a tuple of (private key, public key, semi-permanent symmetric key
         // and information relevant to their use)
@@ -68,7 +68,7 @@ namespace SecureWiki.Model
             ownerPrivateKey = newPrivateKey;
             ownerPublicKey = newPublicKey;
             
-            ContactList = new List<Contact>();
+            inboxReferences = new List<InboxReference>();
             
             // Create a new AccessFileKey and sign it with the owner private key 
             keyList = new List<AccessFileKey> {new(ownerPrivateKey)};
@@ -186,8 +186,6 @@ namespace SecureWiki.Model
             List<PropertyInfo> compareList = new();
             
             // Add relevant static properties
-            staticPropertyList.Add(typeof(AccessFile).GetProperty(nameof(AccessFileReference.targetPageName)));
-            staticPropertyList.Add(typeof(AccessFile).GetProperty(nameof(AccessFileReference.serverLink)));
             staticPropertyList.Add(typeof(AccessFile).GetProperty(nameof(ownerPublicKey)));
 
             // Check properties are not null
@@ -199,7 +197,9 @@ namespace SecureWiki.Model
                 }
             }
 
-            return CompareProperties(reference, compareList);
+            // Check both own and AccessFileReference properties
+            return CompareProperties(reference, compareList)
+                   && AccessFileReference.HasSameStaticProperties(reference.AccessFileReference);
         }
 
         public bool CompareAllPropertiesExcept(AccessFile reference, List<PropertyInfo>? ignoreList)
@@ -227,8 +227,6 @@ namespace SecureWiki.Model
             {
                 var ownValue = typeof(AccessFile).GetProperty(prop.Name)?.GetValue(this, null);
                 var refValue = typeof(AccessFile).GetProperty(prop.Name)?.GetValue(reference, null);
-
-                // Console.WriteLine("Testing property: '{0}'='{1}'", prop, ownValue);
                 
                 if (ownValue == null || refValue == null)
                 {
@@ -362,6 +360,8 @@ namespace SecureWiki.Model
                     key.SignedWriteKey = null;
                 }
             }
+            
+            inboxReferences.Clear();
         }
 
         // public void PrepareForExport()

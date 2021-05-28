@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Avalonia.Input;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
 using SecureWiki.Cryptography;
+using SecureWiki.Utilities;
 
 namespace SecureWiki.Model
 {
@@ -106,6 +108,58 @@ namespace SecureWiki.Model
             return properties.All(prop => prop?.GetValue(this) != null) 
                    && fields.All(field => field?.GetValue(this) != null);
         }
+
+        public bool HasSameStaticProperties(AccessFileReference other)
+        {
+            List<PropertyInfo?> staticPropertyList = new();
+            List<PropertyInfo> compareList = new();
+            
+            // Add relevant static properties
+            staticPropertyList.Add(this.GetType().GetProperty(nameof(targetPageName)));
+            staticPropertyList.Add(this.GetType().GetProperty(nameof(serverLink)));
+            staticPropertyList.Add(this.GetType().GetProperty(nameof(type)));
+            
+            // Check properties are not null
+            foreach (var item in staticPropertyList)
+            {
+                if (item != null)
+                {
+                    compareList.Add(item);
+                }
+            }
+
+            foreach (PropertyInfo prop in compareList)
+            {
+                var ownValue = this.GetType().GetProperty(prop.Name)?.GetValue(this, null);
+                var refValue = this.GetType().GetProperty(prop.Name)?.GetValue(other, null);
+                
+                if (ownValue == null || refValue == null)
+                {
+                    if (ownValue != null || refValue != null)
+                    {
+                        return false;
+                    }
+                }
+                else if (ownValue is string)
+                {
+                    if (!(ownValue.Equals(refValue)))
+                    {
+                        return false;
+                    }
+                }
+                else if (ownValue.GetType() == typeof(byte[]))
+                {
+                    var byteArrayOwn = ownValue as byte[];
+                    var byteArrayRef = refValue as byte[];
+                    if (!(byteArrayOwn!).SequenceEqual(byteArrayRef!))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -139,6 +193,15 @@ namespace SecureWiki.Model
         }
         
         public InboxReference() {}
+
+        public InboxReference Copy()
+        {
+            var jsonData = JSONSerialization.SerializeObject(this);
+
+            var copy = (JSONSerialization.DeserializeObject(jsonData, typeof(InboxReference)) as InboxReference)!;
+            
+            return copy;
+        }
         
         public bool IsValid()
         {
@@ -155,6 +218,58 @@ namespace SecureWiki.Model
             
             return properties.All(prop => prop?.GetValue(this) != null) 
                    && fields.All(field => field?.GetValue(this) != null);
+        }
+        
+        public bool HasSameStaticProperties(InboxReference other)
+        {
+            List<PropertyInfo?> staticPropertyList = new();
+            List<PropertyInfo> compareList = new();
+            
+            // Add relevant static properties
+            staticPropertyList.Add(this.GetType().GetProperty(nameof(targetPageName)));
+            staticPropertyList.Add(this.GetType().GetProperty(nameof(serverLink)));
+            staticPropertyList.Add(this.GetType().GetProperty(nameof(publicKey)));
+            
+            // Check properties are not null
+            foreach (var item in staticPropertyList)
+            {
+                if (item != null)
+                {
+                    compareList.Add(item);
+                }
+            }
+
+            foreach (PropertyInfo prop in compareList)
+            {
+                var ownValue = this.GetType().GetProperty(prop.Name)?.GetValue(this, null);
+                var refValue = this.GetType().GetProperty(prop.Name)?.GetValue(other, null);
+                
+                if (ownValue == null || refValue == null)
+                {
+                    if (ownValue != null || refValue != null)
+                    {
+                        return false;
+                    }
+                }
+                else if (ownValue is string)
+                {
+                    if (!(ownValue.Equals(refValue)))
+                    {
+                        return false;
+                    }
+                }
+                else if (ownValue.GetType() == typeof(byte[]))
+                {
+                    var byteArrayOwn = ownValue as byte[];
+                    var byteArrayRef = refValue as byte[];
+                    if (!(byteArrayOwn!).SequenceEqual(byteArrayRef!))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
     }
     

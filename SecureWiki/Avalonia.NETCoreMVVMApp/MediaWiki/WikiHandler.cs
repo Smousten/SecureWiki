@@ -845,11 +845,11 @@ namespace SecureWiki.MediaWiki
 
                     if (kr != null)
                     {
-                        var ownContact = masterKeyring.OwnContacts.FirstOrDefault(e =>
+                        var ownContact = masterKeyring.ContactManager.OwnContacts.FirstOrDefault(e =>
                             e.InboxReference.targetPageName.Equals(kr.InboxReferenceToSelf.targetPageName));
                         if (ownContact != null) ownContact.InboxReference.KeyringTarget = kr;
                         
-                        var contact = masterKeyring.Contacts.FirstOrDefault(e =>
+                        var contact = masterKeyring.ContactManager.Contacts.FirstOrDefault(e =>
                             e.InboxReference.targetPageName.Equals(kr.InboxReferenceToSelf.targetPageName));
                         if (contact != null) contact.InboxReference.KeyringTarget = kr;
                         

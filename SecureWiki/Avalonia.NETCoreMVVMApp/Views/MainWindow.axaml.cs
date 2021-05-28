@@ -530,18 +530,18 @@ namespace SecureWiki.Views
 
         private void ButtonAddToKeyring_Click(object? sender, RoutedEventArgs e)
         {
-            Thread localThread = new(() =>
-                manager.AddFilesToKeyring(_viewModel.selectedKeyrings.ToList()));
-            localThread.Start();
-            
-            var popup = this.FindControl<Popup>("AddToKeyringPopup");
-            popup.IsOpen = false;
+            // Thread localThread = new(() =>
+            //     manager.AddFilesToKeyring(_viewModel.selectedKeyrings.ToList()));
+            // localThread.Start();
+            //
+            // var popup = this.FindControl<Popup>("AddToKeyringPopup");
+            // popup.IsOpen = false;
         }
         
         private void ButtonShareFiles_Click(object? sender, RoutedEventArgs e)
         {
             Thread localThread = new(() =>
-                manager.ShareFiles(_viewModel.SelectedShareContacts.ToList()));
+                manager.Share(_viewModel.SelectedShareContacts.ToList()));
             localThread.Start();
             
             var popup = this.FindControl<Popup>("ShareFilesPopup");

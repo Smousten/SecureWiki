@@ -32,7 +32,18 @@ namespace SecureWiki
 
             // Create mountdir if it does not already exist
             var mountdirPath = Path.Combine(baseDir, @"fuse/directories/mountdir");
-            Directory.CreateDirectory(mountdirPath);
+            var mountDirectoryInfo = new DirectoryInfo(mountdirPath);
+            mountDirectoryInfo.Create();
+
+            foreach (var file in mountDirectoryInfo.GetFiles())
+            {
+                file.Delete();
+            }
+
+            foreach (var folder in mountDirectoryInfo.GetDirectories())
+            {
+                folder.Delete(true);
+            }
             
             var cDir = Path.Combine(baseDir, @"fuse/src/");
             var cExe = Path.Combine(cDir, @"bbfs");

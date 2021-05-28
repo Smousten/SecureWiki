@@ -165,19 +165,26 @@ namespace SecureWiki.Model
             return mdFolder;
         }
 
-        public List<SymmetricReference> GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedRootFolder()
+        public List<(SymmetricReference, bool)> GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedRootFolder()
         {
             return RootFolder.GetAllAndDescendantSymmetricReferencesBasedOnIsChecked();
         }
         
-        public (List<SymmetricReference>, List<SymmetricReference>) GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyring()
+        public (List<(SymmetricReference, bool)>, List<(SymmetricReference, bool)>) GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyring()
         {
             return KeyringFolder.GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyring();
         }
-        
-        public List<SymmetricReference> GetDescendantKeyringsBasedOnIsCheckedKeyring()
+
+        public List<(SymmetricReference, bool)> GetNecessarySymmetricReferencesToCheckedItems()
         {
-            return KeyringFolder.GetDescendantKeyringsBasedOnIsCheckedKeyring();
+            var outputList = new List<(SymmetricReference, bool)>();
+            
+            outputList.AddRange(GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedRootFolder());
+            var (fileList, keyringList) = GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyring();
+            outputList.AddRange(fileList);
+            outputList.AddRange(keyringList);
+
+            return outputList;
         }
     }
     
@@ -802,10 +809,10 @@ namespace SecureWiki.Model
            return outputList;
        }
        
-       public List<SymmetricReference> GetAllAndDescendantSymmetricReferencesBasedOnIsChecked()
+       public List<(SymmetricReference, bool)> GetAllAndDescendantSymmetricReferencesBasedOnIsChecked()
        {
-           var outputList = (from file in Files where file.isChecked == true select file.symmetricReference).ToList();
-
+           var outputList = (from file in Files where file.isChecked == true select (file.symmetricReference, isCheckedWrite == true)).ToList();
+           
            foreach (var child in Folders)
            {
                if (child.isChecked == true)
@@ -879,17 +886,17 @@ namespace SecureWiki.Model
                 name, isChecked,  isCheckedEnabled, isCheckedWrite, isCheckedWriteEnabled);
         }
 
-        public (List<SymmetricReference>, List<SymmetricReference>) GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyring()
+        public (List<(SymmetricReference, bool)>, List<(SymmetricReference, bool)>) GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyring()
         {
-            var FileList = (from file in Files where file.isChecked == true select file.symmetricReference).ToList();
-            var FolderList = new List<SymmetricReference>();
+            var FileList = (from file in Files where file.isChecked == true select (file.symmetricReference, isCheckedWrite == true)).ToList();
+            var FolderList = new List<(SymmetricReference, bool)>();
             
             foreach (var child in Folders)
             {
                 if (child.isChecked == true)
                 {
                     var mdFile = child.Files.FirstOrDefault(e => e.name.Equals("self"));
-                    if (mdFile != null) FolderList.Add(mdFile.symmetricReference);
+                    if (mdFile != null) FolderList.Add((mdFile.symmetricReference, child.isCheckedWrite == true));
                 }
                 else if (child.GetType() == typeof(MDFolderKeyring))
                 {
@@ -901,23 +908,6 @@ namespace SecureWiki.Model
             }
 
             return (FileList, FolderList);
-        }
-        
-        public List<SymmetricReference> GetDescendantKeyringsBasedOnIsCheckedKeyring()
-        {
-            var FolderList = new List<SymmetricReference>();
-            
-            foreach (var child in Folders)
-            {
-                if (child.isChecked == true)
-                {
-                    var mdFile = child.Files.FirstOrDefault(e => e.name.Equals("self"));
-                    if (mdFile != null) FolderList.Add(mdFile.symmetricReference);
-                }
-                FolderList.AddRange(child.GetAllAndDescendantSymmetricReferencesBasedOnIsChecked());
-
-            }
-            return FolderList;
         }
         
     }
