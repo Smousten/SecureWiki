@@ -565,7 +565,7 @@ namespace SecureWiki.Cryptography
             var keyring = new Keyring(accessFile.AccessFileReference, name);
             
             // Create inbox reference to inbox page
-            InboxReference inboxReference = new(pageNameInboxPage, serverLink, keyring);
+            InboxReference inboxReference = new(pageNameInboxPage, serverLink, keyring, InboxReference.AccessLevel.ReadWrite);
             
             keyring.InboxReferenceToSelf = inboxReference;
             

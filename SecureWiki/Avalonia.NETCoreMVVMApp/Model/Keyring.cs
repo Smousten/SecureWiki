@@ -34,6 +34,9 @@ namespace SecureWiki.Model
             this.accessFileReferenceToSelf = accessFileReferenceToSelf;
             accessFileReferenceToSelf.KeyringTarget = this;
             HasBeenChanged = true;
+            var accessFileParent = this.accessFileReferenceToSelf.AccessFileParent;
+            if (accessFileParent != null)
+                accessFileParent.HasTargetBeenChanged = true;
         }
         
         public Keyring(string name = "unnamed")
@@ -48,7 +51,7 @@ namespace SecureWiki.Model
         
         public bool IsValid()
         {
-            var properties = new List<PropertyInfo?>();
+            // var properties = new List<PropertyInfo?>();
             var fields = new List<FieldInfo?>();
 
             // Properties to be checked
@@ -57,18 +60,18 @@ namespace SecureWiki.Model
             // Fields to be checked
             fields.Add(typeof(Keyring).GetField(nameof(InboxReferenceToSelf)));
             fields.Add(typeof(Keyring).GetField(nameof(SymmetricReferences)));
-            
-            foreach (var val in properties.Select(prop => prop?.GetValue(this)))
-            {
-                switch (val)
-                {
-                    case null:
-                    case string {Length: < 2}:
-                    case byte[] {Length: < 2}:
-                        return false;
-                }
-            }
-            
+            //
+            // foreach (var val in properties.Select(prop => prop?.GetValue(this)))
+            // {
+            //     switch (val)
+            //     {
+            //         case null:
+            //         case string {Length: < 2}:
+            //         case byte[] {Length: < 2}:
+            //             return false;
+            //     }
+            // }
+            //
             if (fields.Any(field => field?.GetValue(this) == null))
             {
                 return false;
@@ -676,6 +679,37 @@ namespace SecureWiki.Model
             }
         
             return outputList;
+        }
+
+        public (List<AccessFile>, List<Keyring>) GetAllChangedAccessFilesAndKeyrings(Keyring keyring)
+        {
+            var accessFileList = new List<AccessFile>();
+            var keyringFileList = new List<Keyring>();
+
+            foreach (var symmRef in keyring.SymmetricReferences)
+            {
+                if (symmRef.targetAccessFile is {HasBeenChanged: true})
+                {
+                    accessFileList.Add(symmRef.targetAccessFile);
+                }
+
+                if (symmRef.targetAccessFile is {HasTargetBeenChanged: true} && 
+                    symmRef.targetAccessFile.AccessFileReference.KeyringTarget != null)
+                {
+                    keyringFileList.Add(symmRef.targetAccessFile.AccessFileReference.KeyringTarget);
+                }
+
+                if (symmRef.type == PageType.Keyring)
+                {
+                    if (symmRef.targetAccessFile?.AccessFileReference.KeyringTarget == null) continue;
+                    var (resAccessFiles, resKeyrings) = GetAllChangedAccessFilesAndKeyrings(symmRef.targetAccessFile.AccessFileReference
+                        .KeyringTarget);
+                    accessFileList.AddRange(resAccessFiles);
+                    keyringFileList.AddRange(resKeyrings);
+                }
+            }
+
+            return (accessFileList, keyringFileList);
         }
         
         public void PrintInfoRecursively()

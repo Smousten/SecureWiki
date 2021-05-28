@@ -22,8 +22,7 @@ namespace SecureWiki.Model
         [JsonProperty(Order = 9)]
         public byte[]? ownerPublicKey { get; set; }
         
-        // Dictionary of contacts who 'subscribe' to this access file as key and
-        // boolean indicating if contact has write-access as value
+        // List of inbox references which 'subscribe' to this access file
         [JsonProperty] public List<InboxReference> inboxReferences { get; set; }
 
         // AccessFileKey is a tuple of (private key, public key, semi-permanent symmetric key
@@ -38,6 +37,7 @@ namespace SecureWiki.Model
         public Keyring? Parent;
         
         public bool HasBeenChanged = false;
+        public bool HasTargetBeenChanged = false;
 
         private bool _newestRevisionSelected = true;
         public bool newestRevisionSelected        

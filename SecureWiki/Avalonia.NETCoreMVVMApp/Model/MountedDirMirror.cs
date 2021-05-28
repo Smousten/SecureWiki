@@ -811,7 +811,7 @@ namespace SecureWiki.Model
        
        public List<(SymmetricReference, bool)> GetAllAndDescendantSymmetricReferencesBasedOnIsChecked()
        {
-           var outputList = (from file in Files where file.isChecked == true select (file.symmetricReference, isCheckedWrite == true)).ToList();
+           var outputList = (from file in Files where file.isChecked == true select (file.symmetricReference, file.isCheckedWrite == true)).ToList();
            
            foreach (var child in Folders)
            {
@@ -888,7 +888,7 @@ namespace SecureWiki.Model
 
         public (List<(SymmetricReference, bool)>, List<(SymmetricReference, bool)>) GetAllAndDescendantSymmetricReferencesBasedOnIsCheckedKeyring()
         {
-            var FileList = (from file in Files where file.isChecked == true select (file.symmetricReference, isCheckedWrite == true)).ToList();
+            var FileList = (from file in Files where file.isChecked == true select (file.symmetricReference, file.isCheckedWrite == true)).ToList();
             var FolderList = new List<(SymmetricReference, bool)>();
             
             foreach (var child in Folders)

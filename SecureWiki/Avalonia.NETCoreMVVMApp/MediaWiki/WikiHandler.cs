@@ -684,6 +684,7 @@ namespace SecureWiki.MediaWiki
                 {
                     Console.WriteLine("Upload successful");
                     keyring.HasBeenChanged = false;
+                    accessFile.HasTargetBeenChanged = false;
                     return true;
                 }
             }
@@ -821,6 +822,7 @@ namespace SecureWiki.MediaWiki
         {
             foreach (var symmRef in rootKeyring.SymmetricReferences)
             {
+                symmRef.keyringParent = rootKeyring;
                 if (symmRef.targetAccessFile == null)
                 {
                     // Download access file
