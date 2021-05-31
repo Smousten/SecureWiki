@@ -496,7 +496,9 @@ namespace SecureWiki.Cryptography
                         copy.accessLevel = isCheckedWrite
                             ? InboxReference.AccessLevel.ReadWrite
                             : InboxReference.AccessLevel.Read;
+                        copy.targetPageName = contact.InboxReference.targetPageName;
                         af.inboxReferences.Add(copy);
+                        af.HasBeenChanged = true;
                         dict[contact].Add(af);
                     }
                     else
@@ -565,7 +567,7 @@ namespace SecureWiki.Cryptography
             var keyring = new Keyring(accessFile.AccessFileReference, name);
             
             // Create inbox reference to inbox page
-            InboxReference inboxReference = new(pageNameInboxPage, serverLink, keyring, InboxReference.AccessLevel.ReadWrite);
+            InboxReference inboxReference = new(pageNameInboxPage, serverLink, pageNameKeyring, InboxReference.AccessLevel.ReadWrite);
             
             keyring.InboxReferenceToSelf = inboxReference;
             

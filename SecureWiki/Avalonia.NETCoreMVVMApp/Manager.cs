@@ -45,6 +45,7 @@ namespace SecureWiki
         public MasterKeyring MasterKeyring;
         private Dictionary<(string, string), string> RequestedRevision = new();
         public SymmetricReference symRefToMasterKeyring;
+        public Dictionary<string, Keyring> KeyringMapping = new();
 
         private readonly string _smtpClientEmail = "SecureWikiMails@gmail.com";
         private readonly string _smtpClientPassword = "SecureWiki";
@@ -595,7 +596,7 @@ namespace SecureWiki
 
             foreach (var contact in incomingAccessFiles.Keys)
             {
-                var keyring = contact.InboxReference.KeyringTarget;
+                var keyring = KeyringMapping[contact.InboxReference.keyringPageName];
                 var count = 0;
                 
                 // Create new access file page and reference for incoming access file not already existing
@@ -623,7 +624,17 @@ namespace SecureWiki
                     //     WriteToLogger("Access File could not be uploaded, aborting.");
                     //     continue;
                     // }
-                    // TODO : updating mapping to new access file target if received access level is higher
+                    // Update mapping to new access file target if received access level is higher
+                    if (existingAccessFilePath != null)
+                    {
+                        var mdFile = mountedDirMirror.GetMDFile(existingAccessFilePath);
+                        if (accessFile.keyList.LastOrDefault()?.PrivateKey != null &&
+                            mdFile?.symmetricReference.targetAccessFile?.keyList.LastOrDefault() == null)
+                        {
+                            MasterKeyring.SetMountedDirMapping(accessFile.AccessFileReference.targetPageName, existingAccessFilePath);
+                        }
+                    }
+
                     // Create new entry in md mirror if file is not already mapped
                     if (existingAccessFilePath == null)
                     {
@@ -767,7 +778,14 @@ namespace SecureWiki
                         if (JSONSerialization.DeserializeObject(revision, typeof(List<AccessFile>)) is List<AccessFile>
                             deserializeObject)
                         {
-                            incomingAccessFiles.Add(contactInbox, deserializeObject);
+                            if (incomingAccessFiles.ContainsKey(contactInbox))
+                            {
+                                incomingAccessFiles[contactInbox].AddRange(deserializeObject);
+                            }
+                            else
+                            {
+                                incomingAccessFiles.Add(contactInbox, deserializeObject);
+                            }
                         }
                     }
                 }
@@ -1424,14 +1442,13 @@ namespace SecureWiki
             var uploadReadOnly = new List<AccessFile>();
             
             var accessFileReadWrite = accessFile.Copy();
-            var latestKey = accessFile.keyList.Last();
+            var latestTwoKeys = accessFile.keyList.Skip(accessFile.keyList.Count - 2);
             
-            accessFileReadWrite.keyList = new List<AccessFileKey> {latestKey};
+            accessFileReadWrite.keyList = new List<AccessFileKey> {latestTwoKeys};
+            accessFileReadWrite.ownerPrivateKey = null;
             uploadReadWrite.Add(accessFileReadWrite);
 
             var accessFileReadOnly = accessFileReadWrite.Copy();
-            accessFileReadOnly.ownerPrivateKey = null;
-            // accessFileReadOnly.ownerPublicKey = null;
             foreach (var key in accessFileReadOnly.keyList)
             {
                 key.PrivateKey = null;
@@ -1453,7 +1470,6 @@ namespace SecureWiki
             // Remove non-selected references from access file reference list
             foreach (var inboxReference in accessFile.inboxReferences)
             {
-                // TODO: make new equals method that checks compares relevant properties
                 if (!contacts.Exists(c => c.InboxReference.HasSameStaticProperties(inboxReference)))
                 {
                     accessFile.inboxReferences.Remove(inboxReference);

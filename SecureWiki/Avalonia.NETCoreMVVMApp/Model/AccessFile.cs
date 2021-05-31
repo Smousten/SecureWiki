@@ -36,8 +36,8 @@ namespace SecureWiki.Model
         public SymmetricReference? SymmetricReferenceToSelf;
         public Keyring? Parent;
         
-        public bool HasBeenChanged = false;
-        public bool HasTargetBeenChanged = false;
+        public bool HasBeenChanged;
+        public bool HasTargetBeenChanged;
 
         private bool _newestRevisionSelected = true;
         public bool newestRevisionSelected        

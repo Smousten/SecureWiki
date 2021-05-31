@@ -68,6 +68,5 @@ namespace SecureWiki.Model
         {
             return ContactManager.GetAllUniqueServerLinksFromOwnContacts();
         }
-
     }
 }

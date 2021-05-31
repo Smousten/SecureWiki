@@ -348,6 +348,8 @@ namespace SecureWiki.Views
 
             if (tag.Equals("RevokeAccessPopup"))
             {
+                var listBox = this.FindControl<ListBox>("ListBoxRevokeAccess");
+                listBox.UnselectAll();
                 Thread localThread = new(() =>
                     manager.GetFileContacts(_viewModel.RevokeContacts, _viewModel.selectedFile));
                 localThread.Start();

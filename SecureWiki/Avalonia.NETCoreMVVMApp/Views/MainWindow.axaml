@@ -386,7 +386,7 @@
                                        Text="Are you that you want to revoke access to the file?&#x0a; This action cannot be undone. &#x0a; Decide who should have access from the list below."
                                        TextAlignment="Center" />
                             
-                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding RevokeContacts, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedRevokeContacts}">
+                            <ListBox Name="ListBoxRevokeAccess" Grid.Row="1" Grid.Column="0" Items="{Binding RevokeContacts, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedRevokeContacts}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="utilities:Contact">
                                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
