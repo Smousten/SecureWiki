@@ -492,10 +492,9 @@ namespace SecureWiki.Cryptography
 
                     if (inboxReference == null)
                     {
-                        var copy = contact.InboxReference.Copy();
-                        copy.accessLevel = isCheckedWrite
+                        var copy = contact.InboxReference.Copy(isCheckedWrite
                             ? InboxReference.AccessLevel.ReadWrite
-                            : InboxReference.AccessLevel.Read;
+                            : InboxReference.AccessLevel.Read);
                         copy.targetPageName = contact.InboxReference.targetPageName;
                         af.inboxReferences.Add(copy);
                         af.HasBeenChanged = true;
