@@ -283,7 +283,8 @@ namespace SecureWiki.Views
         {
             if (sender is TextBlock tb)
             {
-                AccessFile accessFile = (tb.DataContext as MDFile)?.symmetricReference.targetAccessFile ?? throw new InvalidOperationException();
+                var accessFile = (tb.DataContext as MDFile)?.symmetricReference.targetAccessFile;
+                if (accessFile == null) return;
                 _viewModel.selectedFile = accessFile;
 
                 Thread localThread = new(() =>

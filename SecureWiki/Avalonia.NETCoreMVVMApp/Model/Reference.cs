@@ -194,11 +194,18 @@ namespace SecureWiki.Model
         
         public InboxReference() {}
 
-        public InboxReference Copy()
+        public InboxReference Copy(AccessLevel accessLevel)
         {
             var jsonData = JSONSerialization.SerializeObject(this);
 
             var copy = (JSONSerialization.DeserializeObject(jsonData, typeof(InboxReference)) as InboxReference)!;
+
+            copy.privateKey = null;
+            
+            if (accessLevel == AccessLevel.Read)
+            {
+                copy.accessLevel = AccessLevel.Read;
+            }
             
             return copy;
         }
