@@ -835,35 +835,26 @@ namespace SecureWiki.MediaWiki
                     }
                     symmRef.targetAccessFile = accessFile;
                 }
+                var kr = symmRef.targetAccessFile!.AccessFileReference!.KeyringTarget == null 
+                    ? DownloadKeyring(symmRef) : symmRef.targetAccessFile.AccessFileReference.KeyringTarget;
 
-                if (symmRef.type == PageType.GenericFile)
+                if (kr != null)
                 {
-                    rootKeyring.AddAccessFile(symmRef.targetAccessFile!);
+                    var ownContact = masterKeyring.ContactManager.OwnContacts.FirstOrDefault(e =>
+                        e.InboxReference.targetPageName.Equals(kr.InboxReferenceToSelf.targetPageName));
+                    if (ownContact != null) ownContact.InboxReference.keyringPageName = 
+                        kr.accessFileReferenceToSelf.targetPageName;
+                    
+                    var contact = masterKeyring.ContactManager.Contacts.FirstOrDefault(e =>
+                        e.InboxReference.targetPageName.Equals(kr.InboxReferenceToSelf.targetPageName));
+                    if (contact != null) contact.InboxReference.keyringPageName =
+                    kr.accessFileReferenceToSelf.targetPageName;
+                    
+                    DownloadKeyringsRecursion(masterKeyring, kr);
                 }
                 else
                 {
-                    var kr = symmRef.targetAccessFile!.AccessFileReference!.KeyringTarget == null 
-                        ? DownloadKeyring(symmRef) : symmRef.targetAccessFile.AccessFileReference.KeyringTarget;
-
-                    if (kr != null)
-                    {
-                        var ownContact = masterKeyring.ContactManager.OwnContacts.FirstOrDefault(e =>
-                            e.InboxReference.targetPageName.Equals(kr.InboxReferenceToSelf.targetPageName));
-                        if (ownContact != null) ownContact.InboxReference.keyringPageName = 
-                            kr.accessFileReferenceToSelf.targetPageName;
-                        
-                        var contact = masterKeyring.ContactManager.Contacts.FirstOrDefault(e =>
-                            e.InboxReference.targetPageName.Equals(kr.InboxReferenceToSelf.targetPageName));
-                        if (contact != null) contact.InboxReference.keyringPageName =
-                        kr.accessFileReferenceToSelf.targetPageName;
-
-                        rootKeyring.AddKeyring(kr);
-                        DownloadKeyringsRecursion(masterKeyring, kr);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Download keyring failed");
-                    }
+                    Console.WriteLine("Download keyring failed");
                 }
             }
         }

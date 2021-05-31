@@ -52,9 +52,9 @@ namespace SecureWiki.Model
             return null;
         }
 
-        public void CopyFromOtherKeyringNonRecursively(MasterKeyring ke)
+        public void CopyFromOtherKeyring(MasterKeyring ke)
         {
-            base.CopyFromOtherKeyringNonRecursively(ke);
+            base.CopyFromOtherKeyring(ke);
             MountedDirMapping = ke.MountedDirMapping;
             ContactManager = ke.ContactManager;
         }

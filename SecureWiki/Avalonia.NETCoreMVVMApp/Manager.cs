@@ -115,7 +115,7 @@ namespace SecureWiki
                 newRootKR.name = "root from server";
                 // MasterKeyring.CopyFromOtherKeyring(newRootKR);
                 // MasterKeyring = newRootKR;
-                MasterKeyring.CopyFromOtherKeyringNonRecursively(newRootKR);
+                MasterKeyring.CopyFromOtherKeyring(newRootKR);
                 symRefToMasterKeyring.targetAccessFile.AccessFileReference.KeyringTarget = MasterKeyring;
                 UploadsInProgress++;
                 wh!.DownloadKeyringsRecursion(MasterKeyring, MasterKeyring);

@@ -153,21 +153,21 @@ namespace SecureWiki.Views
 
         public void Button1_Click(object sender, RoutedEventArgs e)
         {
-            // Console.WriteLine("nothing happened");
-            logger.Add("loka", "connetent");
-            // manager.TestDownload();
-            // manager.TestDownloadInboxes();
-            // manager.TestIfPageExists();
-            Console.WriteLine("_mountedDirMirror.PrintInfo();");
-            _mountedDirMirror.PrintInfo();
-            
-            Console.WriteLine("_masterKeyring.PrintInfoRecursively();");
-            _masterKeyring.PrintInfoRecursively();
+            // // Console.WriteLine("nothing happened");
+            // logger.Add("loka", "connetent");
+            // // manager.TestDownload();
+            // // manager.TestDownloadInboxes();
+            // // manager.TestIfPageExists();
+            // Console.WriteLine("_mountedDirMirror.PrintInfo();");
+            // _mountedDirMirror.PrintInfo();
+            //
+            // Console.WriteLine("_masterKeyring.PrintInfoRecursively();");
+            // _masterKeyring.PrintInfoRecursively();
         }
 
         private void Button2_Click(object? sender, RoutedEventArgs e)
         {
-            _masterKeyring.PrintInfoRecursively();
+            // _masterKeyring.PrintInfoRecursively();
         }
 
         private void ButtonExport_Click(object? sender, RoutedEventArgs e)
