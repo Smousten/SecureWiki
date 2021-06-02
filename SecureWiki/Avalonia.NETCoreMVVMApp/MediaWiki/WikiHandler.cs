@@ -487,36 +487,48 @@ namespace SecureWiki.MediaWiki
 
             try
             {
-                // Split downloaded page content into cipher text and signature
-                var splitPageContent = SplitPageContent(pageContent);
-                if (splitPageContent == null) return null;
-
-                // Verify data using public key, ciphertext and signature
-                if (!Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes,
-                    splitPageContent.Value.signBytes))
+                // Attempt to verify and decrypt page content
+                var decryptedBytes = VerifyAndDecrypt(pageContent, key);
+                if (decryptedBytes != null && decryptedBytes.Length > 0)
                 {
-                    _manager.WriteToLogger(
-                        $"Verifying signature of revision '{revid}'failed. " +
-                        $"Attempting to get latest valid revision older than requested revision.",
-                        accessFile.filename, LoggerEntry.LogPriority.Warning);
-                    var revisions = GetAllRevisions(accessFile.AccessFileReference.targetPageName).GetAllRevisionBefore(revid);
-                    return GetLatestValidRevision(accessFile, revisions);
+                    return decryptedBytes;
                 }
                 
-                var decryptedBytes = Crypto.Decrypt(splitPageContent.Value.cipherBytes, key.SymmKey);
-                if (decryptedBytes == null)
-                {
-                    var revisions = GetAllRevisions(accessFile.AccessFileReference.targetPageName).GetAllRevisionBefore(revid);
-                    return GetLatestValidRevision(accessFile, revisions);
-                }
+                // Otherwise get latest valid revision
+                _manager.WriteToLogger(
+                    $"Verifying signature of revision '{revid}'failed. " +
+                    $"Attempting to get latest valid revision older than requested revision.",
+                    accessFile.filename, LoggerEntry.LogPriority.Warning);
+                var revisions = GetAllRevisions(accessFile.AccessFileReference.targetPageName).GetAllRevisionBefore(revid);
+                return GetLatestValidRevision(accessFile, revisions);
 
-                return !(decryptedBytes.Length > 0) ? null : decryptedBytes;
             }
             catch (FormatException e)
             {
                 Console.WriteLine(e.Message);
                 return null;
             }
+        }
+
+        private byte[]? VerifyAndDecrypt(string pageContent, AccessFileKey key)
+        {
+            // Split downloaded page content into cipher text and signature
+            var splitPageContent = SplitPageContent(pageContent);
+            if (splitPageContent == null)
+            {
+                return null;
+            }
+
+            // Verify data using public key, ciphertext and signature
+            if (!Crypto.VerifyData(key.PublicKey, splitPageContent.Value.cipherBytes,
+                splitPageContent.Value.signBytes))
+            {
+                return null;
+            }
+    
+            // Attempt to decrypt
+            var decryptedBytes = Crypto.Decrypt(splitPageContent.Value.cipherBytes, key.SymmKey);
+            return decryptedBytes;
         }
 
         public byte[]? Download(SymmetricReference symmetricReference, string? revid = null)
