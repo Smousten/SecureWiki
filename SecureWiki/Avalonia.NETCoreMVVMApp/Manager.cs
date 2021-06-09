@@ -1904,7 +1904,7 @@ namespace SecureWiki
             var accessFilesToUpload = _keyringManager.
                 AddContactsToAccessFilesInBulk(accessFilesAndIsChecked, contacts);
             
-            var accessFilesPreparedForExport = _keyringManager.PrepareForExport(checkedItems);
+            var accessFilesPreparedForExport = _keyringManager.PrepareForExport(accessFilesAndIsChecked);
 
             foreach (var contact in contacts)
             {

@@ -450,31 +450,52 @@ namespace SecureWikiTests
                 var filePath = Path.Combine(mountdirPath, filename);
                 var contentString = "This is a string that should match";
 
+                // Create keyrings
                 var keyring1 = _manager._keyringManager.CreateNewKeyring("Keyring1", serverLink);
                 var keyring2 = _manager._keyringManager.CreateNewKeyring("Keyring2", serverLink);
 
-                _manager._keyringManager.CreateAccessFileAndReferences(_manager.GetFreshPageName(), _manager.GetFreshPageName(),
-                    serverLink, PageType.Keyring, out SymmetricReference symmetricReference,
-                    out AccessFile accessFile);
-                keyring1.AddSymmetricReference(symmetricReference);
-
-                var symmRefList = new List<(SymmetricReference, bool)>();
-                symmRefList.Add((symmetricReference, true));
-
-                var dict = _manager._keyringManager.PrepareForExport(symmRefList);
-
-                accessFile.inboxReferences.Add(keyring2.InboxReferenceToSelf.Copy(InboxReference.AccessLevel.ReadWrite));
-                var uploadList = JSONSerialization.SerializeObject(dict[accessFile]);
+                Assert.True(keyring1 != null);
+                Assert.True(keyring2 != null);
                 
-                var wh = _manager.GetWikiHandler(serverLink);
-                Assert.True(wh != null);
+                Assert.True(keyring2.InboxReferenceToSelf != null);
+                
+                // Create access files
+                _manager._keyringManager.CreateAccessFileAndReferences(_manager.GetFreshPageName(), _manager.GetFreshPageName(),
+                    serverLink, PageType.Keyring, out SymmetricReference symmRef1,
+                    out AccessFile af1);
+                
+                _manager._keyringManager.CreateAccessFileAndReferences(_manager.GetFreshPageName(), _manager.GetFreshPageName(),
+                    serverLink, PageType.Keyring, out SymmetricReference symmRef2,
+                    out AccessFile af2);
+                
+                
+                var contact2 = new Contact("contact2", keyring2.InboxReferenceToSelf);
+                var contacts = new List<Contact> {contact2};
 
-                var inboxRef = accessFile.inboxReferences.First();
-                Assert.True(inboxRef.privateKey == null || inboxRef.privateKey.Length < 1);
+                // Share af1 with write access, af2 with only read
+                var accessFilesAndIsChecked = new List<(AccessFile, bool)> {(af1, true), (af2, false)};
 
-                wh.UploadToInboxPage(inboxRef.targetPageName, uploadList, inboxRef.publicKey);
 
-                WaitForUploads();
+                var accessFilesToUpload = _manager._keyringManager.
+                    AddContactsToAccessFilesInBulk(accessFilesAndIsChecked, contacts);
+            
+                var accessFilesPreparedForExport = _manager._keyringManager.PrepareForExport(accessFilesAndIsChecked);
+
+                foreach (var contact in contacts)
+                {
+                    var wh = _manager.GetWikiHandler(contact.InboxReference.serverLink);
+                    if (wh == null)
+                    {
+                        Console.WriteLine("wh == null, serverLink: " + contact.InboxReference.serverLink);
+                        continue;
+                    }
+
+                    var afList = accessFilesToUpload[contact].Select(af => accessFilesPreparedForExport[af]).ToList();
+                    var afListString = JSONSerialization.SerializeObject(afList);
+
+                    wh.UploadToInboxPage(contact.InboxReference.targetPageName, afListString,
+                        contact.InboxReference.publicKey);
+                }
                 
                 
             }

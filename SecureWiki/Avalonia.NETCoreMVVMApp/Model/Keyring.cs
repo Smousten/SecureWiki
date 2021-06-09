@@ -83,6 +83,16 @@ namespace SecureWiki.Model
             SymmetricReferences.Add(symmetricReference);
             symmetricReference.keyringParent = this;
         }
+        
+        // Remove a symmetric reference if it exists and update it accordingly
+        public void AttemptRemoveSymmetricReference(SymmetricReference symmetricReference)
+        {
+            if (SymmetricReferences.Contains(symmetricReference))
+            {
+                symmetricReference.keyringParent = null;
+                SymmetricReferences.Remove(symmetricReference);
+            }
+        }
 
         public InboxReference GetInboxReference(InboxReference.AccessLevel accessLevel)
         {
