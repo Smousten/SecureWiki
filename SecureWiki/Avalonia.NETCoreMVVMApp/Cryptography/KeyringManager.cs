@@ -34,20 +34,21 @@ namespace SecureWiki.Cryptography
             accessFile.keyList.Add(newAccessFileKey);
         }
 
-        public Dictionary<AccessFile, AccessFile> PrepareForExport(List<(SymmetricReference, bool)> inputList)
+        public Dictionary<AccessFile, AccessFile> PrepareForExport(List<(AccessFile, bool)> inputList)
         {
             var dict = new Dictionary<AccessFile, AccessFile>();
             
-            foreach (var (symmRef, isCheckedWrite) in inputList)
+            foreach (var (accessFile, isCheckedWrite) in inputList)
             {
-                if (symmRef.targetAccessFile == null)
+                if (accessFile == null)
                 {
-                    Console.WriteLine("symmRef.targetAccessFile == null, symmRef.targetPageName = " + symmRef.targetPageName);
+                    Console.WriteLine("symmRef.targetAccessFile == null, symmRef.targetPageName = " 
+                                      + accessFile.SymmetricReferenceToSelf.targetPageName);
                     continue;
                 }
-                var afCopy = symmRef.targetAccessFile.Copy();
+                var afCopy = accessFile.Copy();
                 afCopy.PrepareForExport(isCheckedWrite);
-                dict.Add(symmRef.targetAccessFile, afCopy);
+                dict.Add(accessFile, afCopy);
             }
 
             return dict;

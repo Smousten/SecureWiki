@@ -25,7 +25,6 @@ namespace SecureWiki.FuseCommunication
         private readonly IPAddress _localAddr;
         private readonly Manager _manager;
         private NetworkStream? _stream;
-        private Dictionary<string, List<string>> _queue = new();
         private Operation lastOperation = Operation.None;
         private string previousFilename = "";
         private string previousFilepath = "";
