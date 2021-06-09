@@ -330,7 +330,7 @@ namespace SecureWiki.MediaWiki
                     var keyringString = Encoding.ASCII.GetString(decryptedBytes);
                     if (JSONSerialization.DeserializeObject(
                         keyringString, typeof(Keyring)) is not Keyring keyring
-                        || keyring.InboxReferenceToSelf == null) continue;
+                        || keyring.OwnContact.InboxReference == null) continue;
 
                     keyring.accessFileReferenceToSelf = accessFile.AccessFileReference;
                     accessFile.AccessFileReference.KeyringTarget = keyring;
@@ -773,7 +773,7 @@ namespace SecureWiki.MediaWiki
             var keyringString = Encoding.ASCII.GetString(keyringBytes);
             if (JSONSerialization.DeserializeObject(
                 keyringString, typeof(Keyring)) is not Keyring keyring
-                || keyring.InboxReferenceToSelf == null)
+                || keyring.OwnContact.InboxReference == null)
             {
                 Console.WriteLine("Parsed Keyring or its InboxReferenceToSelf is null, " +
                                   "symmetricReference.accessFileTargetPageName='{0}'", symmetricReference.accessFileTargetPageName);
@@ -783,7 +783,6 @@ namespace SecureWiki.MediaWiki
 
             keyring.accessFileReferenceToSelf = symmetricReference.targetAccessFile.AccessFileReference;
             symmetricReference.targetAccessFile.AccessFileReference.KeyringTarget = keyring;
-            keyring.InboxReferenceToSelf.keyringPageName = keyring.accessFileReferenceToSelf.targetPageName;
 
             if (!keyring.IsValid())
             {
@@ -851,16 +850,6 @@ namespace SecureWiki.MediaWiki
 
                 if (kr != null)
                 {
-                    var ownContact = masterKeyring.ContactManager.OwnContacts.FirstOrDefault(e =>
-                        e.InboxReference.targetPageName.Equals(kr.InboxReferenceToSelf.targetPageName));
-                    if (ownContact != null) ownContact.InboxReference.keyringPageName = 
-                        kr.accessFileReferenceToSelf.targetPageName;
-                    
-                    var contact = masterKeyring.ContactManager.Contacts.FirstOrDefault(e =>
-                        e.InboxReference.targetPageName.Equals(kr.InboxReferenceToSelf.targetPageName));
-                    if (contact != null) contact.InboxReference.keyringPageName =
-                    kr.accessFileReferenceToSelf.targetPageName;
-                    
                     DownloadKeyringsRecursion(masterKeyring, kr);
                 }
                 else
@@ -885,59 +874,7 @@ namespace SecureWiki.MediaWiki
 
             foreach (var contact in contactList)
             {
-                // Get list of the contents of new revisions
-                var encryptedContentList = GetInboxPageContent(contact);
-
-                // If no new content was found
-                if (encryptedContentList == null) continue;
-
-                var contentList = new List<string>();
-
-                // For each new revision
-                foreach (var entry in encryptedContentList)
-                {
-                    // Convert page content to byte array so it can be processed
-                    byte[] pageContentBytes;
-                    try
-                    {
-                        pageContentBytes = Convert.FromBase64String(entry);
-                    }
-                    catch (FormatException e)
-                    {
-                        Console.WriteLine(e);
-                        continue;
-                    }
-                    // Split page content into header and ciphertext 
-                    var encryptedSymmKey = pageContentBytes.Take(256).ToArray();
-                    var encryptedContentBytes = pageContentBytes.Skip(256).ToArray();
-
-                    // Get symmetric key
-                    if (contact.InboxReference.privateKey != null)
-                    {
-                        var decryptedSymmKey =
-                            Crypto.RSADecrypt(encryptedSymmKey, contact.InboxReference.privateKey);
-                        var symmKey = decryptedSymmKey;
-
-                        if (symmKey == null)
-                        {
-                            Console.WriteLine("symmKey is null");
-                            break;
-                        }
-
-                        // Decrypt ciphertext
-                        var decryptedContent = Crypto.Decrypt(encryptedContentBytes, symmKey);
-                        if (decryptedContent == null)
-                        {
-                            Console.WriteLine("decryptedContent is null");
-                            break;
-                        }
-
-                        // Convert plaintext to string
-                        var decryptedContentString = Encoding.ASCII.GetString(decryptedContent);
-
-                        contentList.Add(decryptedContentString);
-                    }
-                }
+                var contentList = DownloadFromInboxPage(contact);
 
 
                 if (contentList.Count > 0)
@@ -948,6 +885,66 @@ namespace SecureWiki.MediaWiki
 
             // Return outputList if it is not empty, null otherwise
             return outputDict.Count > 0 ? outputDict : null;
+        }
+
+        public List<string> DownloadFromInboxPage(OwnContact contact)
+        {
+            var contentList = new List<string>();
+            
+            // Get list of the contents of new revisions
+            var encryptedContentList = GetInboxPageContent(contact);
+
+            // If no new content was found
+            if (encryptedContentList == null) return contentList;
+
+            // For each new revision
+            foreach (var entry in encryptedContentList)
+            {
+                // Convert page content to byte array so it can be processed
+                byte[] pageContentBytes;
+                try
+                {
+                    pageContentBytes = Convert.FromBase64String(entry);
+                }
+                catch (FormatException e)
+                {
+                    Console.WriteLine(e);
+                    continue;
+                }
+
+                // Split page content into header and ciphertext 
+                var encryptedSymmKey = pageContentBytes.Take(256).ToArray();
+                var encryptedContentBytes = pageContentBytes.Skip(256).ToArray();
+
+                // Get symmetric key
+                if (contact.InboxReference.privateKey != null)
+                {
+                    var decryptedSymmKey =
+                        Crypto.RSADecrypt(encryptedSymmKey, contact.InboxReference.privateKey);
+                    var symmKey = decryptedSymmKey;
+
+                    if (symmKey == null)
+                    {
+                        Console.WriteLine("symmKey is null");
+                        break;
+                    }
+
+                    // Decrypt ciphertext
+                    var decryptedContent = Crypto.Decrypt(encryptedContentBytes, symmKey);
+                    if (decryptedContent == null)
+                    {
+                        Console.WriteLine("decryptedContent is null");
+                        break;
+                    }
+
+                    // Convert plaintext to string
+                    var decryptedContentString = Encoding.ASCII.GetString(decryptedContent);
+
+                    contentList.Add(decryptedContentString);
+                }
+            }
+
+            return contentList;
         }
 
         private List<string>? GetInboxPageContent(OwnContact contact)
@@ -1003,6 +1000,7 @@ namespace SecureWiki.MediaWiki
 
         public bool UploadToInboxPage(string pageName, string content, byte[] publicKey)
         {
+            // Console.WriteLine("Uploading content to mediawiki: " + content);
             // Generate symmetric key
             var symmKey = Crypto.GenerateSymmKey();
 

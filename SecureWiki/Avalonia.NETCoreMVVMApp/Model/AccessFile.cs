@@ -92,16 +92,22 @@ namespace SecureWiki.Model
                 var val = prop?.GetValue(this);
                 if (val == null)
                 {
+                    Console.WriteLine("checking prop: '{0}'", prop?.Name);
+                    Console.WriteLine("val == null");
                     return false;
                 }
 
                 if (val is string {Length: < 2})
                 {
+                    Console.WriteLine("checking prop: '{0}'", prop?.Name);
+                    Console.WriteLine("val is string {Length: < 2}");
                     return false;
                 }
                 
                 if (val is byte[] {Length: < 2})
                 {
+                    Console.WriteLine("checking prop: '{0}'", prop?.Name);
+                    Console.WriteLine("val is byte[] {Length: < 2}");
                     return false;
                 }
             }
@@ -110,6 +116,8 @@ namespace SecureWiki.Model
             {
                 if (field?.GetValue(this) == null)
                 {
+                    Console.WriteLine("checking prop: '{0}'", field?.Name);
+                    Console.WriteLine("field?.GetValue(this) == null");
                     return false;
                 }
             }

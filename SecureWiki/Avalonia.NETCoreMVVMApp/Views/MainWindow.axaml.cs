@@ -163,6 +163,8 @@ namespace SecureWiki.Views
             //
             // Console.WriteLine("_masterKeyring.PrintInfoRecursively();");
             // _masterKeyring.PrintInfoRecursively();
+            
+            manager.UpdateMountedDirectory();
         }
 
         private void Button2_Click(object? sender, RoutedEventArgs e)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
+using SecureWiki.Utilities;
 
 namespace SecureWiki.Model
 {
@@ -13,7 +14,9 @@ namespace SecureWiki.Model
         public string name { get; set; }
 
         [JsonProperty(Order = 99)] public List<SymmetricReference> SymmetricReferences = new();
-        [JsonProperty] public InboxReference InboxReferenceToSelf;
+        // [JsonProperty] public InboxReference InboxReferenceToSelf;
+        [JsonProperty] public OwnContact OwnContact;
+        
         public AccessFileReference accessFileReferenceToSelf;
         public bool HasBeenChanged = false;
 
@@ -49,7 +52,7 @@ namespace SecureWiki.Model
             // properties.Add(GetType().GetProperty(nameof(name)));
 
             // Fields to be checked
-            fields.Add(typeof(Keyring).GetField(nameof(InboxReferenceToSelf)));
+            fields.Add(typeof(Keyring).GetField(nameof(OwnContact)));
             fields.Add(typeof(Keyring).GetField(nameof(SymmetricReferences)));
             //
             // foreach (var val in properties.Select(prop => prop?.GetValue(this)))
@@ -74,7 +77,7 @@ namespace SecureWiki.Model
             }
 
             // Check if reference is also valid
-            return InboxReferenceToSelf.IsValid();
+            return OwnContact.InboxReference.IsValid();
         }
 
         // Add a symmetric reference and update it accordingly
@@ -93,16 +96,11 @@ namespace SecureWiki.Model
                 SymmetricReferences.Remove(symmetricReference);
             }
         }
-
-        public InboxReference GetInboxReference(InboxReference.AccessLevel accessLevel)
-        {
-            return InboxReferenceToSelf.Copy(accessLevel);
-        }
         
         public void CopyFromOtherKeyring(Keyring ke)
         {
             name = ke.name;
-            InboxReferenceToSelf = ke.InboxReferenceToSelf;
+            OwnContact = ke.OwnContact;
             accessFileReferenceToSelf = ke.accessFileReferenceToSelf;
             parent = ke.parent;
             SymmetricReferences = ke.SymmetricReferences;
@@ -201,5 +199,46 @@ namespace SecureWiki.Model
 
             return (accessFileList, keyringFileList);
         }
+
+        public bool AlreadyContainsAccessFileWithAtLeastAsMuchAccess(AccessFile af)
+        {
+            foreach (var symmRef in SymmetricReferences)
+            {
+                if (symmRef.accessFileTargetPageName.Equals(af.AccessFileReference.targetPageName))
+                {
+                    var keyList = symmRef.targetAccessFile.keyList;
+                    var latestKey = keyList.Last();
+                    var latestKeyAF = af.keyList.Last();
+
+                    if (latestKey.SymmKey.SequenceEqual(latestKeyAF.SymmKey))
+                    {
+                        if (latestKey.PrivateKey == null && latestKeyAF.PrivateKey != null)
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        var res = keyList.FirstOrDefault(e => e.SymmKey.SequenceEqual(latestKeyAF.SymmKey));
+
+                        // If key is new
+                        if (res == null)
+                        {
+                            return false;
+                        }
+
+                        if (res.PrivateKey == null && latestKeyAF.PrivateKey != null)
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
     }
 }

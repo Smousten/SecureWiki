@@ -24,7 +24,7 @@ namespace SecureWiki.Cryptography
         public void RevokeAccess(AccessFile accessFile, string latestRevisionID)
         {
             // If no revisions are known to exist for current latest key
-            if (accessFile.keyList.Last().RevisionStart.Equals("-1")) return;
+            // if (accessFile.keyList.Last().RevisionStart.Equals("-1")) return;
             
             // Set end revision for current latest key
             accessFile.keyList.Last().RevisionEnd = latestRevisionID;
@@ -121,9 +121,11 @@ namespace SecureWiki.Cryptography
             var keyring = new Keyring(accessFile.AccessFileReference, name);
             
             // Create inbox reference to inbox page
-            InboxReference inboxReference = new(pageNameInboxPage, serverLink, pageNameKeyring, InboxReference.AccessLevel.ReadWrite);
-            
-            keyring.InboxReferenceToSelf = inboxReference;
+            InboxReference inboxReference = new(pageNameInboxPage, serverLink, InboxReference.AccessLevel.ReadWrite);
+
+            var contact = new OwnContact("unnamed", inboxReference);
+
+            keyring.OwnContact = contact;
             
             return keyring;
         }
