@@ -41,13 +41,7 @@ namespace SecureWiki.Cryptography
             }
 
             // Verify properties relevant to new CacheEntry
-            if (revid == null || content == null)
-            {
-                Console.WriteLine("CacheManager:- AddEntry: input revision has null properties, " +
-                                  "revisionID='{0}', content='{1}'", revid, content);
-                return;
-            }
-            
+
             ce.AddEntry(revid, content);
         }
 

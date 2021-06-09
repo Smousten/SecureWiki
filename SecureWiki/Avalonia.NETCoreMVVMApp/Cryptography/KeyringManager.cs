@@ -12,8 +12,6 @@ namespace SecureWiki.Cryptography
     {
         private readonly MasterKeyring _masterKeyring;
         private readonly Manager _manager;
-        private DateTime _rootKeyringWriteTimestamp;
-        public Masterkey masterKey { get; set; }
 
         public KeyringManager(MasterKeyring rk, Manager manager)
         {
@@ -147,27 +145,7 @@ namespace SecureWiki.Cryptography
                 defaultKeyring = CreateNewKeyring("newEntries", _manager.configManager.DefaultServerLink);
                 _masterKeyring.AddSymmetricReference(defaultKeyring.accessFileReferenceToSelf.AccessFileParent.SymmetricReferenceToSelf);
             }
-            // else
-            // {
-            //     Console.WriteLine("defaultkeyring is not null");
-            //     if (defaultKeyring.accessFileReferenceToSelf == null)
-            //     {
-            //         Console.WriteLine("defaultKeyring.accessFileReferenceToSelf is null");
-            //         Console.WriteLine("defaultKeyring.name = " + defaultKeyring.name);
-            //     }
-            //     if (defaultKeyring.accessFileReferenceToSelf?.AccessFileParent == null)
-            //     {
-            //         Console.WriteLine("defaultKeyring.accessFileReferenceToSelf?.AccessFileParent is null");
-            //         Console.WriteLine("defaultKeyring.name = " + defaultKeyring.name);
-            //     }
-            //     accessFile = defaultKeyring.accessFileReferenceToSelf.AccessFileParent;
-            // }
-            //
-            // if (accessFile == null)
-            // {
-            //     Console.WriteLine("accessFile is null");
-            // }
-
+           
             defaultKeyring.AddSymmetricReference(symmetricReference);
             return defaultKeyring;
         }

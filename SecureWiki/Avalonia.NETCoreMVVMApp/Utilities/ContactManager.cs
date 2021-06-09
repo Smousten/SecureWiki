@@ -29,11 +29,6 @@ namespace SecureWiki.Utilities
         [JsonProperty] public InboxReference InboxReference { get; set; }
         [JsonProperty] public string Nickname { get; set; }
 
-        // Empty constructor used for deserialization
-        // public Contact()
-        // {
-        // }
-        
         [JsonConstructor]
         public Contact(string nickname, InboxReference inboxReference)
         {
