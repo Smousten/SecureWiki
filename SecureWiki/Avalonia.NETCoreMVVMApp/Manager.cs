@@ -38,7 +38,6 @@ namespace SecureWiki
         public CacheManager cacheManager;
 
         public ConfigManager configManager;
-        // public ContactManager contactManager;
 
         public MountedDirMirror mountedDirMirror;
         public Logger logger;
@@ -251,6 +250,22 @@ namespace SecureWiki
             }
             UploadsInProgress--;
         }
+        
+        // // Save root keyring to file if this has not happened recently
+        // public void AttemptSaveRootKeyring()
+        // {
+        //     var timestampNow = DateTime.Now;
+        //     var timestampThreshold = _rootKeyringWriteTimestamp.AddMinutes(5);
+        //
+        //     if (timestampNow > timestampThreshold)
+        //     {
+        //         SaveRootKeyring();
+        //     }
+        //     else
+        //     {
+        //         Console.WriteLine("Keyring has been saved recently");
+        //     }
+        // }
 
         public string GetConfigManagerFilePath()
         {
