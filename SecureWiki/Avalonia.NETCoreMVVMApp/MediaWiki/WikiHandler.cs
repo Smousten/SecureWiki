@@ -765,7 +765,6 @@ namespace SecureWiki.MediaWiki
             {
                 Console.WriteLine("Parsed Keyring or its InboxReferenceToSelf is null, " +
                                   "symmetricReference.accessFileTargetPageName='{0}'", symmetricReference.accessFileTargetPageName);
-                Console.WriteLine(keyringString);
                 var revisions = GetAllRevisions(symmetricReference.targetAccessFile.AccessFileReference.targetPageName).GetAllRevisionBefore(revid);
                 return GetLatestValidKeyring(symmetricReference.targetAccessFile, revisions);
             }
@@ -992,7 +991,6 @@ namespace SecureWiki.MediaWiki
 
         public bool UploadToInboxPage(string pageName, string content, byte[] publicKey)
         {
-            Console.WriteLine("Uploading content to mediawiki: " + content);
             // Generate symmetric key
             var symmKey = Crypto.GenerateSymmKey();
 
