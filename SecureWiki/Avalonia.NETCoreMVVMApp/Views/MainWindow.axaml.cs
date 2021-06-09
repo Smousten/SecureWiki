@@ -342,6 +342,10 @@ namespace SecureWiki.Views
 
             if (tag.Equals("ExportContactsPopup"))
             {
+                var listBoxOwn = this.FindControl<ListBox>("ListBoxExportContactsOwn");
+                listBoxOwn.UnselectAll();
+                var listBoxOther = this.FindControl<ListBox>("ListBoxExportContactsOther");
+                listBoxOther.UnselectAll();
                 Thread localThread = new(() =>
                     manager.GetAllContacts(_viewModel.ExportContactsOwn, _viewModel.ExportContactsOther));
                 localThread.Start();
@@ -363,14 +367,18 @@ namespace SecureWiki.Views
                 // localThread.Start();
             }
             
-            if (tag.Equals("AddToKeyringPopup"))
+            if (tag.Equals("MoveToKeyringPopup"))
             {
+                var listBox = this.FindControl<ListBox>("ListBoxMoveToKeyring");
+                listBox.UnselectAll();
                 Thread localThread = new(() =>
                     manager.GetKeyrings(_viewModel.keyrings));
                 localThread.Start();
             }
             if (tag.Equals("RenameContactPopup"))
             {
+                var listBox = this.FindControl<ListBox>("ListBoxRenameContact");
+                listBox.UnselectAll();
                 Thread localThread = new(() =>
                     manager.GetOwnContacts(_viewModel.ownContacts));
                 localThread.Start();
@@ -532,14 +540,14 @@ namespace SecureWiki.Views
             localThread.Start();
         }
 
-        private void ButtonAddToKeyring_Click(object? sender, RoutedEventArgs e)
+        private void ButtonMoveToKeyring_Click(object? sender, RoutedEventArgs e)
         {
-            // Thread localThread = new(() =>
-            //     manager.AddFilesToKeyring(_viewModel.selectedKeyrings.ToList()));
-            // localThread.Start();
-            //
-            // var popup = this.FindControl<Popup>("AddToKeyringPopup");
-            // popup.IsOpen = false;
+            Thread localThread = new(() =>
+                manager.MoveFilesToKeyrings(_viewModel.selectedKeyrings.ToList()));
+            localThread.Start();
+            
+            var popup = this.FindControl<Popup>("AddToKeyringPopup");
+            popup.IsOpen = false;
         }
         
         private void ButtonShareFiles_Click(object? sender, RoutedEventArgs e)

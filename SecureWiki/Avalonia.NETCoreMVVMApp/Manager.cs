@@ -120,21 +120,30 @@ namespace SecureWiki
                               Thread.CurrentThread.Name);
         }
 
-        public string GetSymRefMasterKeyringFilePath()
+        // Return absolute path to fuse root directory
+        private static string GetRootDir(string relativeFilepath)
         {
-            const string filename = "SymRefMasterKeyring.json";
+            var filepath = "fuse/directories/rootdir/" + relativeFilepath;
+            var currentDir = Directory.GetCurrentDirectory();
+            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
+            var srcDir = Path.Combine(projectDir, filepath);
+            return srcDir;
+        }
+        
+        public string GetFullFilePath(string filename)
+        {
             var currentDir = Directory.GetCurrentDirectory();
             var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../"));
             var path = Path.Combine(projectDir, filename);
 
             return path;
         }
-
+        
         public void InitializeSymRefMasterKeyring()
         {
             Console.WriteLine("InitializeSymRefMasterKeyring entered");
             UploadsInProgress++;
-            var path = GetSymRefMasterKeyringFilePath();
+            var path = GetFullFilePath("SymRefMasterKeyring.json");
 
             if (File.Exists(path))
             {
@@ -182,7 +191,7 @@ namespace SecureWiki
         public void SaveSymRefMasterKeyringToFile()
         {
             UploadsInProgress++;
-            var path = GetSymRefMasterKeyringFilePath();
+            var path = GetFullFilePath("SymRefMasterKeyring.json");
 
             JSONSerialization.SerializeAndWriteFile(path, symRefToMasterKeyring);
 
@@ -247,19 +256,9 @@ namespace SecureWiki
         }
 
         // ConfigManager functions
-        public string GetConfigManagerFilePath()
-        {
-            const string filename = "Config.json";
-            var currentDir = Directory.GetCurrentDirectory();
-            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../"));
-            var path = Path.Combine(projectDir, filename);
-
-            return path;
-        }
-
         public void InitializeConfigManager()
         {
-            var path = GetConfigManagerFilePath();
+            var path = GetFullFilePath("Config.json");
 
             if (File.Exists(path))
             {
@@ -273,7 +272,7 @@ namespace SecureWiki
 
         public void SaveConfigManagerToFile()
         {
-            var path = GetConfigManagerFilePath();
+            var path = GetFullFilePath("Config.json");
 
             JSONSerialization.SerializeAndWriteFile(path, configManager);
         }
@@ -350,25 +349,15 @@ namespace SecureWiki
             return output;
         }
 
-        private string GetCacheManagerFilePath()
-        {
-            var currentDir = Directory.GetCurrentDirectory();
-            var path = Path.GetFullPath(Path.Combine(currentDir, @"../../.."));
-            var cacheManagerFileName = "CacheManager.json";
-            var cacheManagerFilePath = Path.Combine(path, cacheManagerFileName);
-
-            return cacheManagerFilePath;
-        }
-
         public void SaveCacheManagerToFile()
         {
-            string path = GetCacheManagerFilePath();
+            string path = GetFullFilePath("CacheManager.json");
             SerializeCacheManagerAndWriteToFile(path);
         }
 
         public void InitializeCacheManager()
         {
-            string path = GetCacheManagerFilePath();
+            string path = GetFullFilePath("CacheManager.json");
 
             var existingCacheManager = ReadFromFileAndDeserializeToCacheManager(path) ?? new CacheManager();
             cacheManager = existingCacheManager;
@@ -1192,16 +1181,6 @@ namespace SecureWiki
             var output = RequestedRevision[(pageName, serverLink)];
 
             return output;
-        }
-
-        // Return absolute path to fuse root directory
-        private static string GetRootDir(string relativeFilepath)
-        {
-            var filepath = "fuse/directories/rootdir/" + relativeFilepath;
-            var currentDir = Directory.GetCurrentDirectory();
-            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../../.."));
-            var srcDir = Path.Combine(projectDir, filepath);
-            return srcDir;
         }
 
         private void PopulateMountedDirMirror(MasterKeyring rk)

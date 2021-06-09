@@ -20,10 +20,10 @@ namespace SecureWikiTests
         [SetUp]
         public void Setup()
         {
-            // var currentDir = Directory.GetCurrentDirectory();
-            // var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../TestData"));
-            // _dirpath = Path.Combine(projectDir, cachePath);
-            // _cacheManager = new CacheManager();
+            var currentDir = Directory.GetCurrentDirectory();
+            var projectDir = Path.GetFullPath(Path.Combine(currentDir, @"../../../TestData"));
+            _dirpath = Path.Combine(projectDir, cachePath);
+            _cacheManager = new CacheManager();
         }
         
         [TearDown]
@@ -32,21 +32,22 @@ namespace SecureWikiTests
         }
 
         [Test]
-        public void TestAddEntry()
+        public void TestAddEntryAndGetLatestRevision()
         {
-            // var pageTitle = RandomString.GenerateRandomAlphanumericString();
-            // Revision rev = new Revision() {content = "testContent", revisionID = "100"};
-            // _cacheManager.AddEntry(pageTitle, rev);
+            var pageTitle = RandomString.GenerateRandomAlphanumericString();
+            var revid = "100";
+            var content = "testContent";
+            _cacheManager.AddEntry(pageTitle, revid, content);
+            
+            Assert.AreEqual(_cacheManager.GetLatestRevisionID(pageTitle), "100");
+            
+            
         }
 
         [Test]
         public void TestCleanCacheDirectory()
         {
         }
-
-        [Test]
-        public void TestGetLatestRevisionID()
-        {
-        }
+        
     }
 }

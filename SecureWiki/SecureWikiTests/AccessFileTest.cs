@@ -176,21 +176,22 @@ namespace SecureWikiTests
             Assert.True(_accessFile.keyList.Count.Equals(3));
         }
 
-        // [Test]
-        // public void TestAddContactInfo()
-        // {
-        //     var pageTitle = RandomString.GenerateRandomAlphanumericString();
-        //     _accessFile.AddContactInfo(pageTitle, _accessFile.serverLink);
-        //     Assert.True(_accessFile.contactList.Count.Equals(1));
-        //     
-        //     _accessFile.AddContactInfo(pageTitle, _accessFile.serverLink);
-        //     Assert.True(_accessFile.contactList.Count.Equals(1));
-        //     
-        //     _accessFile.AddContactInfo(RandomString.GenerateRandomAlphanumericString(), _accessFile.serverLink);
-        //     Assert.True(_accessFile.contactList.Count.Equals(2));
-        //
-        //     _accessFile.AddContactInfo(pageTitle, "http://192.168.1.7/mediawiki/api.php");
-        //     Assert.True(_accessFile.contactList.Count.Equals(3));
-        // }
+        [Test]
+        public void TestCopy()
+        {
+            var copyAccessFile = _accessFile.Copy();
+            Assert.AreEqual(copyAccessFile.inboxReferences, _accessFile.inboxReferences);
+            Assert.AreEqual(copyAccessFile.keyList.Last().SymmKey, _accessFile.keyList.Last().SymmKey);
+            Assert.AreEqual(copyAccessFile.ownerPrivateKey, copyAccessFile.ownerPrivateKey);
+            Assert.AreEqual(copyAccessFile.ownerPublicKey, copyAccessFile.ownerPublicKey);
+
+            var (_, newPubKey) = Crypto.GenerateRSAParams();
+
+            copyAccessFile.ownerPublicKey = newPubKey;
+            
+            Assert.AreNotEqual(copyAccessFile.ownerPublicKey, _accessFile.ownerPublicKey);
+
+        }
+        
     }
 }

@@ -79,7 +79,7 @@
                             <TextBlock Name="RenameContactText" Background="White"
                                        Text="Rename contact for selected keyring."
                                        TextAlignment="Center" />
-                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding ownContacts, Mode=TwoWay}"
+                            <ListBox Name="ListBoxRenameContact" Grid.Row="1" Grid.Column="0" Items="{Binding ownContacts, Mode=TwoWay}"
                                      SelectionMode="Single" SelectedItem="{Binding selectedOwnContact}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="utilities:OwnContact">
@@ -113,7 +113,7 @@
                             <TextBlock Grid.Row="1" Grid.Column="0" Name="ExportContactsOwnText"
                                        Text="List of own contacts."
                                        TextAlignment="Left" />
-                            <ListBox Grid.Row="2" Grid.Column="0" Items="{Binding ExportContactsOwn, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedExportContactsOwn}">
+                            <ListBox Name="ListBoxExportContactsOwn" Grid.Row="2" Grid.Column="0" Items="{Binding ExportContactsOwn, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedExportContactsOwn}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="utilities:Contact">
                                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
@@ -128,7 +128,7 @@
                             <TextBlock Grid.Row="3" Grid.Column="0" Name="ExportContactsOtherText"
                                        Text="List of other contacts."
                                        TextAlignment="Left" />
-                            <ListBox Grid.Row="4" Grid.Column="0" Items="{Binding ExportContactsOther, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedExportContactsOther}">
+                            <ListBox Name="ListBoxExportContactsOther" Grid.Row="4" Grid.Column="0" Items="{Binding ExportContactsOther, Mode=TwoWay}" SelectionMode="Multiple, Toggle" SelectedItems="{Binding SelectedExportContactsOther}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="utilities:Contact">
                                         <Grid ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto">
@@ -184,16 +184,16 @@
             <Button Name="ButtonIp" Click="ButtonIP_Click">Change</Button>
             <Button Name="UpdateInboxes" Click="UpdateInboxes_Click">Force update keyring</Button>
             
-            <Button Name="ButtonAddToKeyring" Click="ShowButtonPopup_Click" Tag="AddToKeyringPopup">Add files to keyring</Button>
+            <Button Name="ButtonMoveToKeyring" Click="ShowButtonPopup_Click" Tag="MoveToKeyringPopup">Move files to keyring</Button>
             <!--Add files to keyring popup-->
-            <Popup Name="AddToKeyringPopup" PlacementTarget="ButtonAddToKeyring" IsLightDismissEnabled="True">
+            <Popup Name="AddToKeyringPopup" PlacementTarget="ButtonMoveToKeyring" IsLightDismissEnabled="True">
                 <Border BorderBrush="Black" BorderThickness="1,1,1,1">
                     <Grid>
                         <Grid ColumnDefinitions="Auto" RowDefinitions="Auto, Auto, Auto" Background="White">
                             <TextBlock Name="AddtoKeyringText" Background="White"
                                        Text="Add the selected files to keyrings from the list below."
                                        TextAlignment="Center" />
-                            <ListBox Grid.Row="1" Grid.Column="0" Items="{Binding keyrings, Mode=TwoWay}"
+                            <ListBox Name="ListBoxMoveToKeyring" Grid.Row="1" Grid.Column="0" Items="{Binding keyrings, Mode=TwoWay}"
                                      SelectionMode="Multiple, Toggle" SelectedItems="{Binding selectedKeyrings}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="models:Keyring">
@@ -204,8 +204,8 @@
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
-                            <Button Grid.Row="2" Grid.Column="0" Click="HideButtonPopup_Click" Tag="AddToKeyringPopup" Margin="30,80,10,10">Cancel</Button>
-                            <Button Grid.Row="2" Grid.Column="0" Click="ButtonAddToKeyring_Click" Tag="AddToKeyringPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button>
+                            <Button Grid.Row="2" Grid.Column="0" Click="HideButtonPopup_Click" Tag="MoveToKeyringPopup" Margin="30,80,10,10">Cancel</Button>
+                            <Button Grid.Row="2" Grid.Column="0" Click="ButtonMoveToKeyring_Click" Tag="MoveToKeyringPopup" Margin="300,80,30,10" Background="LightBlue">Confirm</Button>
                         </Grid>
                     </Grid>
                 </Border>
