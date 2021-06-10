@@ -185,8 +185,8 @@
             <Button Name="UpdateInboxes" Click="UpdateInboxes_Click">Force update keyring</Button>
             
             <Button Name="ButtonMoveToKeyring" Click="ShowButtonPopup_Click" Tag="MoveToKeyringPopup">Move files to keyring</Button>
-            <!--Add files to keyring popup-->
-            <Popup Name="AddToKeyringPopup" PlacementTarget="ButtonMoveToKeyring" IsLightDismissEnabled="True">
+            <!--Move files to keyring popup-->
+            <Popup Name="MoveToKeyringPopup" PlacementTarget="ButtonMoveToKeyring" IsLightDismissEnabled="True">
                 <Border BorderBrush="Black" BorderThickness="1,1,1,1">
                     <Grid>
                         <Grid ColumnDefinitions="Auto" RowDefinitions="Auto, Auto, Auto" Background="White">

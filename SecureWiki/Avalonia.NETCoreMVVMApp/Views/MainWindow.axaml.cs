@@ -163,6 +163,8 @@ namespace SecureWiki.Views
             //
             // Console.WriteLine("_masterKeyring.PrintInfoRecursively();");
             // _masterKeyring.PrintInfoRecursively();
+            
+            manager.UpdateMountedDirectory();
         }
 
         private void Button2_Click(object? sender, RoutedEventArgs e)
@@ -375,6 +377,7 @@ namespace SecureWiki.Views
                     manager.GetKeyrings(_viewModel.keyrings));
                 localThread.Start();
             }
+            
             if (tag.Equals("RenameContactPopup"))
             {
                 var listBox = this.FindControl<ListBox>("ListBoxRenameContact");
@@ -383,6 +386,7 @@ namespace SecureWiki.Views
                     manager.GetOwnContacts(_viewModel.ownContacts));
                 localThread.Start();
             }
+            
             if (tag.Equals("ShareFilesPopup"))
             {
                 var listBox = this.FindControl<ListBox>("ListBoxShareFiles");
@@ -546,7 +550,7 @@ namespace SecureWiki.Views
                 manager.MoveFilesToKeyrings(_viewModel.selectedKeyrings.ToList()));
             localThread.Start();
             
-            var popup = this.FindControl<Popup>("AddToKeyringPopup");
+            var popup = this.FindControl<Popup>("MoveToKeyringPopup");
             popup.IsOpen = false;
         }
         

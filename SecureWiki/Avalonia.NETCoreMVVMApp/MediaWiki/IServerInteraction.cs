@@ -52,6 +52,9 @@ namespace SecureWiki.MediaWiki
 
         // TODO
         public Dictionary<Contact, List<string>>? DownloadFromInboxPages();
+
+        // Download and return all new Inbox Page entries as a list of strings
+        public List<string> DownloadFromInboxPage(OwnContact contact);
         
         // TODO
         public bool UploadAccessFile(AccessFile accessFile);

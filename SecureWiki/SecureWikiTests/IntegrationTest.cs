@@ -457,19 +457,18 @@ namespace SecureWikiTests
                 Assert.True(keyring1 != null);
                 Assert.True(keyring2 != null);
                 
-                Assert.True(keyring2.InboxReferenceToSelf != null);
+                Assert.True(keyring2.OwnContact.InboxReference != null);
                 
                 // Create access files
-                _manager._keyringManager.CreateAccessFileAndReferences(_manager.GetFreshPageName(), _manager.GetFreshPageName(),
-                    serverLink, PageType.Keyring, out SymmetricReference symmRef1,
-                    out AccessFile af1);
+                _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, 
+                    out SymmetricReference symmRef1, out AccessFile af1);
                 
                 _manager._keyringManager.CreateAccessFileAndReferences(_manager.GetFreshPageName(), _manager.GetFreshPageName(),
                     serverLink, PageType.Keyring, out SymmetricReference symmRef2,
                     out AccessFile af2);
-                
-                
-                var contact2 = new Contact("contact2", keyring2.InboxReferenceToSelf);
+
+
+                var contact2 = keyring2.OwnContact; //new Contact("contact2", keyring2.OwnContact.InboxReference);
                 var contacts = new List<Contact> {contact2};
 
                 // Share af1 with write access, af2 with only read
@@ -481,6 +480,8 @@ namespace SecureWikiTests
             
                 var accessFilesPreparedForExport = _manager._keyringManager.PrepareForExport(accessFilesAndIsChecked);
 
+                var keyring2CntBefore = keyring2.SymmetricReferences.Count;
+                
                 foreach (var contact in contacts)
                 {
                     var wh = _manager.GetWikiHandler(contact.InboxReference.serverLink);
@@ -497,7 +498,145 @@ namespace SecureWikiTests
                         contact.InboxReference.publicKey);
                 }
                 
+                WaitForUploads();
                 
+                _manager.UpdateKeyringWithNewInboxPageEntries(keyring2);
+                
+                var keyring2CntAfter = keyring2.SymmetricReferences.Count;
+                
+                Assert.True(keyring2CntAfter > keyring2CntBefore);
+
+                var afInbox1 = keyring2.SymmetricReferences.FirstOrDefault(e =>
+                    e.targetAccessFile.AccessFileReference.targetPageName.Equals(af1.AccessFileReference
+                        .targetPageName)).targetAccessFile;
+                
+                var afInbox2 = keyring2.SymmetricReferences.FirstOrDefault(e =>
+                    e.targetAccessFile.AccessFileReference.targetPageName.Equals(af2.AccessFileReference
+                        .targetPageName)).targetAccessFile;
+
+                // Check that the added access files come from the server
+                Assert.True(afInbox1 != af1);
+                Assert.True(afInbox2 != af2);
+                
+                // Check that the original access files have their private key
+                Assert.True(af1.keyList.Last().PrivateKey != null);
+                Assert.True(af2.keyList.Last().PrivateKey != null);
+                
+                // Check that only the first of the "new" access files have a private key
+                Assert.True(afInbox1.keyList.Last().PrivateKey != null);
+                Assert.True(afInbox2.keyList.Last().PrivateKey == null);
+
+            }
+            
+            [Test, Order(4)]
+            public void ShareThenRevoke()
+            {
+                Console.WriteLine("Share() entered");
+                var serverLink = _manager.configManager.DefaultServerLink;
+                var mountdirPath = GetMountDirPath();
+                var filename = "CreateFileTest.txt";
+                var filePath = Path.Combine(mountdirPath, filename);
+                var contentString = "This is a string that should match";
+
+                // Create keyrings
+                var keyring1 = _manager._keyringManager.CreateNewKeyring("Keyring1", serverLink);
+                var keyring2 = _manager._keyringManager.CreateNewKeyring("Keyring2", serverLink);
+
+                Assert.True(keyring1 != null);
+                Assert.True(keyring2 != null);
+                
+                Assert.True(keyring2.OwnContact.InboxReference != null);
+                
+                // Create access files
+                _manager._keyringManager.CreateAccessFileAndReferences(_manager.GetFreshPageName(), _manager.GetFreshPageName(),
+                    serverLink, PageType.Keyring, out SymmetricReference symmRef1,
+                    out AccessFile af1);
+                
+                _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, 
+                    out SymmetricReference symmRef2, out AccessFile af2);
+                
+                
+                var contact1 = keyring1.OwnContact;
+                var contact2 = keyring2.OwnContact;
+                var contacts = new List<Contact> {contact1, contact2};
+
+                // Share af1 with write access, af2 with only read
+                var accessFilesAndIsChecked = new List<(AccessFile, bool)> {(af1, true), (af2, false)};
+
+
+                var accessFilesToUpload = _manager._keyringManager.
+                    AddContactsToAccessFilesInBulk(accessFilesAndIsChecked, contacts);
+            
+                var accessFilesPreparedForExport = _manager._keyringManager.PrepareForExport(accessFilesAndIsChecked);
+
+                var keyring1CntBefore = keyring1.SymmetricReferences.Count;
+                var keyring2CntBefore = keyring2.SymmetricReferences.Count;
+                
+                foreach (var contact in contacts)
+                {
+                    var wh = _manager.GetWikiHandler(contact.InboxReference.serverLink);
+                    if (wh == null)
+                    {
+                        Console.WriteLine("wh == null, serverLink: " + contact.InboxReference.serverLink);
+                        continue;
+                    }
+
+                    var afList = accessFilesToUpload[contact].Select(af => accessFilesPreparedForExport[af]).ToList();
+                    var afListString = JSONSerialization.SerializeObject(afList);
+
+                    wh.UploadToInboxPage(contact.InboxReference.targetPageName, afListString,
+                        contact.InboxReference.publicKey);
+                }
+                
+                WaitForUploads();
+                
+                _manager.UpdateKeyringWithNewInboxPageEntries(keyring1);
+                _manager.UpdateKeyringWithNewInboxPageEntries(keyring2);
+                
+                var keyring1CntAfter = keyring1.SymmetricReferences.Count;
+                var keyring2CntAfter = keyring2.SymmetricReferences.Count;
+                
+                Assert.True(keyring1CntAfter > keyring1CntBefore);
+                Assert.True(keyring2CntAfter > keyring2CntBefore);
+
+                var af1KeyCountBefore = af1.keyList.Count;
+                Console.WriteLine("revoking");
+                _manager.RevokeAccess(af1, new List<Contact> {contact1});
+                
+                WaitForUploads();
+                var af1KeyCountAfter = af1.keyList.Count;
+                Assert.True(af1KeyCountAfter > af1KeyCountBefore);
+
+                Console.WriteLine("passed revoke");
+                
+                _manager.UpdateKeyringWithNewInboxPageEntries(keyring1);
+                _manager.UpdateKeyringWithNewInboxPageEntries(keyring2);
+
+                var af1Inbox1 = keyring1.SymmetricReferences.FirstOrDefault(e =>
+                    e.targetAccessFile.AccessFileReference.targetPageName.Equals(af1.AccessFileReference
+                        .targetPageName)).targetAccessFile;
+                
+                var af1Inbox2 = keyring2.SymmetricReferences.FirstOrDefault(e =>
+                    e.targetAccessFile.AccessFileReference.targetPageName.Equals(af1.AccessFileReference
+                        .targetPageName)).targetAccessFile;
+
+                // Check that the added access files come from the server
+                Assert.True(af1Inbox1 != af1);
+                Assert.True(af1Inbox2 != af1);
+                Assert.True(af1Inbox2 != af1Inbox1);
+
+                Console.WriteLine("objects are not the same");
+
+                Console.WriteLine("af1.keylist.count: " + af1.keyList.Count);
+                Console.WriteLine("af1Inbox1.keylist.count: " + af1Inbox1.keyList.Count);
+                Console.WriteLine("af2Inbox1.keylist.count: " + af1Inbox2.keyList.Count);
+                
+                
+                // Check that only keyring1 has the newest key
+                Assert.True(af1Inbox1.keyList.Count == af1.keyList.Count);
+                Console.WriteLine("keyring1 has the new keys");
+                Assert.True(af1Inbox1.keyList.Count > af1Inbox2.keyList.Count);
+                Console.WriteLine("keyring2 does not have the new keys");
             }
         }
         

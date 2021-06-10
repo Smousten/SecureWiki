@@ -124,9 +124,10 @@ namespace SecureWiki.Model
 
         public void CreateFileStructureRecursion(string path)
         {
-            RootFolder.CreateFileStructureRecursion(path);
             var keyringPath = Path.Combine(path, KeyringFolder.name);
             Directory.CreateDirectory(keyringPath);
+            
+            RootFolder.CreateFileStructureRecursion(path, new List<string>{keyringPath});
             KeyringFolder.CreateFileStructureRecursion(keyringPath);
         }
 
@@ -350,17 +351,70 @@ namespace SecureWiki.Model
             CheckedWriteChanged += CheckedWriteChangedUpdateChildren;
         }
 
-        public void CreateFileStructureRecursion(string path)
+        public void CreateFileStructureRecursion(string path, List<string>? exceptions = null)
         {
+            var currentFiles = Directory.GetFiles(path).ToList();
+            var currentFolders = Directory.GetDirectories(path).ToList();
+            // Console.WriteLine("CreateFileStructureRecursion entered");
+            // Console.WriteLine();
+            // Console.WriteLine("printing files");
+            // foreach (var item in currentFiles)
+            // {
+            //     Console.WriteLine(item);
+            // }
+            //
+            // Console.WriteLine();
+            // Console.WriteLine("printing folders");
+            // foreach (var item in currentFolders)
+            // {
+            //     Console.WriteLine(item);
+            // }
+            
             foreach (var file in Files)
             {
-                File.Create(Path.Combine(path, file.name)).Dispose();
+                var currentFile = currentFiles.FirstOrDefault(x => x.Equals(file.name));
+                if (currentFile == null)
+                {
+                    File.Create(Path.Combine(path, file.name)).Dispose();
+                }
+                else
+                {
+                    currentFiles.Remove(currentFile);
+                }
+            }
+
+            // Delete files not in MDM or exception list
+            foreach (var file in currentFiles.Where(file => exceptions?.Exists(x => x.Equals(file)) != true))
+            {
+                File.Delete(Path.Combine(path, file));
             }
 
             foreach (var childFolder in Folders)
             {
-                Directory.CreateDirectory(Path.Combine(path, childFolder.name));
+                var currentFolder = currentFolders.FirstOrDefault(x => x.Equals(childFolder.name));
+                if (currentFolder == null)
+                {
+                    Directory.CreateDirectory(Path.Combine(path, childFolder.name));
+                }
+                else
+                {
+                    currentFolders.Remove(currentFolder);
+                }
                 childFolder.CreateFileStructureRecursion(Path.Combine(path, childFolder.name));
+            }
+            
+            // Delete folders not in MDM or exception list
+            foreach (var folder in currentFolders.Where(folder => exceptions?.Exists(x => x.Equals(folder)) != true))
+            {
+                try
+                {
+                    Directory.Delete(Path.Combine(path, folder), true);
+                }
+                catch (UnauthorizedAccessException e)
+                {
+                    Console.WriteLine("CreateFileStructureRecursion:- UnauthorizedAccessException " +
+                                      "when attempting to delete folder");
+                }
             }
         }
 
