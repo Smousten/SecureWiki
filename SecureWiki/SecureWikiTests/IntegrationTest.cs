@@ -120,6 +120,53 @@ namespace SecureWikiTests
             
                 Assert.True(readContent.Equals(contentString));
             }
+
+            [Test]
+            public void MoveFilesinMountedDirectory()
+            {
+                Console.WriteLine("MoveFilesinMountedDirectory entered");
+                var mountdirPath = GetMountDirPath();
+                
+                Thread.Sleep(10000);
+                // Create file in root
+                var cmd1 = $"touch {mountdirPath}/CreateFileTest.txt";
+                ExecuteShellCommand(cmd1);
+                Console.WriteLine($"ls {mountdirPath} :");
+                ExecuteShellCommand($"ls {mountdirPath}");
+                Console.WriteLine();
+                
+                // Create folder in root
+                var cmd2 = $"mkdir {mountdirPath}/Folder1";
+                ExecuteShellCommand(cmd2);
+
+                // Create folder in root
+                var cmd3 = $"mkdir {mountdirPath}/Folder2";
+                ExecuteShellCommand(cmd3);
+
+                // Populate Folder1 with files
+                var cmd4 = $"touch {mountdirPath}/Folder1/File1.txt";
+                ExecuteShellCommand(cmd4);
+                var cmd5 = $"touch {mountdirPath}/Folder1/File2.txt";
+                ExecuteShellCommand(cmd5);
+                var cmd6 = $"touch {mountdirPath}/Folder1/File3.txt";
+                ExecuteShellCommand(cmd6);
+                
+                // Move Folder1 and sub files into Folder2
+                var cmd7 = $"mv {mountdirPath}/Folder1 {mountdirPath}/Folder2";
+                ExecuteShellCommand(cmd7);
+                
+                WaitForUploads();
+                
+                // Assert that Folder1 is now inside Folder2 and that Folder1 still contains 3 files
+                var mdFolder2 = _manager.mountedDirMirror.GetMDFolder("Folder2");
+                Assert.True(mdFolder2 != null && mdFolder2.Folders.Count == 1);
+
+                var mdFolder1 = _manager.mountedDirMirror.GetMDFolder("Folder2/Folder1");
+                Assert.True(mdFolder1 != null && mdFolder1.Files.Count == 3);
+                
+                // Assert that the rootfolder contains folder1 and CreateFileTest
+                Assert.True(_manager.mountedDirMirror.RootFolder.combinedList.Count == 2);
+            }
         }
 
         public class MediaWikiTest : IntegrationTest
@@ -463,11 +510,9 @@ namespace SecureWikiTests
                 _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, 
                     out SymmetricReference symmRef1, out AccessFile af1);
                 
-                _manager._keyringManager.CreateAccessFileAndReferences(_manager.GetFreshPageName(), _manager.GetFreshPageName(),
-                    serverLink, PageType.Keyring, out SymmetricReference symmRef2,
-                    out AccessFile af2);
-
-
+                _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, 
+                    out SymmetricReference symmRef2, out AccessFile af2);
+                
                 var contact2 = keyring2.OwnContact; //new Contact("contact2", keyring2.OwnContact.InboxReference);
                 var contacts = new List<Contact> {contact2};
 
@@ -548,9 +593,8 @@ namespace SecureWikiTests
                 Assert.True(keyring2.OwnContact.InboxReference != null);
                 
                 // Create access files
-                _manager._keyringManager.CreateAccessFileAndReferences(_manager.GetFreshPageName(), _manager.GetFreshPageName(),
-                    serverLink, PageType.Keyring, out SymmetricReference symmRef1,
-                    out AccessFile af1);
+                _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, 
+                    out SymmetricReference symmRef1, out AccessFile af1);
                 
                 _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, 
                     out SymmetricReference symmRef2, out AccessFile af2);

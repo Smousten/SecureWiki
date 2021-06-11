@@ -58,13 +58,17 @@ namespace SecureWikiTests
             var newKeyring1 = new Keyring(accessFile1.AccessFileReference, "keyring1");
             var newKeyring2 = new Keyring(accessFile2.AccessFileReference, "keyring2");
             
-            InboxReference inboxReference1 = new InboxReference(pageNameInboxPage1, ServerLink, pageNameKeyring1,
+            var inboxReference1 = new InboxReference(pageNameInboxPage1, ServerLink,
                 InboxReference.AccessLevel.ReadWrite);
-            newKeyring1.InboxReferenceToSelf = inboxReference1;
+
+            var ownContact1 = new OwnContact("keyring1", inboxReference1);
+            newKeyring1.OwnContact = ownContact1;
             
-            InboxReference inboxReference2 = new InboxReference(pageNameInboxPage2, ServerLink, pageNameKeyring2,
+            var inboxReference2 = new InboxReference(pageNameInboxPage2, ServerLink,
                 InboxReference.AccessLevel.ReadWrite);
-            newKeyring2.InboxReferenceToSelf = inboxReference2;
+            
+            var ownContact2 = new OwnContact("keyring2", inboxReference2);
+            newKeyring2.OwnContact = ownContact2;
             
             Assert.True(newKeyring1 != null);
             Assert.True(newKeyring2 != null);
