@@ -15,7 +15,7 @@ namespace SecureWiki.Model
 
         [JsonProperty(Order = 99)] public List<SymmetricReference> SymmetricReferences = new();
         // [JsonProperty] public InboxReference InboxReferenceToSelf;
-        [JsonProperty] public OwnContact OwnContact;
+        [JsonProperty] public OwnContact? OwnContact;
         
         public AccessFileReference accessFileReferenceToSelf;
         public bool HasBeenChanged = false;

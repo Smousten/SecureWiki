@@ -463,8 +463,7 @@ namespace SecureWikiTests
                 _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, 
                     out SymmetricReference symmRef1, out AccessFile af1);
                 
-                _manager._keyringManager.CreateAccessFileAndReferences(_manager.GetFreshPageName(), _manager.GetFreshPageName(),
-                    serverLink, PageType.Keyring, out SymmetricReference symmRef2,
+                _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, out SymmetricReference symmRef2,
                     out AccessFile af2);
 
 
@@ -548,8 +547,7 @@ namespace SecureWikiTests
                 Assert.True(keyring2.OwnContact.InboxReference != null);
                 
                 // Create access files
-                _manager._keyringManager.CreateAccessFileAndReferences(_manager.GetFreshPageName(), _manager.GetFreshPageName(),
-                    serverLink, PageType.Keyring, out SymmetricReference symmRef1,
+                _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, out SymmetricReference symmRef1,
                     out AccessFile af1);
                 
                 _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, 
