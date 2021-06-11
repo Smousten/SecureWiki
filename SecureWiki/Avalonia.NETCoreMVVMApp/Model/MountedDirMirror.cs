@@ -21,8 +21,8 @@ namespace SecureWiki.Model
 
         public MountedDirMirror()
         {
-            RootFolder = new MDFolder("root", null);
-            KeyringFolder = new MDFolderKeyring("Keyrings", null);
+            RootFolder = new MDFolder("root","", null);
+            KeyringFolder = new MDFolderKeyring("Keyrings","", null);
         }
 
         public MDFile? GetMDFile(string path)
@@ -202,6 +202,17 @@ namespace SecureWiki.Model
             }
         }
         
+        protected string _path;
+        public string path
+        {
+            get => _path;
+            set
+            {
+                _path = value;
+                RaisePropertyChanged(nameof(path));
+            }
+        }
+        
         protected bool? _isChecked = false;
         public bool? isChecked
         {
@@ -253,9 +264,10 @@ namespace SecureWiki.Model
         }
 
 
-        public MDItem(string name)
+        public MDItem(string name, string path)
         {
             this.name = name;
+            this.path = path;
         }
 
         protected MDItem()
@@ -335,7 +347,7 @@ namespace SecureWiki.Model
             }   
         }
         
-        public MDFolder(string name, MDFolder? parent) : base(name)
+        public MDFolder(string name, string path, MDFolder? parent) : base(name, path)
         {
             Parent = parent;
             
@@ -355,26 +367,27 @@ namespace SecureWiki.Model
         {
             var currentFiles = Directory.GetFiles(path).ToList();
             var currentFolders = Directory.GetDirectories(path).ToList();
-            // Console.WriteLine("CreateFileStructureRecursion entered");
-            // Console.WriteLine();
-            // Console.WriteLine("printing files");
-            // foreach (var item in currentFiles)
-            // {
-            //     Console.WriteLine(item);
-            // }
-            //
-            // Console.WriteLine();
-            // Console.WriteLine("printing folders");
-            // foreach (var item in currentFolders)
-            // {
-            //     Console.WriteLine(item);
-            // }
+            Console.WriteLine("CreateFileStructureRecursion entered");
+            Console.WriteLine();
+            Console.WriteLine("printing files");
+            foreach (var item in currentFiles)
+            {
+                Console.WriteLine(item);
+            }
+            
+            Console.WriteLine();
+            Console.WriteLine("printing folders");
+            foreach (var item in currentFolders)
+            {
+                Console.WriteLine(item);
+            }
             
             foreach (var file in Files)
             {
-                var currentFile = currentFiles.FirstOrDefault(x => x.Equals(file.name));
+                var currentFile = currentFiles.FirstOrDefault(x => x.Equals(Path.Combine(path, file.name)));
                 if (currentFile == null)
                 {
+                    Console.WriteLine("Creating: " + Path.Combine(path, file.name));
                     File.Create(Path.Combine(path, file.name)).Dispose();
                 }
                 else
@@ -386,14 +399,16 @@ namespace SecureWiki.Model
             // Delete files not in MDM or exception list
             foreach (var file in currentFiles.Where(file => exceptions?.Exists(x => x.Equals(file)) != true))
             {
+                Console.WriteLine("Deleting: " + Path.Combine(path, file));
                 File.Delete(Path.Combine(path, file));
             }
 
             foreach (var childFolder in Folders)
             {
-                var currentFolder = currentFolders.FirstOrDefault(x => x.Equals(childFolder.name));
+                var currentFolder = currentFolders.FirstOrDefault(x => x.Equals(Path.Combine(path, childFolder.name)));
                 if (currentFolder == null)
                 {
+                    Console.WriteLine("Creating: " + Path.Combine(path, childFolder.name));
                     Directory.CreateDirectory(Path.Combine(path, childFolder.name));
                 }
                 else
@@ -408,6 +423,7 @@ namespace SecureWiki.Model
             {
                 try
                 {
+                    Console.WriteLine("Deleting: " + Path.Combine(path, folder));
                     Directory.Delete(Path.Combine(path, folder), true);
                 }
                 catch (UnauthorizedAccessException e)
@@ -559,12 +575,15 @@ namespace SecureWiki.Model
                 Console.WriteLine("CreateFileRecursively:- Illegal path, returning null in name=" + name);
                 return null;
             }
+            
+            var pathString = string.Join("/", path.Take(cnt).ToArray());
+            
             if (path.Length - cnt <= 1)
             {
                 var index = Files.BinarySearch(new MDFile {name = path[cnt]}, new MDFileComparer());
                 if (index < 0)
                 {
-                    var newMDFile = NewMDFile(path[cnt], reference);
+                    var newMDFile = NewMDFile(path[cnt], pathString, reference);
                     AddFile(newMDFile);
                     return newMDFile;
                 }
@@ -574,7 +593,7 @@ namespace SecureWiki.Model
                 var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
                 if (index < 0)
                 {
-                    var newFolder = NewFolder(path[cnt]);
+                    var newFolder = NewFolder(path[cnt], pathString);
                     AddFolder(newFolder);
                     cnt++;
                     return newFolder.CreateFileRecursively(path, cnt, reference);
@@ -587,9 +606,11 @@ namespace SecureWiki.Model
             return null;
         }
 
-        protected virtual MDFile NewMDFile(string path, SymmetricReference reference)
+        protected virtual MDFile NewMDFile(string filename, string pathString, SymmetricReference reference)
         {
-            return new MDFile(path, MDFile.Type.GenericFile, this, reference);
+            var mdFile = new MDFile(filename, pathString, MDFile.Type.GenericFile, this, reference);
+            reference.MDFile = mdFile;
+            return mdFile;
         }
 
         public void AddFileRecursively(string[] path, int cnt, MDFile mdFile)
@@ -608,7 +629,8 @@ namespace SecureWiki.Model
                 var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
                 if (index < 0)
                 {
-                    var newFolder = NewFolder(path[cnt]);
+                    var pathString = string.Join("/", path.Take(cnt).ToArray());
+                    var newFolder = NewFolder(path[cnt], pathString);
                     AddFolder(newFolder);
                     cnt++;
                     newFolder.AddFileRecursively(path, cnt, mdFile);
@@ -623,10 +645,10 @@ namespace SecureWiki.Model
             return;
         }
 
-        protected virtual MDFolder NewFolder(string folderName)
+        protected virtual MDFolder NewFolder(string folderName, string path)
         {
             Console.WriteLine("protected virtual MDFolder NewFolder(string folderName) entered in " + name);
-            var newFolder = new MDFolder(folderName, this);
+            var newFolder = new MDFolder(folderName, path, this);
             return newFolder;
         }
 
@@ -656,7 +678,8 @@ namespace SecureWiki.Model
                 var index = Folders.BinarySearch(new MDFolder() {name = path[cnt]}, new MDFolderComparer());
                 if (index < 0)
                 {
-                    var newFolder = NewFolder(path[cnt]);
+                    var pathString = string.Join("/", path.Take(cnt).ToArray());
+                    var newFolder = NewFolder(path[cnt], pathString);
                     AddFolder(newFolder);
                     return newFolder;
                 }
@@ -666,7 +689,8 @@ namespace SecureWiki.Model
                 var index = Folders.BinarySearch(new MDFolder {name = path[cnt]}, new MDFolderComparer());
                 if (index < 0)
                 {
-                    var newFolder = NewFolder(path[cnt]);
+                    var pathString = string.Join("/", path.Take(cnt).ToArray());
+                    var newFolder = NewFolder(path[cnt], pathString);
                     AddFolder(newFolder);
                     cnt++;
                     newFolder.AddFolderRecursively(path, cnt);
@@ -881,18 +905,20 @@ namespace SecureWiki.Model
 
     public class MDFolderKeyring : MDFolder
     {
-        public MDFolderKeyring(string name, MDFolder? parent) : base(name, parent)
+        public MDFolderKeyring(string name, string path, MDFolder? parent) : base(name, path, parent)
         {
         }
         
-        protected override MDFolder NewFolder(string folderName)
+        protected override MDFolder NewFolder(string folderName, string path)
         {
-            var newFolder = new MDFolderKeyring(folderName, this);
+            var newFolder = new MDFolderKeyring(folderName, path, this);
             return newFolder;
         }
-        protected override MDFile NewMDFile(string path, SymmetricReference reference)
+        protected override MDFile NewMDFile(string filename, string pathString, SymmetricReference reference)
         {
-            return new MDFile(path, MDFile.Type.AccessFile, this, reference);
+            var mdFile = new MDFile(filename, pathString, MDFile.Type.AccessFile, this, reference);
+            reference.MDFile = mdFile;
+            return mdFile;
         }
         
         // Update children isChecked based own value
@@ -1037,7 +1063,7 @@ namespace SecureWiki.Model
         // public AccessFileReference accessFileReference;
         public SymmetricReference symmetricReference { get; set; }
 
-        public MDFile(string filename, Type targetType, MDFolder parent, SymmetricReference reference) : base(filename)
+        public MDFile(string filename, string path, Type targetType, MDFolder parent, SymmetricReference reference) : base(filename, path)
         {
             Parent = parent;
             symmetricReference = reference;

@@ -119,6 +119,9 @@ namespace SecureWiki
 
         public void UpdateMountedDirectory()
         {
+            Console.WriteLine(".printinfo");
+            mountedDirMirror.PrintInfo();
+            Console.WriteLine("CreateFileStructureRecursion");
             mountedDirMirror.CreateFileStructureRecursion(GetRootDir(""));
         }
 
@@ -481,6 +484,7 @@ namespace SecureWiki
 
                 UpdateFromInboxRecursively(symmRef.targetAccessFile.AccessFileReference.KeyringTarget);
             }
+            UpdateMountedDirectory();
         }
         
 
@@ -580,7 +584,14 @@ namespace SecureWiki
 
                             MasterKeyring.SetMountedDirMapping(af.AccessFileReference.targetPageName, filepath);
 
-                            // TODO: add access file to MDMirror
+                            var symmRefKR = kr.accessFileReferenceToSelf.AccessFileParent?.SymmetricReferenceToSelf;
+                            var krFolder = symmRefKR?.MDFile?.Parent;
+
+                            if (krFolder != null)
+                            {
+                                var mdFileAF = mountedDirMirror.CreateFile(Path.Combine(krFolder.path, krFolder.name, 
+                                    symmRefKR!.accessFileTargetPageName), symmetricReference);
+                            }
                         }
                     }
                 }
@@ -1142,7 +1153,7 @@ namespace SecureWiki
             }
         }
         
-          public void MoveFilesToKeyrings(List<Keyring> keyrings)
+        public void MoveFilesToKeyrings(List<Keyring> keyrings)
         {
             UploadsInProgress++;
             var symmetricReferences =
@@ -1190,6 +1201,9 @@ namespace SecureWiki
 
             AttemptSaveToServer();
             UploadsInProgress--;
+            
+            PopulateMountedDirMirror(MasterKeyring);
+            UpdateMountedDirectory();
         }
 
           // Reset queue in TCPListener (set false that last operation was read/write)
