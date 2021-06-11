@@ -37,6 +37,7 @@ namespace SecureWiki.Model
         
         public AccessFile? targetAccessFile { get; set; }
         public Keyring? keyringParent;
+        public MDFile? MDFile;
 
         public SymmetricReference(string targetPageName, string serverLink, PageType type, 
             string accessFileTargetPageName, AccessFile targetAccessFile) : base(targetPageName, serverLink)

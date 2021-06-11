@@ -510,9 +510,10 @@ namespace SecureWikiTests
                 _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, 
                     out SymmetricReference symmRef1, out AccessFile af1);
                 
-                _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, 
-                    out SymmetricReference symmRef2, out AccessFile af2);
-                
+                _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, out SymmetricReference symmRef2,
+                    out AccessFile af2);
+
+
                 var contact2 = keyring2.OwnContact; //new Contact("contact2", keyring2.OwnContact.InboxReference);
                 var contacts = new List<Contact> {contact2};
 
@@ -593,8 +594,8 @@ namespace SecureWikiTests
                 Assert.True(keyring2.OwnContact.InboxReference != null);
                 
                 // Create access files
-                _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, 
-                    out SymmetricReference symmRef1, out AccessFile af1);
+                _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, out SymmetricReference symmRef1,
+                    out AccessFile af1);
                 
                 _manager._keyringManager.CreateAccessFileAndReferences(serverLink, PageType.Keyring, 
                     out SymmetricReference symmRef2, out AccessFile af2);
