@@ -581,7 +581,6 @@ namespace SecureWiki
                                 WriteToLogger("File could not be added to MDMirror, upload failed");
                                 continue;
                             }
-
                             MasterKeyring.SetMountedDirMapping(af.AccessFileReference.targetPageName, filepath);
 
                             var symmRefKR = kr.accessFileReferenceToSelf.AccessFileParent?.SymmetricReferenceToSelf;
