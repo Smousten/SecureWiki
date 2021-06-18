@@ -60,17 +60,17 @@
             <TextBlock Name="MessageLabel"></TextBlock>        
             -->
 
-            <TextBox Name="TextBox1" IsReadOnly="True" Width="{Binding  Width,ElementName=ButtonControlSp}"
-                     TextWrapping="Wrap">
-                The user may not modify the contents of this TextBox.
-            </TextBox>
+            <!-- <TextBox Name="TextBox1" IsReadOnly="True" Width="{Binding  Width,ElementName=ButtonControlSp}" -->
+            <!--          TextWrapping="Wrap"> -->
+            <!--     The user may not modify the contents of this TextBox. -->
+            <!-- </TextBox> -->
+            <!-- -->
+            <!-- <Button Name="Button1" Click="Button1_Click">Button1</Button> -->
+            <!-- <Button Name="Button2" Click="Button2_Click">Print keyring info</Button> -->
+            <!-- <Button Name="Button3" Click="ButtonExport_Click">Export keyring</Button> -->
+            <!-- <Button Name="Button4" Click="ButtonImport_Click">Import keyring</Button> -->
 
-            <Button Name="Button1" Click="Button1_Click">Button1</Button>
-            <Button Name="Button2" Click="Button2_Click">Print keyring info</Button>
-            <Button Name="Button3" Click="ButtonExport_Click">Export keyring</Button>
-            <Button Name="Button4" Click="ButtonImport_Click">Import keyring</Button>
-
-            <Button Name="ButtonRenameContact" Click="ShowButtonPopup_Click" Tag="RenameContactPopup">Name keyring contact</Button>
+            <Button Name="ButtonRenameContact" Click="ShowButtonPopup_Click" Tag="RenameContactPopup" Width="{Binding  Width,ElementName=ButtonControlSp}">Name keyring contact</Button>
             <!--Rename contact popup-->
             <Popup Name="RenameContactPopup" PlacementTarget="ButtonRenameContact" IsLightDismissEnabled="True">
                 <Border BorderBrush="Black" BorderThickness="1,1,1,1">
@@ -101,7 +101,7 @@
                 </Border>
             </Popup>
             
-            <Button Name="ButtonExportContact" Click="ShowButtonPopup_Click" Tag="ExportContactsPopup">Export contacts</Button>
+            <Button Name="ButtonExportContact" Click="ShowButtonPopup_Click" Tag="ExportContactsPopup" Width="{Binding  Width,ElementName=ButtonControlSp}">Export contacts</Button>
             <!--Export contacts popup-->
             <Popup Name="ExportContactsPopup" PlacementTarget="ButtonExportContact" IsLightDismissEnabled="True">
                 <Border BorderBrush="Black" BorderThickness="1,1,1,1">
@@ -147,9 +147,9 @@
                 </Border>
             </Popup>
             
-            <Button Name="ButtonImportContact" Click="ButtonImportContact_Click">Import contacts</Button>
+            <Button Name="ButtonImportContact" Click="ButtonImportContact_Click" Width="{Binding  Width,ElementName=ButtonControlSp}">Import contacts</Button>
             
-            <Button Name="ButtonShareFiles" Click="ShowButtonPopup_Click" Tag="ShareFilesPopup">Share files with contact</Button>
+            <Button Name="ButtonShareFiles" Click="ShowButtonPopup_Click" Tag="ShareFilesPopup" Width="{Binding  Width,ElementName=ButtonControlSp}">Share files with contact</Button>
             <!--Share files popup-->
             <Popup Name="ShareFilesPopup" PlacementTarget="ButtonShareFiles" IsLightDismissEnabled="True">
                 <Border BorderBrush="Black" BorderThickness="1,1,1,1">
@@ -178,13 +178,13 @@
                 </Border>
             </Popup>
             
-            <TextBlock>Enter IP address of MediaWiki server</TextBlock>
-            <TextBox Name="TextBoxIp" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap"
-                     Text="{Binding IP}" />
-            <Button Name="ButtonIp" Click="ButtonIP_Click">Change</Button>
-            <Button Name="UpdateInboxes" Click="UpdateInboxes_Click">Force update keyring</Button>
+            <!-- <TextBlock>Enter IP address of MediaWiki server</TextBlock> -->
+            <!-- <TextBox Name="TextBoxIp" Width="{Binding  Width,ElementName=ButtonControlSp}" TextWrapping="Wrap" -->
+            <!--          Text="{Binding IP}" /> -->
+            <!-- <Button Name="ButtonIp" Click="ButtonIP_Click">Change server</Button> -->
+            <Button Name="UpdateInboxes" Click="UpdateInboxes_Click" Width="{Binding  Width,ElementName=ButtonControlSp}">Force update keyring</Button>
             
-            <Button Name="ButtonMoveToKeyring" Click="ShowButtonPopup_Click" Tag="MoveToKeyringPopup">Move files to keyring</Button>
+            <Button Name="ButtonMoveToKeyring" Click="ShowButtonPopup_Click" Tag="MoveToKeyringPopup" Width="{Binding  Width,ElementName=ButtonControlSp}">Move files to keyring</Button>
             <!--Move files to keyring popup-->
             <Popup Name="MoveToKeyringPopup" PlacementTarget="ButtonMoveToKeyring" IsLightDismissEnabled="True">
                 <Border BorderBrush="Black" BorderThickness="1,1,1,1">

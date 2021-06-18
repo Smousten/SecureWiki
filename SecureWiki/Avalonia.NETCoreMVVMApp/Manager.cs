@@ -482,7 +482,8 @@ namespace SecureWiki
             {
                 if (symmRef.type == PageType.GenericFile) continue;
 
-                UpdateFromInboxRecursively(symmRef.targetAccessFile.AccessFileReference.KeyringTarget);
+                if (symmRef.targetAccessFile?.AccessFileReference.KeyringTarget != null)
+                    UpdateFromInboxRecursively(symmRef.targetAccessFile.AccessFileReference.KeyringTarget);
             }
             UpdateMountedDirectory();
         }
@@ -509,92 +510,95 @@ namespace SecureWiki
         public void UpdateKeyringWithNewInboxPageEntries(Keyring kr)
         {
             UploadsInProgress++;
-            var wh = GetWikiHandler(kr.OwnContact.InboxReference.serverLink);
-
-            if (wh == null)
+            if (kr.OwnContact != null)
             {
-                Console.WriteLine("UpdateKeyringWithNewInboxPageEntries:- wh null");
-                return;
-            }
+                var wh = GetWikiHandler(kr.OwnContact.InboxReference.serverLink);
 
-            var res = wh.DownloadFromInboxPage(kr.OwnContact);
-
-            var rootDirPath = GetRootDir("");
-            var defaultPath = "Unmapped_files/Unmapped_file_from_inbox_";
-            var unmappedCnt = 0;
-
-            foreach (var inboxPageEntry in res)
-            {
-                if (string.IsNullOrEmpty(inboxPageEntry)) continue;
-
-                if (JSONSerialization.DeserializeObject(inboxPageEntry, typeof(List<AccessFile>)) is List<AccessFile>
-                    afList)
+                if (wh == null)
                 {
-                    foreach (var af in afList)
+                    Console.WriteLine("UpdateKeyringWithNewInboxPageEntries:- wh null");
+                    return;
+                }
+
+                var res = wh.DownloadFromInboxPage(kr.OwnContact);
+
+                var rootDirPath = GetRootDir("");
+                var defaultPath = "Unmapped_files/Unmapped_file_from_inbox_";
+                var unmappedCnt = 0;
+
+                foreach (var inboxPageEntry in res)
+                {
+                    if (string.IsNullOrEmpty(inboxPageEntry)) continue;
+
+                    if (JSONSerialization.DeserializeObject(inboxPageEntry, typeof(List<AccessFile>)) is List<AccessFile>
+                        afList)
                     {
-                        // Create symmetric reference for Access File and connect it
-                        var serverLink = kr.accessFileReferenceToSelf.serverLink;
-                        var pageName = GetFreshPageName(serverLink);
-                        if (pageName == null)
+                        foreach (var af in afList)
                         {
-                            Console.WriteLine("GetFreshPageName failed");
-                            continue;
-                        }
-                        
-                        var symmetricReference = new SymmetricReference(pageName, serverLink,
-                            PageType.GenericFile, af.AccessFileReference.targetPageName, af);
-                        af.AccessFileReference.AccessFileParent = af;
-                        af.SymmetricReferenceToSelf = symmetricReference;
-                        
-                        if (!af.IsValid())
-                        {
-                            Console.WriteLine("af not valid, print inboxPageEntry:");
-                            // Console.WriteLine(inboxPageEntry);
-                        }
-                        else if (kr.AlreadyContainsAccessFileWithAtLeastAsMuchAccess(af))
-                        {
-                            Console.WriteLine("AlreadyContainsAccessFileWithAtLeastAsMuchAccess, print inboxPageEntry:");
-                            // Console.WriteLine(inboxPageEntry);
-                        }
-                        else
-                        {
-                            // If access file with same target already exists, merge
-                            var existingAccessFilePath =
-                                MasterKeyring.GetMountedDirMapping(af.AccessFileReference.targetPageName);
-                            if (CheckIfAccessFileExistsAndMerge(existingAccessFilePath, kr, af)) continue;
-
-                           // Otherwise upload and add Access File
-                            wh.UploadAccessFile(af);
-                            kr.AddSymmetricReference(symmetricReference);
-
-
-                            while (File.Exists(rootDirPath + defaultPath + unmappedCnt))
+                            // Create symmetric reference for Access File and connect it
+                            var serverLink = kr.accessFileReferenceToSelf.serverLink;
+                            var pageName = GetFreshPageName(serverLink);
+                            if (pageName == null)
                             {
-                                unmappedCnt++;
-                            }
-
-                            var filepath = defaultPath + unmappedCnt;
-
-                            var mdFile = mountedDirMirror.CreateFile(filepath, symmetricReference);
-                            if (mdFile == null)
-                            {
-                                WriteToLogger("File could not be added to MDMirror, upload failed");
+                                Console.WriteLine("GetFreshPageName failed");
                                 continue;
                             }
-                            MasterKeyring.SetMountedDirMapping(af.AccessFileReference.targetPageName, filepath);
-
-                            var symmRefKR = kr.accessFileReferenceToSelf.AccessFileParent?.SymmetricReferenceToSelf;
-                            var krFolder = symmRefKR?.MDFile?.Parent;
-
-                            if (krFolder != null)
+                        
+                            var symmetricReference = new SymmetricReference(pageName, serverLink,
+                                PageType.GenericFile, af.AccessFileReference.targetPageName, af);
+                            af.AccessFileReference.AccessFileParent = af;
+                            af.SymmetricReferenceToSelf = symmetricReference;
+                        
+                            if (!af.IsValid())
                             {
-                                var mdFileAF = mountedDirMirror.CreateFile(Path.Combine(krFolder.path, krFolder.name, 
-                                    symmRefKR!.accessFileTargetPageName), symmetricReference);
+                                Console.WriteLine("af not valid, print inboxPageEntry:");
+                                // Console.WriteLine(inboxPageEntry);
+                            }
+                            else if (kr.AlreadyContainsAccessFileWithAtLeastAsMuchAccess(af))
+                            {
+                                Console.WriteLine("AlreadyContainsAccessFileWithAtLeastAsMuchAccess, print inboxPageEntry:");
+                                // Console.WriteLine(inboxPageEntry);
+                            }
+                            else
+                            {
+                                // If access file with same target already exists, merge
+                                var existingAccessFilePath =
+                                    MasterKeyring.GetMountedDirMapping(af.AccessFileReference.targetPageName);
+                                if (CheckIfAccessFileExistsAndMerge(existingAccessFilePath, kr, af)) continue;
+
+                                // Otherwise upload and add Access File
+                                wh.UploadAccessFile(af);
+                                kr.AddSymmetricReference(symmetricReference);
+
+
+                                while (File.Exists(rootDirPath + defaultPath + unmappedCnt))
+                                {
+                                    unmappedCnt++;
+                                }
+
+                                var filepath = defaultPath + unmappedCnt;
+
+                                var mdFile = mountedDirMirror.CreateFile(filepath, symmetricReference);
+                                if (mdFile == null)
+                                {
+                                    WriteToLogger("File could not be added to MDMirror, upload failed");
+                                    continue;
+                                }
+                                MasterKeyring.SetMountedDirMapping(af.AccessFileReference.targetPageName, filepath);
+
+                                var symmRefKR = kr.accessFileReferenceToSelf.AccessFileParent?.SymmetricReferenceToSelf;
+                                var krFolder = symmRefKR?.MDFile?.Parent;
+
+                                if (krFolder != null)
+                                {
+                                    var mdFileAF = mountedDirMirror.CreateFile(Path.Combine(krFolder.path, krFolder.name, 
+                                        symmRefKR!.accessFileTargetPageName), symmetricReference);
+                                }
                             }
                         }
                     }
-                }
                 
+                }
             }
 
             UploadsInProgress--;
@@ -823,7 +827,11 @@ namespace SecureWiki
             if (revid != null)
             {
                 var cacheResult = AttemptReadFileFromCache(pageName, revid);
-                if (cacheResult != null) return Convert.FromBase64String(cacheResult);
+            
+                if (cacheResult != null)
+                {
+                    return Convert.FromBase64String(cacheResult);
+                }
             }
 
             byte[]? textBytes;

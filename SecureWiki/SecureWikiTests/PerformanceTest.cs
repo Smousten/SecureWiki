@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Channels;
 using NUnit.Framework;
 using SecureWiki;
 using SecureWiki.Cryptography;
@@ -103,15 +104,15 @@ namespace SecureWikiTests
 
         public void DoEncryptDecryptAESGCM(int size)
         {
-            var n = 10;
+            var n = 50;
             var plainText = new Byte[size];
             Random rnd = new Random();
             rnd.NextBytes(plainText);
             Stopwatch stopwatch = new Stopwatch();
 
             // Generate symmetric key 
-            var (symmKey, _) = Crypto.GenerateAESParams();
-
+            var symmKey = Crypto.GenerateSymmKey();
+            Console.WriteLine(symmKey.Length);
 
             // Encrypt random 20 byte array
             stopwatch.Restart();
@@ -122,7 +123,7 @@ namespace SecureWikiTests
 
             stopwatch.Stop();
             Console.WriteLine(
-                $"Time to encrypt {size} bytes using AES GCM (n={n}): {stopwatch.ElapsedMilliseconds / n} ms");
+                $"Time to encrypt {size} bytes using AES GCM (n={n}): {stopwatch.Elapsed.TotalMilliseconds / n} ms");
 
             var encryptedBytes = Crypto.Encrypt(plainText, symmKey);
             // Decrypt random 20 byte array
@@ -134,7 +135,7 @@ namespace SecureWikiTests
 
             stopwatch.Stop();
             Console.WriteLine(
-                $"Time to decrypt {size} bytes using AES GCM (n={n}): {stopwatch.ElapsedMilliseconds / n} ms");
+                $"Time to decrypt {size} bytes using AES GCM (n={n}): {stopwatch.Elapsed.TotalMilliseconds / n} ms");
         }
 
         [Test]
@@ -192,7 +193,7 @@ namespace SecureWikiTests
         
         public void DoSignAndVerify(int size)
         {
-            var n = 10;
+            var n = 50;
             var plainText = new Byte[size];
             Random rnd = new Random();
             rnd.NextBytes(plainText);
@@ -208,7 +209,7 @@ namespace SecureWikiTests
             }
 
             stopwatch.Stop();
-            Console.WriteLine($"Time to sign {size} bytes using RSA (n={n}): {stopwatch.ElapsedMilliseconds / n} ms");
+            Console.WriteLine($"Time to sign {size} bytes using RSA (n={n}): {stopwatch.Elapsed.TotalMilliseconds / n} ms");
 
             // sign plaintext using private key
             var signature = Crypto.SignData(priKey, plainText);
@@ -221,22 +222,38 @@ namespace SecureWikiTests
             }
 
             stopwatch.Stop();
-            Console.WriteLine($"Time to verify {size} bytes using RSA (n={n}): {stopwatch.ElapsedMilliseconds / n} ms");
+            Console.WriteLine($"Time to verify {size} bytes using RSA (n={n}): {stopwatch.Elapsed.TotalMilliseconds / n} ms");
         }
 
         [Test]
         public void TestUploadAndDownloadFile()
         {
             // 1 KB
-            DoUploadAndDownloadFile(1024);
-            // 10 KB
-            DoUploadAndDownloadFile(10240);
-            // 100 KB
-            DoUploadAndDownloadFile(102400);
-            // 1 MB
-            DoUploadAndDownloadFile(1048576);
-            // 10 MB
-            DoUploadAndDownloadFile(10485760);
+            DoUploadAndDownloadFile(1000);
+            // 2 KB
+            DoUploadAndDownloadFile(2000);
+            // 4 KB
+            DoUploadAndDownloadFile(4000);
+            // 8 KB
+            DoUploadAndDownloadFile(8000);
+            // 16 KB
+            DoUploadAndDownloadFile(16000);
+            // 32 KB
+            DoUploadAndDownloadFile(32000);
+            // 64 KB
+            DoUploadAndDownloadFile(64000);
+            // 128 KB
+            DoUploadAndDownloadFile(128000);
+            // 256 KB
+            DoUploadAndDownloadFile(256000);
+            // 512 KB
+            DoUploadAndDownloadFile(512000);
+            // 1024 KB
+            DoUploadAndDownloadFile(1024000);
+            // 2048 KB
+            DoUploadAndDownloadFile(2048000);
+            // 4096 KB
+            DoUploadAndDownloadFile(4096000);
         }
 
         public void DoUploadAndDownloadFile(int size)
@@ -247,7 +264,7 @@ namespace SecureWikiTests
             Random rnd = new Random();
             rnd.NextBytes(plainText);
 
-            var contentString = Encoding.ASCII.GetString(plainText);
+            var contentString = Convert.ToBase64String(plainText);
             var pageName = _manager.GetFreshPageName();
             WaitForUploads();
 
@@ -267,23 +284,25 @@ namespace SecureWikiTests
             var downloadedContent = wh.GetPageContent(pageName);
             stopwatch.Stop();
 
+            Assert.AreEqual(contentString, downloadedContent);
+            
             Console.WriteLine($"Time to download {size} bytes: {stopwatch.ElapsedMilliseconds} ms");
         }
 
-        [Test]
-        public void TestEditAndUploadFile()
-        {
-            // 1 KB
-            DoEditAndUploadFile(1024);
-            // 10 KB
-            // DoEditAndUploadFile(10240);
-            // // 100 KB
-            // DoEditAndUploadFile(102400);
-            // // 1 MB
-            // DoEditAndUploadFile(1048576);
-            // // 10 MB
-            // DoEditAndUploadFile(10485760);
-        }
+        // [Test]
+        // public void TestEditAndUploadFile()
+        // {
+        //     // 1 KB
+        //     DoEditAndUploadFile(1024);
+        //     // 10 KB
+        //     DoEditAndUploadFile(10240);
+        //     // 100 KB
+        //     DoEditAndUploadFile(102400);
+        //     // 1 MB
+        //     DoEditAndUploadFile(1048576);
+        //     // 10 MB
+        //     DoEditAndUploadFile(10485760);
+        // }
 
         public void DoEditAndUploadFile(int size)
         {
@@ -295,9 +314,8 @@ namespace SecureWikiTests
             var plainText = new Byte[size];
             Random rnd = new Random();
             rnd.NextBytes(plainText);
-            // var contentString = Encoding.ASCII.GetString(plainText);
-            var contentString = Convert.ToBase64String(plainText);
-            
+            var contentString = Encoding.ASCII.GetString(plainText);
+
             if (!File.Exists(filePath))
             {
                 Console.WriteLine("file does not exists at '{0}'", filePath);
@@ -318,9 +336,10 @@ namespace SecureWikiTests
             stopwatch.Stop();
 
             Console.WriteLine($"Time to upload {size} bytes from FUSE {stopwatch.ElapsedMilliseconds} ms");
-            
             stopwatch.Restart();
             // var cmdWrite = $"echo '{contentString}' > {filePath}";
+            // var content = Encoding.ASCII.GetString(_manager.GetContent(filename) ??
+                                                   // Encoding.ASCII.GetBytes("not the same")); 
             var content = File.ReadAllText(filePath);
             // ExecuteShellCommand(cmdWrite);
             // Console.WriteLine($"cmdWrite: {cmdWrite}");
@@ -329,6 +348,61 @@ namespace SecureWikiTests
             Assert.AreEqual(contentString, content);
             Console.WriteLine($"Time to read {size} bytes from FUSE {stopwatch.ElapsedMilliseconds} ms");
         }
+        //
+        // [Test]
+        // public void TestCompare()
+        // {
+        //     // 1 KB
+        //     DoCompare(1024);
+        //     // 10 KB
+        //     DoCompare(10240);
+        //     // 100 KB
+        //     DoCompare(102400);
+        //     // 1 MB
+        //     DoCompare(1048576);
+        //     // 5 MB
+        //     DoCompare(5242880);
+        // }
+        //
+        // public void DoCompare(int size)
+        // {
+        //     Console.WriteLine("DoCompare() entered");
+        //     var mountdirPath = GetMountDirPath();
+        //     var filename = "CreateFileTest.txt";
+        //     var filePath = Path.Combine(mountdirPath, filename);
+        //     
+        //     var plainText = new Byte[size];
+        //     Random rnd = new Random();
+        //     rnd.NextBytes(plainText);
+        //     var contentString = Convert.ToBase64String(plainText);
+        //
+        //     if (!File.Exists(filePath))
+        //     {
+        //         Console.WriteLine("file does not exists at '{0}'", filePath);
+        //         var cmdTouch = $"touch {filePath}";
+        //         ExecuteShellCommand(cmdTouch);
+        //         WaitForUploads();
+        //     }
+        //
+        //     var mdFile = _manager.mountedDirMirror.GetMDFile(filename);
+        //     var pageName = mdFile?.symmetricReference.accessFileTargetPageName;
+        //     var serverLink = mdFile?.symmetricReference.targetAccessFile?.AccessFileReference.serverLink;
+        //     
+        //     var wh = _manager.GetWikiHandler(serverLink);
+        //
+        //     Assert.True(wh != null);
+        //
+        //     wh.Upload(pageName, contentString);
+        //     
+        //     WaitForUploads();
+        //
+        //     var cmdCat = $"cat {filePath}";
+        //     var stopwatch = Stopwatch.StartNew();
+        //     ExecuteShellCommand(cmdCat);
+        //     stopwatch.Stop();
+        //     Console.WriteLine($"Time to cat {size} bytes: {stopwatch.ElapsedMilliseconds} ms");
+        //
+        // }
         
         // Utility methods 
         public string GetMountDirPath()
@@ -374,6 +448,7 @@ namespace SecureWikiTests
             {
                 Console.WriteLine(proc.StandardOutput.ReadLine());
             }
+            
         }
 
         protected void WaitForUploads(int cntLimit = 500)
