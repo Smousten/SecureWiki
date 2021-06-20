@@ -1170,6 +1170,8 @@ namespace SecureWiki
             foreach (var (symmRef, _) in symmetricReferences)
             {
                 symmRef.keyringParent?.SymmetricReferences.Remove(symmRef);
+                if (symmRef.keyringParent?.accessFileReferenceToSelf.AccessFileParent != null)
+                    symmRef.keyringParent.accessFileReferenceToSelf.AccessFileParent.HasTargetBeenChanged = true;
             }
 
             foreach (var keyring in keyrings)

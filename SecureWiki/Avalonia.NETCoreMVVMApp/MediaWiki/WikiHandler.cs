@@ -845,16 +845,25 @@ namespace SecureWiki.MediaWiki
                     }
                     symmRef.targetAccessFile = accessFile;
                 }
-                var kr = symmRef.targetAccessFile!.AccessFileReference!.KeyringTarget == null 
-                    ? DownloadKeyring(symmRef) : symmRef.targetAccessFile.AccessFileReference.KeyringTarget;
 
-                if (kr != null)
+                // if (symmRef.type == PageType.GenericFile)
+                // {
+                //     rootKeyring.AddSymmetricReference(symmRef);
+                // }
+                if (symmRef.type == PageType.Keyring)
                 {
-                    DownloadKeyringsRecursion(masterKeyring, kr);
-                }
-                else
-                {
-                    Console.WriteLine("Download keyring failed");
+                    var kr = symmRef.targetAccessFile!.AccessFileReference!.KeyringTarget == null 
+                        ? DownloadKeyring(symmRef) : symmRef.targetAccessFile.AccessFileReference.KeyringTarget;
+
+                    if (kr != null)
+                    {
+                        // rootKeyring.AddSymmetricReference(symmRef);
+                        DownloadKeyringsRecursion(masterKeyring, kr);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Download keyring failed");
+                    }
                 }
             }
         }
