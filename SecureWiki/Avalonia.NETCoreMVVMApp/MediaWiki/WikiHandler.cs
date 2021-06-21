@@ -791,7 +791,6 @@ namespace SecureWiki.MediaWiki
                 var revisions = GetAllRevisions(symmetricReference.targetAccessFile.AccessFileReference.targetPageName).GetAllRevisionBefore(revid);
                 return GetLatestValidKeyring(symmetricReference.targetAccessFile, revisions);
             }
-            _manager.KeyringMapping.Add(symmetricReference.accessFileTargetPageName, keyring);
             return keyring;
         }
 
@@ -824,7 +823,6 @@ namespace SecureWiki.MediaWiki
             }
 
             keyring.accessFileReferenceToSelf = symmetricReference.targetAccessFile.AccessFileReference;
-            _manager.KeyringMapping.Add(symmetricReference.accessFileTargetPageName, keyring);
             return keyring;
         }
 

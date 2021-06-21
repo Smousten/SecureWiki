@@ -107,7 +107,7 @@ namespace SecureWiki.Cryptography
             accessFile.SymmetricReferenceToSelf = symmetricReference;
         }
 
-        public Keyring? CreateNewKeyring(string name, string serverLink)
+        public Keyring CreateNewKeyring(string name, string serverLink)
         {
             var pageNameInboxPage = _manager.GetFreshPageName();
             
@@ -125,6 +125,8 @@ namespace SecureWiki.Cryptography
             var contact = new OwnContact("unnamed", inboxReference);
 
             keyring.OwnContact = contact;
+            
+            _masterKeyring.AddSymmetricReference(symmetricReference);
             
             return keyring;
         }
@@ -146,7 +148,6 @@ namespace SecureWiki.Cryptography
             {
                 Console.WriteLine("defaultkeyring is null");
                 defaultKeyring = CreateNewKeyring("newEntries", _manager.configManager.DefaultServerLink);
-                _masterKeyring.AddSymmetricReference(defaultKeyring.accessFileReferenceToSelf.AccessFileParent.SymmetricReferenceToSelf);
             }
            
             defaultKeyring.AddSymmetricReference(symmetricReference);

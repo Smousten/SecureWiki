@@ -41,7 +41,6 @@ namespace SecureWiki
         public MasterKeyring MasterKeyring;
         private Dictionary<(string, string), string> RequestedRevision = new();
         public SymmetricReference symRefToMasterKeyring;
-        public Dictionary<string, Keyring> KeyringMapping = new();
 
         public delegate void PrintTest(string input);
 
@@ -97,6 +96,8 @@ namespace SecureWiki
                 var pagename = GetFreshPageName(symRefToMasterKeyring.serverLink);
                 MasterKeyring.OwnContact = new OwnContact("MasterKeyring",
                     new InboxReference(pagename ?? "asd", symRefToMasterKeyring.serverLink));
+                MasterKeyring.accessFileReferenceToSelf = symRefToMasterKeyring.targetAccessFile.AccessFileReference;
+                SaveSymRefMasterKeyringToFile();
             }
             else
             {
@@ -806,18 +807,27 @@ namespace SecureWiki
                 pageName = symmRef.accessFileTargetPageName;
             }
 
-            // Check if any specific revision has been requested
-            if (RequestedRevision.ContainsKey((pageName, symmRef.serverLink)))
+            // Get valid WikiHandler or return null
+            if (symmRef.targetAccessFile == null)
             {
-                revid = RequestedRevision[(pageName, symmRef.serverLink)];
+                var aWikiHandler = GetWikiHandler(symmRef.serverLink);
+                if (aWikiHandler == null) return null;
+                aWikiHandler.DownloadAccessFile(symmRef);
+                Console.WriteLine("Download access file successful");
+            }
+            
+            if (symmRef.targetAccessFile == null) return null;
+            
+            // Check if any specific revision has been requested
+            if (RequestedRevision.ContainsKey((pageName, symmRef.targetAccessFile.AccessFileReference.serverLink)))
+            {
+                revid = RequestedRevision[(pageName, symmRef.targetAccessFile.AccessFileReference.serverLink)];
 
                 // Check if content already is in cache
                 var cacheResult = AttemptReadFileFromCache(pageName, revid);
                 if (cacheResult != null) return Convert.FromBase64String(cacheResult);
             }
-
-            // Get valid WikiHandler or return null
-            var wikiHandler = GetWikiHandler(symmRef.serverLink);
+            var wikiHandler = GetWikiHandler(symmRef.targetAccessFile.AccessFileReference.serverLink);
             if (wikiHandler == null) return null;
 
             // If no specific revid has been requested, get newest revision id, if any exists
@@ -970,8 +980,7 @@ namespace SecureWiki
         {
             // UploadsInProgress++;
             var keyring = _keyringManager.CreateNewKeyring(filename, configManager.DefaultServerLink);
-            // Add symmetric reference to newEntries keyring and upload
-            AddToDefaultKeyring(keyring.accessFileReferenceToSelf.AccessFileParent.SymmetricReferenceToSelf);
+            
             var accessFile = keyring?.accessFileReferenceToSelf.AccessFileParent;
             var symmetricReference = accessFile?.SymmetricReferenceToSelf;
 
@@ -987,7 +996,10 @@ namespace SecureWiki
             // Add keyring contact to masterkeyring
             MasterKeyring.ContactManager.OwnContacts.Add(new OwnContact(keyring.name, keyring.OwnContact.InboxReference));
             AttemptSaveToServer();
+            
+            // SaveToServer();
             // UploadsInProgress--;
+            PopulateMountedDirMirror(MasterKeyring);
             UpdateMountedDirectory();
         }
 
