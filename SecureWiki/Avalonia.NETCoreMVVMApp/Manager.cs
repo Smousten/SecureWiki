@@ -949,6 +949,7 @@ namespace SecureWiki
 
             MasterKeyring.SetMountedDirMapping(accessFile.AccessFileReference.targetPageName, filepath);
             UploadsInProgress--;
+            PopulateMountedDirMirror(MasterKeyring);
             UpdateMountedDirectory();
         }
 

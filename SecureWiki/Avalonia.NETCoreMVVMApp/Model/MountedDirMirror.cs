@@ -114,6 +114,8 @@ namespace SecureWiki.Model
         {
             RootFolder.ClearFiles();
             RootFolder.ClearFolders();
+            KeyringFolder.ClearFiles();
+            KeyringFolder.ClearFolders();
         }
 
         public void PrintInfo()
