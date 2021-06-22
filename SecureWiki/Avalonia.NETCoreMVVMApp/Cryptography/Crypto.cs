@@ -67,7 +67,7 @@ namespace SecureWiki.Cryptography
                 {
                     rsa.ImportRSAPublicKey(publicKey, out _);
 
-                    encryptedData = rsa.Encrypt(data, RSAEncryptionPadding.Pkcs1);
+                    encryptedData = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA1);
                 }
 
                 return encryptedData;
@@ -97,7 +97,7 @@ namespace SecureWiki.Cryptography
                     //Decrypt the passed byte array and specify OAEP padding.  
                     //OAEP padding is only available on Microsoft Windows XP or
                     //later.  
-                    decryptedData = rsa.Decrypt(data, RSAEncryptionPadding.Pkcs1);
+                    decryptedData = rsa.Decrypt(data, RSAEncryptionPadding.OaepSHA1);
                 }
 
                 return decryptedData;
@@ -143,7 +143,7 @@ namespace SecureWiki.Cryptography
         {
             RSACryptoServiceProvider rsa = new();
             rsa.ImportRSAPrivateKey(key, out _);
-            return rsa.SignData(data, SHA256.Create());
+            return rsa.SignData(data, SHA256.Create()) ;
         }
 
         // Verify the signature from signedData hash, plaintext and public key stored in datafile object

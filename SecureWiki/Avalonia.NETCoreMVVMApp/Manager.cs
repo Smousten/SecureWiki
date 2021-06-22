@@ -47,7 +47,7 @@ namespace SecureWiki
         public bool setupFinished = false;
         public bool GUIRunning = false;
         public uint UploadsInProgress = 0;
-        private DateTime _lastUploadTimestamp;
+        private DateTime _lastUploadTimestamp = DateTime.Now;
 
         public PrintTest printTest;
 
@@ -120,9 +120,9 @@ namespace SecureWiki
 
         public void UpdateMountedDirectory()
         {
-            Console.WriteLine(".printinfo");
-            mountedDirMirror.PrintInfo();
-            Console.WriteLine("CreateFileStructureRecursion");
+            // Console.WriteLine(".printinfo");
+            // mountedDirMirror.PrintInfo();
+            // Console.WriteLine("CreateFileStructureRecursion");
             mountedDirMirror.CreateFileStructureRecursion(GetRootDir(""));
         }
 
@@ -256,9 +256,12 @@ namespace SecureWiki
             var timestampNow = DateTime.Now;
             var timestampThreshold = _lastUploadTimestamp.AddMinutes(5);
 
+            Console.WriteLine("Time now is " + timestampNow + " timestampThreshold: " + timestampThreshold);
+
             if (timestampNow > timestampThreshold)
             {
                 SaveToServer();
+                _lastUploadTimestamp = DateTime.Now;
             }
             else
             {

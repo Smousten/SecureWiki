@@ -369,21 +369,21 @@ namespace SecureWiki.Model
         {
             var currentFiles = Directory.GetFiles(path).ToList();
             var currentFolders = Directory.GetDirectories(path).ToList();
-            Console.WriteLine("CreateFileStructureRecursion entered");
-            Console.WriteLine();
-            Console.WriteLine("printing files");
-            foreach (var item in currentFiles)
-            {
-                Console.WriteLine(item);
-            }
-            
-            Console.WriteLine();
-            Console.WriteLine("printing folders");
-            foreach (var item in currentFolders)
-            {
-                Console.WriteLine(item);
-            }
-            
+            // Console.WriteLine("CreateFileStructureRecursion entered");
+            // Console.WriteLine();
+            // Console.WriteLine("printing files");
+            // foreach (var item in currentFiles)
+            // {
+            //     Console.WriteLine(item);
+            // }
+            //
+            // Console.WriteLine();
+            // Console.WriteLine("printing folders");
+            // foreach (var item in currentFolders)
+            // {
+            //     Console.WriteLine(item);
+            // }
+            //
             foreach (var file in Files)
             {
                 var currentFile = currentFiles.FirstOrDefault(x => x.Equals(Path.Combine(path, file.name)));

@@ -232,7 +232,10 @@ namespace SecureWiki.FuseCommunication
             {
                 _manager.AddNewKeyring(filename);
             }
-            _manager.AddNewFolder(filename, filepath);
+            else
+            {
+                _manager.AddNewFolder(filename, filepath);
+            }
         }
         
         // Check if file is not goutputstream or trash
