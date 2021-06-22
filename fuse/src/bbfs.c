@@ -86,30 +86,6 @@ int create_TCP_client()
     return 0;
 }
 
-int recvall(int socket, char *buffer, size_t len)
-{
-    int msg_len;
-    int chunk = recv(socket, buffer, len, 0);
-    memcpy(&msg_len, buffer, sizeof msg_len);
-
-    log_msg("\nReceived msg of datasize %d\n", msg_len);
-    log_msg("\nReceived msg of total size %d\n", chunk);
-    log_msg("\nReceived msg of data %s\n", buffer);
-
-    if (chunk == msg_len + sizeof(msg_len))
-    {
-        log_msg("\nReceived whole msg in one packet\n");
-        return chunk;
-    }
-    int bytesRcvd = chunk;
-
-    while (bytesRcvd < msg_len + sizeof(msg_len))
-    {
-        int chunk = recv(socket, buffer + bytesRcvd, msg_len + sizeof(msg_len) - bytesRcvd, 0);
-        bytesRcvd += (chunk);
-    }
-    return bytesRcvd;
-}
 //  All the paths I see are relative to the root of the mounted
 //  filesystem.  In order to get to the underlying filesystem, I need to
 //  have the mountpoint.  I'll save it away early on in main(), and then
