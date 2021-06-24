@@ -601,7 +601,8 @@ namespace SecureWiki
 
                                 if (af.AccessFileReference.type == PageType.Keyring)
                                 {
-                                    wh.DownloadKeyringsRecursion(kr);
+                                    var whNew = GetWikiHandler(af.AccessFileReference.serverLink);
+                                    whNew?.DownloadKeyringsRecursion(kr);
                                 }
                             }
                         }
