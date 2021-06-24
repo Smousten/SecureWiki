@@ -29,7 +29,7 @@ Make sure that the fuse directory contains a folder named *directories*, which c
 `wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb`  
 `sudo dpkg -i packages-microsoft-prod.deb`
 
-* Install the SDK
+* Install the SDK  
 `sudo apt-get update;`  
 `sudo apt-get install -y apt-transport-https`  
 `sudo apt-get update`  
