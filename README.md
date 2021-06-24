@@ -11,26 +11,63 @@
 
 ### Installation of FUSE
 Fresh install:
-get python3-pip
 get libfuse3-dev
-install pyfuse3
-
 install fuse3
 
-### Installation of MediaWiki Server\*
-
+### Installation of MediaWiki Server \*
+Follow the steps below. Visit https://www.mediawiki.org/wiki/Manual:Running_MediaWiki_on_Debian_or_Ubuntu for more information
 
 \* Not necessary if you connect to remote server
 
+#### Ensure that your system is up to date
+`sudo apt update`
+`sudo apt upgrade`
 
-python3 - already installed on ubuntu
+#### Install Apache, PHP, and MySQL
+`sudo apt-get install apache2 mariadb-server php php-mysql libapache2-mod-php php-xml php-mbstring`
 
-pyfuse
+#### Get MediaWiki
+Download MediaWiki
+`cd /tmp/
+wget https://releases.wikimedia.org/mediawiki/1.36/mediawiki-1.36.1.tar.gz`
 
-avalonia??
+Extract in your Web directory
+`tar -xvzf /tmp/mediawiki-*.tar.gz
+sudo mkdir /var/lib/mediawiki
+sudo mv mediawiki-*/* /var/lib/mediawiki`
 
-Fresh install:
-get python3-pip
-get libfuse3-dev
-install pyfuse3
-install fuse3
+
+#### Configuring MySQL
+* Create new mysql user
+`# sudo mysql -u root -p 
+Enter password: Enter password of mysql root user (if you have not configured password it will be blank, so just press enter)
+mysql> CREATE USER 'new_mysql_user'@'localhost' IDENTIFIED BY 'THISpasswordSHOULDbeCHANGED';
+mysql> quit;`
+
+* Create a new mysql database
+`# sudo mysql -u root -p
+mysql> CREATE DATABASE my_wiki;
+mysql> use my_wiki;
+Database changed`
+
+* Grant the new mysql user access to the new mysql database
+`mysql> GRANT ALL ON my_wiki.* TO 'new_mysql_user'@'localhost';
+Query OK, 0 rows affected (0.01 sec)
+mysql> quit;`
+
+#### Configure MediaWiki
+Navigate your browser to http://localhost/mediawik
+
+If this page does not exist, then use the following command
+`sudo ln -s /var/lib/mediawiki /var/www/html/mediawiki`
+
+Fill out all the fields in the configuration form and press the continue button. 
+Use the username and password of the mysql user previously created when needed.
+
+During the configuration process you will have to download *LocalSettings.php* that must be saved to the parent directory of the neww wiki.
+`sudo mv ~/Downloads/LocalSettings.php /var/lib/mediawiki/`
+
+Navigate to  http://localhost/mediawiki to see your new wiki.
+
+#### Configure LocalSettings.php
+
