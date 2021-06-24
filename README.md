@@ -38,11 +38,11 @@ sudo mv mediawiki-*/* /var/lib/mediawiki`
 #### Configuring MySQL
 * Create new mysql user  
 `# sudo mysql -u root -p 
-Enter password: Enter password of mysql root user (if you have not configured password it will be blank, so just press enter)
+Enter password: Enter password of mysql root user (if you have not configured password it will be blank, so just press enter)  
 mysql> CREATE USER 'new_mysql_user'@'localhost' IDENTIFIED BY 'THISpasswordSHOULDbeCHANGED';
 mysql> quit;`
 
-* Create a new mysql database
+* Create a new mysql database  
 `# sudo mysql -u root -p  
 mysql> CREATE DATABASE my_wiki;  
 mysql> use my_wiki;  
