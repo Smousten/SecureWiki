@@ -87,6 +87,7 @@ If this page does not exist, then use the following command
 It may complain that php extensions like mbstring and xml are missing even you have installed them. Please manually activate them by using:  
 `sudo phpenmod mbstring`  
 `sudo phpenmod xml`  
+`apt install php-intl`  
 `sudo systemctl restart apache2.service`  
 
 Fill out all the fields in the configuration form and press the continue button. 
