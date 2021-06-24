@@ -70,7 +70,7 @@ Query OK, 0 rows affected (0.01 sec)
 mysql> quit;`  
 
 #### Configure MediaWiki  
-Navigate your browser to http://localhost/mediawik
+Navigate your browser to http://localhost/mediawiki
 
 If this page does not exist, then use the following command  
 `sudo ln -s /var/lib/mediawiki /var/www/html/mediawiki`
@@ -93,7 +93,7 @@ Add the following lines to configure your wiki to our system
 `$wgCapitalLinks = false;`
 
 * Allow more title characters  
-`$wgLegalTitleChars = " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_\`a-z~\\x80-\\xFF+";`
+`$wgLegalTitleChars = " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+";`
 
 * Set the max article size  
 `$wgMaxArticleSize = 204800000;`
