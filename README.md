@@ -84,6 +84,11 @@ Navigate your browser to http://localhost/mediawiki
 If this page does not exist, then use the following command  
 `sudo ln -s /var/lib/mediawiki /var/www/html/mediawiki`
 
+It may complain that php extensions like mbstring and xml are missing even you have installed them. Please manually activate them by using: 
+`sudo phpenmod mbstring`  
+`sudo phpenmod xml`  
+`sudo systemctl restart apache2.service`  
+
 Fill out all the fields in the configuration form and press the continue button. 
 Use the username and password of the mysql user previously created when needed.
 
