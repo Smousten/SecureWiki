@@ -93,7 +93,7 @@ Add the following lines to configure your wiki to our system
 `$wgCapitalLinks = false;`
 
 * Allow more title characters  
-`$wgLegalTitleChars = " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_\``a-z~\\x80-\\xFF+";`
+``$wgLegalTitleChars = " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+";``
 
 * Set the max article size  
 `$wgMaxArticleSize = 204800000;`
