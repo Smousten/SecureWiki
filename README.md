@@ -50,8 +50,8 @@ Follow the steps below. Visit https://www.mediawiki.org/wiki/Manual:Running_Medi
 
 #### Get MediaWiki
 Download MediaWiki  
-`cd /tmp/
-wget https://releases.wikimedia.org/mediawiki/1.36/mediawiki-1.36.1.tar.gz`
+`cd /tmp/`  
+`wget https://releases.wikimedia.org/mediawiki/1.36/mediawiki-1.36.1.tar.gz`
 
 Extract in your Web directory  
 `tar -xvzf /tmp/mediawiki-*.tar.gz`  
@@ -63,7 +63,7 @@ Extract in your Web directory
 * Create new mysql user  
 `sudo mysql -u root -p`
 
-Enter password: Enter password of mysql root user (if you have not configured password it will be blank, so just press enter)  
+* Enter password: Enter password of mysql root user (if you have not configured password it will be blank, so just press enter)  
 `mysql> CREATE USER 'new_mysql_user'@'localhost' IDENTIFIED BY 'THISpasswordSHOULDbeCHANGED';`  
 `mysql> quit;`  
 
