@@ -1,7 +1,7 @@
 # Speciale
 
 ## System
-This installation guide is for Ubuntu 20.04. The system should also work on other Linux distributions but we have not tested this. 
+This installation guide is for Ubuntu 20.04. The system should also work on other Linux distributions but this has not been tested.
 
 ## Overview of System
 This is the implementation of a system for secure storage and revision of files in a cloud-based environment.
@@ -9,10 +9,10 @@ The system uses cryptographic access control to provide end-to-end encryption su
 
 The system uses MediaWiki for its remote storage server and users can interact with files through a mounted directory provided by FUSE. 
 
-The code for the file system application is found in the FUSE directory. 
+The code for the file system application is found in the FUSE directory.  
 The code for the Client Application is found in the SecureWiki directory. 
 
-The Client Application main project is in SecureWiki/Avalonia.NETCoreMVVMApp.
+The Client Application main project is in SecureWiki/Avalonia.NETCoreMVVMApp.  
 A test project with unit tests and integration tests is located in SecureWiki/SecureWikiTests.
 
 
