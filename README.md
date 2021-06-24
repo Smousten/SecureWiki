@@ -18,11 +18,23 @@ A test project with unit tests and integration tests is located in SecureWiki/Se
 ## Dependencies
 
 ### Installation of FUSE
-`sudo apt update` 
+`sudo apt update`  
 `sudo apt install fuse`
 
 ### Setup the FUSE Application
 Make sure that the fuse directory contains a folder named *directories*, which contains two empty folders named *mountdir* and *rootdir*.
+
+### Install .NET on Ubuntu
+* Add the Microsoft package signing key to your list of trusted keys and add the package repository.  
+`wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb`  
+`sudo dpkg -i packages-microsoft-prod.deb`
+
+* Install the SDK
+`sudo apt-get update;`  
+`sudo apt-get install -y apt-transport-https`  
+`sudo apt-get update`  
+`sudo apt-get install -y dotnet-sdk-5.0`
+
 
 ### Installation of MediaWiki Server \*
 Follow the steps below. Visit https://www.mediawiki.org/wiki/Manual:Running_MediaWiki_on_Debian_or_Ubuntu for more information. 
