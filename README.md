@@ -4,6 +4,17 @@
 This installation guide is for Ubuntu 20.04. The system should also work on other Linux distributions but we have not tested this. 
 
 ## Overview of System
+This is the implementation of a system for secure storage and revision of files in a cloud-based environment.
+The system uses cryptographic access control to provide end-to-end encryption such that users do not have to depend on the trustworthiness and security of the hosting server. 
+
+The system uses MediaWiki for its remote storage server and users can interact with files through a mounted directory provided by FUSE. 
+
+The code for the file system application is found in the FUSE directory. 
+The code for the Client Application is found in the SecureWiki directory. 
+
+The Client Application main project is in SecureWiki/Avalonia.NETCoreMVVMApp.
+A test project with unit tests and integration tests is located in SecureWiki/SecureWikiTests.
+
 
 ## Dependencies
 
@@ -11,6 +22,11 @@ This installation guide is for Ubuntu 20.04. The system should also work on othe
 Fresh install:
 get libfuse3-dev
 install fuse3
+
+
+
+### Setup the FUSE Application
+Make sure that the fuse directory contains a folder named *directories*, which contains two empty folders named *mountdir* and *rootdir*.
 
 ### Installation of MediaWiki Server \*
 Follow the steps below. Visit https://www.mediawiki.org/wiki/Manual:Running_MediaWiki_on_Debian_or_Ubuntu for more information. 
