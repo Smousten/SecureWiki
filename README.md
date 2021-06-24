@@ -55,15 +55,15 @@ Enter password: Enter password of mysql root user (if you have not configured pa
 `mysql> quit;`  
 
 * Create a new mysql database  
-`# sudo mysql -u root -p  
-mysql> CREATE DATABASE my_wiki;  
-mysql> use my_wiki;  
-Database changed`  
+`# sudo mysql -u root -p`    
+`mysql> CREATE DATABASE my_wiki;`  
+`mysql> use my_wiki;`    
+`Database changed`    
 
 * Grant the new mysql user access to the new mysql database  
-`mysql> GRANT ALL ON my_wiki.* TO 'new_mysql_user'@'localhost';  
-Query OK, 0 rows affected (0.01 sec)  
-mysql> quit;`  
+`mysql> GRANT ALL ON my_wiki.* TO 'new_mysql_user'@'localhost';`  
+`Query OK, 0 rows affected (0.01 sec)`  
+`mysql> quit;`  
 
 #### Configure MediaWiki  
 Navigate your browser to http://localhost/mediawiki
