@@ -106,7 +106,7 @@ namespace SecureWiki
                 MasterKeyring.CopyFromOtherKeyring(newRootKR);
                 symRefToMasterKeyring.targetAccessFile.AccessFileReference.KeyringTarget = MasterKeyring;
                 UploadsInProgress++;
-                wh!.DownloadKeyringsRecursion(MasterKeyring, MasterKeyring);
+                wh!.DownloadKeyringsRecursion(MasterKeyring);
                 UploadsInProgress--;
             }
 
@@ -475,7 +475,9 @@ namespace SecureWiki
         private void UpdateFromInboxes(IServerInteraction? wikiHandler)
         {
             UpdateFromInboxRecursively(MasterKeyring);
+            PopulateMountedDirMirror(MasterKeyring);
             UpdateMountedDirectory();
+            
         }
 
         private void UpdateFromInboxRecursively(Keyring kr)
@@ -489,7 +491,6 @@ namespace SecureWiki
                 if (symmRef.targetAccessFile?.AccessFileReference.KeyringTarget != null)
                     UpdateFromInboxRecursively(symmRef.targetAccessFile.AccessFileReference.KeyringTarget);
             }
-            UpdateMountedDirectory();
         }
         
 
@@ -547,9 +548,9 @@ namespace SecureWiki
                                 Console.WriteLine("GetFreshPageName failed");
                                 continue;
                             }
-                        
+
                             var symmetricReference = new SymmetricReference(pageName, serverLink,
-                                PageType.GenericFile, af.AccessFileReference.targetPageName, af);
+                                af.AccessFileReference.type, af.AccessFileReference.targetPageName, af);
                             af.AccessFileReference.AccessFileParent = af;
                             af.SymmetricReferenceToSelf = symmetricReference;
                         
@@ -574,7 +575,6 @@ namespace SecureWiki
                                 wh.UploadAccessFile(af);
                                 kr.AddSymmetricReference(symmetricReference);
 
-
                                 while (File.Exists(rootDirPath + defaultPath + unmappedCnt))
                                 {
                                     unmappedCnt++;
@@ -598,13 +598,17 @@ namespace SecureWiki
                                     var mdFileAF = mountedDirMirror.CreateFile(Path.Combine(krFolder.path, krFolder.name, 
                                         symmRefKR!.accessFileTargetPageName), symmetricReference);
                                 }
+
+                                if (af.AccessFileReference.type == PageType.Keyring)
+                                {
+                                    wh.DownloadKeyringsRecursion(kr);
+                                }
                             }
                         }
                     }
                 
                 }
             }
-
             UploadsInProgress--;
         }
         //
