@@ -30,7 +30,7 @@ Make sure that the fuse directory contains a folder named *directories*, which c
 `sudo dpkg -i packages-microsoft-prod.deb`
 
 * Install the SDK  
-`sudo apt-get update;`  
+`sudo apt-get update`  
 `sudo apt-get install -y apt-transport-https`  
 `sudo apt-get update`  
 `sudo apt-get install -y dotnet-sdk-5.0`
