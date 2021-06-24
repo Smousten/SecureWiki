@@ -505,7 +505,7 @@ namespace SecureWiki.MediaWiki
             }
             catch (FormatException e)
             {
-                Console.WriteLine(e.Message);
+                // Console.WriteLine(e.Message);
                 return null;
             }
         }
@@ -826,7 +826,7 @@ namespace SecureWiki.MediaWiki
             return keyring;
         }
 
-        public void DownloadKeyringsRecursion(MasterKeyring masterKeyring, Keyring rootKeyring)
+        public void DownloadKeyringsRecursion(Keyring rootKeyring)
         {
             foreach (var symmRef in rootKeyring.SymmetricReferences)
             {
@@ -856,7 +856,7 @@ namespace SecureWiki.MediaWiki
                     if (kr != null)
                     {
                         // rootKeyring.AddSymmetricReference(symmRef);
-                        DownloadKeyringsRecursion(masterKeyring, kr);
+                        DownloadKeyringsRecursion(kr);
                     }
                     else
                     {
