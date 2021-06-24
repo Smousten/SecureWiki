@@ -15,15 +15,11 @@ The code for the Client Application is found in the SecureWiki directory.
 The Client Application main project is in SecureWiki/Avalonia.NETCoreMVVMApp.  
 A test project with unit tests and integration tests is located in SecureWiki/SecureWikiTests.
 
-
 ## Dependencies
 
 ### Installation of FUSE
-Fresh install:
-get libfuse3-dev
-install fuse3
-
-
+`sudo apt update` 
+`sudo apt install fuse`
 
 ### Setup the FUSE Application
 Make sure that the fuse directory contains a folder named *directories*, which contains two empty folders named *mountdir* and *rootdir*.
