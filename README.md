@@ -61,8 +61,9 @@ Extract in your Web directory
 
 #### Configuring MySQL
 * Create new mysql user  
-`sudo mysql -u root -p  
-Enter password: Enter password of mysql root user (if you have not configured password it will be blank, so just press enter)`  
+`sudo mysql -u root -p`
+
+Enter password: Enter password of mysql root user (if you have not configured password it will be blank, so just press enter)  
 `mysql> CREATE USER 'new_mysql_user'@'localhost' IDENTIFIED BY 'THISpasswordSHOULDbeCHANGED';`  
 `mysql> quit;`  
 
