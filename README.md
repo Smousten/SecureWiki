@@ -30,17 +30,17 @@ Download MediaWiki
 wget https://releases.wikimedia.org/mediawiki/1.36/mediawiki-1.36.1.tar.gz`
 
 Extract in your Web directory  
-`tar -xvzf /tmp/mediawiki-*.tar.gz  
-sudo mkdir /var/lib/mediawiki  
-sudo mv mediawiki-*/* /var/lib/mediawiki`  
+`tar -xvzf /tmp/mediawiki-*.tar.gz`  
+`sudo mkdir /var/lib/mediawiki`  
+`sudo mv mediawiki-*/* /var/lib/mediawiki`
 
 
 #### Configuring MySQL
 * Create new mysql user  
 `# sudo mysql -u root -p 
-Enter password: Enter password of mysql root user (if you have not configured password it will be blank, so just press enter)<b>
-mysql> CREATE USER 'new_mysql_user'@'localhost' IDENTIFIED BY 'THISpasswordSHOULDbeCHANGED';
-mysql> quit;`
+Enter password: Enter password of mysql root user (if you have not configured password it will be blank, so just press enter)`  
+`mysql> CREATE USER 'new_mysql_user'@'localhost' IDENTIFIED BY 'THISpasswordSHOULDbeCHANGED';`  
+`mysql> quit;`  
 
 * Create a new mysql database  
 `# sudo mysql -u root -p  
