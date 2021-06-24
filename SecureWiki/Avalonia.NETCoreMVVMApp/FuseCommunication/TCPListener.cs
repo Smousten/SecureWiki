@@ -25,7 +25,6 @@ namespace SecureWiki.FuseCommunication
         private readonly IPAddress _localAddr;
         private readonly Manager _manager;
         private NetworkStream? _stream;
-        private Dictionary<string, List<string>> _queue = new();
         private Operation lastOperation = Operation.None;
         private string previousFilename = "";
         private string previousFilepath = "";
@@ -143,7 +142,7 @@ namespace SecureWiki.FuseCommunication
         {
             if (RealFileName(filename))
             {
-                _manager.AddNewFile(filename, filepath);
+                _manager.AddNewFile(filepath);
             }
         }
 
@@ -160,7 +159,7 @@ namespace SecureWiki.FuseCommunication
                   && filepath.Equals(previousFilepath)) 
                 || plaintext == null)
             {
-                plaintext = _manager.GetContent(filename) ?? Encoding.ASCII.GetBytes("Empty file.");
+                plaintext = _manager.GetContent(filepath) ?? Encoding.ASCII.GetBytes("Empty file.");
                 previousFilename = filename;
                 previousFilepath = filepath;
             }
@@ -189,9 +188,8 @@ namespace SecureWiki.FuseCommunication
                 previousFilename = filename;
                 previousFilepath = filepath;
                 _manager.UploadNewVersion(filename, filepath);
+                lastOperation = Operation.Write;
             }
-
-            lastOperation = Operation.Write;
         }
 
         // Received rename operation from FUSE
@@ -208,7 +206,7 @@ namespace SecureWiki.FuseCommunication
             {
                 var oldFilePathSplit = oldPath.Split("/");
                 var oldFilename = oldFilePathSplit[^1];
-                _manager.RemoveFile(oldPath, oldFilename);
+                // _manager.RemoveFile(oldPath, oldFilename);
             }
             // Else if the file is renamed from goutputstream then upload new version
             else if (oldPath.Contains(".goutputstream"))
@@ -225,10 +223,19 @@ namespace SecureWiki.FuseCommunication
         }
 
         // Received mkdir operation from FUSE
-        // Should make new keyring object in keyring json file
+        // If the folder is placed in 'Keyrings' then upload new keyring object on server
+        // else make local folder
         public void Mkdir(string filename, string filepath)
         {
-            _manager.AddNewKeyRing(filename, filepath);
+            var filePathSplit = filepath.Split("/");
+            if (filePathSplit[0].Equals("Keyrings"))
+            {
+                _manager.AddNewKeyring(filename);
+            }
+            else
+            {
+                _manager.AddNewFolder(filename, filepath);
+            }
         }
         
         // Check if file is not goutputstream or trash

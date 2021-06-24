@@ -24,7 +24,8 @@ namespace SecureWiki.Views
 {
     public class MainWindow : Window
     {
-        private RootKeyring _rootKeyring = new();
+        private MasterKeyring _masterKeyring = new();
+        private MountedDirMirror _mountedDirMirror = new();
         private Manager manager;
         public MainWindowViewModel _viewModel;
         public Logger logger = new();
@@ -35,15 +36,16 @@ namespace SecureWiki.Views
         public MainWindow()
         {
             InitializeComponent();
-            _viewModel = new MainWindowViewModel(_rootKeyring, logger);
+            _viewModel = new MainWindowViewModel(_masterKeyring, logger, _mountedDirMirror);
             DataContext = _viewModel;
             
             // Check if fuse is already running, if yes then unmount
             IsFuseRunning();
             
-            manager = new Manager(Thread.CurrentThread, _rootKeyring, logger);
+            manager = new Manager(Thread.CurrentThread, _masterKeyring, logger, _mountedDirMirror);
             Thread managerThread = new(manager.Run) {IsBackground = true, Name = "ManagerThread"};
             managerThread.Start();
+            manager.GUIRunning = true;
 
             // Do not show GUI window until manager is ready to handle requests
             // ManagerReadyEvent.WaitOne();
@@ -75,10 +77,12 @@ namespace SecureWiki.Views
             Console.WriteLine("Saving config manager to file");
             manager.SaveConfigManagerToFile();
             Console.WriteLine("Saving keyring to file");
-            manager.SaveKeyringToFile();
-            Console.WriteLine("Saving contacts to file");
-            manager.SaveContactManagerToFile();
-
+            // manager.SaveKeyringToFile();
+            // Console.WriteLine("Saving contacts to file");
+            // manager.SaveContactManagerToFile();
+            Console.WriteLine("Saving master symref to file and uploading");
+            manager.SaveSymRefMasterKeyringToFile();
+            manager.SaveToServer();
             // Unmount mounted directory
             Unmount();
 
@@ -106,7 +110,7 @@ namespace SecureWiki.Views
         }
 
         // Start process to unmount fuse mounted directory
-        private static void Unmount()
+        public static void Unmount()
         {
             var mountdirPath = GetPathToDirectory("mountdir");
             ProcessStartInfo start = new();
@@ -121,7 +125,7 @@ namespace SecureWiki.Views
         }
         
         // If mountdir is already mounted, then unmount
-        private static void IsFuseRunning()
+        public static void IsFuseRunning()
         {
             var mountdirPath = GetPathToDirectory("mountdir");
             var allDrives = DriveInfo.GetDrives().ToList();
@@ -149,31 +153,29 @@ namespace SecureWiki.Views
 
         public void Button1_Click(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine("nothing happened");
-            logger.Add("loka", "connetent");
-            manager.TestDownload();
-            // manager.TestDownloadInboxes();
-            // manager.TestIfPageExists();
+            // // Console.WriteLine("nothing happened");
+            // logger.Add("loka", "connetent");
+            // // manager.TestDownload();
+            // // manager.TestDownloadInboxes();
+            // // manager.TestIfPageExists();
+            // Console.WriteLine("_mountedDirMirror.PrintInfo();");
+            // _mountedDirMirror.PrintInfo();
+            //
+            // Console.WriteLine("_masterKeyring.PrintInfoRecursively();");
+            // _masterKeyring.PrintInfoRecursively();
+
+            Console.WriteLine("Button1_Click:- manager.UpdateMountedDirectory()");
+            manager.UpdateMountedDirectory();
         }
 
         private void Button2_Click(object? sender, RoutedEventArgs e)
         {
-            _rootKeyring.PrintInfoRecursively();
+            // _masterKeyring.PrintInfoRecursively();
         }
 
         private void ButtonExport_Click(object? sender, RoutedEventArgs e)
         {
-            manager.ExportKeyring();
-        }
-        
-        private void ButtonShareKeyring_Click(object? sender, RoutedEventArgs e)
-        {
-            Thread localThread = new(() =>
-                manager.ShareSelectedKeyring(_viewModel.SelectedShareContacts.ToList()));
-            localThread.Start();
-            
-            var popup = this.FindControl<Popup>("ShareKeyringPopup");
-            popup.IsOpen = false;
+            // manager.ExportKeyring();
         }
 
         private void ButtonImport_Click(object? sender, RoutedEventArgs e)
@@ -187,7 +189,7 @@ namespace SecureWiki.Views
 
             if (path != null)
             {
-                manager.ImportKeyring(path);
+                // manager.ImportKeyring(path);
             }
             else
             {
@@ -260,25 +262,7 @@ namespace SecureWiki.Views
             // var url = $"http://{ip}/mediawiki/api.php";
             manager.SetDefaultServerLink(ip);
         }
-
-        private void ButtonLogin_Click(object? sender, RoutedEventArgs e)
-        {
-            var textBoxUser = this.FindControl<TextBox>("TextBoxUser");
-            var username = textBoxUser.Text;
-
-            var textBoxPass = this.FindControl<TextBox>("TextBoxPass");
-            var password = textBoxPass.Text;
-
-            manager.LoginToMediaWiki(username, password);
-        }
-
-        private void ButtonMail(object? sender, RoutedEventArgs e)
-        {
-            var textBoxMail = this.FindControl<TextBox>("TextBoxMail");
-            var recipientEmail = textBoxMail.Text;
-            manager.SendEmail(recipientEmail);
-        }
-
+        
         private void SelectedRevisionButton_OnClick(object? sender, RoutedEventArgs e)
         {
             if (_viewModel.selectedRevision.revisionID == null) return;
@@ -286,13 +270,14 @@ namespace SecureWiki.Views
             _viewModel.selectedFile.newestRevisionSelected = false; // IsNewestRevision();
             _viewModel.selectedFileRevision = _viewModel.selectedRevision.revisionID;
 
-            manager.UpdateRequestedRevision(_viewModel.selectedFile.pageName, _viewModel.selectedFile.serverLink, _viewModel.selectedRevision.revisionID);
+            manager.UpdateRequestedRevision(_viewModel.selectedFile.AccessFileReference.targetPageName, _viewModel.selectedFile.AccessFileReference.serverLink, _viewModel.selectedRevision.revisionID);
         }
 
         private void DefaultRevisionButton_OnClick(object? sender, RoutedEventArgs e)
         {
             // Remove pageName from dictionary of requested revisions
-            manager.UpdateRequestedRevision(_viewModel.selectedFile.pageName, _viewModel.selectedFile.serverLink, null);
+            manager.UpdateRequestedRevision(_viewModel.selectedFile.AccessFileReference.targetPageName, _viewModel.selectedFile.AccessFileReference.serverLink, null);
+            _viewModel.selectedFileRevision = "Newest";
 
             _viewModel.selectedFile.newestRevisionSelected = true;
         }
@@ -301,15 +286,16 @@ namespace SecureWiki.Views
         {
             if (sender is TextBlock tb)
             {
-                DataFile dataFile = tb.DataContext as DataFile ?? throw new InvalidOperationException();
-                _viewModel.selectedFile = dataFile;
+                var accessFile = (tb.DataContext as MDFile)?.symmetricReference.targetAccessFile;
+                if (accessFile == null) return;
+                _viewModel.selectedFile = accessFile;
 
                 Thread localThread = new(() =>
-                    manager.UpdateAllRevisionsAsync(dataFile.pageName, dataFile.serverLink, _viewModel.revisions));
+                    manager.UpdateAllRevisionsAsync(accessFile.AccessFileReference.targetPageName, accessFile.AccessFileReference.serverLink, _viewModel.revisions));
                 localThread.Start();
 
                 // Get requested revision, if any
-                _viewModel.selectedFileRevision = manager.GetRequestedRevision(dataFile.pageName, dataFile.serverLink) ?? "Newest";
+                _viewModel.selectedFileRevision = manager.GetRequestedRevision(accessFile.AccessFileReference.targetPageName, accessFile.AccessFileReference.serverLink) ?? "Newest";
             }
         }
 
@@ -344,10 +330,9 @@ namespace SecureWiki.Views
             var tag = (string) ((Button) sender!).Tag;
             var popup = this.FindControl<Popup>(tag);
 
-            if (tag.Equals("GenerateContactPopup"))
+            if (tag.Equals("RenameContactPopup"))
             {
                 _viewModel.NicknamePopUp = "";
-                _viewModel.ServerLinkPopUp = "";
             }
             
             popup.IsOpen = false;
@@ -360,6 +345,10 @@ namespace SecureWiki.Views
 
             if (tag.Equals("ExportContactsPopup"))
             {
+                var listBoxOwn = this.FindControl<ListBox>("ListBoxExportContactsOwn");
+                listBoxOwn.UnselectAll();
+                var listBoxOther = this.FindControl<ListBox>("ListBoxExportContactsOther");
+                listBoxOther.UnselectAll();
                 Thread localThread = new(() =>
                     manager.GetAllContacts(_viewModel.ExportContactsOwn, _viewModel.ExportContactsOther));
                 localThread.Start();
@@ -367,6 +356,8 @@ namespace SecureWiki.Views
 
             if (tag.Equals("RevokeAccessPopup"))
             {
+                var listBox = this.FindControl<ListBox>("ListBoxRevokeAccess");
+                listBox.UnselectAll();
                 Thread localThread = new(() =>
                     manager.GetFileContacts(_viewModel.RevokeContacts, _viewModel.selectedFile));
                 localThread.Start();
@@ -374,20 +365,46 @@ namespace SecureWiki.Views
             
             if (tag.Equals("ShareKeyringPopup"))
             {
+                // Thread localThread = new(() =>
+                //     manager.GetOtherContacts(_viewModel.ShareContacts));
+                // localThread.Start();
+            }
+            
+            if (tag.Equals("MoveToKeyringPopup"))
+            {
+                var listBox = this.FindControl<ListBox>("ListBoxMoveToKeyring");
+                listBox.UnselectAll();
                 Thread localThread = new(() =>
-                    manager.GetOtherContacts(_viewModel.ShareContacts));
+                    manager.GetKeyrings(_viewModel.keyrings));
                 localThread.Start();
             }
             
+            if (tag.Equals("RenameContactPopup"))
+            {
+                var listBox = this.FindControl<ListBox>("ListBoxRenameContact");
+                listBox.UnselectAll();
+                Thread localThread = new(() =>
+                    manager.GetOwnContacts(_viewModel.ownContacts));
+                localThread.Start();
+            }
+            
+            if (tag.Equals("ShareFilesPopup"))
+            {
+                var listBox = this.FindControl<ListBox>("ListBoxShareFiles");
+                listBox.UnselectAll();
+                Thread localThread = new(() =>
+                    manager.GetAllContacts(_viewModel.ShareContacts));
+                localThread.Start();
+            }
             popup.IsOpen = true;
         }
 
         private void Revoke_Click(object? sender, RoutedEventArgs e)
         {
-            var datafile = _viewModel.selectedFile;
+            var accessFile = _viewModel.selectedFile;
 
             Thread localThread = new(() =>
-                manager.RevokeAccess(datafile, _viewModel.SelectedRevokeContacts));
+                manager.RevokeAccess(accessFile, _viewModel.SelectedRevokeContacts.ToList()));
             localThread.Start();
 
             var popup = this.FindControl<Popup>("RevokeAccessPopup");
@@ -416,7 +433,7 @@ namespace SecureWiki.Views
                 setting = (CachePreferences.CacheSetting) Enum.Parse(typeof(CachePreferences.CacheSetting), content);
             }
 
-            manager.SetCacheSettingSingleFile(_viewModel.selectedFile.pageName, setting);
+            manager.SetCacheSettingSingleFile(_viewModel.selectedFile.AccessFileReference.targetPageName, setting);
         }
 
         private void CacheSettingPopup_OnOpened(object? sender, EventArgs e)
@@ -434,7 +451,7 @@ namespace SecureWiki.Views
                 }
             }
 
-            var setting = manager.GetCacheSettingSingleFile(_viewModel.selectedFile.pageName);
+            var setting = manager.GetCacheSettingSingleFile(_viewModel.selectedFile.AccessFileReference.targetPageName);
 
             const string buttonNameCommon = "CacheSettingPopup";
             string buttonName = setting != null ? buttonNameCommon + setting : buttonNameCommon + "Default";
@@ -465,12 +482,6 @@ namespace SecureWiki.Views
             }
         }
 
-        private void ButtonGenerateContact_Click(object? sender, RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-        
-
         private void ButtonImportContact_Click(object? sender, RoutedEventArgs e)
         {
             ImportContact();
@@ -490,25 +501,21 @@ namespace SecureWiki.Views
             }
         }
 
-        private void GenerateContactPopup_Click(object? sender, RoutedEventArgs e)
+        private void RenameContactPopup_Click(object? sender, RoutedEventArgs e)
         {
-            var serverLinkTextBox = this.FindControl<TextBox>("ServerLinkTextBox");
-            var serverLink = serverLinkTextBox.Text;
-
             var nicknameTextBox = this.FindControl<TextBox>("NicknameTextBox");
             var nickname = nicknameTextBox.Text;
 
-            if (serverLink != null && nickname != null)
+            if (nickname != null)
             {
                 Thread localThread = new(() =>
-                    manager.GenerateOwnContact(serverLink, nickname));
+                    manager.RenameOwnContact(nickname, _viewModel.selectedOwnContact));
                 localThread.Start();
             }
 
-            var popup = this.FindControl<Popup>("GenerateContactPopup");
+            var popup = this.FindControl<Popup>("RenameContactPopup");
 
             _viewModel.NicknamePopUp = "";
-            _viewModel.ServerLinkPopUp = "";
 
             popup.IsOpen = false;
         }
@@ -531,12 +538,31 @@ namespace SecureWiki.Views
             popup.IsOpen = false;
         }
 
-
-        private void UpdateInboxes_OnClick(object? sender, RoutedEventArgs e)
+        private void UpdateInboxes_Click(object? sender, RoutedEventArgs e)
         {
             Thread localThread = new(() =>
                 manager.ForceUpdateFromAllInboxPages());
             localThread.Start();
+        }
+
+        private void ButtonMoveToKeyring_Click(object? sender, RoutedEventArgs e)
+        {
+            Thread localThread = new(() =>
+                manager.MoveFilesToKeyrings(_viewModel.selectedKeyrings.ToList()));
+            localThread.Start();
+            
+            var popup = this.FindControl<Popup>("MoveToKeyringPopup");
+            popup.IsOpen = false;
+        }
+        
+        private void ButtonShareFiles_Click(object? sender, RoutedEventArgs e)
+        {
+            Thread localThread = new(() =>
+                manager.Share(_viewModel.SelectedShareContacts.ToList()));
+            localThread.Start();
+            
+            var popup = this.FindControl<Popup>("ShareFilesPopup");
+            popup.IsOpen = false;
         }
     }
 }

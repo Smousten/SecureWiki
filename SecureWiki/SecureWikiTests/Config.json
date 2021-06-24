@@ -1,0 +1,19 @@
+{
+  "ConfigDictionary": {
+    "http://192.168.1.7/mediawiki/api.php": {
+      "Username": "new_mysql_user",
+      "ProtectedPassword": "GvvND2KB4OxnkATTYBzCsYKfQF9V6kAwkevy+UZnRm9Ya3zuwQko3L4BDfPROK/v",
+      "Entropy": "Re8Wzje0E7gWY2NnugzMsVpBDrE="
+    },
+    "http://127.0.0.1/mediawiki/api.php": {
+      "Username": "new_mysql_user",
+      "ProtectedPassword": "wGi0BF/JigHq9fpgOR72BuvCKJtlVF/HRLWTtDNneZuKRx4114vnEWcQnHGjslhi",
+      "Entropy": "bCA27pwoj4mwfwf0nwrGca02yi8="
+    }
+  },
+  "CachePreference": {
+    "GeneralSetting": 0,
+    "ExceptionDictionary": {}
+  },
+  "DefaultServerLink": "http://127.0.0.1/mediawiki/api.php"
+}

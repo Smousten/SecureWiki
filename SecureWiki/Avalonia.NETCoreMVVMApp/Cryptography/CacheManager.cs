@@ -26,53 +26,47 @@ namespace SecureWiki.Cryptography
             Directory.CreateDirectory(_dirpath);
         }
 
-        public void AddEntry(string pageTitle, string revid, string content)
+        public void AddEntry(string pageName, string revid, string content)
         {
             // Get correct CacheEntry, or create a new if one isn't found
             CacheEntry ce;
-            if (!_dict.ContainsKey(pageTitle))
+            if (!_dict.ContainsKey(pageName))
             {
-                ce = new CacheEntry(_dirpath, pageTitle);  
-                _dict.Add(pageTitle, ce);
+                ce = new CacheEntry(_dirpath, pageName);  
+                _dict.Add(pageName, ce);
             }
             else
             {
-                ce = _dict[pageTitle];
+                ce = _dict[pageName];
             }
 
             // Verify properties relevant to new CacheEntry
-            if (revid == null || content == null)
-            {
-                Console.WriteLine("CacheManager:- AddEntry: input revision has null properties, " +
-                                  "revisionID='{0}', content='{1}'", revid, content);
-                return;
-            }
-            
+
             ce.AddEntry(revid, content);
         }
 
         // Return path to the latest entry in the cache (for that page title)
-        public string? GetFilePath(string pageTitle)
+        public string? GetFilePath(string pageName)
         {
-            string? latestRevId = GetLatestRevisionID(pageTitle);
+            string? latestRevId = GetLatestRevisionID(pageName);
 
             if (latestRevId == null)
             {
                 return null;
             }
 
-            return GetFilePath(pageTitle, latestRevId);
+            return GetFilePath(pageName, latestRevId);
         }
         
         // Return path to the specified entry in the cache, if it exists
-        public string? GetFilePath(string pageTitle, string revid)
+        public string? GetFilePath(string pageName, string revid)
         {
-            if (_dict.ContainsKey(pageTitle) == false)
+            if (_dict.ContainsKey(pageName) == false)
             {
                 return null;
             }
             
-            var output = _dict[pageTitle].GetFilePath(revid);
+            var output = _dict[pageName].GetFilePath(revid);
 
             return output;
         }
@@ -113,15 +107,15 @@ namespace SecureWiki.Cryptography
         }
 
         // Get revision id of latest entry in cache belonging to the given page title, if one exists.
-        public string? GetLatestRevisionID(string pageTitle)
+        public string? GetLatestRevisionID(string pageName)
         {
-            if (_dict.ContainsKey(pageTitle) == false)
+            if (_dict.ContainsKey(pageName) == false)
             {
-                Console.WriteLine("GetFilePath:- Dict does not contain key '{0}'", pageTitle);
+                Console.WriteLine("GetLatestRevisionID:- Dict does not contain key '{0}'", pageName);
                 return null;
             }
             
-            var latestRevId = _dict[pageTitle].GetLatestRevID();
+            var latestRevId = _dict[pageName].GetLatestRevID();
 
             return latestRevId;
         }

@@ -55,9 +55,9 @@ namespace SecureWiki.Utilities
             return ConfigDictionary.ContainsKey(serverLink) ? ConfigDictionary[serverLink] : null;
         }
 
-        public CachePreferences.CacheSetting? GetSetting(string pageTitle)
+        public CachePreferences.CacheSetting? GetSetting(string pageName)
         {
-            return CachePreference.GetSettingOrDefault(pageTitle);
+            return CachePreference.GetSettingOrDefault(pageName);
         }
     }
 
@@ -152,31 +152,31 @@ namespace SecureWiki.Utilities
             ExceptionDictionary = new Dictionary<string, CacheSetting>();
         }
 
-        public CacheSetting GetSettingOrDefault(string pageTitle)
+        public CacheSetting GetSettingOrDefault(string pageName)
         {
-            return ExceptionDictionary.ContainsKey(pageTitle) ? ExceptionDictionary[pageTitle] : GeneralSetting;
+            return ExceptionDictionary.ContainsKey(pageName) ? ExceptionDictionary[pageName] : GeneralSetting;
         }
         
-        public CacheSetting? GetSetting(string pageTitle)
+        public CacheSetting? GetSetting(string pageName)
         {
-            return ExceptionDictionary.ContainsKey(pageTitle) ? ExceptionDictionary[pageTitle] : null;
+            return ExceptionDictionary.ContainsKey(pageName) ? ExceptionDictionary[pageName] : null;
         }
 
-        public void SetPreference(string pageTitle, CacheSetting? setting)
+        public void SetPreference(string pageName, CacheSetting? setting)
         {
             if (setting == null)
             {
-                ExceptionDictionary.Remove(pageTitle);
+                ExceptionDictionary.Remove(pageName);
                 return;
             }
             
-            if (ExceptionDictionary.ContainsKey(pageTitle))
+            if (ExceptionDictionary.ContainsKey(pageName))
             {
-                ExceptionDictionary[pageTitle] = (CacheSetting) setting;
+                ExceptionDictionary[pageName] = (CacheSetting) setting;
             }
             else
             {
-                ExceptionDictionary.Add(pageTitle, (CacheSetting) setting);
+                ExceptionDictionary.Add(pageName, (CacheSetting) setting);
             }
         }
         

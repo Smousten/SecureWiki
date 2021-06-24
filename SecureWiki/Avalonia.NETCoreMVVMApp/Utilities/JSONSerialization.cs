@@ -43,7 +43,7 @@ namespace SecureWiki.Utilities
             catch (JsonReaderException e)
             {
                 Console.WriteLine("DeserializeObject:- Deserialization failed on jsonData of type='{0}'.", type);
-                Console.WriteLine(jsonData);
+                // Console.WriteLine(jsonData);
                 Console.WriteLine(e.Message);
             }
 

@@ -149,7 +149,7 @@ namespace SecureWiki.MediaWiki
         public abstract class PageQuery : MediaWikiObject
         {
             private string pageID;
-            public string pageTitle;
+            public string pageName;
 
             public abstract string BuildQuery();
             public abstract void ParseJObject(JObject inputJObject);
@@ -166,14 +166,14 @@ namespace SecureWiki.MediaWiki
             {
                 public Revision revision = new();
 
-                public LatestRevision(MediaWikiObject source, string pageTitle) : base(source)
+                public LatestRevision(MediaWikiObject source, string pageName) : base(source)
                 {
-                    this.pageTitle = pageTitle;
+                    this.pageName = pageName;
                 }
 
-                public LatestRevision(string pageTitle, HttpClient client)
+                public LatestRevision(string pageName, HttpClient client)
                 {
-                    this.pageTitle = pageTitle;
+                    this.pageName = pageName;
                     httpClient = client;
                 }
 
@@ -187,7 +187,7 @@ namespace SecureWiki.MediaWiki
                 public override string BuildQuery()
                 {
                     string queryBody = "?action=query";
-                    queryBody += "&titles=" + pageTitle;
+                    queryBody += "&titles=" + pageName;
                     queryBody += "&prop=revisions";
                     queryBody += "&rvslots=main";
                     queryBody += "&rvprop=ids|flags|timestamp|user|size";
@@ -217,19 +217,80 @@ namespace SecureWiki.MediaWiki
                     revision = tmp;
                 }
             }
+            
+            public class TwoLatestRevisions : PageQuery
+            {
+                public List<Revision> revisionList = new();
+
+                public TwoLatestRevisions(MediaWikiObject source, string pageName) : base(source)
+                {
+                    this.pageName = pageName;
+                }
+
+                public TwoLatestRevisions(string pageName, HttpClient client)
+                {
+                    this.pageName = pageName;
+                    httpClient = client;
+                }
+
+                public List<Revision> GetLatestRevisions()
+                {
+                    PostRequest();
+
+                    return revisionList;
+                }
+
+                public override string BuildQuery()
+                {
+                    // URL does not allow + character, instead encode as hexadecimal
+                    var updatedPageName = pageName.Replace("+", "%2B");
+                    
+                    string queryBody = "?action=query";
+                    queryBody += "&titles=" + updatedPageName;
+                    queryBody += "&prop=revisions";
+                    queryBody += "&rvslots=*";
+                    queryBody += "&rvlimit=2";
+                    queryBody += "&rvprop=ids|flags|timestamp|user|size";
+                    queryBody += "&formatversion=2";
+                    queryBody += "&format=json";
+
+                    string query = queryBody;
+
+                    return query;
+                }
+
+                public override void ParseJObject(JObject inputJObject)
+                {
+                    // Read the relevant fields of each revision entry into a Revision object
+                    // and add it to the list of revisions
+                    foreach (var token in inputJObject.SelectTokens("query.pages[0].revisions[*]"))
+                    {
+                        Revision tmp = new()
+                        {
+                            revisionID = token.SelectToken("revid")?.ToString(),
+                            flags = token.SelectToken("flags")?.ToString(),
+                            timestamp = token.SelectToken("timestamp")?.ToString(),
+                            user = token.SelectToken("user")?.ToString(),
+                            size = token.SelectToken("size")?.ToString()
+                        };
+
+                        revisionList.Add(tmp);
+                    }
+                }
+            }
 
             public class AllRevisions : PageQuery
             {
                 public List<Revision> revisionList = new();
 
-                public AllRevisions(MediaWikiObject source, string pageTitle) : base(source)
+                public AllRevisions(MediaWikiObject source, string pageName) : base(source)
                 {
-                    this.pageTitle = pageTitle;
+                    this.pageName = pageName;
                 }
 
-                public AllRevisions(string pageTitle, HttpClient client)
+                public AllRevisions(string pageName, HttpClient client)
                 {
-                    this.pageTitle = pageTitle;
+                    this.pageName = pageName;
                     httpClient = client;
                 }
 
@@ -271,10 +332,10 @@ namespace SecureWiki.MediaWiki
                 public override string BuildQuery()
                 {
                     // URL does not allow + character, instead encode as hexadecimal
-                    var updatedPageTitle = pageTitle.Replace("+", "%2B");
+                    var updatedPageName = pageName.Replace("+", "%2B");
                     
                     string queryBody = "?action=query";
-                    queryBody += "&titles=" + updatedPageTitle;
+                    queryBody += "&titles=" + updatedPageName;
                     queryBody += "&prop=revisions";
                     queryBody += "&rvslots=*";
                     queryBody += "&rvlimit=max";
@@ -325,9 +386,9 @@ namespace SecureWiki.MediaWiki
                 public Revision revision = new();
                 private string revID = "-1";
                 
-                public PageContent(MediaWikiObject source, string pageTitle, string revisionID) : base(source)
+                public PageContent(MediaWikiObject source, string pageName, string revisionID = "-1") : base(source)
                 {
-                    this.pageTitle = pageTitle;
+                    this.pageName = pageName;
                     revID = revisionID;
                 }
 
@@ -345,10 +406,10 @@ namespace SecureWiki.MediaWiki
                         throw new NotLoggedInException("PostRequest()");
                     }
                     // URL does not allow '+' character, instead encode as hexadecimal
-                    var updatedPageTitle = pageTitle.Replace("+", "%2B");
+                    var updatedPageName = pageName.Replace("+", "%2B");
 
                     string query = "?action=query";
-                    query += "&titles=" + updatedPageTitle;
+                    query += "&titles=" + updatedPageName;
                     query += "&formatversion=2";
                     query += "&format=json";
 
@@ -360,10 +421,10 @@ namespace SecureWiki.MediaWiki
                 public override string BuildQuery()
                 {
                     // URL does not allow '+' character, instead encode as hexadecimal
-                    var updatedPageTitle = pageTitle.Replace("+", "%2B");
+                    var updatedPageName = pageName.Replace("+", "%2B");
                     
                     string queryBody = "?action=query";
-                    queryBody += "&titles=" + updatedPageTitle;
+                    queryBody += "&titles=" + updatedPageName;
                     queryBody += "&prop=revisions";
                     queryBody += "&rvslots=*";
                     queryBody += "&rvlimit=1";
@@ -454,19 +515,19 @@ namespace SecureWiki.MediaWiki
             public class UploadNewRevision : PageAction
             {
                 private string? pageID;
-                private string pageTitle;
+                private string pageName;
                 private JObject? JOTokens;
 
                 private Revision revision = new();
 
-                public UploadNewRevision(MediaWikiObject source, string pageTitle) : base(source)
+                public UploadNewRevision(MediaWikiObject source, string pageName) : base(source)
                 {
-                    this.pageTitle = pageTitle;
+                    this.pageName = pageName;
                 }
 
-                public UploadNewRevision(string pageTitle, HttpClient client)
+                public UploadNewRevision(string pageName, HttpClient client)
                 {
-                    this.pageTitle = pageTitle;
+                    this.pageName = pageName;
                     httpClient = client;
                 }
 
@@ -476,7 +537,7 @@ namespace SecureWiki.MediaWiki
 
                     action = BuildAction();
 
-                    Console.WriteLine("Starting upload: posting to server.");
+                    Console.WriteLine($"Starting upload: posting to page '{pageName}' at server '{URL}'.");
 
                     var result = PostHttpToServer(action);
 
@@ -489,6 +550,8 @@ namespace SecureWiki.MediaWiki
                         result = PostHttpToServer(action);
                     }
 
+                    Console.WriteLine("Upload finished, response length: " + (result?.Length ?? 0));
+                    // Console.WriteLine(result);
                     return result;
                 }
 
@@ -501,7 +564,7 @@ namespace SecureWiki.MediaWiki
                     }
 
                     action.action = "?action=edit";
-                    action.AddValuePair("title", pageTitle);
+                    action.AddValuePair("title", pageName);
                     action.AddValuePair("token", editToken ?? string.Empty);
                     action.AddValuePair("format", "json");
                     action.AddValuePair("formatversion", "2");
@@ -514,21 +577,21 @@ namespace SecureWiki.MediaWiki
             public class UndoRevisions : PageAction
             {
                 private string? pageID;
-                private string pageTitle;
+                private string pageName;
                 private JObject? JOTokens;
                 public string? undoBeginID;
                 public string? undoEndID;
 
                 private Revision revision = new();
 
-                public UndoRevisions(MediaWikiObject source, string pageTitle) : base(source)
+                public UndoRevisions(MediaWikiObject source, string pageName) : base(source)
                 {
-                    this.pageTitle = pageTitle;
+                    this.pageName = pageName;
                 }
 
-                public UndoRevisions(string pageTitle, HttpClient client)
+                public UndoRevisions(string pageName, HttpClient client)
                 {
-                    this.pageTitle = pageTitle;
+                    this.pageName = pageName;
                     httpClient = client;
                 }
 
@@ -569,7 +632,7 @@ namespace SecureWiki.MediaWiki
                     }
 
                     action.action = "?action=edit";
-                    action.AddValuePair("title", pageTitle);
+                    action.AddValuePair("title", pageName);
                     action.AddValuePair("token", editToken ?? string.Empty);
                     action.AddValuePair("format", "json");
                     action.AddValuePair("formatversion", "2");
@@ -584,21 +647,21 @@ namespace SecureWiki.MediaWiki
             public class DeleteRevisions : PageAction
             {
                 private string? pageID;
-                private string pageTitle;
+                private string pageName;
                 private JObject? JOTokens;
                 public string[]? deleteID;
                 public string? IDString;
 
                 private Revision revision = new();
 
-                public DeleteRevisions(MediaWikiObject source, string pageTitle) : base(source)
+                public DeleteRevisions(MediaWikiObject source, string pageName) : base(source)
                 {
-                    this.pageTitle = pageTitle;
+                    this.pageName = pageName;
                 }
 
-                public DeleteRevisions(string pageTitle, HttpClient client)
+                public DeleteRevisions(string pageName, HttpClient client)
                 {
-                    this.pageTitle = pageTitle;
+                    this.pageName = pageName;
                     httpClient = client;
                 }
 
@@ -633,7 +696,7 @@ namespace SecureWiki.MediaWiki
                     }
 
                     action.action = "?action=revisiondelete";
-                    action.AddValuePair("title", pageTitle);
+                    action.AddValuePair("title", pageName);
                     action.AddValuePair("token", editToken ?? string.Empty);
                     action.AddValuePair("format", "json");
                     action.AddValuePair("formatversion", "2");
@@ -676,8 +739,6 @@ namespace SecureWiki.MediaWiki
             public string? ExtractToken(JObject jOTokens, string tokenName)
             {
                 var token = jOTokens["query"]?["tokens"]?[tokenName]?.ToString();
-
-                Console.WriteLine("Extracted token '{0}': {1}", tokenName, token);
 
                 return token;
             }

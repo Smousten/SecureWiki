@@ -1,31 +1,41 @@
 using System;
-using System.IO;
 using System.Security.Cryptography;
 
 namespace SecureWiki.Cryptography
 {
     public static class Crypto
     {
-        public static byte[]? EncryptGCM(byte[] plainText, byte[] key)
+        private const int TAG_SIZE = 16;
+        private const int NONCE_SIZE = 12;
+
+        public static byte[]? Encrypt(byte[] plainText, byte[] key)
         {
-            var tag = new byte[16];
-            var nonce = new byte[12];
+            var tag = new byte[TAG_SIZE];
+            var nonce = new byte[NONCE_SIZE];
             var cipherText = new byte[plainText.Length];
             // Use given symmetric key
             using (AesGcm aesAlg = new(key))
             {
-                aesAlg.Encrypt(nonce, plainText, cipherText, tag);
+                try
+                {
+                    aesAlg.Encrypt(nonce, plainText, cipherText, tag);
+                }
+                catch (CryptographicException e)
+                {
+                    Console.WriteLine(e.Message);
+                    return null;
+                }
             }
 
             return Utilities.ByteArrayCombiner.Combine(tag, Utilities.ByteArrayCombiner.Combine(nonce, cipherText));
         }
 
-        public static byte[]? DecryptGCM(byte[] ciphertext, byte[] key)
+        public static byte[]? Decrypt(byte[] ciphertext, byte[] key)
         {
-            var tag = Utilities.ByteArrayCombiner.SubArray(ciphertext, 0, 16);
-            var nonce = Utilities.ByteArrayCombiner.SubArray(ciphertext, 16, 12);
+            var tag = Utilities.ByteArrayCombiner.SubArray(ciphertext, 0, TAG_SIZE);
+            var nonce = Utilities.ByteArrayCombiner.SubArray(ciphertext, TAG_SIZE, NONCE_SIZE);
             var encryptedData =
-                Utilities.ByteArrayCombiner.SubArray(ciphertext, 16 + 12,
+                Utilities.ByteArrayCombiner.SubArray(ciphertext, TAG_SIZE + NONCE_SIZE,
                     ciphertext.Length - tag.Length - nonce.Length);
             var plaintext = new byte[encryptedData.Length];
             // Use given symmetric key
@@ -45,75 +55,9 @@ namespace SecureWiki.Cryptography
             return plaintext;
         }
 
-        // Encrypts plainText bytes using input key and iv.
-        // Encryption algorithm is aes256 with PKCS7 padding
-        public static byte[]? Encrypt(byte[] plainText, byte[] key, byte[] iv)
-        {
-            // Ensure argument validity
-            if (plainText == null || plainText.Length <= 0)
-                throw new ArgumentNullException(nameof(plainText));
-            if (key == null || key.Length <= 0)
-                throw new ArgumentNullException(nameof(key));
-            if (iv == null || iv.Length <= 0)
-                throw new ArgumentNullException(nameof(iv));
-
-            // Use given symmetric key and iv
-            using Aes aesAlg = Aes.Create();
-            aesAlg.Key = key;
-            aesAlg.IV = iv;
-
-            // Build encryptor for transforming the plaintext to ciphertext
-            using ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-            aesAlg.Padding = PaddingMode.PKCS7;
-
-            return PerformCryptography(plainText, encryptor);
-        }
-
-        // Decrypts ciphertext bytes using input key and iv.
-        // Decryption algorithm is AES256 with PKCS7 padding
-        public static byte[]? Decrypt(byte[] cipherText, byte[] key, byte[] iv)
-        {
-            // Ensure argument validity
-            if (cipherText == null || cipherText.Length <= 0)
-                throw new ArgumentNullException("cipherText");
-            if (key == null || key.Length <= 0)
-                throw new ArgumentNullException("key");
-            if (iv == null || iv.Length <= 0)
-                throw new ArgumentNullException("iv");
-
-            using var aes = Aes.Create();
-            aes.Key = key;
-            aes.IV = iv;
-
-            // Build encryptor for transforming the ciphertext to plaintext
-            using ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-            aes.Padding = PaddingMode.PKCS7;
-
-            return PerformCryptography(cipherText, decryptor);
-        }
-
-        // Perform symmetric cryptography on input data with crypto transformer (encryptor/decryptor)
-        private static byte[]? PerformCryptography(byte[] data, ICryptoTransform cryptoTransform)
-        {
-            using var ms = new MemoryStream();
-            using var cryptoStream = new CryptoStream(ms, cryptoTransform, CryptoStreamMode.Write);
-            try
-            {
-                cryptoStream.Write(data, 0, data.Length);
-                cryptoStream.FlushFinalBlock();
-            }
-            catch (CryptographicException e)
-            {
-                Console.WriteLine(e.Message);
-                return null;
-            }
-
-            return ms.ToArray();
-        }
-
         // Encrypts plainText bytes using public key.
         // Encryption algorithm is RSA2048 with PKCS1 padding
-        public static byte[]? RSAEncryptWithPublicKey(byte[] data, byte[] publicKey)
+        public static byte[]? RSAEncrypt(byte[] data, byte[] publicKey)
         {
             try
             {
@@ -123,7 +67,7 @@ namespace SecureWiki.Cryptography
                 {
                     rsa.ImportRSAPublicKey(publicKey, out _);
 
-                    encryptedData = rsa.Encrypt(data, RSAEncryptionPadding.Pkcs1);
+                    encryptedData = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA1);
                 }
 
                 return encryptedData;
@@ -140,7 +84,7 @@ namespace SecureWiki.Cryptography
 
         // Decrypts ciphertext bytes using private key.
         // Decryption algorithm is RSA2048 with PKCS1 padding
-        public static byte[]? RSADecryptWithPrivateKey(byte[] data, byte[] privateKey)
+        public static byte[]? RSADecrypt(byte[] data, byte[] privateKey)
         {
             try
             {
@@ -153,7 +97,7 @@ namespace SecureWiki.Cryptography
                     //Decrypt the passed byte array and specify OAEP padding.  
                     //OAEP padding is only available on Microsoft Windows XP or
                     //later.  
-                    decryptedData = rsa.Decrypt(data, RSAEncryptionPadding.Pkcs1);
+                    decryptedData = rsa.Decrypt(data, RSAEncryptionPadding.OaepSHA1);
                 }
 
                 return decryptedData;
@@ -185,14 +129,7 @@ namespace SecureWiki.Cryptography
             return aes.Key;
         }
 
-        // Generate IV
-        public static byte[] GenerateIV()
-        {
-            Aes aes = Aes.Create();
-            aes.GenerateIV();
-            return aes.IV;
-        }
-
+        // Generate both symmetric key and IV
         public static (byte[] key, byte[] iv) GenerateAESParams()
         {
             Aes aes = Aes.Create();
@@ -206,7 +143,7 @@ namespace SecureWiki.Cryptography
         {
             RSACryptoServiceProvider rsa = new();
             rsa.ImportRSAPrivateKey(key, out _);
-            return rsa.SignData(data, SHA256.Create());
+            return rsa.SignData(data, SHA256.Create()) ;
         }
 
         // Verify the signature from signedData hash, plaintext and public key stored in datafile object
@@ -224,7 +161,5 @@ namespace SecureWiki.Cryptography
                 return false;
             }
         }
-
-        // Create HAM
     }
 }

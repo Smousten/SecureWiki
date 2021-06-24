@@ -86,30 +86,6 @@ int create_TCP_client()
     return 0;
 }
 
-int recvall(int socket, char *buffer, size_t len)
-{
-    int msg_len;
-    int chunk = recv(socket, buffer, len, 0);
-    memcpy(&msg_len, buffer, sizeof msg_len);
-
-    log_msg("\nReceived msg of datasize %d\n", msg_len);
-    log_msg("\nReceived msg of total size %d\n", chunk);
-    log_msg("\nReceived msg of data %s\n", buffer);
-
-    if (chunk == msg_len + sizeof(msg_len))
-    {
-        log_msg("\nReceived whole msg in one packet\n");
-        return chunk;
-    }
-    int bytesRcvd = chunk;
-
-    while (bytesRcvd < msg_len + sizeof(msg_len))
-    {
-        int chunk = recv(socket, buffer + bytesRcvd, msg_len + sizeof(msg_len) - bytesRcvd, 0);
-        bytesRcvd += (chunk);
-    }
-    return bytesRcvd;
-}
 //  All the paths I see are relative to the root of the mounted
 //  filesystem.  In order to get to the underlying filesystem, I need to
 //  have the mountpoint.  I'll save it away early on in main(), and then
@@ -118,8 +94,7 @@ int recvall(int socket, char *buffer, size_t len)
 static void bb_fullpath(char fpath[PATH_MAX], const char *path)
 {
     strcpy(fpath, BB_DATA->rootdir);
-    strncat(fpath, path, PATH_MAX); // ridiculously long paths will
-    // break here
+    strncat(fpath, path, PATH_MAX); 
 
     log_msg("    bb_fullpath:  rootdir = \"%s\", path = \"%s\", fpath = \"%s\"\n",
             BB_DATA->rootdir, path, fpath);
@@ -141,13 +116,9 @@ int bb_getattr(const char *path, struct stat *statbuf)
     int retstat;
     char fpath[PATH_MAX];
 
-    // log_msg("\nbb_getattr(path=\"%s\", statbuf=0x%08x)\n",
-    //         path, statbuf);
     bb_fullpath(fpath, path);
 
     retstat = log_syscall("lstat", lstat(fpath, statbuf), 0);
-
-    // log_stat(statbuf);
 
     return retstat;
 }
@@ -328,25 +299,11 @@ int bb_rename(const char *path, const char *newpath)
 
     char *trashFile = ".Trash";
 
-    // 1
-    // if (strstr(path, trashFile) == NULL)
-    // {
-    //     char buff[1024];
-    //     bzero(buff, sizeof(buff));
-    //     strcpy(buff, "rename:");
-    //     strcat(buff, path);
-    //     strcat(buff, "%");
-    //     strcat(buff, newpath);
-    //     write(sockfd, buff, sizeof(buff));
-    // }
-
     log_msg("\nbb_rename(fpath=\"%s\", newpath=\"%s\")\n",
             path, newpath);
     bb_fullpath(fpath, path);
     bb_fullpath(fnewpath, newpath);
 
-    // 1
-    // return log_syscall("rename", rename(fpath, fnewpath), 0);
     int retstat = log_syscall("rename", rename(fpath, fnewpath), 0);
 
     if (strstr(path, trashFile) == NULL)
@@ -414,7 +371,6 @@ int bb_truncate(const char *path, off_t newsize)
 }
 
 /** Change the access and/or modification times of a file */
-/* note -- I'll want to change this as soon as 2.6 is in debian testing */
 int bb_utime(const char *path, struct utimbuf *ubuf)
 {
     char fpath[PATH_MAX];
@@ -469,48 +425,7 @@ int bb_open(const char *path, struct fuse_file_info *fi)
  * value of the read system call will reflect the return value of
  * this operation.
  *
- * Changed in version 2.2
- */
-// I don't fully understand the documentation above -- it doesn't
-// match the documentation for the read() system call which says it
-// can return with anything up to the amount of data requested. nor
-// with the fusexmp code which returns the amount of data also
-// returned by read.
-
-// Method 1) write/read using rootdir file
-// int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
-// {
-//     int retstat = 0;
-
-//     char *trashFile = ".Trash";
-//     char *goutput = "goutputstream";
-
-//     log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
-//             path, buf, size, offset, fi);
-//     // no need to get fpath on this one, since I work from fi->fh not the path
-//     log_fi(fi);
-
-//     if (strstr(path, trashFile) == NULL && strstr(path, goutput) == NULL)
-//     {
-//         char buff[1024];
-//         bzero(buff, sizeof(buff));
-//         strcpy(buff, "read:");
-//         strcat(buff, path);
-//         pthread_mutex_lock(&lock);
-//         write(sockfd, buff, sizeof(buff));
-//         char recv_msg[1024];
-//         int recv_len = recv(sockfd, recv_msg, sizeof(recv_msg), 0);
-//         if (recv_len <= 0) {
-//             log_msg("\n Error \n");
-//         }
-//         bzero(recv_msg, sizeof(recv_msg));
-//         pthread_mutex_unlock(&lock);
-//     }
-
-//     return log_syscall("pread", pread(fi->fh, buf, size, offset), 0);
-// }
-
-// Method 2) read/write using socket
+**/
 int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi)
 {
     int retstat = 0;
@@ -520,7 +435,6 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
 
     log_msg("\nbb_read(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
             path, buf, size, offset, fi);
-    // no need to get fpath on this one, since I work from fi->fh not the path
     log_fi(fi);
 
     if (strstr(path, trashFile) == NULL && strstr(path, goutput) == NULL)
@@ -534,7 +448,6 @@ int bb_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_
 
         // Allocate memory for msg response from C# 
         char *msg = (char*) malloc(209715200);
-        // char msg[1048576];
 
         // Pointer to head of buffer
         char *p = msg;
@@ -618,7 +531,6 @@ int bb_write(const char *path, const char *buf, size_t size, off_t offset,
 
     log_msg("\nbb_write(path=\"%s\", buf=0x%08x, size=%d, offset=%lld, fi=0x%08x)\n",
             path, buf, size, offset, fi);
-    // no need to get fpath on this one, since I work from fi->fh not the path
     log_fi(fi);
 
     return log_syscall("pwrite", pwrite(fi->fh, buf, size, offset), 0);
@@ -675,7 +587,6 @@ int bb_statfs(const char *path, struct statvfs *statv)
 int bb_flush(const char *path, struct fuse_file_info *fi)
 {
     log_msg("\nbb_flush(path=\"%s\", fi=0x%08x)\n", path, fi);
-    // no need to get fpath on this one, since I work from fi->fh not the path
     log_fi(fi);
 
     return 0;
@@ -701,18 +612,6 @@ int bb_release(const char *path, struct fuse_file_info *fi)
             path, fi);
     log_fi(fi);
 
-    // char *trashFile = ".Trash";
-    // char *goutput = "goutputstream";
-
-    // if (strstr(path, trashFile) == NULL && strstr(path, goutput) == NULL)
-    // {
-    //     char buff[1024];
-    //     bzero(buff, sizeof(buff));
-    //     strcpy(buff, "release:");
-    //     strcat(buff, path);
-    //     write(sockfd, buff, sizeof(buff));
-
-    // }
     // We need to close the file.  Had we allocated any resources
     // (buffers etc) we'd need to free them here as well.
     return log_syscall("close", close(fi->fh), 0);
@@ -741,12 +640,6 @@ int bb_fsync(const char *path, int datasync, struct fuse_file_info *fi)
 }
 
 #ifdef HAVE_SYS_XATTR_H
-/** Note that my implementations of the various xattr functions use
-    the 'l-' versions of the functions (eg bb_setxattr() calls
-    lsetxattr() not setxattr(), etc).  This is because it appears any
-    symbolic links are resolved before the actual call takes place, so
-    I only need to use the system-provided calls that don't follow
-    them */
 
 /** Set extended attributes */
 int bb_setxattr(const char *path, const char *name, const char *value, size_t size, int flags)
@@ -877,13 +770,7 @@ int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
 
     log_msg("\nbb_readdir(path=\"%s\", buf=0x%08x, filler=0x%08x, offset=%lld, fi=0x%08x)\n",
             path, buf, filler, offset, fi);
-    // once again, no need for fullpath -- but note that I need to cast fi->fh
     dp = (DIR *)(uintptr_t)fi->fh;
-
-    // Every directory contains at least two entries: . and ..  If my
-    // first call to the system readdir() returns NULL I've got an
-    // error; near as I can tell, that's the only condition under
-    // which I can get an error from readdir()
     de = readdir(dp);
     log_msg("    readdir returned 0x%p\n", de);
     if (de == 0)
@@ -892,10 +779,6 @@ int bb_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset
         return retstat;
     }
 
-    // This will copy the entire directory into the buffer.  The loop exits
-    // when either the system readdir() returns NULL, or filler()
-    // returns something non-zero.  The first case just means I've
-    // read the whole directory; the second means the buffer is full.
     do
     {
         log_msg("calling filler with name %s\n", de->d_name);
@@ -935,8 +818,6 @@ int bb_releasedir(const char *path, struct fuse_file_info *fi)
  *
  * Introduced in version 2.3
  */
-// when exactly is this called?  when a user calls fsync and it
-// happens to be a directory? ??? >>> I need to implement this...
 int bb_fsyncdir(const char *path, int datasync, struct fuse_file_info *fi)
 {
     int retstat = 0;
@@ -1027,8 +908,6 @@ int bb_access(const char *path, int mask)
  *
  * Introduced in version 2.5
  */
-// Not implemented.  I had a version that used creat() to create and
-// open the file, which it turned out opened the file write-only.
 
 /**
  * Change the size of an open file
@@ -1077,10 +956,6 @@ int bb_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *f
             path, statbuf, fi);
     log_fi(fi);
 
-    // On FreeBSD, trying to do anything with the mountpoint ends up
-    // opening it, and then using the FD for an fgetattr.  So in the
-    // special case of a path of "/", I need to do a getattr on the
-    // underlying root directory instead of doing the fgetattr().
     if (!strcmp(path, "/"))
         return bb_getattr(path, statbuf);
 
@@ -1096,7 +971,6 @@ int bb_fgetattr(const char *path, struct stat *statbuf, struct fuse_file_info *f
 struct fuse_operations bb_oper = {
         .getattr = bb_getattr,
         .readlink = bb_readlink,
-        // no .getdir -- that's deprecated
         .getdir = NULL,
         .mknod = bb_mknod,
         .mkdir = bb_mkdir,
@@ -1112,7 +986,6 @@ struct fuse_operations bb_oper = {
         .open = bb_open,
         .read = bb_read,
         .write = bb_write,
-        /** Just a placeholder, don't set */ // huh???
         .statfs = bb_statfs,
         .flush = bb_flush,
         .release = bb_release,

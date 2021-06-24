@@ -44,50 +44,16 @@ namespace SecureWikiTests
         // Test that crypto module correctly encrypts and decrypts random 20 byte array
         // using symmetric algorithm
         [Test]
-        public void TestEncryptDecryptAES()
-        {
-            // Generate symmetric key 
-            (symmKey, iv) = Crypto.GenerateAESParams();
-
-            // Encrypt random 20 byte array
-            var encryptedBytes = Crypto.Encrypt(plainText, symmKey, iv);
-            
-            // Decrypt random 20 byte array
-            var decryptedBytes = Crypto.Decrypt(encryptedBytes!, symmKey, iv);
-
-            Assert.AreEqual(plainText, decryptedBytes);
-        }
-        
-        // Test that crypto module fails to decrypt if wrong symmetric key is used.
-        // using symmetric algorithm
-        [Test]
-        public void TestEncryptDecryptAESFail()
-        {
-            // Generate symmetric key 
-            (symmKey, iv) = Crypto.GenerateAESParams();
-            var (newSymmKey, newIV) = Crypto.GenerateAESParams();
-
-            // Encrypt random 20 byte array
-            var encryptedBytes = Crypto.Encrypt(plainText, symmKey, iv);
-            
-            // Decrypt random 20 byte array
-            var decryptedBytes = Crypto.Decrypt(encryptedBytes!, newSymmKey, iv);
-            Assert.AreEqual(null, decryptedBytes);
-        }
-        
-        // Test that crypto module correctly encrypts and decrypts random 20 byte array
-        // using symmetric algorithm
-        [Test]
         public void TestEncryptDecryptAESGCM()
         {
             // Generate symmetric key 
             (symmKey, _) = Crypto.GenerateAESParams();
 
             // Encrypt random 20 byte array
-            var encryptedBytes = Crypto.EncryptGCM(plainText, symmKey);
+            var encryptedBytes = Crypto.Encrypt(plainText, symmKey);
             
             // Decrypt random 20 byte array
-            var decryptedBytes = Crypto.DecryptGCM(encryptedBytes!, symmKey);
+            var decryptedBytes = Crypto.Decrypt(encryptedBytes!, symmKey);
 
             Assert.AreEqual(plainText, decryptedBytes);
         }
@@ -102,10 +68,10 @@ namespace SecureWikiTests
             var (newSymmKey, _) = Crypto.GenerateAESParams();
 
             // Encrypt random 20 byte array
-            var encryptedBytes = Crypto.EncryptGCM(plainText, symmKey);
+            var encryptedBytes = Crypto.Encrypt(plainText, symmKey);
             
             // Decrypt random 20 byte array
-            var decryptedBytes = Crypto.DecryptGCM(encryptedBytes!, newSymmKey);
+            var decryptedBytes = Crypto.Decrypt(encryptedBytes!, newSymmKey);
             Assert.AreEqual(null, decryptedBytes);
         }
         
@@ -118,10 +84,10 @@ namespace SecureWikiTests
             (priKey, pubKey) = Crypto.GenerateRSAParams();
 
             // Encrypt random 20 byte array
-            var encryptedBytes = Crypto.RSAEncryptWithPublicKey(plainText, pubKey);
+            var encryptedBytes = Crypto.RSAEncrypt(plainText, pubKey);
             
             // Decrypt random 20 byte array
-            var decryptedBytes = Crypto.RSADecryptWithPrivateKey(encryptedBytes!, priKey);
+            var decryptedBytes = Crypto.RSADecrypt(encryptedBytes!, priKey);
 
             Assert.AreEqual(plainText, decryptedBytes);
         }

@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
+using System.Threading;
 using DynamicData;
 using NUnit.Framework;
+using SecureWiki;
+using SecureWiki.Cryptography;
 using SecureWiki.Model;
 using SecureWiki.Utilities;
 
@@ -10,104 +12,85 @@ namespace SecureWikiTests
 {
     public class KeyringTests
     {
-        private RootKeyring _rootKeyring;
+        private Manager _manager;
+        private MasterKeyring _masterKeyring;
+        private KeyringManager _keyringManager;
+        private Logger _logger = new();
+        private MountedDirMirror _mountedDirMirror;
         private const string ServerLink = "http://127.0.0.1/mediawiki/api.php";
 
         [SetUp]
         public void SetUp()
         {
-            _rootKeyring = new RootKeyring();
+            _mountedDirMirror = new MountedDirMirror();
+            _manager = new Manager(Thread.CurrentThread, _masterKeyring, _logger, _mountedDirMirror);
+            _masterKeyring = new MasterKeyring();
+            _keyringManager = new KeyringManager(_masterKeyring, _manager);
         }
 
         [TearDown]
         public void Teardown()
         {
-            _rootKeyring = null;
+            _masterKeyring = null;
         }
 
         [Test]
         public void TestAddRemoveKeyring()
         {
-            var newKeyring = new Keyring("folder1");
-            var newKeyring2 = new Keyring("folder2");
-            
-            _rootKeyring.AddKeyring(newKeyring);
-            Assert.True(_rootKeyring.keyrings.Count.Equals(1));
-            
-            _rootKeyring.RemoveKeyring(newKeyring);
-            Assert.True(_rootKeyring.keyrings.Count.Equals(0));
+            var pageNameKeyring1 = RandomString.GenerateRandomAlphanumericString();
+            var pageNameInboxPage1 = RandomString.GenerateRandomAlphanumericString();
+            var pageNameAccessFile1 = RandomString.GenerateRandomAlphanumericString();
+            var pageNameKeyring2 = RandomString.GenerateRandomAlphanumericString();
+            var pageNameInboxPage2 = RandomString.GenerateRandomAlphanumericString();
+            var pageNameAccessFile2 = RandomString.GenerateRandomAlphanumericString();
 
-            var list = new List<Keyring> {newKeyring, newKeyring2};
-            _rootKeyring.AddRangeKeyring(list);
-            Assert.True(_rootKeyring.keyrings.Count.Equals(2));
-        }
+            var accessFile1 = new AccessFile(ServerLink, pageNameKeyring1, PageType.Keyring);
+            var accessFile2 = new AccessFile(ServerLink, pageNameKeyring2, PageType.Keyring);
+            
+            var symmetricReference1 = new SymmetricReference(pageNameAccessFile1,
+                ServerLink, PageType.Keyring, pageNameKeyring1, accessFile1);
+            accessFile1.SymmetricReferenceToSelf = symmetricReference1;
+            
+            var symmetricReference2 = new SymmetricReference(pageNameAccessFile2,
+                ServerLink, PageType.Keyring, pageNameKeyring2, accessFile2);
+            accessFile2.SymmetricReferenceToSelf = symmetricReference2;
 
-        [Test]
-        public void TestAddRemoveDataFile()
-        {
-            var newDataFile = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file1");
-            var newDataFile2 = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file2");
+            var newKeyring1 = new Keyring(accessFile1.AccessFileReference, "keyring1");
+            var newKeyring2 = new Keyring(accessFile2.AccessFileReference, "keyring2");
             
-            _rootKeyring.AddDataFile(newDataFile);
-            Assert.True(_rootKeyring.dataFiles.Count.Equals(1));
-            
-            _rootKeyring.RemoveDataFile(newDataFile);
-            Assert.True(_rootKeyring.dataFiles.Count.Equals(0));
+            InboxReference inboxReference1 = new InboxReference(pageNameInboxPage1, ServerLink, 
+                InboxReference.AccessLevel.ReadWrite);
+            newKeyring1.OwnContact = new OwnContact("newKeyring1", inboxReference1);
 
-            var list = new List<DataFile> {newDataFile, newDataFile2};
-            _rootKeyring.AddRangeDataFile(list);
-            Assert.True(_rootKeyring.dataFiles.Count.Equals(2));
-        }
+            InboxReference inboxReference2 = new InboxReference(pageNameInboxPage2, ServerLink, 
+                InboxReference.AccessLevel.ReadWrite);
+            newKeyring2.OwnContact = new OwnContact("newKeyring2", inboxReference2);
+            
+            Assert.True(newKeyring1 != null);
+            Assert.True(newKeyring2 != null);
+            
+            Assert.True(newKeyring1.accessFileReferenceToSelf != null);
+            Assert.True(newKeyring2.accessFileReferenceToSelf != null);
+            
+            Assert.True(newKeyring1.accessFileReferenceToSelf.AccessFileParent != null);
+            Assert.True(newKeyring2.accessFileReferenceToSelf.AccessFileParent != null);
+            
+            Assert.True(newKeyring1.accessFileReferenceToSelf.AccessFileParent.SymmetricReferenceToSelf != null);
+            Assert.True(newKeyring2.accessFileReferenceToSelf.AccessFileParent.SymmetricReferenceToSelf != null);
 
-        [Test]
-        public void TestClear()
-        {
-            var newKeyring = new Keyring("folder1");
-            var newKeyring2 = new Keyring("folder2");
-            var keyList = new List<Keyring> {newKeyring, newKeyring2};
+            var symmRef1 = newKeyring1.accessFileReferenceToSelf.AccessFileParent.SymmetricReferenceToSelf;
+            var symmRef2 = newKeyring2.accessFileReferenceToSelf.AccessFileParent.SymmetricReferenceToSelf;
             
-            var newDataFile = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file1");
-            var newDataFile2 = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file2");
-            var fileList = new List<DataFile> {newDataFile, newDataFile2};
+            _masterKeyring.AddSymmetricReference(symmRef1);
             
-            _rootKeyring.keyrings.AddRange(keyList);
-            _rootKeyring.dataFiles.AddRange(fileList);
+            Assert.True(_masterKeyring.SymmetricReferences.Count.Equals(1));
             
-            Assert.True(_rootKeyring.keyrings.Count.Equals(2));
-            Assert.True(_rootKeyring.dataFiles.Count.Equals(2));
-            
-            _rootKeyring.ClearKeyrings();
-            _rootKeyring.ClearDataFiles();
-            
-            Assert.True(_rootKeyring.keyrings.Count.Equals(0));
-            Assert.True(_rootKeyring.dataFiles.Count.Equals(0));
-        }
+            _masterKeyring.AttemptRemoveSymmetricReference(symmRef1);
+            Assert.True(_masterKeyring.SymmetricReferences.Count.Equals(0));
 
-        [Test]
-        public void TestMergeAllEntriesFromOtherKeyring()
-        {
-            var newKeyring1 = new Keyring("folder1");
-            var newKeyring2 = new Keyring("folder2");
-            
-            var newDataFile = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file1");
-            var newDataFile2 = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file2");
-            var fileList = new List<DataFile> {newDataFile, newDataFile2};
-            
-            newKeyring2.AddRangeDataFile(fileList);
-            var keyList = new List<Keyring> {newKeyring1, newKeyring2};
-            
-            _rootKeyring.AddRangeKeyring(keyList);
-
-            var newKeyring3 = new Keyring("folder2");
-            var newDataFile3 = new DataFile(ServerLink, RandomString.GenerateRandomAlphanumericString(), "file3");
-            
-            var newKeyring = new Keyring();
-            newKeyring3.AddDataFile(newDataFile3);
-            newKeyring.AddKeyring(newKeyring3);
-            
-            _rootKeyring.MergeAllEntriesFromOtherKeyring(newKeyring);
-            var folder2 = _rootKeyring.keyrings.FirstOrDefault(e => e.name.Equals("folder2"));
-            Assert.True(folder2.dataFiles.Count.Equals(3));
+            _masterKeyring.AddSymmetricReference(symmRef1);
+            _masterKeyring.AddSymmetricReference(symmRef2);
+            Assert.True(_masterKeyring.SymmetricReferences.Count.Equals(2));
         }
     }
 }
