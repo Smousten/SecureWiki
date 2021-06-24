@@ -1,9 +1,7 @@
 # Speciale
 
-## System Requirements
-* Ubuntu OS
-* 512 MB of system memory??
-* 1 GB of available space?
+## System
+This installation guide is for Ubuntu 20.04. The system should also work on other Linux distributions but we have not tested this. 
 
 ## Overview of System
 
@@ -15,7 +13,7 @@ get libfuse3-dev
 install fuse3
 
 ### Installation of MediaWiki Server \*
-Follow the steps below. Visit https://www.mediawiki.org/wiki/Manual:Running_MediaWiki_on_Debian_or_Ubuntu for more information
+Follow the steps below. Visit https://www.mediawiki.org/wiki/Manual:Running_MediaWiki_on_Debian_or_Ubuntu for more information. 
 
 \* Not necessary if you connect to remote server
 
@@ -70,4 +68,23 @@ During the configuration process you will have to download *LocalSettings.php* t
 Navigate to  http://localhost/mediawiki to see your new wiki.
 
 #### Configure LocalSettings.php
+Edit the file
+`gksudo gedit /var/lib/mediawiki/LocalSettings.php`
+
+Add the following lines to configure your wiki to our system
+
+* Allow first letter of page titles to be non-capital
+`$wgCapitalLinks = false;`
+
+* Allow more title characters
+`$wgLegalTitleChars = " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_\`a-z~\\x80-\\xFF+";`
+
+* Set the max article size
+`$wgMaxArticleSize = 204800000;`
+
+* Set the max upload size
+`$wgMaxUploadSize = 2147483647;`
+
+
+
 
