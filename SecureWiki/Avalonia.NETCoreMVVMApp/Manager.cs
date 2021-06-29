@@ -1216,12 +1216,14 @@ namespace SecureWiki
                     // Check if the keyring already has an access file to the file
                     if (keyring.SymmetricReferences.Contains(symmRef)) continue;
                     
-                    _keyringManager.CreateAccessFileAndReferences(configManager.DefaultServerLink, PageType.GenericFile,
-                        out SymmetricReference symmetricReference, out AccessFile accessFile, af.AccessFileReference.targetPageName);
+                    // _keyringManager.CreateAccessFileAndReferences(configManager.DefaultServerLink, PageType.GenericFile,
+                    //     out SymmetricReference symmetricReference, out AccessFile accessFile, af.AccessFileReference.targetPageName);
+                    //
+                    // keyring.AddSymmetricReference(symmetricReference);
+                    // accessFile.HasBeenChanged = true;
+                    keyring.AddSymmetricReference(symmRef);
 
-                    keyring.AddSymmetricReference(symmetricReference);
 
-                    accessFile.HasBeenChanged = true;
                     if (keyring.accessFileReferenceToSelf.AccessFileParent != null)
                     {
                         keyring.accessFileReferenceToSelf.AccessFileParent.HasTargetBeenChanged = true;
@@ -1229,7 +1231,7 @@ namespace SecureWiki
                 }
             }
 
-            AttemptSaveToServer();
+            SaveToServer();
             UploadsInProgress--;
             
             PopulateMountedDirMirror(MasterKeyring);
@@ -1321,7 +1323,7 @@ namespace SecureWiki
                         // from Master Keyring or page name of target file
                         var mapping = MasterKeyring.GetMountedDirMapping(symmRef.accessFileTargetPageName);
                         mountedDirMirror.CreateFile(
-                            Path.Combine(path, "_" + (mapping ?? symmRef.accessFileTargetPageName)), symmRef);
+                            Path.Combine(path, "_" + (Path.GetFileName(mapping)?? symmRef.accessFileTargetPageName)), symmRef);
                         break;
                     }
                     case PageType.Keyring:
