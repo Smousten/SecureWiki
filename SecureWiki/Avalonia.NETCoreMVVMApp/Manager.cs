@@ -856,7 +856,8 @@ namespace SecureWiki
 
             if (mdFile!.TargetType == MDFile.Type.AccessFile)
             {
-                textBytes = wikiHandler.Download(symmRef, revid);
+                var afWikiHandler = GetWikiHandler(symmRef.serverLink);
+                textBytes = afWikiHandler?.Download(symmRef, revid);
             }
             else
             {
