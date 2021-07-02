@@ -21,6 +21,15 @@ namespace SecureWiki.Utilities
             InboxReference.privateKey = null;
             return new(Nickname, InboxReference);
         }
+
+        public OwnContact Copy()
+        {
+            var jsonData = JSONSerialization.SerializeObject(this);
+
+            OwnContact copy = (JSONSerialization.DeserializeObject(jsonData, typeof(OwnContact)) as OwnContact)!;
+            
+            return copy;
+        }
     }
 
     [JsonObject(MemberSerialization.OptIn)]
@@ -42,11 +51,6 @@ namespace SecureWiki.Utilities
             bool output = InboxReference.HasSameStaticProperties(refContact.InboxReference);
         
             return output;
-        }
-
-        public object Clone()
-        {
-            return this.MemberwiseClone();
         }
     }
     

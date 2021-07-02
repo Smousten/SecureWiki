@@ -1462,7 +1462,8 @@ namespace SecureWiki
             {
                 if (contact is OwnContact ownContact)
                 {
-                    contactList.Add(ownContact.ConvertToBaseClass());
+                    var copyContact = ownContact.Copy();
+                    contactList.Add(copyContact.ConvertToBaseClass());
                 }
                 else
                 {
