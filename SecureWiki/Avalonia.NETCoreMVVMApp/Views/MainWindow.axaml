@@ -183,6 +183,7 @@
             <!--          Text="{Binding IP}" /> -->
             <!-- <Button Name="ButtonIp" Click="ButtonIP_Click">Change server</Button> -->
             <Button Name="UpdateInboxes" Click="UpdateInboxes_Click" Width="{Binding  Width,ElementName=ButtonControlSp}">Force update keyring</Button>
+            <Button Name="ForceUpload" Click="ForceUpload_Click" Width="{Binding  Width,ElementName=ButtonControlSp}">Force upload</Button>
             
             <Button Name="ButtonMoveToKeyring" Click="ShowButtonPopup_Click" Tag="MoveToKeyringPopup" Width="{Binding  Width,ElementName=ButtonControlSp}">Move files to keyring</Button>
             <!--Move files to keyring popup-->

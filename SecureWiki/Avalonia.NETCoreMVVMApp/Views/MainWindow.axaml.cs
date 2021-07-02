@@ -564,5 +564,12 @@ namespace SecureWiki.Views
             var popup = this.FindControl<Popup>("ShareFilesPopup");
             popup.IsOpen = false;
         }
+
+        private void ForceUpload_Click(object? sender, RoutedEventArgs e)
+        {
+            Thread localThread = new(() =>
+                manager.SaveToServer());
+            localThread.Start();
+        }
     }
 }
